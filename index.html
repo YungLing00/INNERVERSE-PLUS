@@ -318,7 +318,7 @@
 
   .g-bottom { display: grid; justify-items: center; align-items: start; min-height: 11rem; }
   .g-bottom > * { grid-area: 1 / 1; width: 100%; opacity: 0; visibility: hidden; transition: opacity .35s ease, visibility 0s .35s; text-align: center; }
-  .gift[data-phase="reveal"] .g-info, .gift[data-phase="name"] .g-namer, .gift[data-phase="hello"] .g-hello { opacity: 1; visibility: visible; transition: opacity 1.2s ease .4s, visibility 0s; }
+  .gift[data-phase="reveal"] .g-info, .gift[data-phase="name"] .g-namer, .gift[data-phase="hello"] .g-hello { opacity: 1; visibility: visible; transition: opacity .55s ease .12s, visibility 0s; }
   .gi-name { font-size: 1.5rem; font-weight: 300; letter-spacing: .08em; }
   .gi-name span { font-family: var(--latin); font-size: 1.7rem; margin-right: .5rem; }
   .gi-words { margin-top: .5rem; font-size: .95rem; letter-spacing: .24em; color: var(--dim); }
@@ -337,9 +337,9 @@
   .g-petname { font-family: var(--latin); font-weight: 300; font-size: clamp(2rem, 9vw, 3rem); letter-spacing: .1em; text-shadow: 0 0 26px rgba(190,160,255,.8); line-height: 1.3; }
   .g-hello p { margin-top: .5rem; font-size: clamp(1rem, 4.2vw, 1.25rem); font-weight: 300; line-height: 1.8; opacity: 0; transition: opacity 1.4s ease; }
   .g-hello .main { margin-top: 1rem; opacity: 0; transition: opacity 1.4s ease; }
-  .gift[data-phase="hello"] .g-hello p.a { opacity: 1; transition-delay: 1.2s; }
-  .gift[data-phase="hello"] .g-hello p.b { opacity: 1; transition-delay: 2.8s; }
-  .gift[data-phase="hello"] .g-hello .main { opacity: 1; transition-delay: 4.6s; }
+  .gift[data-phase="hello"] .g-hello p.a { opacity: 1; transition-delay: .25s; }
+  .gift[data-phase="hello"] .g-hello p.b { opacity: 1; transition-delay: .65s; }
+  .gift[data-phase="hello"] .g-hello .main { opacity: 1; transition-delay: 1.05s; }
 
   @keyframes floatY { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -389,6 +389,56 @@
   .qz-row .track i { display: block; height: 100%; width: 0; border-radius: 6px; transition: width 1.4s cubic-bezier(.2,.8,.3,1); }
   .qz-row b { font-family: var(--latin); font-weight: 400; text-align: right; }
   .qz-body { display: flex; flex-direction: column; gap: 18px; flex: 1; min-height: 0; }
+
+  /* 桌機 / 平板橫向：寵物出現、命名、介紹畫面維持同一個視覺中心，避免上下被拉太開 */
+  @media (min-width: 820px) and (min-height: 521px) {
+    .gift {
+      width: min(100%, 920px);
+      max-width: 920px;
+      padding:
+        calc(env(safe-area-inset-top, 0px) + 58px)
+        clamp(28px, 5vw, 64px)
+        calc(env(safe-area-inset-bottom, 0px) + 24px);
+      grid-template-rows: auto minmax(300px, 1fr) auto;
+      row-gap: 4px;
+    }
+    .g-top {
+      min-height: 112px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    .g-cap { font-size: clamp(1.45rem, 2.1vw, 1.9rem); line-height: 1.45; }
+    .g-sub { margin-top: .25rem; font-size: .9rem; }
+    .g-sign { margin-top: .25rem; }
+    .g-stage {
+      min-height: 330px;
+      max-height: 430px;
+      align-self: center;
+      width: 100%;
+    }
+    .g-box { width: min(300px, 32vh); }
+    .g-pet { width: min(360px, 38vh); }
+    .g-light { width: min(760px, 74vh); }
+    .g-bottom {
+      min-height: 148px;
+      align-items: start;
+      padding-top: 4px;
+    }
+    .g-bottom > * { max-width: 520px; }
+    .g-namer { max-width: 520px; }
+    .g-namer .main { margin-top: .65rem; }
+    .g-petname { font-size: clamp(2rem, 3vw, 2.6rem); }
+    .g-hello p { margin-top: .35rem; font-size: 1.05rem; line-height: 1.55; }
+    .g-hello .main { margin-top: .7rem; }
+
+    .gift[data-phase="reveal"] .g-stage,
+    .gift[data-phase="name"] .g-stage,
+    .gift[data-phase="hello"] .g-stage {
+      transform: translateY(-4px);
+    }
+  }
 
   @media (orientation: landscape) and (max-height: 520px) {
     .gift { max-width: none; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); grid-template-areas: "top top" "stage bottom"; gap: 4px 5vw;
@@ -2636,7 +2686,7 @@ function petSVG(i, opt = {}) {
     const gPetName = $('gPetName'), gAsk = $('gAsk'), gGo = $('gGo'), gStage = $('gStage');
     let phase = 'wrap';
     const setPhase = p => { phase = p; root.dataset.phase = p; };
-    const swap = (el, txt) => { el.style.opacity = 0; setTimeout(() => { el.textContent = txt; el.style.opacity = 1; }, 450); };
+    const swap = (el, txt) => { el.style.opacity = 0; setTimeout(() => { el.textContent = txt; el.style.opacity = 1; }, 180); };
 
     gBox.innerHTML = GIFT_SVG;
     if (!Voice.supported) petMic.hidden = true;
@@ -2684,7 +2734,7 @@ function petSVG(i, opt = {}) {
         swap(gSub, '牠沒有嘴巴，只用眼睛和光芒說話。');
         gSign.classList.add('on');
         emit(c.x, c.y, 60, SPARK_COLS, { speed: 140, life: 1.6 });
-        await sleep(4.2);
+        await sleep(1.35);
         setPhase('name');
         swap(gCap, '幫牠取個名字吧');
         swap(gSub, '');

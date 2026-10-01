@@ -597,6 +597,8 @@
   .rs-wait i { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); animation: pulse 1.2s ease-in-out infinite; }
   .rs-wait i:nth-child(2) { animation-delay: .2s; } .rs-wait i:nth-child(3) { animation-delay: .4s; }
   @keyframes pulse { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+  .rs-errd { margin-top: .4rem; font-size: .74rem !important; line-height: 1.6 !important; letter-spacing: .04em; color: rgba(255,200,190,.75); }
+  html[lang="en"] { --tc: Georgia, "Times New Roman", "Noto Serif TC", serif; }
   .rs-mock { margin-top: .8rem; font-size: .78rem; letter-spacing: .08em; color: var(--dim); }
   .rs-mock:empty { display: none; }
   .rs-bubble .ghost { margin-top: .9rem; }
@@ -1056,6 +1058,14 @@
   /* ---------- 呼叫後端（Google Apps Script）----------
      Apps Script 不回應 CORS 預檢（OPTIONS），所以不能送 application/json。
      改用 text/plain 的「簡單請求」，後端一樣用 JSON.parse(e.postData.contents) 讀取。 */
+  // 把連線錯誤翻成看得懂的原因，顯示在畫面上方便除錯
+  function apiErrText(e) {
+    const m = String((e && e.message) || e || '');
+    if (/abort/i.test(m)) return L('（原因：等候逾時，後端沒有在時間內回應）', '(Reason: timed out waiting for the server)');
+    if (/failed to fetch|load failed|networkerror|cors/i.test(m)) return L('（原因：連不到後端。請確認 Apps Script 已部署為「所有人」可存取，且網址正確）', '(Reason: could not reach the server. Check the Apps Script deployment is set to “Anyone” and the URL is correct)');
+    return L('（原因：', '(Reason: ') + m.slice(0, 160) + L('）', ')');
+  }
+
   async function apiPost(url, payload, ms = 45000) {
     const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), ms);
     try {
@@ -3798,6 +3808,7 @@ function petSVG(i, opt = {}) {
         console.error('interpret:', e);
         if (my !== token) return;
         reply.textContent = ''; const p = document.createElement('p'); p.textContent = L('暫時沒有連上宇宙，請稍後再試一次。', 'Couldn’t reach the universe just now. Please try again in a moment.'); p.className = 'in'; reply.appendChild(p);
+        const d = document.createElement('p'); d.className = 'in rs-errd'; d.textContent = apiErrText(e); reply.appendChild(d);
         retry.hidden = false;
       }
     }

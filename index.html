@@ -2787,24 +2787,6 @@ function petSVG(i, opt = {}) {
       const name = petIn.value.trim().slice(0, 12);
       if (!name) { petErr.textContent = '給牠一個名字吧，也可以用牠本來的名字。'; return; }
       App.petName = name;
-      const u = App.user || {};
-      const b = u.birthday || {};
-      const pet = PETS[App.petIdx];
-      saveToSheet({
-        name: u.name || '',
-        birthday: b.raw || [b.year, String(b.month || '').padStart(2, '0'), String(b.day || '').padStart(2, '0')].filter(Boolean).join('-'),
-        birthYear: b.year || '',
-        birthMonth: b.month || '',
-        birthDay: b.day || '',
-        zodiac: b.zodiac || pet.zh || '',
-        big5: App.big5 || {},
-        dominantTrait: App.type ? `${App.type.letter || ''} ${App.type.label || ''}`.trim() : '',
-        personalityKeywords: App.type ? [App.type.label, App.type.tag].filter(Boolean) : [],
-        personalityAnalysis: App.type ? App.type.desc || '' : '',
-        pet: { type: `${pet.en} ${pet.name}`, name },
-        planet: { name: App.type ? App.type.planet || '' : '' },
-        worry: u.worry || ''
-      });
       gPetName.textContent = name;
       gAsk.textContent = `你知道，${name}來自哪裡嗎？`;
       swap(gCap, ''); swap(gSub, '');
@@ -3250,6 +3232,31 @@ function petSVG(i, opt = {}) {
       const my = ++token, name = (App.user && App.user.name) || '你', type = pickType(score);
       cur = { name, type, score };
       App.type = type;
+
+      // Big Five 已完成、人格類型也已判定，這時才把完整資料寫入 Google Sheet。
+      // 這樣生日／興趣／煩惱／寵物／Big Five／人格星球會一起保存，不會太早寫入空分數。
+      {
+        const u = App.user || {};
+        const b = u.birthday || {};
+        const pet = PETS[App.petIdx];
+        saveToSheet({
+          name: u.name || '',
+          birthday: b.raw || [b.year, String(b.month || '').padStart(2, '0'), String(b.day || '').padStart(2, '0')].filter(Boolean).join('-'),
+          birthYear: b.year || '',
+          birthMonth: b.month || '',
+          birthDay: b.day || '',
+          zodiac: b.zodiac || pet.zh || '',
+          big5: score || {},
+          dominantTrait: `${type.letter || ''} ${type.label || ''}`.trim(),
+          personalityKeywords: [type.label, type.tag].filter(Boolean),
+          personalityAnalysis: type.desc || '',
+          pet: { type: `${pet.en} ${pet.name}`, name: App.petName || pet.en },
+          planet: { name: type.planet || '', prompt: '' },
+          hobbies: u.hobbies || '',
+          worry: u.worry || ''
+        });
+      }
+
       setState('result');
       Object.assign(P, { nebula: .85, starAlpha: .95, starSpeed: .02, dust: .3, fade: 0 });
       body.scrollTop = 0; stage.classList.remove('has-model'); if (viewer) { viewer.remove(); viewer = null; }

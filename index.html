@@ -1610,8 +1610,11 @@ function petSVG(i, opt = {}) {
       buildCaption([{ tag: `${best.zh}　${best.en}`, color: best.hex }, ...best.touch], .9);
     }
     if (touchedCount > 0) promptEl.classList.add('dim');
-    if (touchedCount >= 3 && time - quoteAt > 5 && act3Resolve) {
-      const r = act3Resolve; act3Resolve = null; r();
+    // 使用者只要成功靠近／觸碰第一顆情緒星球，就立即進入下一幕，
+    // 不再要求探索三顆，也不再多等 5 秒。
+    if (touchedCount >= 1 && act3Resolve) {
+      const r = act3Resolve; act3Resolve = null;
+      setTimeout(r, 450);
     }
   }
 

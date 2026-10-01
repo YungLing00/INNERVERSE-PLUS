@@ -54,9 +54,14 @@ Big Five 是主要人格依據；生日、星座、興趣與煩惱作為個人�
 可以自然提到寵物；寵物沒有嘴巴，只用眼睛與光陪伴。
 若煩惱涉及自殺、自殘、想死、不想活，改以關心為主並提醒 1925、1995，緊急時 119。`;
 
-// 使用者在網站選擇英文時，附加在 system prompt 後面
-const EN_SUFFIX = '\n\nIMPORTANT: The user chose English. Reply entirely in natural, warm English (ignore the Traditional Chinese requirement above). Keep the same structure, length (about 110-190 English words for the reflection; 6-20 words per line for JSON lines) and safety rules. For crisis support mention local emergency services and, in Taiwan, 1925 / 1995 / 119.';
-const isEn_ = b => String((b && b.lang) || '').toLowerCase().indexOf('en') === 0;
+// 使用者在網站選擇的語言：中文以外，在 system prompt 後面要求改用該語言回覆
+const LANG_NAMES = { en: 'English', ja: 'Japanese', ko: 'Korean', vi: 'Vietnamese' };
+function langSuffix_(b) {
+  const code = String((b && b.lang) || '').toLowerCase().slice(0, 2), name = LANG_NAMES[code];
+  if (!name) return '';
+  return '\n\nIMPORTANT: The user chose ' + name + '. Reply entirely in natural, warm ' + name + ' (ignore the Traditional Chinese requirement above). Keep the same structure, similar length and the same safety rules. For crisis support mention local emergency services and, in Taiwan, 1925 / 1995 / 119.';
+}
+const isEn_ = b => !!langSuffix_(b);
 
 const WORRY_PROMPT = `你是 INNERVERSE 宇宙寵物背後的陪伴聲音，用繁體中文。
 只輸出 JSON：{"lines":["…","…","…"],"keywords":["…"],"care":false}
@@ -126,14 +131,14 @@ function interpret_(b) {
     '人格類型：' + (str_(trait.label,30) || str_(b.dominantTrait,30) || '未提供'),
     '人格維度：' + (str_(trait.dimension,50) || '未提供')
   ].join('\n');
-  return json_({ok:true,reply:callOpenAI_(SYSTEM_PROMPT + (isEn_(b) ? EN_SUFFIX : ''),user,false)});
+  return json_({ok:true,reply:callOpenAI_(SYSTEM_PROMPT + langSuffix_(b),user,false)});
 }
 
 function worry_(b) {
   const worry = str_(b.worry || b.worryText,500).trim();
   if (!worry) return json_({ok:false,error:'empty worry'});
   try {
-    const raw = callOpenAI_(WORRY_PROMPT + (isEn_(b) ? EN_SUFFIX : ''),
+    const raw = callOpenAI_(WORRY_PROMPT + langSuffix_(b),
       '名字：' + (str_(b.name,20)||'你') + '\n寵物：' + (str_(b.petName,20)||'宇宙寵物') + '\n煩惱：' + worry, true);
     const out = JSON.parse(raw);
     const lines = (Array.isArray(out.lines)?out.lines:[]).map(x=>str_(x,100)).filter(Boolean).slice(0,3);
@@ -141,12 +146,15 @@ function worry_(b) {
     if (lines.length < 3) throw new Error('bad lines');
     return json_({ok:true,lines,keywords:keywords.length?keywords:extractKeywords_(worry),care:out.care===true});
   } catch (_) {
-    const care = /自殺|想死|不想活|不想再活|輕生|傷害自己|自殘|活不下去|尋短|suicid|kill myself|end my life|self[- ]?harm|want to die/i.test(worry);
+    const care = /自殺|想死|不想活|不想再活|輕生|傷害自己|自殘|活不下去|尋短|suicid|kill myself|end my life|self[- ]?harm|want to die|死にたい|消えたい|自傷|죽고 ?싶|자살|자해|muốn chết|tự tử|tự sát|tự hại/i.test(worry);
     return json_({
       ok:true,
-      lines:isEn_(b)
-        ? ['A lot must have been piling up lately.','Holding this so close shows how much you care.','You have been trying hard for a long time. I am right here with you.']
-        : ['最近一定累積了很多事情吧。','你會把這些放在心上，也代表你真的很在乎。','你已經努力很久了，我先陪你待在這裡。'],
+      lines:({
+        en:['A lot must have been piling up lately.','Holding this so close shows how much you care.','You have been trying hard for a long time. I am right here with you.'],
+        ja:['最近、いろいろなことが積み重なっていたんだね。','それを心にとめているのは、本当に大切に思っているから。','ずっとがんばってきたね。今はそばにいるよ。'],
+        ko:['요즘 많은 일이 쌓여 있었겠어요.','그걸 마음에 두는 건 정말 아끼기 때문이에요.','오랫동안 애써 왔어요. 지금은 내가 곁에 있을게요.'],
+        vi:['Dạo này chắc hẳn nhiều chuyện đã dồn lại.','Việc bạn để tâm như vậy cho thấy bạn thật sự quan tâm.','Bạn đã cố gắng rất lâu rồi. Giờ mình ở đây với bạn.']
+      })[String(b.lang || '').slice(0, 2)] || ['最近一定累積了很多事情吧。','你會把這些放在心上，也代表你真的很在乎。','你已經努力很久了，我先陪你待在這裡。'],
       keywords:extractKeywords_(worry),care,fallback:true
     });
   }

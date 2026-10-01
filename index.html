@@ -475,8 +475,10 @@
   }
   /* 按鈕不超出畫面；英文字距縮小（中文的寬字距套在英文上會太散） */
   .main, .ghost { max-width: 100%; white-space: normal; line-height: 1.4; }
-  html[lang="en"] .main, html[lang="en"] .ghost { letter-spacing: .08em; text-indent: .08em; }
-  html[lang="en"] .pill, html[lang="en"] .qhint, html[lang="en"] .mic-state, html[lang="en"] .linkbtn, html[lang="en"] .cta, html[lang="en"] .brand p { letter-spacing: .08em; text-indent: .08em; }
+  html[lang="en"] .main, html[lang="en"] .ghost, html[lang="vi"] .main, html[lang="vi"] .ghost { letter-spacing: .08em; text-indent: .08em; }
+  html[lang="en"] .pill, html[lang="en"] .qhint, html[lang="en"] .mic-state, html[lang="en"] .linkbtn, html[lang="en"] .cta, html[lang="en"] .brand p,
+  html[lang="vi"] .pill, html[lang="vi"] .qhint, html[lang="vi"] .mic-state, html[lang="vi"] .linkbtn, html[lang="vi"] .cta, html[lang="vi"] .brand p { letter-spacing: .06em; text-indent: .06em; }
+  html[lang="ja"] .main, html[lang="ja"] .ghost, html[lang="ko"] .main, html[lang="ko"] .ghost { letter-spacing: .12em; text-indent: .12em; }
 
   /* ===== LOGO：INNERVERSE ＋ ===== */
   .logo .plus {
@@ -501,13 +503,24 @@
     opacity: 0; visibility: hidden; transition: opacity 1.2s ease 1.6s;
   }
   [data-state="idle"] .lang { opacity: 1; visibility: visible; }
-  .lang button {
+  .lang-btn {
     min-height: 34px; padding: .35rem .9rem; border: 0; border-radius: 999px; cursor: pointer;
-    font-family: var(--tc); font-size: .78rem; letter-spacing: .12em; color: var(--dim); background: none;
-    transition: background .3s ease, color .3s ease;
+    font-family: var(--tc); font-size: .8rem; letter-spacing: .08em; color: var(--ink); background: none;
   }
-  .lang button[aria-pressed="true"] { color: #1a1440; background: linear-gradient(135deg, #f3eefc, #d9ccff); }
-  .lang button:focus-visible { outline: 2px solid var(--ice); outline-offset: 2px; }
+  .lang-caret { font-size: .7em; opacity: .7; }
+  .lang-menu {
+    position: absolute; left: 0; top: calc(100% + 8px); min-width: 168px; display: flex; flex-direction: column; padding: 6px;
+    background: rgba(18,14,44,.92); border: 1px solid rgba(255,255,255,.16); border-radius: 16px; -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    box-shadow: 0 12px 40px rgba(0,0,0,.4); opacity: 0; visibility: hidden; transform: translateY(-6px); transition: opacity .25s ease, transform .25s ease, visibility 0s .25s;
+  }
+  .lang.open .lang-menu { opacity: 1; visibility: visible; transform: none; transition: opacity .25s ease, transform .25s ease; }
+  .lang-menu button {
+    min-height: 42px; padding: .5rem .9rem; text-align: left; border: 0; border-radius: 10px; cursor: pointer;
+    font-size: .92rem; letter-spacing: .04em; color: var(--dim); background: none; font-family: "Noto Serif TC", "Noto Serif JP", "Noto Serif KR", Georgia, serif;
+  }
+  .lang-menu button:hover { color: var(--ink); background: rgba(255,255,255,.06); }
+  .lang-menu button[aria-current="true"] { color: #1a1440; background: linear-gradient(135deg, #f3eefc, #d9ccff); }
+  .lang-btn:focus-visible, .lang-menu button:focus-visible { outline: 2px solid var(--ice); outline-offset: 2px; }
 
   /* ===== 首頁：進入宇宙 ===== */
   .uv-enter { position: fixed; z-index: 4; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 2.6dvh);
@@ -720,6 +733,9 @@
   @keyframes pulse { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
   .rs-errd { margin-top: .4rem; font-size: .74rem !important; line-height: 1.6 !important; letter-spacing: .04em; color: rgba(255,200,190,.75); }
   html[lang="en"] { --tc: Georgia, "Times New Roman", "Noto Serif TC", serif; }
+  html[lang="vi"] { --tc: "Noto Serif", Georgia, "Times New Roman", serif; }
+  html[lang="ja"] { --tc: "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", serif; }
+  html[lang="ko"] { --tc: "Noto Serif KR", "AppleMyungjo", "Nanum Myeongjo", serif; }
   .rs-mock { margin-top: .8rem; font-size: .78rem; letter-spacing: .08em; color: var(--dim); }
   .rs-mock:empty { display: none; }
   .rs-bubble .ghost { margin-top: .9rem; }
@@ -852,8 +868,15 @@
 </div>
 <button class="enter" id="enter" type="button" aria-label="進入內在宇宙"></button>
 
-<div class="lang" id="langSw" role="group" aria-label="Language / 語言">
-  <button type="button" data-lang="zh" lang="zh-Hant">中文</button><button type="button" data-lang="en" lang="en">English</button>
+<div class="lang" id="langSw">
+  <button type="button" class="lang-btn" id="langBtn" aria-haspopup="true" aria-expanded="false" aria-label="Language / 語言 / 言語 / 언어 / Ngôn ngữ"><span aria-hidden="true">🌐</span> <span id="langCur">中文</span> <span class="lang-caret" aria-hidden="true">▾</span></button>
+  <div class="lang-menu" id="langMenu" role="menu">
+    <button type="button" role="menuitem" data-lang="zh" lang="zh-Hant">繁體中文</button>
+    <button type="button" role="menuitem" data-lang="en" lang="en">English</button>
+    <button type="button" role="menuitem" data-lang="ja" lang="ja">日本語</button>
+    <button type="button" role="menuitem" data-lang="ko" lang="ko">한국어</button>
+    <button type="button" role="menuitem" data-lang="vi" lang="vi">Tiếng Việt</button>
+  </div>
 </div>
 <button class="pill uv-enter" id="goUniverse" type="button">✦ 進入宇宙</button>
 <button class="pill chap-intro" id="chapIntro" type="button" aria-haspopup="dialog">章節選擇</button>
@@ -1113,16 +1136,2645 @@
   // 語言：首頁右上角切換，記在網址 ?lang= 與 localStorage，切換時重新載入頁面
   const LANG = (() => {
     try {
+      const ok = x => ['zh', 'en', 'ja', 'ko', 'vi'].includes(x);
       const q = new URLSearchParams(location.search).get('lang');
-      if (q === 'en' || q === 'zh') { try { localStorage.setItem('iv_lang', q); } catch (_) {} return q; }
+      if (ok(q)) { try { localStorage.setItem('iv_lang', q); } catch (_) {} return q; }
       const v = localStorage.getItem('iv_lang');
-      if (v === 'en' || v === 'zh') return v;
+      if (ok(v)) return v;
     } catch (_) {}
     return 'zh';
   })();
-  const EN = LANG === 'en';
-  const L = (zh, en) => (EN ? en : zh);
-  document.documentElement.lang = EN ? 'en' : 'zh-Hant';
+  // 日文、韓文、越南文：以英文為 key 的對照表 [ja, ko, vi]
+  const I18N = {
+    "(Reason: timed out waiting for the server)": [
+    "（原因：サーバーの応答がありませんでした）",
+    "(원인: 서버 응답 시간이 초과되었어요)",
+    "(Lý do: máy chủ không phản hồi kịp)"
+    ],
+    "(Reason: could not reach the server. Check the Apps Script deployment is set to “Anyone” and the URL is correct)": [
+    "（原因：サーバーにつながりません。Apps Script の公開範囲が「全員」になっているか、URL が正しいか確認してください）",
+    "(원인: 서버에 연결할 수 없어요. Apps Script 배포가 “모든 사용자”로 되어 있는지, URL이 맞는지 확인해 주세요)",
+    "(Lý do: không kết nối được máy chủ. Hãy kiểm tra Apps Script đã triển khai cho “Bất kỳ ai” và URL đúng chưa)"
+    ],
+    "(Reason: ": [
+    "（原因：",
+    "(원인: ",
+    "(Lý do: "
+    ],
+    "Ember Sprite": [
+    "ほのお精",
+    "불꽃 정령",
+    "Tinh linh Lửa Hồng"
+    ],
+    "Courage": [
+    "勇気",
+    "용기",
+    "Dũng cảm"
+    ],
+    "Action": [
+    "行動",
+    "행동",
+    "Hành động"
+    ],
+    "Release": [
+    "解放",
+    "내려놓기",
+    "Buông bỏ"
+    ],
+    "Bloom Sprite": [
+    "花星の精",
+    "꽃별 정령",
+    "Tinh linh Nở Hoa"
+    ],
+    "Steadiness": [
+    "安定",
+    "안정",
+    "Vững vàng"
+    ],
+    "Senses": [
+    "感覚",
+    "감각",
+    "Giác quan"
+    ],
+    "Nurture": [
+    "はぐくみ",
+    "보살핌",
+    "Nuôi dưỡng"
+    ],
+    "Twin-Star Sprite": [
+    "ふたご星の精",
+    "쌍둥이별 정령",
+    "Tinh linh Song Tinh"
+    ],
+    "Curiosity": [
+    "好奇心",
+    "호기심",
+    "Tò mò"
+    ],
+    "Connection": [
+    "つながり",
+    "연결",
+    "Kết nối"
+    ],
+    "Expression": [
+    "表現",
+    "표현",
+    "Bày tỏ"
+    ],
+    "Moonshell Sprite": [
+    "月の貝の精",
+    "달조개 정령",
+    "Tinh linh Vỏ Trăng"
+    ],
+    "Safety": [
+    "安心",
+    "안전",
+    "An toàn"
+    ],
+    "Company": [
+    "寄り添い",
+    "함께함",
+    "Đồng hành"
+    ],
+    "Healing": [
+    "癒やし",
+    "치유",
+    "Chữa lành"
+    ],
+    "Sunshine Sprite": [
+    "ひだまりの精",
+    "햇살 정령",
+    "Tinh linh Nắng Mai"
+    ],
+    "Confidence": [
+    "自信",
+    "자신감",
+    "Tự tin"
+    ],
+    "Warmth": [
+    "ぬくもり",
+    "따뜻함",
+    "Ấm áp"
+    ],
+    "Blooming": [
+    "花ひらく",
+    "피어남",
+    "Nở rộ"
+    ],
+    "Crystal Dust Sprite": [
+    "星屑水晶の精",
+    "수정 먼지 정령",
+    "Tinh linh Bụi Pha Lê"
+    ],
+    "Purity": [
+    "純粋",
+    "순수",
+    "Thuần khiết"
+    ],
+    "Order": [
+    "秩序",
+    "질서",
+    "Trật tự"
+    ],
+    "Letting go": [
+    "手放す",
+    "놓아주기",
+    "Buông tay"
+    ],
+    "Balance Sprite": [
+    "てんびん星の精",
+    "균형별 정령",
+    "Tinh linh Cân Bằng"
+    ],
+    "Balance": [
+    "バランス",
+    "균형",
+    "Cân bằng"
+    ],
+    "Harmony": [
+    "調和",
+    "조화",
+    "Hài hòa"
+    ],
+    "Choice": [
+    "選択",
+    "선택",
+    "Lựa chọn"
+    ],
+    "Abyss Sprite": [
+    "深淵の精",
+    "심연 정령",
+    "Tinh linh Vực Thẳm"
+    ],
+    "Change": [
+    "変化",
+    "변화",
+    "Chuyển hóa"
+    ],
+    "Protection": [
+    "守り",
+    "보호",
+    "Che chở"
+    ],
+    "Rebirth": [
+    "再生",
+    "다시 태어남",
+    "Tái sinh"
+    ],
+    "Star Voyager": [
+    "星の旅人",
+    "별 여행자",
+    "Lữ khách Sao"
+    ],
+    "Exploring": [
+    "探検",
+    "탐험",
+    "Khám phá"
+    ],
+    "Freedom": [
+    "自由",
+    "자유",
+    "Tự do"
+    ],
+    "Belief": [
+    "信じる心",
+    "믿음",
+    "Niềm tin"
+    ],
+    "Stoneglow Sprite": [
+    "岩のひかりの精",
+    "바위빛 정령",
+    "Tinh linh Đá Sáng"
+    ],
+    "Persistence": [
+    "根気",
+    "끈기",
+    "Kiên trì"
+    ],
+    "Responsibility": [
+    "責任",
+    "책임",
+    "Trách nhiệm"
+    ],
+    "Rest": [
+    "休息",
+    "쉼",
+    "Nghỉ ngơi"
+    ],
+    "Star Ring Sprite": [
+    "星の輪の精",
+    "별고리 정령",
+    "Tinh linh Vành Sao"
+    ],
+    "Invention": [
+    "ひらめき",
+    "창의",
+    "Sáng tạo"
+    ],
+    "Acceptance": [
+    "受け入れる",
+    "받아들임",
+    "Chấp nhận"
+    ],
+    "Dream Bubble Sprite": [
+    "夢のあわの精",
+    "꿈방울 정령",
+    "Tinh linh Bong Bóng Mơ"
+    ],
+    "Empathy": [
+    "共感",
+    "공감",
+    "Thấu cảm"
+    ],
+    "Imagination": [
+    "想像力",
+    "상상력",
+    "Tưởng tượng"
+    ],
+    "“I’m not here to make you sad.”": [
+    "「あなたを悲しませたいわけじゃないの。」",
+    "“널 슬프게 하려는 게 아니야.”",
+    "“Mình không muốn làm bạn buồn đâu.”"
+    ],
+    "“I only hope you’ll stop and look at me.”": [
+    "「ただ、立ち止まってわたしを見てほしいだけ。」",
+    "“그저 잠깐 멈춰서 나를 봐 주길 바랄 뿐이야.”",
+    "“Mình chỉ mong bạn dừng lại và nhìn mình một chút.”"
+    ],
+    "You don’t have to pull yourself together right now.": [
+    "今すぐ元気にならなくてもいいんだよ。",
+    "지금 당장 기운을 내지 않아도 괜찮아.",
+    "Bạn không cần phải mạnh mẽ ngay bây giờ đâu."
+    ],
+    "“I keep thinking about things that haven’t happened yet.”": [
+    "「まだ起きていないことを、ずっと考えてしまうの。」",
+    "“아직 일어나지 않은 일을 자꾸 생각하게 돼.”",
+    "“Mình cứ mãi nghĩ về những điều chưa xảy ra.”"
+    ],
+    "“Because I’m afraid you won’t be ready in time.”": [
+    "「あなたが間に合わないんじゃないかって、こわいから。」",
+    "“네가 미처 준비하지 못할까 봐 무서워서.”",
+    "“Vì mình sợ bạn sẽ không kịp chuẩn bị.”"
+    ],
+    "Not everything": [
+    "すべてのことに、",
+    "모든 일에",
+    "Không phải mọi điều"
+    ],
+    "needs an answer right now.": [
+    "今すぐ答えはいらないよ。",
+    "지금 당장 답이 필요한 건 아니야.",
+    "đều cần câu trả lời ngay lúc này."
+    ],
+    "“I’m not a bad feeling.”": [
+    "「わたしは、悪い感情じゃない。」",
+    "“나는 나쁜 감정이 아니야.”",
+    "“Mình không phải là cảm xúc xấu.”"
+    ],
+    "“Sometimes I just want to protect you.”": [
+    "「ときどき、あなたを守りたいだけなの。」",
+    "“가끔은 그저 너를 지키고 싶을 뿐이야.”",
+    "“Đôi khi mình chỉ muốn bảo vệ bạn thôi.”"
+    ],
+    "Your feelings deserve to be heard.": [
+    "あなたの気持ちは、聞いてもらう価値がある。",
+    "네 마음은 들어줄 가치가 있어.",
+    "Cảm xúc của bạn xứng đáng được lắng nghe."
+    ],
+    "“It’s not that no one is around.”": [
+    "「誰もそばにいないから、じゃないの。」",
+    "“곁에 아무도 없어서가 아니야.”",
+    "“Không phải vì chẳng có ai bên cạnh.”"
+    ],
+    "“It’s that I wish someone truly understood me.”": [
+    "「本当にわかってくれる誰かが、ほしいだけ。」",
+    "“누군가 나를 진짜로 이해해 주길 바라서야.”",
+    "“Mà vì mình mong có ai đó thật sự hiểu mình.”"
+    ],
+    "Even if it’s only you right now,": [
+    "今はあなたひとりでも、",
+    "지금은 너 혼자라도",
+    "Dù lúc này chỉ có mình bạn,"
+    ],
+    "you can still keep yourself company.": [
+    "あなたは、自分に寄り添うことができる。",
+    "너는 너 자신의 곁에 있어 줄 수 있어.",
+    "bạn vẫn có thể ở bên chính mình."
+    ],
+    "“I’ve always been here.”": [
+    "「わたしは、ずっとここにいたよ。」",
+    "“나는 늘 여기 있었어.”",
+    "“Mình vẫn luôn ở đây.”"
+    ],
+    "“It’s just that sometimes my light is small.”": [
+    "「ただ、ときどき光が小さくなるだけ。」",
+    "“가끔 내 빛이 작아질 뿐이야.”",
+    "“Chỉ là đôi khi ánh sáng của mình hơi nhỏ.”"
+    ],
+    "You don’t have to light up the whole universe at once.": [
+    "一度に宇宙ぜんぶを照らさなくていい。",
+    "한 번에 온 우주를 밝히지 않아도 돼.",
+    "Bạn không cần thắp sáng cả vũ trụ cùng một lúc."
+    ],
+    "A little light is enough.": [
+    "ほんの少しの光で、じゅうぶん。",
+    "작은 빛 하나면 충분해.",
+    "Một chút ánh sáng là đủ rồi."
+    ],
+    "Sometimes": [
+    "ときどき",
+    "가끔은",
+    "Đôi khi"
+    ],
+    "we don’t know what’s wrong.": [
+    "自分がどうしたのか、わからなくなる。",
+    "우리가 왜 이러는지 모를 때가 있어.",
+    "ta chẳng biết mình bị làm sao."
+    ],
+    "It just feels like": [
+    "ただ、なんとなく",
+    "그냥",
+    "Chỉ thấy rằng"
+    ],
+    "it’s a little noisy inside.": [
+    "心の中が、少しざわざわする。",
+    "마음속이 조금 시끄러운 것 같아.",
+    "trong lòng hơi ồn ào một chút."
+    ],
+    "I used to think": [
+    "わたしは、こう思っていた。",
+    "나는 예전에",
+    "Mình từng nghĩ"
+    ],
+    "healing meant making sadness disappear.": [
+    "癒やしとは、悲しみを消すことだと。",
+    "치유란 슬픔을 없애는 거라고 생각했어.",
+    "chữa lành là làm nỗi buồn biến mất."
+    ],
+    "Then I realized—": [
+    "でも、気づいたんだ——",
+    "그러다 깨달았어——",
+    "Rồi mình nhận ra—"
+    ],
+    "Healing isn’t having no feelings,": [
+    "癒やしは、感情がなくなることじゃない。",
+    "치유는 감정이 없는 게 아니라",
+    "Chữa lành không phải là không còn cảm xúc,"
+    ],
+    "it’s finally letting them exist.": [
+    "やっと、感情がそこにいていいと思えること。",
+    "마침내 감정이 존재하도록 허락하는 거야.",
+    "mà là cuối cùng cũng để chúng được tồn tại."
+    ],
+    "Sadness didn’t disappear.": [
+    "悲しみは消えなかった。",
+    "슬픔은 사라지지 않았어.",
+    "Nỗi buồn không biến mất."
+    ],
+    "Anxiety didn’t disappear.": [
+    "不安も消えなかった。",
+    "불안도 사라지지 않았어.",
+    "Lo âu không biến mất."
+    ],
+    "Anger didn’t disappear either.": [
+    "怒りも消えなかった。",
+    "분노도 사라지지 않았어.",
+    "Cơn giận cũng không biến mất."
+    ],
+    "But they no longer crash into each other.": [
+    "でも、もうぶつかり合わない。",
+    "하지만 더 이상 서로 부딪히지 않아.",
+    "Nhưng chúng không còn va vào nhau nữa."
+    ],
+    "You are more than your sadness.": [
+    "あなたは、悲しみだけじゃない。",
+    "너는 너의 슬픔만이 아니야.",
+    "Bạn không chỉ là nỗi buồn của mình."
+    ],
+    "More than your anxiety, too.": [
+    "不安だけでもない。",
+    "너의 불안만도 아니야.",
+    "Cũng không chỉ là nỗi lo âu."
+    ],
+    "All the joy, loss, fear, anger, loneliness and hope": [
+    "よろこびも、喪失も、こわさも、怒りも、さびしさも、希望も、",
+    "기쁨도, 상실도, 두려움도, 분노도, 외로움도, 희망도",
+    "Mọi niềm vui, mất mát, sợ hãi, giận dữ, cô đơn và hy vọng"
+    ],
+    "have each become a part of you.": [
+    "みんな、あなたの一部になってきた。",
+    "모두 너의 일부가 되어 왔어.",
+    "đều đã trở thành một phần của bạn."
+    ],
+    "They didn’t leave your universe broken.": [
+    "それはあなたの宇宙を壊したんじゃない。",
+    "그것들이 너의 우주를 망가뜨린 게 아니야.",
+    "Chúng không khiến vũ trụ của bạn vỡ vụn."
+    ],
+    "They made your universe what it is now.": [
+    "今のあなたの宇宙を、形づくってくれたんだ。",
+    "지금의 너의 우주를 만들어 준 거야.",
+    "Chúng làm nên vũ trụ của bạn như bây giờ."
+    ],
+    "Sometimes we don’t know what’s wrong": [
+    "自分がどうしたのか、わからないとき",
+    "우리가 왜 이러는지 모를 때",
+    "Đôi khi ta chẳng biết mình bị làm sao"
+    ],
+    "Five feeling-planets light up one by one": [
+    "五つの感情の星が、ひとつずつ灯る",
+    "다섯 개의 감정 행성이 하나씩 빛나요",
+    "Năm hành tinh cảm xúc lần lượt sáng lên"
+    ],
+    "Touch a feeling you have right now": [
+    "今感じている気持ちに、ふれてみる",
+    "지금 느끼는 감정에 다가가 보세요",
+    "Chạm vào cảm xúc bạn đang có"
+    ],
+    "Let the feelings stop colliding": [
+    "感情たちが、もうぶつからないように",
+    "감정들이 더는 부딪히지 않도록",
+    "Để các cảm xúc thôi va chạm"
+    ],
+    "Breathe three times with the light": [
+    "光といっしょに、三回呼吸する",
+    "빛과 함께 세 번 숨 쉬어요",
+    "Hít thở ba lần cùng ánh sáng"
+    ],
+    "You are still a whole universe": [
+    "あなたは、今もひとつの宇宙",
+    "너는 여전히 하나의 온전한 우주야",
+    "Bạn vẫn là cả một vũ trụ"
+    ],
+    "Skip the intro and start now": [
+    "オープニングをとばして、すぐ始める",
+    "인트로를 건너뛰고 바로 시작해요",
+    "Bỏ qua phần mở đầu, bắt đầu ngay"
+    ],
+    "Gong, Shang, Jue, Zhi, Yu — hear your own sound": [
+    "宮・商・角・徴・羽——あなたの音を聴く",
+    "궁·상·각·치·우 —— 나만의 소리를 들어요",
+    "Cung, Thương, Giốc, Chủy, Vũ — lắng nghe âm thanh của bạn"
+    ],
+    "Visit other planets and leave some starlight": [
+    "ほかの星をたずねて、星の光を残す",
+    "다른 행성을 방문하고 별빛을 남겨요",
+    "Ghé thăm hành tinh khác và để lại chút ánh sao"
+    ],
+    "Close": [
+    "閉じる",
+    "닫기",
+    "Đóng"
+    ],
+    "Keep watching": [
+    "続きを見る",
+    "계속 보기",
+    "Xem tiếp"
+    ],
+    "Leave": [
+    "終了",
+    "나가기",
+    "Rời đi"
+    ],
+    "Sound: Off": [
+    "サウンド：オフ",
+    "소리: 끔",
+    "Âm thanh: Tắt"
+    ],
+    "Sound: On": [
+    "サウンド：オン",
+    "소리: 켬",
+    "Âm thanh: Bật"
+    ],
+    "You didn’t mention any worries this time, and that’s okay. Whenever you want to talk, the universe is here.": [
+    "今回は悩みを話さなかったね。それでも大丈夫。話したくなったら、宇宙はいつでもここにいるよ。",
+    "이번엔 고민을 말하지 않았지만 괜찮아요. 이야기하고 싶을 때, 우주는 언제나 여기 있어요.",
+    "Lần này bạn không nhắc đến nỗi lo nào, và điều đó không sao cả. Khi nào muốn kể, vũ trụ vẫn luôn ở đây."
+    ],
+    "Now, do this with me once: breathe in for four seconds, out for six. You don’t have to shine all the time. You are still a whole universe.": [
+    "いっしょにやってみよう。四秒吸って、六秒吐いて。いつも輝いていなくていい。あなたは今も、ひとつの宇宙だから。",
+    "지금 저와 함께 한 번 해 봐요. 4초 들이쉬고, 6초 내쉬어요. 늘 빛나지 않아도 돼요. 당신은 여전히 하나의 우주예요.",
+    "Giờ hãy cùng mình làm một lần nhé: hít vào bốn giây, thở ra sáu giây. Bạn không cần lúc nào cũng tỏa sáng. Bạn vẫn là cả một vũ trụ."
+    ],
+    "Hello.\nWhat would you like me to call you?": [
+    "こんにちは。\nなんて呼べばいいかな？",
+    "안녕하세요.\n어떻게 불러 드릴까요?",
+    "Xin chào.\nMình nên gọi bạn là gì nhỉ?"
+    ],
+    "Say or type your name — a nickname is fine too": [
+    "名前を話すか入力してね。ニックネームでも大丈夫",
+    "이름을 말하거나 입력해 주세요. 별명도 괜찮아요",
+    "Hãy nói hoặc nhập tên bạn — biệt danh cũng được"
+    ],
+    "Say it or type it, e.g. “20030906”, “2003/09/06” or “Sep 6, 2003”": [
+    "話しても入力してもOK。例：「20030906」「2003/09/06」「2003年9月6日」",
+    "말하거나 입력해 주세요. 예: “20030906”, “2003/09/06”, “2003년 9월 6일”",
+    "Nói hoặc nhập đều được, ví dụ “06/09/2003”, “2003-09-06” hoặc “6 tháng 9 năm 2003”"
+    ],
+    "What do you usually do\nthat helps you relax or feel happy?": [
+    "ふだん、どんなことをすると\nリラックスしたり、うれしくなったりする？",
+    "평소에 무엇을 하면\n편안해지거나 즐거워지나요?",
+    "Bình thường bạn làm gì\nđể thấy thư giãn hay vui vẻ?"
+    ],
+    "Hobbies, interests — whatever comes to mind": [
+    "趣味や好きなこと、思いついたことを何でも",
+    "취미나 좋아하는 것, 떠오르는 대로요",
+    "Sở thích, đam mê — nghĩ gì nói nấy"
+    ],
+    "Has anything been weighing on you lately?": [
+    "最近、心にひっかかっていることはある？",
+    "요즘 마음에 걸리는 고민이 있나요?",
+    "Dạo này có điều gì khiến bạn bận lòng không?"
+    ],
+    "No need to organize it. Take your time.": [
+    "まとめなくていいよ。ゆっくり話してね。",
+    "정리하지 않아도 돼요. 천천히 말해요.",
+    "Không cần sắp xếp đâu. Cứ từ từ nhé."
+    ],
+    "Name": [
+    "名前",
+    "이름",
+    "Tên"
+    ],
+    "Birthday": [
+    "誕生日",
+    "생일",
+    "Ngày sinh"
+    ],
+    "Hobbies": [
+    "趣味",
+    "취미",
+    "Sở thích"
+    ],
+    "Recent worries": [
+    "最近の悩み",
+    "요즘 고민",
+    "Nỗi lo gần đây"
+    ],
+    "Tap to start speaking": [
+    "タップして話す",
+    "탭해서 말하기",
+    "Chạm để bắt đầu nói"
+    ],
+    "This browser doesn’t support voice input — please type instead": [
+    "このブラウザは音声入力に対応していません。入力してください",
+    "이 브라우저는 음성 입력을 지원하지 않아요. 직접 입력해 주세요",
+    "Trình duyệt này không hỗ trợ nhập bằng giọng nói — hãy gõ nhé"
+    ],
+    "Skip": [
+    "スキップ",
+    "건너뛰기",
+    "Bỏ qua"
+    ],
+    "Done": [
+    "完了",
+    "완료",
+    "Xong"
+    ],
+    "Next": [
+    "次へ",
+    "다음",
+    "Tiếp"
+    ],
+    "Microphone permission is needed to speak. You can also type.": [
+    "話すにはマイクの許可が必要です。入力もできます。",
+    "말하려면 마이크 권한이 필요해요. 입력도 할 수 있어요.",
+    "Cần cho phép micro để nói. Bạn cũng có thể gõ."
+    ],
+    "I didn’t hear anything. Try again, or type instead.": [
+    "声が聞こえなかったみたい。もう一度か、入力してね。",
+    "아무 소리도 들리지 않았어요. 다시 해 보거나 입력해 주세요.",
+    "Mình chưa nghe thấy gì. Thử lại hoặc gõ nhé."
+    ],
+    "No microphone found — please type instead.": [
+    "マイクが見つかりません。入力してください。",
+    "마이크를 찾을 수 없어요. 입력해 주세요.",
+    "Không tìm thấy micro — hãy gõ nhé."
+    ],
+    "Speech recognition needs a network connection. Please type, or try again later.": [
+    "音声認識にはネット接続が必要です。入力するか、あとで試してください。",
+    "음성 인식에는 인터넷 연결이 필요해요. 입력하거나 나중에 다시 해 주세요.",
+    "Nhận dạng giọng nói cần kết nối mạng. Hãy gõ, hoặc thử lại sau."
+    ],
+    "Voice input isn’t available right now — please type instead.": [
+    "今は音声入力が使えません。入力してください。",
+    "지금은 음성 입력을 쓸 수 없어요. 입력해 주세요.",
+    "Hiện chưa dùng được giọng nói — hãy gõ nhé."
+    ],
+    "Listening… tap again to finish": [
+    "聞いています… もう一度タップで終了",
+    "듣고 있어요… 다시 탭하면 끝나요",
+    "Đang nghe… chạm lần nữa để kết thúc"
+    ],
+    "Please tell me what I can call you.": [
+    "なんて呼べばいいか、教えてね。",
+    "어떻게 불러 드리면 될지 알려 주세요.",
+    "Hãy cho mình biết nên gọi bạn là gì nhé."
+    ],
+    "That name is already taken — try another (you can add a number or symbol).": [
+    "その名前はもう使われています。別の名前にしてね（数字や記号を足してもOK）。",
+    "이미 사용 중인 이름이에요. 다른 이름으로 해 주세요 (숫자나 기호를 붙여도 돼요).",
+    "Tên này đã có người dùng — hãy thử tên khác (có thể thêm số hoặc ký hiệu)."
+    ],
+    "I couldn’t read that birthday yet. Try 20030906, 2003/09/06 or Sep 6, 2003 — or just say it.": [
+    "その誕生日はまだ読み取れませんでした。20030906、2003/09/06、2003年9月6日のように入力するか、話してね。",
+    "그 생일을 아직 알아보지 못했어요. 20030906, 2003/09/06, 2003년 9월 6일처럼 입력하거나 말해 주세요.",
+    "Mình chưa đọc được ngày sinh đó. Hãy thử 06/09/2003, 2003-09-06 hoặc 6 tháng 9 năm 2003 — hoặc cứ nói ra nhé."
+    ],
+    "(skipped)": [
+    "（スキップ）",
+    "(건너뜀)",
+    "(bỏ qua)"
+    ],
+    "Edit": [
+    "修正",
+    "수정",
+    "Sửa"
+    ],
+    "(This is a demo reply — AI isn’t connected yet)": [
+    "（これはデモの返答です。AI はまだ接続されていません）",
+    "(데모 답변이에요. 아직 AI가 연결되지 않았어요)",
+    "(Đây là câu trả lời mẫu — AI chưa được kết nối)"
+    ],
+    "The signal is a little weak": [
+    "少し電波が弱いみたい",
+    "신호가 조금 약해요",
+    "Tín hiệu hơi yếu"
+    ],
+    "Couldn’t reach the universe just now. Please try again in a moment.": [
+    "今は宇宙につながりませんでした。少ししてからもう一度試してね。",
+    "지금은 우주와 연결되지 않았어요. 잠시 후 다시 시도해 주세요.",
+    "Tạm thời chưa kết nối được với vũ trụ. Hãy thử lại sau một chút nhé."
+    ],
+    "Home": [
+    "ホーム",
+    "처음으로",
+    "Trang chủ"
+    ],
+    "The universe has a gift for you": [
+    "宇宙から、あなたへの贈りもの",
+    "우주가 당신에게 선물을 준비했어요",
+    "Vũ trụ có một món quà dành cho bạn"
+    ],
+    "Tap to open it": [
+    "タップして開けてね",
+    "탭해서 열어 보세요",
+    "Chạm để mở nhé"
+    ],
+    "Here it comes.": [
+    "来たよ。",
+    "왔어요.",
+    "Nó đến rồi."
+    ],
+    "It has no mouth — it speaks only with its eyes and light.": [
+    "この子には口がないの。目と光だけでお話しするよ。",
+    "이 아이는 입이 없어요. 눈과 빛으로만 말해요.",
+    "Bé không có miệng — chỉ nói bằng đôi mắt và ánh sáng."
+    ],
+    "Give it a name": [
+    "名前をつけてあげて",
+    "이름을 지어 주세요",
+    "Hãy đặt tên cho bé"
+    ],
+    "Microphone permission is needed — you can also type.": [
+    "マイクの許可が必要です。入力もできます。",
+    "마이크 권한이 필요해요. 입력도 할 수 있어요.",
+    "Cần cho phép micro — bạn cũng có thể gõ."
+    ],
+    "Give it a name — or use its original name.": [
+    "名前をつけてあげて。もとの名前でもいいよ。",
+    "이름을 지어 주세요. 원래 이름을 써도 돼요.",
+    "Hãy đặt tên cho bé — hoặc dùng tên gốc của bé."
+    ],
+    "Do you know": [
+    "ねえ、知ってる？",
+    "혹시 알고 있나요?",
+    "Bạn có biết"
+    ],
+    "They actually come from…": [
+    "この子たちは、じつは…",
+    "이 아이들은 사실…",
+    "Thật ra chúng đến từ…"
+    ],
+    "a place far, far away.": [
+    "とても、とても遠いところから来たの。",
+    "아주, 아주 먼 곳에서 왔어요.",
+    "một nơi rất, rất xa."
+    ],
+    "Deep in the universe, beyond what we can see,": [
+    "わたしたちには見えない、宇宙の奥に",
+    "우리가 볼 수 없는 우주 깊은 곳에",
+    "Sâu trong vũ trụ, nơi ta không nhìn thấy,"
+    ],
+    "hides a tiny galaxy.": [
+    "小さな銀河がかくれている。",
+    "작은 은하가 숨어 있어요.",
+    "ẩn mình một dải ngân hà nhỏ bé."
+    ],
+    "Twelve mysterious beings live there.": [
+    "そこには、十二のふしぎな命が住んでいる。",
+    "그곳엔 열두 가지 신비로운 생명이 살아요.",
+    "Nơi đó có mười hai sinh linh bí ẩn."
+    ],
+    "They have no language.": [
+    "この子たちには、言葉がない。",
+    "그들에게는 언어가 없어요.",
+    "Chúng không có ngôn ngữ."
+    ],
+    "Yet they can feel": [
+    "それでも、感じとれる。",
+    "하지만 느낄 수 있어요.",
+    "Nhưng chúng cảm nhận được"
+    ],
+    "the voice of every heart in the universe.": [
+    "宇宙じゅうの、ひとつひとつの心の声を。",
+    "우주 속 모든 마음의 목소리를.",
+    "tiếng nói của mọi trái tim trong vũ trụ."
+    ],
+    "Some are brave.": [
+    "勇敢な子もいれば、",
+    "용감한 아이도 있고,",
+    "Có bé dũng cảm."
+    ],
+    "Some are sensitive.": [
+    "繊細な子もいる。",
+    "섬세한 아이도 있어요.",
+    "Có bé nhạy cảm."
+    ],
+    "Some love to explore.": [
+    "探検が好きな子、",
+    "탐험을 좋아하는 아이,",
+    "Có bé thích khám phá."
+    ],
+    "Some love quiet.": [
+    "静かなのが好きな子、",
+    "조용함을 좋아하는 아이,",
+    "Có bé thích yên tĩnh."
+    ],
+    "Some are always caring for others.": [
+    "いつも誰かを気にかけている子。",
+    "늘 다른 이를 돌보는 아이도 있어요.",
+    "Có bé luôn chăm lo cho người khác."
+    ],
+    "Just like us.": [
+    "わたしたちと、同じだね。",
+    "우리처럼요.",
+    "Giống như chúng ta vậy."
+    ],
+    "Whenever someone’s heart": [
+    "誰かの心が",
+    "누군가의 마음이",
+    "Mỗi khi trái tim ai đó"
+    ],
+    "begins to glow with its own light…": [
+    "その人だけの光を放ちはじめると…",
+    "자기만의 빛을 내기 시작하면…",
+    "bắt đầu tỏa ánh sáng của riêng mình…"
+    ],
+    "they can feel it.": [
+    "この子たちは、それを感じとる。",
+    "그 아이들은 그걸 느껴요.",
+    "chúng sẽ cảm nhận được."
+    ],
+    "The way you see the world.": [
+    "あなたの世界の見かた。",
+    "세상을 바라보는 방식.",
+    "Cách bạn nhìn thế giới."
+    ],
+    "The way you do things.": [
+    "あなたの物事の進めかた。",
+    "일을 해 나가는 방식.",
+    "Cách bạn làm mọi việc."
+    ],
+    "Your curiosity about new things.": [
+    "新しいものへの好奇心。",
+    "새로운 것에 대한 호기심.",
+    "Sự tò mò với điều mới mẻ."
+    ],
+    "The way you are with others.": [
+    "人との関わりかた。",
+    "다른 사람과 지내는 방식.",
+    "Cách bạn ở bên người khác."
+    ],
+    "The way you meet your feelings.": [
+    "気持ちとの向き合いかた。",
+    "감정을 마주하는 방식.",
+    "Cách bạn đối diện cảm xúc."
+    ],
+    "all form a signal that belongs only to you.": [
+    "そのすべてが、あなただけのシグナルになる。",
+    "이 모든 것이 오직 너만의 신호가 돼요.",
+    "tất cả tạo nên tín hiệu chỉ thuộc về bạn."
+    ],
+    "So—": [
+    "だから——",
+    "그래서——",
+    "Vậy nên—"
+    ],
+    "You didn’t choose it.": [
+    "あなたがこの子を選んだんじゃない。",
+    "네가 그 아이를 고른 게 아니야.",
+    "Không phải bạn đã chọn bé."
+    ],
+    "It found you": [
+    "この子が宇宙のどこかで",
+    "그 아이가 우주 어딘가에서",
+    "Mà chính bé đã tìm thấy bạn"
+    ],
+    "somewhere in the universe.": [
+    "あなたを見つけたんだ。",
+    "너를 알아본 거야.",
+    "ở đâu đó trong vũ trụ."
+    ],
+    "Ding ✦": [
+    "チリン ✦",
+    "띵 ✦",
+    "Ting ✦"
+    ],
+    "But before it can find you…": [
+    "でも、あなたを見つける前に…",
+    "하지만 너를 찾기 전에…",
+    "Nhưng trước khi tìm được bạn…"
+    ],
+    "it needs to know—": [
+    "この子は知りたいの——",
+    "그 아이는 알아야 해요——",
+    "bé cần biết rằng—"
+    ],
+    "I’m reserved and don’t talk much.": [
+    "わたしは内向的で、口数が少ない。",
+    "나는 내성적이고 말수가 적다.",
+    "Tôi kín đáo và ít nói."
+    ],
+    "I generally trust other people.": [
+    "わたしはたいてい、人を信じる。",
+    "나는 대체로 다른 사람을 믿는다.",
+    "Tôi thường tin tưởng người khác."
+    ],
+    "I can be a bit lazy sometimes.": [
+    "ときどき、少しなまけてしまう。",
+    "가끔은 조금 게으르다.",
+    "Đôi khi tôi hơi lười."
+    ],
+    "I’m relaxed and handle stress well.": [
+    "わたしはリラックスしていて、ストレスにも強い。",
+    "나는 여유롭고 스트레스에도 잘 대처한다.",
+    "Tôi thoải mái và đối phó tốt với áp lực."
+    ],
+    "I’m not very interested in art or beauty.": [
+    "芸術や美しいものには、あまり興味がない。",
+    "예술이나 아름다움에는 별로 관심이 없다.",
+    "Tôi không mấy hứng thú với nghệ thuật hay cái đẹp."
+    ],
+    "I’m outgoing and enjoy being with people.": [
+    "わたしは社交的で、人といるのが好き。",
+    "나는 외향적이고 사람들과 어울리는 걸 좋아한다.",
+    "Tôi hướng ngoại và thích ở cùng mọi người."
+    ],
+    "I tend to find fault with others.": [
+    "人のあらさがしをしがちだ。",
+    "다른 사람의 흠을 잘 잡는 편이다.",
+    "Tôi hay bắt lỗi người khác."
+    ],
+    "I’m thorough and see things through.": [
+    "わたしはていねいで、最後までやり遂げる。",
+    "나는 꼼꼼하고 끝까지 해낸다.",
+    "Tôi chu đáo và làm đến nơi đến chốn."
+    ],
+    "I get nervous and uneasy easily.": [
+    "すぐに緊張したり、不安になったりする。",
+    "쉽게 긴장하고 불안해진다.",
+    "Tôi dễ lo lắng và bất an."
+    ],
+    "I have a vivid imagination.": [
+    "想像力がゆたかだ。",
+    "상상력이 풍부하다.",
+    "Tôi có trí tưởng tượng phong phú."
+    ],
+    "Outgoing": [
+    "外向性",
+    "외향성",
+    "Hướng ngoại"
+    ],
+    "Diligence": [
+    "誠実性",
+    "성실성",
+    "Tận tâm"
+    ],
+    "Sensitivity": [
+    "繊細さ",
+    "민감성",
+    "Nhạy cảm"
+    ],
+    "Openness": [
+    "開放性",
+    "개방성",
+    "Cởi mở"
+    ],
+    "Not me at all": [
+    "まったく違う",
+    "전혀 아니다",
+    "Hoàn toàn không giống tôi"
+    ],
+    "Not really me": [
+    "あまりあてはまらない",
+    "별로 아니다",
+    "Không giống lắm"
+    ],
+    "Neutral": [
+    "どちらでもない",
+    "보통이다",
+    "Bình thường"
+    ],
+    "A bit like me": [
+    "少しあてはまる",
+    "조금 그렇다",
+    "Hơi giống tôi"
+    ],
+    "Very much me": [
+    "とてもあてはまる",
+    "매우 그렇다",
+    "Rất giống tôi"
+    ],
+    "Extraversion": [
+    "外向性",
+    "외향성",
+    "Hướng ngoại"
+    ],
+    "Radiant Extravert": [
+    "かがやく外向タイプ",
+    "빛나는 외향형",
+    "Người hướng ngoại rạng rỡ"
+    ],
+    "someone who lights up the room": [
+    "その場を明るくする人",
+    "분위기를 밝히는 사람",
+    "người thắp sáng cả căn phòng"
+    ],
+    "You’re like a shining star — your energy rises around people, and you naturally warm up any room. Crowds light you up, and your words and actions carry real warmth.": [
+    "あなたは輝く恒星のよう。人といるとエネルギーがあふれ、自然とその場をあたためます。人の輪の中で輝き、言葉にも行動にもぬくもりがあります。",
+    "당신은 빛나는 별 같아요. 사람들과 함께할 때 에너지가 넘치고, 자연스럽게 분위기를 따뜻하게 만들어요. 사람들 속에서 빛나고, 말과 행동에 따뜻함이 담겨 있어요.",
+    "Bạn như một ngôi sao rực sáng — năng lượng dâng lên khi ở cạnh mọi người, và bạn tự nhiên sưởi ấm mọi không gian. Đám đông thắp sáng bạn, lời nói và hành động của bạn đều mang hơi ấm."
+    ],
+    "There’s a light in you that draws people close; around you, others relax without even noticing. That warmth isn’t learned — it’s a gift you were born with.": [
+    "あなたには人を引き寄せる光があります。そばにいると、みんな自然と肩の力が抜けるの。そのぬくもりは学んだものじゃなく、生まれ持った贈りものです。",
+    "당신에게는 사람을 끌어당기는 빛이 있어요. 곁에 있으면 모두 자기도 모르게 편안해져요. 그 따뜻함은 배운 게 아니라 타고난 선물이에요.",
+    "Trong bạn có một thứ ánh sáng khiến người khác muốn lại gần; ở cạnh bạn, ai cũng thả lỏng lúc nào không hay. Sự ấm áp ấy không phải học được — đó là món quà bẩm sinh của bạn."
+    ],
+    "Quiet Introvert": [
+    "しずかな内向タイプ",
+    "조용한 내향형",
+    "Người hướng nội trầm lặng"
+    ],
+    "someone who recharges in stillness": [
+    "静けさの中で充電する人",
+    "고요함 속에서 충전하는 사람",
+    "người nạp năng lượng trong tĩnh lặng"
+    ],
+    "You’re like a quiet planet with a rich inner world, recharging slowly in solitude. You don’t say much, but every word carries weight, and you’re great at focusing and observing.": [
+    "あなたは静かな惑星のよう。内側の世界がゆたかで、ひとりの時間にゆっくり充電します。口数は少なくても一言に重みがあり、集中力と観察力にすぐれています。",
+    "당신은 조용한 행성 같아요. 내면 세계가 풍부하고, 혼자만의 시간에 천천히 충전해요. 말수는 적지만 한마디 한마디에 무게가 있고, 집중과 관찰에 뛰어나요.",
+    "Bạn như một hành tinh lặng lẽ với thế giới nội tâm phong phú, nạp năng lượng chậm rãi khi ở một mình. Bạn ít nói, nhưng mỗi lời đều có sức nặng, và bạn rất giỏi tập trung, quan sát."
+    ],
+    "Your quietness isn’t a lack of anything — it’s saving your energy for what truly matters. The details you notice and the words you choose often go deeper than most.": [
+    "あなたの静けさは、何かが足りないのではなく、本当に大切なことに力をとっておいているから。あなたが気づく細部や選ぶ言葉は、いつも人より深いのです。",
+    "당신의 조용함은 무언가 부족해서가 아니라, 정말 중요한 일에 힘을 아껴 두는 거예요. 당신이 발견하는 디테일과 고르는 말은 늘 더 깊어요.",
+    "Sự trầm lặng của bạn không phải là thiếu sót — mà là dành năng lượng cho điều thật sự quan trọng. Những chi tiết bạn nhận ra và lời bạn chọn thường sâu sắc hơn người khác."
+    ],
+    "Agreeableness": [
+    "協調性",
+    "친화성",
+    "Dễ chịu"
+    ],
+    "Gentle Harmonizer": [
+    "やさしい調和タイプ",
+    "다정한 조화형",
+    "Người hòa hợp dịu dàng"
+    ],
+    "someone who is always there for others": [
+    "いつも誰かを受けとめる人",
+    "늘 다른 사람을 받아 주는 사람",
+    "người luôn ở bên người khác"
+    ],
+    "You’re like a soft gravity that naturally brings people together. You’re willing to trust and to understand, and people feel held when they’re near you.": [
+    "あなたはやわらかな引力のよう。自然と人を集めます。信じることも思いやることもでき、そばにいる人は受けとめられていると感じます。",
+    "당신은 부드러운 인력 같아요. 자연스럽게 사람들을 모아요. 믿고 이해하려 하고, 곁에 있는 사람들은 보듬어지는 느낌을 받아요.",
+    "Bạn như một lực hấp dẫn dịu dàng, tự nhiên gắn kết mọi người. Bạn sẵn lòng tin tưởng và thấu hiểu, ai ở gần bạn cũng thấy mình được nâng niu."
+    ],
+    "Your gentleness is powerful — it makes people feel understood and cared for. Please remember that you deserve to be treated just as gently.": [
+    "あなたのやさしさには力があります。人をわかってもらえた、大切にされたと感じさせる。あなたも同じようにやさしくされていいことを、忘れないでね。",
+    "당신의 다정함에는 힘이 있어요. 사람들이 이해받고 소중히 여겨진다고 느끼게 해요. 당신도 똑같이 다정하게 대해질 자격이 있다는 걸 기억해 주세요.",
+    "Sự dịu dàng của bạn rất mạnh mẽ — nó khiến người khác thấy được thấu hiểu và quan tâm. Hãy nhớ rằng bạn cũng xứng đáng được đối xử dịu dàng như thế."
+    ],
+    "Independent Straight-Talker": [
+    "まっすぐな自立タイプ",
+    "솔직한 독립형",
+    "Người độc lập thẳng thắn"
+    ],
+    "someone clear-minded who speaks the truth": [
+    "考えがはっきりしていて、本音を言える人",
+    "생각이 분명하고 진심을 말하는 사람",
+    "người rõ ràng, dám nói thật"
+    ],
+    "You’re like a star with its own orbit — clear in your thinking and direct in your words. You’re not easily swayed, and you speak up for honesty and fairness.": [
+    "あなたは自分の軌道を持つ星のよう。考えがはっきりしていて、言葉もまっすぐ。流されにくく、誠実さと公平さのために声をあげられます。",
+    "당신은 자기만의 궤도를 가진 별 같아요. 생각이 분명하고 말이 솔직해요. 쉽게 휩쓸리지 않고, 진실과 공정함을 위해 목소리를 내요.",
+    "Bạn như một ngôi sao có quỹ đạo riêng — suy nghĩ rõ ràng, lời nói thẳng thắn. Bạn không dễ bị lay chuyển, và dám lên tiếng vì sự trung thực, công bằng."
+    ],
+    "Your honesty puts people at ease, because they know you mean what you say. Having your own view without following blindly is a rare quality.": [
+    "あなたの率直さは人を安心させます。本心を言っているとわかるから。自分の考えを持ち、流されないのはめずらしい魅力です。",
+    "당신의 솔직함은 사람들을 안심시켜요. 진심이라는 걸 아니까요. 자기 생각을 갖고 맹목적으로 따르지 않는 건 드문 장점이에요.",
+    "Sự thẳng thắn của bạn khiến người khác yên tâm, vì họ biết bạn nói thật lòng. Có chính kiến mà không a dua là một phẩm chất hiếm có."
+    ],
+    "Conscientiousness": [
+    "誠実性",
+    "성실성",
+    "Tận tâm"
+    ],
+    "Steady Achiever": [
+    "こつこつ誠実タイプ",
+    "꾸준한 성실형",
+    "Người bền bỉ đáng tin"
+    ],
+    "someone who keeps their word": [
+    "言ったことをやり遂げる人",
+    "말한 것을 지키는 사람",
+    "người giữ lời hứa"
+    ],
+    "You’re like a steadily turning star ring — organized and true to your word. People feel they can rely on you, and your persistence slowly builds into strength.": [
+    "あなたは安定して回る星の輪のよう。きちんとしていて、言ったことを守ります。まわりはあなたを頼りにでき、その根気が少しずつ力になっていきます。",
+    "당신은 안정적으로 도는 별고리 같아요. 체계적이고 말한 것을 지켜요. 사람들은 당신을 믿을 수 있고, 그 끈기는 조금씩 힘이 돼요.",
+    "Bạn như một vành sao quay đều đặn — ngăn nắp và giữ lời. Mọi người thấy có thể dựa vào bạn, và sự kiên trì của bạn dần tích lũy thành sức mạnh."
+    ],
+    "You take everything seriously, and that reliability steadies the people around you. What you’ve built step by step is truly worth being proud of.": [
+    "あなたは何事にも真剣で、その頼もしさがまわりを安心させます。一歩ずつ積み重ねてきたものを、どうか誇りに思ってね。",
+    "당신은 모든 일에 진지하고, 그 믿음직함이 주변을 든든하게 해요. 한 걸음씩 쌓아 온 것을 정말 자랑스러워해도 돼요.",
+    "Bạn nghiêm túc với mọi việc, và sự đáng tin ấy giúp người xung quanh vững vàng. Những gì bạn gây dựng từng bước thật đáng tự hào."
+    ],
+    "Free Spirit": [
+    "自由きままタイプ",
+    "자유로운 영혼형",
+    "Tâm hồn tự do"
+    ],
+    "someone flexible and easygoing": [
+    "柔軟で、のびのびした人",
+    "유연하고 느긋한 사람",
+    "người linh hoạt, dễ chịu"
+    ],
+    "You’re like a comet drifting on the currents — you don’t like being boxed in and you adapt easily. You value the present moment and flexibility, leaving room for life to breathe.": [
+    "あなたは流れにのって漂う彗星のよう。枠にはめられるのが苦手で、柔軟に対応できます。今この瞬間と自由さを大切にし、暮らしに呼吸の余白を残しています。",
+    "당신은 흐름을 타고 떠도는 혜성 같아요. 틀에 갇히는 걸 싫어하고 유연하게 적응해요. 지금 이 순간과 여유를 소중히 여기며, 삶에 숨 쉴 틈을 남겨 둬요.",
+    "Bạn như một sao chổi trôi theo dòng — không thích bị gò bó và dễ thích nghi. Bạn trân trọng hiện tại và sự linh hoạt, chừa chỗ cho cuộc sống được thở."
+    ],
+    "You know how to adapt, and that life is more than a schedule. The lightness you bring often helps tense people breathe out.": [
+    "あなたは臨機応変で、人生は予定表だけじゃないと知っています。あなたの軽やかさは、張りつめた人をほっとさせます。",
+    "당신은 상황에 맞게 대처할 줄 알고, 삶이 일정표만은 아니라는 걸 알아요. 당신이 주는 가벼움은 긴장한 사람을 한숨 돌리게 해요.",
+    "Bạn biết cách xoay xở, và hiểu rằng cuộc sống không chỉ là thời gian biểu. Sự nhẹ nhõm bạn mang lại thường giúp người căng thẳng thở phào."
+    ],
+    "Emotional sensitivity": [
+    "感受性",
+    "정서적 민감성",
+    "Độ nhạy cảm cảm xúc"
+    ],
+    "Delicate Feeler": [
+    "繊細な感受性タイプ",
+    "섬세한 감성형",
+    "Người cảm nhận tinh tế"
+    ],
+    "someone who feels everything deeply": [
+    "なんでも深く感じとる人",
+    "모든 걸 깊이 느끼는 사람",
+    "người cảm nhận mọi thứ sâu sắc"
+    ],
+    "You’re like a nebula that senses everything, especially attuned to emotions and atmosphere. This sensitivity makes you caring and your inner life rich — it also means you sometimes tire sooner and need gentle care.": [
+    "あなたはすべてを感じとる星雲のよう。感情や空気にとても敏感です。その繊細さが思いやりと豊かな内面を生む一方で、人より疲れやすく、やさしいケアが必要なときもあります。",
+    "당신은 모든 걸 감지하는 성운 같아요. 감정과 분위기에 특히 예민해요. 그 섬세함 덕분에 배려 깊고 내면이 풍부하지만, 가끔은 남들보다 쉽게 지쳐서 다정한 돌봄이 필요해요.",
+    "Bạn như một tinh vân cảm nhận mọi thứ, đặc biệt nhạy với cảm xúc và bầu không khí. Sự nhạy cảm khiến bạn chu đáo và nội tâm phong phú — nhưng cũng có lúc bạn mệt nhanh hơn và cần được chăm sóc dịu dàng."
+    ],
+    "Your sensitivity is a precious antenna, picking up kindness and details others miss. You don’t need to become harder. Take your time — you’re already doing so well.": [
+    "あなたの繊細さは大切なアンテナ。人が見のがすやさしさや細やかさをキャッチします。かたくならなくていい。ゆっくりでいいよ。あなたはもう、じゅうぶんがんばっている。",
+    "당신의 섬세함은 소중한 안테나예요. 남들이 놓치는 다정함과 디테일을 잡아내요. 단단해지지 않아도 돼요. 천천히 해요. 이미 충분히 잘하고 있어요.",
+    "Sự nhạy cảm của bạn là một chiếc ăng-ten quý giá, bắt được những điều tử tế và chi tiết người khác bỏ lỡ. Bạn không cần trở nên cứng rắn hơn. Cứ từ từ — bạn đã làm rất tốt rồi."
+    ],
+    "Calm Anchor": [
+    "おだやかな安定タイプ",
+    "차분한 안정형",
+    "Mỏ neo bình yên"
+    ],
+    "someone who stays steady when things get rough": [
+    "荒れたときも落ち着いていられる人",
+    "힘들 때도 흔들리지 않는 사람",
+    "người vững vàng khi sóng gió"
+    ],
+    "You’re like a calm, starlit lake that stays steady even in storms. You don’t panic under pressure, and you often become the person others lean on.": [
+    "あなたは星をうつす静かな湖のよう。嵐の中でも落ち着いていられます。プレッシャーにあわてず、まわりの人が頼れる存在になることが多いです。",
+    "당신은 별빛이 비치는 고요한 호수 같아요. 폭풍 속에서도 흔들리지 않아요. 압박 속에서도 당황하지 않고, 종종 다른 사람이 기댈 수 있는 사람이 돼요.",
+    "Bạn như một mặt hồ phẳng lặng in bóng sao, vẫn bình yên giữa giông bão. Bạn không hoảng loạn trước áp lực, và thường là người mà người khác dựa vào."
+    ],
+    "You have a grounding presence — however messy things get, you steady yourself first. That composure is a strength others really need.": [
+    "あなたには人を落ち着かせる力があります。どんなにごたごたしても、まず自分を整えられる。その落ち着きは、まわりが本当に必要としている強さです。",
+    "당신에게는 사람을 안정시키는 기운이 있어요. 아무리 어지러워도 먼저 자신을 다잡아요. 그 침착함은 다른 사람들이 정말 필요로 하는 힘이에요.",
+    "Bạn có sự hiện diện khiến người khác vững lòng — dù mọi thứ rối ren đến đâu, bạn vẫn giữ được mình trước. Sự điềm tĩnh ấy là sức mạnh người khác thật sự cần."
+    ],
+    "Curious Explorer": [
+    "好奇心いっぱいの探検タイプ",
+    "호기심 많은 탐험형",
+    "Nhà thám hiểm tò mò"
+    ],
+    "someone who loves to explore and imagine": [
+    "探検と想像が大好きな人",
+    "탐험과 상상을 사랑하는 사람",
+    "người yêu khám phá và tưởng tượng"
+    ],
+    "You’re like a starship that loves to explore, always drawn to new things, creativity and imagination. Your mind is full of colors, and you’re open to trying different possibilities.": [
+    "あなたは探検が大好きな宇宙船のよう。新しいもの、創造、想像にいつも心ひかれます。頭の中は色であふれ、いろいろな可能性を試すことにひらかれています。",
+    "당신은 탐험을 좋아하는 우주선 같아요. 새로운 것, 창의성, 상상력에 늘 끌려요. 머릿속엔 색이 가득하고, 다양한 가능성을 시도하는 데 열려 있어요.",
+    "Bạn như một con tàu vũ trụ ham khám phá, luôn bị cuốn hút bởi điều mới, sự sáng tạo và trí tưởng tượng. Tâm trí bạn đầy màu sắc, sẵn sàng thử những khả năng khác nhau."
+    ],
+    "Your curiosity is a lamp that never goes out, finding wonder in ordinary things. Your imagination is one of your brightest lights.": [
+    "あなたの好奇心は消えないランプ。ふつうの中にもわくわくを見つけます。想像力は、あなたのいちばん明るい光のひとつです。",
+    "당신의 호기심은 꺼지지 않는 등불이에요. 평범함 속에서도 신기함을 찾아내요. 상상력은 당신의 가장 밝은 빛 중 하나예요.",
+    "Sự tò mò của bạn là ngọn đèn không bao giờ tắt, tìm thấy điều kỳ diệu trong những thứ bình thường. Trí tưởng tượng là một trong những ánh sáng rực rỡ nhất của bạn."
+    ],
+    "Grounded Realist": [
+    "地に足のついた現実タイプ",
+    "현실적인 안정형",
+    "Người thực tế vững chãi"
+    ],
+    "someone with their feet on the ground": [
+    "地に足のついた人",
+    "두 발을 땅에 딛고 선 사람",
+    "người chân đứng vững trên đất"
+    ],
+    "You’re like a solid star-rock, valuing experience and practical ways of doing things. You don’t chase flashy things, yet you do things steadily and for the long run.": [
+    "あなたはしっかりした星の岩のよう。経験と実際的なやり方を大切にします。はなやかさを追わなくても、物事を着実に、長く続けられます。",
+    "당신은 단단한 별바위 같아요. 경험과 실용적인 방법을 중시해요. 화려함을 좇지 않지만, 일을 꾸준히 오래 해내요.",
+    "Bạn như một khối đá sao vững chắc, coi trọng kinh nghiệm và cách làm thiết thực. Bạn không chạy theo hào nhoáng, nhưng làm việc bền bỉ và lâu dài."
+    ],
+    "Your grounded way of working makes people feel secure. Without rushing after novelty, you do what’s in front of you as well as it can be done — that’s real strength.": [
+    "あなたの堅実さは、人に安心感を与えます。新しさを急いで追わず、目の前のことを最高のかたちでやりきる。それが本当の実力です。",
+    "당신의 착실함은 사람들에게 안정감을 줘요. 새로움을 서둘러 좇지 않고 눈앞의 일을 최고로 해내는 것, 그게 진짜 실력이에요.",
+    "Cách làm việc vững chãi của bạn khiến mọi người an tâm. Không vội chạy theo cái mới, bạn làm tốt nhất có thể việc trước mắt — đó là sức mạnh thật sự."
+    ],
+    "Harmony Star": [
+    "ハーモニー星",
+    "조화별",
+    "Sao Hòa Điệu"
+    ],
+    "Balanced Tuner": [
+    "バランス調律タイプ",
+    "균형 조율형",
+    "Người cân bằng uyển chuyển"
+    ],
+    "someone who switches modes with ease": [
+    "いろいろなモードを自在に切りかえる人",
+    "여러 모드를 자연스럽게 오가는 사람",
+    "người dễ dàng chuyển đổi trạng thái"
+    ],
+    "all five lights in balance": [
+    "五つの光がバランスよく",
+    "다섯 빛이 고르게",
+    "năm ánh sáng cân bằng"
+    ],
+    "Your five lights are close in strength, like a beautifully balanced piece of music. You can move between outgoing and quiet, serious and relaxed as the moment needs — flexibility is your strength.": [
+    "あなたの五つの光はほぼ同じ強さ。美しく調和した音楽のようです。場面に合わせて、にぎやかにも静かにも、真剣にも気楽にもなれる。その柔軟さがあなたの強みです。",
+    "당신의 다섯 빛은 세기가 비슷해요. 아름답게 조율된 음악 같아요. 상황에 따라 활발하게도, 조용하게도, 진지하게도, 느긋하게도 될 수 있어요. 그 유연함이 당신의 강점이에요.",
+    "Năm ánh sáng của bạn mạnh gần như nhau, như một bản nhạc hài hòa tuyệt đẹp. Bạn có thể sôi nổi hay trầm lặng, nghiêm túc hay thoải mái tùy lúc — sự linh hoạt là thế mạnh của bạn."
+    ],
+    "You’re great at reading a situation and adjusting, never stuck in a single mode. That flexibility lets you get along with all kinds of people and stay steady through change.": [
+    "あなたは状況を読んで自分を合わせるのが上手で、ひとつのモードにしばられません。その柔軟さで、どんな人ともつき合え、変化の中でもぶれずにいられます。",
+    "당신은 상황을 읽고 맞춰 가는 데 능숙해서, 한 가지 모드에 갇히지 않아요. 그 유연함 덕분에 누구와도 잘 지내고, 변화 속에서도 흔들리지 않아요.",
+    "Bạn rất giỏi đọc tình huống và điều chỉnh, không bị mắc kẹt ở một trạng thái. Sự linh hoạt ấy giúp bạn hòa hợp với mọi người và vững vàng trước thay đổi."
+    ],
+    "high": [
+    "高め",
+    "높음",
+    "cao"
+    ],
+    "low": [
+    "低め",
+    "낮음",
+    "thấp"
+    ],
+    "Radiant Star": [
+    "かがやき星",
+    "빛나는 별",
+    "Sao Rực Rỡ"
+    ],
+    "Quiet Moon": [
+    "しずかな月",
+    "고요한 달",
+    "Trăng Lặng"
+    ],
+    "Warmheart Star": [
+    "ぬくもり星",
+    "따스한 별",
+    "Sao Ấm Áp"
+    ],
+    "Candid Star": [
+    "まっすぐ星",
+    "솔직한 별",
+    "Sao Thẳng Thắn"
+    ],
+    "Orbit Star": [
+    "軌道星",
+    "궤도별",
+    "Sao Quỹ Đạo"
+    ],
+    "Drifting Cloud Star": [
+    "流れ雲星",
+    "떠도는 구름별",
+    "Sao Mây Trôi"
+    ],
+    "Spirit Tide Star": [
+    "こころ潮星",
+    "마음물결별",
+    "Sao Thủy Triều"
+    ],
+    "Still Lake Star": [
+    "しずか湖星",
+    "고요한 호수별",
+    "Sao Hồ Lặng"
+    ],
+    "Wonder Star": [
+    "ふしぎ星",
+    "상상별",
+    "Sao Kỳ Diệu"
+    ],
+    "Bedrock Star": [
+    "いわお星",
+    "반석별",
+    "Sao Bàn Thạch"
+    ],
+    "A 3D planet generated from your personality": [
+    "あなたの性格から生まれた 3D の星",
+    "당신의 성격으로 만든 3D 행성",
+    "Hành tinh 3D tạo từ tính cách của bạn"
+    ],
+    "Loading your planet…": [
+    "あなたの星を読み込み中…",
+    "당신의 행성을 불러오는 중…",
+    "Đang tải hành tinh của bạn…"
+    ],
+    "The universe is sculpting your planet…": [
+    "宇宙があなただけの星を形づくっています…",
+    "우주가 당신만의 행성을 빚고 있어요…",
+    "Vũ trụ đang tạc nên hành tinh của bạn…"
+    ],
+    "Your planet is ready — loading…": [
+    "星ができました。読み込み中…",
+    "행성이 완성됐어요. 불러오는 중…",
+    "Hành tinh đã xong — đang tải…"
+    ],
+    "Your planet is still on its way — here’s a little one to keep you company.": [
+    "あなたの星はまだ旅の途中。かわりに小さな星がそばにいるね。",
+    "당신의 행성은 아직 오는 중이에요. 대신 작은 행성이 곁에 있을게요.",
+    "Hành tinh của bạn vẫn đang trên đường — có một hành tinh nhỏ ở bên bạn trước nhé."
+    ],
+    "(This is a demo reply — OpenAI isn’t connected yet)": [
+    "（これはデモの返答です。OpenAI はまだ接続されていません）",
+    "(데모 답변이에요. 아직 OpenAI가 연결되지 않았어요)",
+    "(Đây là câu trả lời mẫu — OpenAI chưa được kết nối)"
+    ],
+    "friend": [
+    "あなた",
+    "친구",
+    "bạn"
+    ],
+    "Have you ever seen a feeling?": [
+    "感情を、見たことある？",
+    "감정을 본 적 있나요?",
+    "Bạn đã từng nhìn thấy cảm xúc chưa?"
+    ],
+    "They have colors,": [
+    "感情には色があって、",
+    "감정에는 색이 있고,",
+    "Chúng có màu sắc,"
+    ],
+    "shapes,": [
+    "かたちがあって、",
+    "모양이 있고,",
+    "có hình dạng,"
+    ],
+    "and voices of their own.": [
+    "自分だけの声もある。",
+    "자기만의 목소리도 있어요.",
+    "và cả giọng nói riêng."
+    ],
+    "Let’s start with": [
+    "まずは、",
+    "먼저",
+    "Hãy bắt đầu với"
+    ],
+    "the most popular one.": [
+    "いちばん人気の子から。",
+    "가장 인기 있는 아이부터 시작해요.",
+    "bạn được yêu thích nhất."
+    ],
+    "If we could be happy every single day,": [
+    "毎日ずっと楽しくいられたら、",
+    "매일매일 행복할 수 있다면",
+    "Nếu ngày nào cũng vui vẻ,"
+    ],
+    "wouldn’t that be nice?": [
+    "いいと思わない？",
+    "좋지 않을까요?",
+    "thì có phải tốt biết bao?"
+    ],
+    "They aren’t monsters.": [
+    "この子たちは、おばけじゃない。",
+    "이 아이들은 괴물이 아니에요.",
+    "Chúng không phải quái vật."
+    ],
+    "Just small, and a little lost.": [
+    "ただ小さくて、ちょっととまどっているだけ。",
+    "그저 작고, 조금 길을 잃었을 뿐이에요.",
+    "Chỉ là nhỏ bé, và hơi lạc lối."
+    ],
+    "We always want to keep the happy ones,": [
+    "わたしたちは、楽しい気持ちだけを残して、",
+    "우리는 늘 즐거운 것만 남기고 싶어 해요.",
+    "Ta luôn muốn giữ lại niềm vui,"
+    ],
+    "and push the “bad” feelings…": [
+    "「よくない」気持ちを…",
+    "그리고 “나쁜” 감정들을…",
+    "và đẩy những cảm xúc “xấu”…"
+    ],
+    "far, far away.": [
+    "遠く、遠くに押しやってしまう。",
+    "멀리, 멀리 숨겨 버려요.",
+    "thật xa, thật xa."
+    ],
+    "But…": [
+    "でも…",
+    "하지만…",
+    "Nhưng…"
+    ],
+    "if only happiness were left,": [
+    "楽しさだけが残ったら、",
+    "행복만 남는다면",
+    "nếu chỉ còn lại niềm vui,"
+    ],
+    "could we still really feel happy?": [
+    "わたしたちは本当に、楽しさを感じられるのかな？",
+    "우리는 정말 행복을 느낄 수 있을까요?",
+    "liệu ta còn thật sự cảm thấy vui?"
+    ],
+    "It decided to turn back": [
+    "その子はふり返って、",
+    "그 아이는 돌아서서",
+    "Bé quyết định quay lại"
+    ],
+    "and find the lights it had pushed away.": [
+    "押しやった光たちを探しに行くことにした。",
+    "밀어냈던 빛들을 찾으러 가기로 했어요.",
+    "tìm những ánh sáng mà bé đã đẩy đi."
+    ],
+    "Sadness tells us—": [
+    "悲しみは教えてくれる——",
+    "슬픔은 알려 줘요——",
+    "Nỗi buồn cho ta biết—"
+    ],
+    "some things truly matter to us.": [
+    "大切なものが、たしかにあることを。",
+    "어떤 것들은 우리에게 정말 소중하다는 걸.",
+    "có những điều thật sự quan trọng với ta."
+    ],
+    "Anger tells us—": [
+    "怒りは教えてくれる——",
+    "분노는 알려 줘요——",
+    "Cơn giận cho ta biết—"
+    ],
+    "some boundaries need protecting.": [
+    "守るべき境界線があることを。",
+    "지켜야 할 경계가 있다는 걸.",
+    "có những ranh giới cần được bảo vệ."
+    ],
+    "Anxiety sometimes reminds us—": [
+    "不安は、ときどき知らせてくれる——",
+    "불안은 가끔 일깨워 줘요——",
+    "Lo âu đôi khi nhắc ta rằng—"
+    ],
+    "“I really care about this.”": [
+    "「わたし、これを本当に大事に思っている」って。",
+    "“나는 이 일이 정말 신경 쓰여.”",
+    "“Mình thật sự quan tâm đến điều này.”"
+    ],
+    "Loneliness tells us—": [
+    "さびしさは教えてくれる——",
+    "외로움은 알려 줘요——",
+    "Cô đơn cho ta biết—"
+    ],
+    "we long to be understood and connected.": [
+    "わかってほしい、つながりたいと願っていることを。",
+    "우리가 이해받고 연결되길 바란다는 걸.",
+    "ta khao khát được thấu hiểu và kết nối."
+    ],
+    "So…": [
+    "そうか…",
+    "그렇구나…",
+    "Thì ra…"
+    ],
+    "no feeling is here to hurt us.": [
+    "わたしたちを傷つけに来た感情なんて、ひとつもない。",
+    "우리를 다치게 하려고 온 감정은 하나도 없어요.",
+    "không có cảm xúc nào đến để làm tổn thương ta."
+    ],
+    "They’re just telling us, in their own ways:": [
+    "ただ、それぞれのやり方で伝えているだけ。",
+    "그저 각자의 방식으로 말하고 있을 뿐이에요.",
+    "Chúng chỉ đang nói với ta, theo cách riêng của mình:"
+    ],
+    "“There’s something I want you to know.”": [
+    "「あなたに知ってほしいことがあるの」って。",
+    "“너에게 알려 주고 싶은 게 있어.”",
+    "“Có điều mình muốn bạn biết.”"
+    ],
+    "Happiness grew brighter too,": [
+    "楽しさも、もっと明るくなった。",
+    "행복도 더 밝아졌어요.",
+    "Niềm vui cũng sáng hơn,"
+    ],
+    "because it finally had a shadow.": [
+    "やっと、影ができたから。",
+    "드디어 그림자가 생겼으니까요.",
+    "vì cuối cùng nó đã có bóng."
+    ],
+    "isn’t turning every “bad” feeling into happiness.": [
+    "「よくない」気持ちを、ぜんぶ楽しさに変えることじゃない。",
+    "모든 “나쁜” 감정을 행복으로 바꾸는 게 아니에요.",
+    "không phải biến mọi cảm xúc “xấu” thành niềm vui."
+    ],
+    "It’s giving every feeling": [
+    "どの気持ちにも、",
+    "모든 감정에게",
+    "Mà là cho mọi cảm xúc"
+    ],
+    "a place to be seen.": [
+    "見てもらえる居場所をつくること。",
+    "보여질 자리를 주는 거예요.",
+    "một chỗ để được nhìn thấy."
+    ],
+    "The happy you is you.": [
+    "楽しいあなたも、あなた。",
+    "행복한 너도 너야.",
+    "Bạn vui vẻ là bạn."
+    ],
+    "The sad you is you, too.": [
+    "悲しいあなたも、あなた。",
+    "슬픈 너도 너야.",
+    "Bạn buồn bã cũng là bạn."
+    ],
+    "The angry, scared, anxious, lonely you…": [
+    "怒っている、こわい、不安な、さびしいあなたも…",
+    "화나고, 무섭고, 불안하고, 외로운 너도…",
+    "Bạn giận dữ, sợ hãi, lo âu, cô đơn…"
+    ],
+    "is all you.": [
+    "みんな、あなた。",
+    "모두 너야.",
+    "tất cả đều là bạn."
+    ],
+    "Good feelings deserve to be felt.": [
+    "いい気持ちは、感じていい。",
+    "좋은 감정은 느껴질 자격이 있어요.",
+    "Cảm xúc tốt xứng đáng được cảm nhận."
+    ],
+    "Hard feelings deserve to be seen, too.": [
+    "つらい気持ちも、見てもらっていい。",
+    "힘든 감정도 보여질 자격이 있어요.",
+    "Cảm xúc khó khăn cũng xứng đáng được nhìn thấy."
+    ],
+    "worry": [
+    "悩み",
+    "고민",
+    "nỗi lo"
+    ],
+    "A lot must have been piling up lately.": [
+    "最近、いろいろなことが積み重なっていたんだね。",
+    "요즘 많은 일이 쌓여 있었겠어요.",
+    "Dạo này chắc hẳn nhiều chuyện đã dồn lại."
+    ],
+    "Holding this close shows how much you care.": [
+    "それを心にとめているのは、本当に大切に思っているから。",
+    "그걸 마음에 두는 건 정말 아끼기 때문이에요.",
+    "Việc bạn để tâm như vậy cho thấy bạn thật sự quan tâm."
+    ],
+    "You’ve been working hard for a long time.": [
+    "ずっと、がんばってきたんだね。",
+    "오랫동안 정말 애써 왔어요.",
+    "Bạn đã cố gắng rất lâu rồi."
+    ],
+    "Tap\n= open palm": [
+    "タップ\n＝手をひらく",
+    "탭\n= 손바닥 펴기",
+    "Chạm\n= mở bàn tay"
+    ],
+    "Hold\n= make a fist": [
+    "長押し\n＝グー",
+    "길게 누르기\n= 주먹 쥐기",
+    "Giữ\n= nắm tay"
+    ],
+    "Let go\n= open hand": [
+    "はなす\n＝手をひらく",
+    "떼기\n= 손 펴기",
+    "Thả ra\n= mở tay"
+    ],
+    "Use touch instead": [
+    "タッチで操作する",
+    "터치로 하기",
+    "Dùng cảm ứng"
+    ],
+    "Use camera instead": [
+    "カメラで操作する",
+    "카메라로 하기",
+    "Dùng camera"
+    ],
+    "The camera isn’t available — continuing with touch.": [
+    "カメラが使えないので、タッチで続けます。",
+    "카메라를 쓸 수 없어서 터치로 계속해요.",
+    "Không dùng được camera — tiếp tục bằng cảm ứng."
+    ],
+    "Spread all five fingers a little more": [
+    "五本の指を、もう少し広げてね",
+    "다섯 손가락을 조금 더 펴 주세요",
+    "Xòe cả năm ngón tay thêm chút nữa"
+    ],
+    "Waiting for your hand…": [
+    "手を待っています…",
+    "손을 기다리는 중…",
+    "Đang chờ bàn tay của bạn…"
+    ],
+    "Bring your palm back into view": [
+    "手のひらをカメラの中に戻してね",
+    "손바닥을 화면 안으로 다시 보여 주세요",
+    "Đưa lòng bàn tay trở lại khung hình"
+    ],
+    "Let’s pause the game.": [
+    "ゲームはいったんおやすみ。",
+    "놀이는 잠깐 멈출게요.",
+    "Mình tạm dừng trò chơi nhé."
+    ],
+    "I want to stay with you for a moment.": [
+    "少しのあいだ、そばにいたいな。",
+    "잠시 당신 곁에 있고 싶어요.",
+    "Mình muốn ở bên bạn một lúc."
+    ],
+    "Now, let me help you": [
+    "ここからは、いっしょに",
+    "이제 나와 함께",
+    "Giờ hãy để mình giúp bạn"
+    ],
+    "set it down for a while.": [
+    "それを、しばらく下ろしてみよう。",
+    "그걸 잠시 내려놓아 봐요.",
+    "đặt nó xuống một lúc nhé."
+    ],
+    "This is what was troubling you.": [
+    "これが、さっきあなたを悩ませていたこと。",
+    "이게 방금 당신을 괴롭히던 일이에요.",
+    "Đây là điều đã làm bạn phiền lòng."
+    ],
+    "This time, we won’t look away.": [
+    "今度は、目をそらさない。",
+    "이번엔 피하지 않을 거예요.",
+    "Lần này, ta sẽ không ngoảnh mặt đi."
+    ],
+    "Let’s look at it together.": [
+    "いっしょに、見てみよう。",
+    "함께 바라봐요.",
+    "Cùng nhìn vào nó nhé."
+    ],
+    "Open your palm toward the camera.": [
+    "カメラに向かって、手のひらをひらいてね。",
+    "카메라를 향해 손바닥을 펴 주세요.",
+    "Hãy mở lòng bàn tay về phía camera."
+    ],
+    "Let the camera see all five fingers": [
+    "五本の指が見えるようにしてね",
+    "다섯 손가락이 다 보이게 해 주세요",
+    "Để camera thấy cả năm ngón tay"
+    ],
+    "✓ Got it!": [
+    "✓ 見えたよ！",
+    "✓ 인식했어요!",
+    "✓ Thấy rồi!"
+    ],
+    "Hold it there.": [
+    "そのままね。",
+    "그대로 있어요.",
+    "Giữ nguyên nhé."
+    ],
+    "Now, hold on to it.": [
+    "じゃあ、それをにぎってみて。",
+    "이제 그걸 꼭 쥐어 봐요.",
+    "Giờ hãy nắm lấy nó."
+    ],
+    "Slowly make a fist ✊": [
+    "ゆっくりグーにして ✊",
+    "천천히 주먹을 쥐어요 ✊",
+    "Từ từ nắm tay lại ✊"
+    ],
+    "Some things don’t disappear after one try.": [
+    "一度がんばっただけでは、消えないこともある。",
+    "어떤 일은 한 번 노력한다고 사라지지 않아요.",
+    "Có những điều không biến mất chỉ sau một lần cố gắng."
+    ],
+    "But you don’t have to": [
+    "でも、そんなに",
+    "하지만",
+    "Nhưng bạn không cần"
+    ],
+    "hold on to it so tightly.": [
+    "ぎゅっとにぎりしめていなくていい。",
+    "그렇게 꽉 쥐고 있지 않아도 돼요.",
+    "nắm chặt nó đến thế."
+    ],
+    "Follow me.": [
+    "いっしょにね。",
+    "나를 따라 해요.",
+    "Làm theo mình nhé."
+    ],
+    "Slowly open your hand": [
+    "ゆっくり手をひらいて",
+    "천천히 손을 펴요",
+    "Từ từ mở tay ra"
+    ],
+    "You did so well. ♡": [
+    "よくがんばったね。♡",
+    "정말 잘했어요. ♡",
+    "Bạn làm tốt lắm. ♡"
+    ],
+    "You didn’t run away just now —": [
+    "あなたは、さっき逃げなかった。",
+    "방금 당신은 도망치지 않았어요.",
+    "Vừa rồi bạn đã không trốn chạy —"
+    ],
+    "you were willing to look at your worry.": [
+    "自分の悩みを見つめようとしてくれた。",
+    "자신의 고민을 바라보려고 했어요.",
+    "bạn đã sẵn lòng nhìn vào nỗi lo của mình."
+    ],
+    "A problem showing up doesn’t mean you’re not good enough.": [
+    "問題が起きたのは、あなたがだめだからじゃない。",
+    "문제가 생겼다고 당신이 부족한 건 아니에요.",
+    "Vấn đề xuất hiện không có nghĩa là bạn chưa đủ tốt."
+    ],
+    "Often it’s just reminding us—": [
+    "多くの場合、それはただ知らせているだけ——",
+    "많은 경우, 그건 그저 알려 주는 거예요——",
+    "Thường thì nó chỉ đang nhắc ta—"
+    ],
+    "something important is waiting for us.": [
+    "大切なことが、わたしたちを待っているって。",
+    "중요한 일이 우리를 기다리고 있다고.",
+    "có điều quan trọng đang chờ ta."
+    ],
+    "And by being willing to face it,": [
+    "それに向き合おうとしたあなたは、",
+    "그리고 그것을 마주하려 한 당신은",
+    "Và khi sẵn lòng đối diện nó,"
+    ],
+    "you’ve already taken a step forward.": [
+    "もう一歩、前に進んでいる。",
+    "이미 한 걸음 앞으로 나아갔어요.",
+    "bạn đã tiến lên một bước rồi."
+    ],
+    "Yay!": [
+    "やったね！",
+    "좋아요!",
+    "Tuyệt quá!"
+    ],
+    "that nothing is weighing on you today ♡": [
+    "今日は悩みがないんだね ♡",
+    "오늘은 마음에 걸리는 게 없어서요 ♡",
+    "vì hôm nay bạn chẳng có gì bận lòng ♡"
+    ],
+    "Then let’s take today’s good mood…": [
+    "じゃあ、今日のいい気分を…",
+    "그럼 오늘의 좋은 기분을…",
+    "Vậy hãy lấy tâm trạng tốt hôm nay…"
+    ],
+    "and tuck it away for safekeeping!": [
+    "こっそり、しまっておこう！",
+    "살짝 간직해 둬요!",
+    "và cất giữ thật kỹ nhé!"
+    ],
+    "Got it! ♡": [
+    "受けとったよ！♡",
+    "받았어요! ♡",
+    "Nhận được rồi! ♡"
+    ],
+    "I’ve kept today’s good mood": [
+    "今日のいい気分、",
+    "오늘의 좋은 기분,",
+    "Mình đã cất giữ tâm trạng tốt hôm nay"
+    ],
+    "safe for you.": [
+    "ちゃんとしまっておいたよ。",
+    "잘 간직해 둘게요.",
+    "giúp bạn rồi."
+    ],
+    "Next time we meet,": [
+    "また次に会えたら、",
+    "다음에 만날 때도",
+    "Lần tới gặp nhau,"
+    ],
+    "I hope to hear about your day again.": [
+    "また今日のこと、聞かせてね。",
+    "오늘 있었던 일을 또 들려주면 좋겠어요.",
+    "mong lại được nghe bạn kể về một ngày của mình."
+    ],
+    "Some days sparkle.": [
+    "きらきらかがやく日もある。",
+    "반짝이는 날도 있고",
+    "Có những ngày lấp lánh."
+    ],
+    "Some days": [
+    "そうでもない日も",
+    "어떤 날은",
+    "Có những ngày"
+    ],
+    "might not be so bright.": [
+    "あるかもしれない。",
+    "그다지 맑지 않을 수도 있어요.",
+    "có lẽ không được sáng sủa lắm."
+    ],
+    "That’s okay.": [
+    "それでいいんだよ。",
+    "괜찮아요.",
+    "Không sao cả."
+    ],
+    "Because whatever today looks like—": [
+    "だって、今日がどんな日でも——",
+    "오늘이 어떤 모습이든——",
+    "Vì dù hôm nay ra sao—"
+    ],
+    "it’s a day that belongs only to you.": [
+    "それは、あなただけの一日だから。",
+    "오직 당신만의 하루니까요.",
+    "đó vẫn là một ngày chỉ thuộc về bạn."
+    ],
+    "You did your best today, too. ♡": [
+    "今日も、おつかれさま。♡",
+    "오늘도 수고했어요. ♡",
+    "Hôm nay bạn cũng vất vả rồi. ♡"
+    ],
+    "steady and solid": [
+    "どっしりと落ち着いた",
+    "묵직하고 차분한",
+    "vững chãi và bền chắc"
+    ],
+    "When your mind is crowded and you need a rest": [
+    "頭がいっぱいで、ひと休みしたいとき",
+    "머리가 복잡하고 쉬고 싶을 때",
+    "Khi đầu óc rối bời và cần nghỉ ngơi"
+    ],
+    "clear and crisp": [
+    "すんで、きりっとした",
+    "맑고 깔끔한",
+    "trong trẻo và dứt khoát"
+    ],
+    "When you want to sort out your feelings and be still": [
+    "気持ちを整えて、静かにしたいとき",
+    "마음을 정리하고 조용히 있고 싶을 때",
+    "Khi muốn sắp xếp cảm xúc và lặng yên"
+    ],
+    "stretching and growing": [
+    "のびやかに育つ",
+    "쭉쭉 자라나는",
+    "vươn mình và lớn lên"
+    ],
+    "When you feel restless and want to stretch out": [
+    "もやもやして、のびをしたいとき",
+    "답답해서 기지개를 켜고 싶을 때",
+    "Khi bứt rứt và muốn duỗi mình"
+    ],
+    "bright and lively": [
+    "明るく、いきいきした",
+    "밝고 활기찬",
+    "tươi sáng và sôi nổi"
+    ],
+    "When you want your energy back and feel like moving": [
+    "元気をとり戻して、動きたいとき",
+    "기운을 되찾고 움직이고 싶을 때",
+    "Khi muốn lấy lại năng lượng và vận động"
+    ],
+    "deep and flowing": [
+    "深く、ながれる",
+    "깊고 흐르는",
+    "sâu lắng và trôi chảy"
+    ],
+    "When you feel tense and want to slowly calm down": [
+    "緊張や不安を、ゆっくり静めたいとき",
+    "긴장되고 불안해서 천천히 가라앉히고 싶을 때",
+    "Khi căng thẳng, bất an và muốn từ từ lắng dịu"
+    ],
+    "Sunny": [
+    "晴れ",
+    "맑음",
+    "Nắng đẹp"
+    ],
+    "Light rain": [
+    "小雨",
+    "보슬비",
+    "Mưa nhẹ"
+    ],
+    "Misty": [
+    "霧",
+    "안개",
+    "Sương mù"
+    ],
+    "Rainbow": [
+    "虹",
+    "무지개",
+    "Cầu vồng"
+    ],
+    "A quiet night": [
+    "しずかな夜",
+    "고요한 밤",
+    "Một đêm yên tĩnh"
+    ],
+    "Put on your headphones and listen to your own sound.": [
+    "イヤホンをつけて、あなたの音を聴いてね。",
+    "이어폰을 끼고 당신만의 소리를 들어 보세요.",
+    "Hãy đeo tai nghe và lắng nghe âm thanh của riêng bạn."
+    ],
+    "The universe has a gift of power for you.": [
+    "宇宙から、あなたへ力の贈りもの。",
+    "우주가 당신에게 힘을 선물하려 해요.",
+    "Vũ trụ có một món quà sức mạnh dành cho bạn."
+    ],
+    "Shh…": [
+    "しーっ…",
+    "쉿…",
+    "Suỵt…"
+    ],
+    "Can you hear that?": [
+    "聞こえる？",
+    "들리나요?",
+    "Bạn có nghe thấy không?"
+    ],
+    "In traditional Five Elements culture,": [
+    "昔からの五行の考えでは、",
+    "전통적인 오행 문화에서",
+    "Trong văn hóa Ngũ Hành truyền thống,"
+    ],
+    "each element has its own musical tone.": [
+    "五行はそれぞれ、五つの音とつながっている。",
+    "오행은 각각 다섯 음과 이어져 있어요.",
+    "mỗi hành đều ứng với một âm riêng."
+    ],
+    "Which sound do you need today?": [
+    "今日は、どの音を聴きたい？",
+    "오늘은 어떤 소리를 듣고 싶나요?",
+    "Hôm nay bạn muốn nghe âm thanh nào?"
+    ],
+    "Wait…": [
+    "あれ…",
+    "잠깐…",
+    "Khoan đã…"
+    ],
+    "It sounds like there are many more voices over there.": [
+    "あっちにも、たくさんの音があるみたい。",
+    "저쪽에 더 많은 소리가 있는 것 같아요.",
+    "Hình như bên kia còn nhiều âm thanh lắm."
+    ],
+    "we are not the only planet": [
+    "この宇宙にいる星は、",
+    "이 우주에 있는 행성은",
+    "ta không phải hành tinh duy nhất"
+    ],
+    "in this universe.": [
+    "わたしたちだけじゃなかったんだ。",
+    "우리만이 아니었어요.",
+    "trong vũ trụ này."
+    ],
+    "Want to come and see with me?": [
+    "いっしょに見に行かない？",
+    "나랑 같이 보러 갈래요?",
+    "Đi xem cùng mình nhé?"
+    ],
+    "Let’s see who else lives in this universe.": [
+    "この宇宙に、ほかに誰が住んでいるのか。",
+    "이 우주에 또 누가 사는지 봐요.",
+    "Xem trong vũ trụ này còn ai nữa."
+    ],
+    "✦ Enter the universe": [
+    "✦ 宇宙へ行く",
+    "✦ 우주로 가기",
+    "✦ Vào vũ trụ"
+    ],
+    "Owner": [
+    "持ち主",
+    "주인",
+    "Chủ nhân"
+    ],
+    "Planet": [
+    "星の名前",
+    "행성 이름",
+    "Hành tinh"
+    ],
+    "Cosmic pet": [
+    "宇宙ペット",
+    "우주 펫",
+    "Thú cưng vũ trụ"
+    ],
+    "Pet name": [
+    "ペットの名前",
+    "펫 이름",
+    "Tên thú cưng"
+    ],
+    "Element": [
+    "五行",
+    "오행",
+    "Ngũ hành"
+    ],
+    "Element tone": [
+    "五行の音",
+    "오행의 음",
+    "Âm của hành"
+    ],
+    "Planet weather today": [
+    "今日の星の天気",
+    "오늘의 행성 날씨",
+    "Thời tiết hành tinh hôm nay"
+    ],
+    "🖐️ Hand control": [
+    "🖐️ ジェスチャー操作",
+    "🖐️ 손동작 조작",
+    "🖐️ Điều khiển bằng tay"
+    ],
+    "Starting camera…": [
+    "カメラを起動中…",
+    "카메라 켜는 중…",
+    "Đang bật camera…"
+    ],
+    "Turn off hand control": [
+    "ジェスチャーをオフ",
+    "손동작 끄기",
+    "Tắt điều khiển tay"
+    ],
+    "🖐️ Move an open palm to turn the universe": [
+    "🖐️ 手をひらいて動かすと、宇宙がまわるよ",
+    "🖐️ 손바닥을 펴고 움직이면 우주가 돌아가요",
+    "🖐️ Mở bàn tay và di chuyển để xoay vũ trụ"
+    ],
+    "Camera unavailable — use your mouse or finger instead.": [
+    "カメラが使えません。マウスか指で操作してね。",
+    "카메라를 쓸 수 없어요. 마우스나 손가락으로 조작해 주세요.",
+    "Không dùng được camera — hãy dùng chuột hoặc ngón tay."
+    ],
+    "Drag to turn · scroll or pinch to zoom · tap a planet to visit": [
+    "ドラッグで回転・スクロールかピンチで拡大・星をタップしてたずねる",
+    "드래그로 회전 · 스크롤이나 핀치로 확대 · 행성을 탭해 방문",
+    "Kéo để xoay · cuộn hoặc chụm để phóng to · chạm vào hành tinh để ghé thăm"
+    ],
+    "The one with the halo is your planet.": [
+    "光の輪がある星が、あなたの星だよ。",
+    "빛고리가 있는 행성이 당신의 행성이에요.",
+    "Hành tinh có vầng sáng là của bạn đó."
+    ],
+    "Every planet has its own shape.": [
+    "どの星にも、その星だけの姿がある。",
+    "모든 행성에는 저마다의 모습이 있어요.",
+    "Mỗi hành tinh đều có dáng hình riêng."
+    ],
+    "Every pet carries a different story.": [
+    "どのペットも、ちがう物語をもっている。",
+    "모든 펫은 저마다 다른 이야기를 품고 있어요.",
+    "Mỗi thú cưng đều mang một câu chuyện khác nhau."
+    ],
+    "But when we come here together—": [
+    "でも、みんなでここに来たとき——",
+    "하지만 우리가 함께 이곳에 오면——",
+    "Nhưng khi ta cùng nhau đến đây—"
+    ],
+    "it is no longer just our own universe.": [
+    "それはもう、自分ひとりの宇宙じゃない。",
+    "더 이상 나만의 우주가 아니에요.",
+    "đó không còn chỉ là vũ trụ của riêng mình."
+    ],
+    "Your inner universe": [
+    "あなたの内なる宇宙",
+    "나의 내면 우주",
+    "Vũ trụ bên trong bạn"
+    ],
+    "Tap anywhere to enter your universe": [
+    "画面にふれて、あなたの宇宙へ",
+    "화면을 터치해 나의 우주로",
+    "Chạm vào màn hình để bước vào vũ trụ của bạn"
+    ],
+    "Headphones recommended": [
+    "イヤホン推奨",
+    "이어폰 착용을 권해요",
+    "Nên đeo tai nghe"
+    ],
+    "Enter your inner universe": [
+    "内なる宇宙へ入る",
+    "내면 우주로 들어가기",
+    "Bước vào vũ trụ bên trong"
+    ],
+    "Chapters": [
+    "チャプター",
+    "챕터",
+    "Chương"
+    ],
+    "Choose where you’d like to go": [
+    "行きたいところを選んでね",
+    "가고 싶은 곳을 골라요",
+    "Chọn nơi bạn muốn đến"
+    ],
+    "Move toward a feeling you have right now.": [
+    "今感じている気持ちに、近づいてみて。",
+    "지금 느끼는 감정에 다가가 보세요.",
+    "Hãy lại gần cảm xúc bạn đang có."
+    ],
+    "Press and hold, or glide toward a planet": [
+    "長押しするか、星のほうへなぞってね",
+    "길게 누르거나 행성 쪽으로 밀어 보세요",
+    "Nhấn giữ, hoặc lướt về phía một hành tinh"
+    ],
+    "Start voice input": [
+    "音声入力を始める",
+    "음성 입력 시작",
+    "Bắt đầu nhập giọng nói"
+    ],
+    "Or just type here": [
+    "ここに入力してもOK",
+    "여기에 입력해도 돼요",
+    "Hoặc gõ ở đây"
+    ],
+    "Your answer": [
+    "あなたの答え",
+    "나의 대답",
+    "Câu trả lời của bạn"
+    ],
+    "Back": [
+    "戻る",
+    "이전",
+    "Quay lại"
+    ],
+    "Let me check": [
+    "確認させてね",
+    "확인해 볼게요",
+    "Để mình xem lại nhé"
+    ],
+    "Tap “Edit” to change an answer": [
+    "変えたいときは「修正」をタップ",
+    "바꾸고 싶으면 “수정”을 눌러요",
+    "Chạm “Sửa” để đổi câu trả lời"
+    ],
+    "Confirm and receive my gift": [
+    "OK、贈りものを受けとる",
+    "확인하고 선물 받기",
+    "Xác nhận và nhận quà"
+    ],
+    "The universe is listening…": [
+    "宇宙が、あなたの話を聞いています…",
+    "우주가 당신의 이야기를 듣고 있어요…",
+    "Vũ trụ đang lắng nghe bạn…"
+    ],
+    "Try again": [
+    "もう一度",
+    "다시 시도",
+    "Thử lại"
+    ],
+    "Start over": [
+    "最初から話す",
+    "처음부터 다시",
+    "Nói lại từ đầu"
+    ],
+    "Thank you for sharing this.": [
+    "話してくれて、ありがとう。",
+    "말해 줘서 고마워요.",
+    "Cảm ơn bạn đã chia sẻ."
+    ],
+    "If you’re in pain right now or thinking about hurting yourself, please reach out to someone who can be with you first.": [
+    "今とてもつらかったり、自分を傷つけたい気持ちがあるなら、まずはそばにいてくれる人に連絡してね。",
+    "지금 많이 괴롭거나 스스로를 해치고 싶은 마음이 든다면, 먼저 곁에 있어 줄 사람에게 연락해 주세요.",
+    "Nếu bạn đang rất đau khổ hoặc có ý nghĩ làm hại bản thân, hãy liên lạc trước với người có thể ở bên bạn."
+    ],
+    "Taiwan mental health line": [
+    "台湾の相談ダイヤル",
+    "대만 마음 상담 전화",
+    "Đường dây tâm lý Đài Loan"
+    ],
+    "24 hrs, free": [
+    "24時間・無料",
+    "24시간 · 무료",
+    "24 giờ, miễn phí"
+    ],
+    "Lifeline": [
+    "いのちの電話",
+    "생명의 전화",
+    "Đường dây sự sống"
+    ],
+    "24 hrs": [
+    "24時間",
+    "24시간",
+    "24 giờ"
+    ],
+    "Teacher Chang line": [
+    "張老師ホットライン",
+    "장 선생님 상담 전화",
+    "Đường dây Thầy Trương"
+    ],
+    "In immediate danger, call": [
+    "命の危険があるときは",
+    "긴급한 위험이 있다면",
+    "Khi nguy hiểm khẩn cấp, gọi"
+    ],
+    "Go back": [
+    "戻る",
+    "돌아가기",
+    "Quay lại"
+    ],
+    "I’d like to continue": [
+    "続けたい",
+    "계속할래요",
+    "Mình muốn tiếp tục"
+    ],
+    "Skip animation": [
+    "アニメをスキップ",
+    "애니메이션 건너뛰기",
+    "Bỏ qua hoạt ảnh"
+    ],
+    "Open the gift": [
+    "贈りものを開ける",
+    "선물 열기",
+    "Mở quà"
+    ],
+    "Say it, or type": [
+    "話すか、入力してね",
+    "말하거나 입력해요",
+    "Nói hoặc gõ"
+    ],
+    "Name by voice": [
+    "声で名前をつける",
+    "목소리로 이름 짓기",
+    "Đặt tên bằng giọng nói"
+    ],
+    "That’s the name": [
+    "この名前にする",
+    "이 이름으로 할래요",
+    "Chọn tên này"
+    ],
+    "Nice to meet you.": [
+    "はじめまして。",
+    "반가워요.",
+    "Rất vui được gặp bạn."
+    ],
+    "Tell me": [
+    "教えて",
+    "알려 줘",
+    "Kể mình nghe"
+    ],
+    "Who are you, really?": [
+    "あなたは、どんな人？",
+    "당신은 어떤 사람인가요?",
+    "Bạn là người như thế nào?"
+    ],
+    "10 little questions": [
+    "10の小さな質問で、",
+    "10개의 작은 질문으로",
+    "10 câu hỏi nhỏ"
+    ],
+    "to let the universe hear your signal.": [
+    "宇宙にあなたのシグナルを届けよう。",
+    "우주에 당신의 신호를 들려줘요.",
+    "để vũ trụ nghe thấy tín hiệu của bạn."
+    ],
+    "✦ Explore my inner universe": [
+    "✦ わたしの内なる宇宙をさがす",
+    "✦ 나의 내면 우주 탐험하기",
+    "✦ Khám phá vũ trụ bên trong tôi"
+    ],
+    "Does this sound like you?": [
+    "この言葉、あなたに似てる？",
+    "이 말, 당신과 닮았나요?",
+    "Câu này có giống bạn không?"
+    ],
+    "Previous": [
+    "前の質問",
+    "이전 질문",
+    "Câu trước"
+    ],
+    "Your personality planet": [
+    "あなたの性格の星",
+    "나의 성격 행성",
+    "Hành tinh tính cách của bạn"
+    ],
+    "Your personality planet is": [
+    "あなたの性格の星は",
+    "당신의 성격 행성은",
+    "Hành tinh tính cách của bạn là"
+    ],
+    "Next, let your pet keep you company": [
+    "次は、ペットといっしょに",
+    "이제 펫이 곁에 있어 줄게요",
+    "Tiếp theo, để thú cưng ở bên bạn"
+    ],
+    "This isn’t a diagnosis — just a gentle point of reference.": [
+    "これは診断ではなく、やさしい目じるしです。",
+    "이건 진단이 아니라 다정한 좌표일 뿐이에요.",
+    "Đây không phải chẩn đoán — chỉ là một điểm tham chiếu dịu dàng."
+    ],
+    "Skip this step": [
+    "このステップをスキップ",
+    "이 단계 건너뛰기",
+    "Bỏ qua bước này"
+    ],
+    "Use camera": [
+    "カメラを使う",
+    "카메라 사용",
+    "Dùng camera"
+    ],
+    "Next, may I borrow your camera?": [
+    "次は、カメラを借りてもいい？",
+    "이제 카메라를 잠깐 빌려도 될까요?",
+    "Tiếp theo, cho mình mượn camera nhé?"
+    ],
+    "Your pet will watch your hand through the camera: open palm, fist, then open again.": [
+    "ペットがカメラであなたの手を見るよ：手をひらいて、にぎって、またひらく。",
+    "펫이 카메라로 당신의 손을 봐요: 손바닥 펴기, 주먹 쥐기, 다시 펴기.",
+    "Thú cưng sẽ nhìn bàn tay bạn qua camera: mở tay, nắm tay, rồi mở lại."
+    ],
+    "The video is processed live on your device only — ": [
+    "映像はあなたの端末の中だけで処理され、",
+    "영상은 당신의 기기 안에서만 실시간으로 처리되며, ",
+    "Hình ảnh chỉ được xử lý trực tiếp trên thiết bị của bạn — "
+    ],
+    "nothing is recorded or uploaded": [
+    "録画もアップロードもされません",
+    "녹화되거나 업로드되지 않아요",
+    "không ghi hình, không tải lên"
+    ],
+    "If now isn’t a good moment, you can use touch instead.": [
+    "今カメラを使いにくいときは、タッチでもできるよ。",
+    "지금 카메라가 불편하다면 터치로도 할 수 있어요.",
+    "Nếu lúc này không tiện, bạn có thể dùng cảm ứng."
+    ],
+    "Turn on camera": [
+    "カメラをオン",
+    "카메라 켜기",
+    "Bật camera"
+    ],
+    "Care": [
+    "ケア",
+    "돌봄",
+    "Quan tâm"
+    ],
+    "I want to pause and stay with you for a moment": [
+    "少しとまって、あなたのそばにいたい",
+    "잠시 멈추고 당신 곁에 있고 싶어요",
+    "Mình muốn dừng lại và ở bên bạn một chút"
+    ],
+    "It sounds like things are really hard right now. This matters more than any animation, and you don’t have to carry it alone. If you’re having thoughts of hurting yourself, please let a real person be with you:": [
+    "今、本当につらいんだね。これはどんなアニメよりも大切なこと。ひとりで抱えなくていいよ。自分を傷つけたい気持ちがあるなら、どうか本物の誰かにそばにいてもらってね：",
+    "지금 정말 힘든 것 같아요. 이건 어떤 애니메이션보다 중요해요. 혼자 견디지 않아도 돼요. 스스로를 해치고 싶은 마음이 든다면, 꼭 실제 사람이 곁에 있게 해 주세요:",
+    "Nghe có vẻ lúc này bạn thật sự rất vất vả. Điều này quan trọng hơn mọi hoạt ảnh, và bạn không cần gánh một mình. Nếu bạn có ý nghĩ làm hại bản thân, hãy để một người thật ở bên bạn:"
+    ],
+    "1925 Mental health line": [
+    "1925 台湾の相談ダイヤル",
+    "1925 대만 마음 상담 전화",
+    "1925 Đường dây tâm lý Đài Loan"
+    ],
+    "1995 Lifeline": [
+    "1995 いのちの電話（台湾）",
+    "1995 생명의 전화 (대만)",
+    "1995 Đường dây sự sống (Đài Loan)"
+    ],
+    "119 Emergency": [
+    "119 緊急",
+    "119 긴급",
+    "119 Khẩn cấp"
+    ],
+    "if in immediate danger": [
+    "命の危険があるとき",
+    "긴급한 위험이 있을 때",
+    "khi nguy hiểm khẩn cấp"
+    ],
+    "I’m okay, continue": [
+    "大丈夫、続ける",
+    "괜찮아요, 계속할게요",
+    "Mình ổn, tiếp tục"
+    ],
+    "Once more": [
+    "もう一度",
+    "한 번 더",
+    "Thêm lần nữa"
+    ],
+    "Watch again": [
+    "もう一度見る",
+    "다시 보기",
+    "Xem lại"
+    ],
+    "✦ Continue the journey": [
+    "✦ 旅を続ける",
+    "✦ 여행 계속하기",
+    "✦ Tiếp tục hành trình"
+    ],
+    "Continue the journey ›": [
+    "旅を続ける ›",
+    "여행 계속하기 ›",
+    "Tiếp tục hành trình ›"
+    ],
+    "Demo universe: not many real travelers yet, so sample planets are keeping you company": [
+    "デモ宇宙：まだ旅人が少ないので、サンプルの星がいっしょにいます",
+    "데모 우주: 아직 여행자가 적어서 샘플 행성이 함께해요",
+    "Vũ trụ mẫu: chưa có nhiều lữ khách thật, nên các hành tinh mẫu sẽ bầu bạn với bạn"
+    ],
+    "✦ See the whole universe": [
+    "✦ 宇宙ぜんたいを見る",
+    "✦ 우주 전체 보기",
+    "✦ Ngắm toàn bộ vũ trụ"
+    ],
+    "🖐️ Move an open palm: turn the universe": [
+    "🖐️ 手をひらいて動かす：宇宙を回す",
+    "🖐️ 손바닥을 펴고 움직이기: 우주 회전",
+    "🖐️ Mở tay và di chuyển: xoay vũ trụ"
+    ],
+    "🤏 Pinch: choose a planet": [
+    "🤏 つまむ：星を選ぶ",
+    "🤏 집기: 행성 선택",
+    "🤏 Chụm ngón: chọn hành tinh"
+    ],
+    "✊ Make a fist: back to the whole universe": [
+    "✊ グー：宇宙ぜんたいに戻る",
+    "✊ 주먹: 우주 전체로 돌아가기",
+    "✊ Nắm tay: quay về toàn vũ trụ"
+    ],
+    "Back to the universe": [
+    "宇宙に戻る",
+    "우주로 돌아가기",
+    "Quay lại vũ trụ"
+    ],
+    "This is your planet": [
+    "これはあなたの星",
+    "당신의 행성이에요",
+    "Đây là hành tinh của bạn"
+    ],
+    "Personality star chart": [
+    "性格の星図",
+    "성격 별자리표",
+    "Bản đồ sao tính cách"
+    ],
+    "Leave a little starlight": [
+    "星の光を残す",
+    "별빛 남기기",
+    "Để lại chút ánh sao"
+    ],
+    "Keep exploring": [
+    "もっと探検する",
+    "계속 탐험하기",
+    "Khám phá tiếp"
+    ],
+    "Sadness": [
+    "悲しみ",
+    "슬픔",
+    "Nỗi buồn"
+    ],
+    "Anxiety": [
+    "不安",
+    "불안",
+    "Lo âu"
+    ],
+    "Anger": [
+    "怒り",
+    "분노",
+    "Giận dữ"
+    ],
+    "Loneliness": [
+    "さびしさ",
+    "외로움",
+    "Cô đơn"
+    ],
+    "Hope": [
+    "希望",
+    "희망",
+    "Hy vọng"
+    ],
+    "Lost": [
+    "迷子",
+    "길 잃음",
+    "Lạc lối"
+    ],
+    "Feel": [
+    "感情があらわれる",
+    "감정의 등장",
+    "Cảm xúc xuất hiện"
+    ],
+    "Listen": [
+    "近づく",
+    "다가가기",
+    "Lại gần"
+    ],
+    "Breathe": [
+    "呼吸",
+    "호흡",
+    "Hít thở"
+    ],
+    "Talk with the Universe": [
+    "宇宙と話す",
+    "우주와 대화하기",
+    "Trò chuyện với vũ trụ"
+    ],
+    "The Five Element Tones": [
+    "五行の音",
+    "오행의 소리",
+    "Âm thanh Ngũ Hành"
+    ],
+    "Our Universe": [
+    "わたしたちの宇宙",
+    "우리의 우주",
+    "Vũ trụ của chúng ta"
+    ],
+    "Earth": [
+    "土",
+    "흙(土)",
+    "Thổ"
+    ],
+    "Metal": [
+    "金",
+    "쇠(金)",
+    "Kim"
+    ],
+    "Wood": [
+    "木",
+    "나무(木)",
+    "Mộc"
+    ],
+    "Fire": [
+    "火",
+    "불(火)",
+    "Hỏa"
+    ],
+    "Water": [
+    "水",
+    "물(水)",
+    "Thủy"
+    ],
+    "Gong": [
+    "宮",
+    "궁",
+    "Cung"
+    ],
+    "Shang": [
+    "商",
+    "상",
+    "Thương"
+    ],
+    "Jue": [
+    "角",
+    "각",
+    "Giốc"
+    ],
+    "Zhi": [
+    "徴",
+    "치",
+    "Chủy"
+    ],
+    "Yu": [
+    "羽",
+    "우",
+    "Vũ"
+    ],
+    "Aries": [
+    "おひつじ座",
+    "양자리",
+    "Bạch Dương"
+    ],
+    "Taurus": [
+    "おうし座",
+    "황소자리",
+    "Kim Ngưu"
+    ],
+    "Gemini": [
+    "ふたご座",
+    "쌍둥이자리",
+    "Song Tử"
+    ],
+    "Cancer": [
+    "かに座",
+    "게자리",
+    "Cự Giải"
+    ],
+    "Leo": [
+    "しし座",
+    "사자자리",
+    "Sư Tử"
+    ],
+    "Virgo": [
+    "おとめ座",
+    "처녀자리",
+    "Xử Nữ"
+    ],
+    "Libra": [
+    "てんびん座",
+    "천칭자리",
+    "Thiên Bình"
+    ],
+    "Scorpio": [
+    "さそり座",
+    "전갈자리",
+    "Bọ Cạp"
+    ],
+    "Sagittarius": [
+    "いて座",
+    "사수자리",
+    "Nhân Mã"
+    ],
+    "Capricorn": [
+    "やぎ座",
+    "염소자리",
+    "Ma Kết"
+    ],
+    "Aquarius": [
+    "みずがめ座",
+    "물병자리",
+    "Bảo Bình"
+    ],
+    "Pisces": [
+    "うお座",
+    "물고기자리",
+    "Song Ngư"
+    ],
+    "ARIES": [
+    "おひつじ座",
+    "양자리",
+    "BẠCH DƯƠNG"
+    ],
+    "TAURUS": [
+    "おうし座",
+    "황소자리",
+    "KIM NGƯU"
+    ],
+    "GEMINI": [
+    "ふたご座",
+    "쌍둥이자리",
+    "SONG TỬ"
+    ],
+    "CANCER": [
+    "かに座",
+    "게자리",
+    "CỰ GIẢI"
+    ],
+    "LEO": [
+    "しし座",
+    "사자자리",
+    "SƯ TỬ"
+    ],
+    "VIRGO": [
+    "おとめ座",
+    "처녀자리",
+    "XỬ NỮ"
+    ],
+    "LIBRA": [
+    "てんびん座",
+    "천칭자리",
+    "THIÊN BÌNH"
+    ],
+    "SCORPIO": [
+    "さそり座",
+    "전갈자리",
+    "BỌ CẠP"
+    ],
+    "SAGITTARIUS": [
+    "いて座",
+    "사수자리",
+    "NHÂN MÃ"
+    ],
+    "CAPRICORN": [
+    "やぎ座",
+    "염소자리",
+    "MA KẾT"
+    ],
+    "AQUARIUS": [
+    "みずがめ座",
+    "물병자리",
+    "BẢO BÌNH"
+    ],
+    "PISCES": [
+    "うお座",
+    "물고기자리",
+    "SONG NGƯ"
+    ]
+    };
+  const LI = { ja: 0, ko: 1, vi: 2 }[LANG];
+  const EN = LANG !== 'zh';          // 非中文介面（英／日／韓／越）
+  const tr = s => (LI === undefined || typeof s !== 'string' || !I18N[s]) ? s : I18N[s][LI];
+  // L(中文, 英文, { ja, ko, vi })：有第三個參數就用它；沒有就用英文去查對照表
+  const L = (zh, en, x) => {
+    if (LANG === 'zh') return zh;
+    if (LANG === 'en') return en;
+    if (x && x[LANG] !== undefined) return x[LANG];
+    if (Array.isArray(en)) return en.map(tr);
+    if (en && typeof en === 'object') { const o = {}; for (const k in en) o[k] = tr(en[k]); return o; }
+    return tr(en);
+  };
+  document.documentElement.lang = { zh: 'zh-Hant', en: 'en', ja: 'ja', ko: 'ko', vi: 'vi' }[LANG];
 
   // 靜態 HTML 的英文：依中文原文對照替換文字節點、placeholder、aria-label
   const HTML_EN = {
@@ -1159,18 +3811,28 @@
     '繼續探索': 'Keep exploring'
   };
   if (EN) {
-    document.title = 'INNERVERSE PLUS · Your inner universe';
+    document.title = 'INNERVERSE PLUS · ' + tr('Your inner universe');
     const tw0 = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     const nodes = []; while (tw0.nextNode()) nodes.push(tw0.currentNode);
-    nodes.forEach(n => { const k = n.nodeValue.trim(); if (k && HTML_EN[k]) n.nodeValue = n.nodeValue.replace(k, HTML_EN[k]); });
+    nodes.forEach(n => { const k = n.nodeValue.trim(); if (k && HTML_EN[k]) n.nodeValue = n.nodeValue.replace(k, tr(HTML_EN[k])); });
     document.querySelectorAll('[placeholder],[aria-label]').forEach(el => {
-      ['placeholder', 'aria-label'].forEach(a => { const v = el.getAttribute(a); if (v && HTML_EN[v]) el.setAttribute(a, HTML_EN[v]); });
+      ['placeholder', 'aria-label'].forEach(a => { const v = el.getAttribute(a); if (v && HTML_EN[v]) el.setAttribute(a, tr(HTML_EN[v])); });
     });
   }
-  document.querySelectorAll('#langSw button').forEach(b => {
-    b.setAttribute('aria-pressed', String(b.dataset.lang === LANG));
+  // 語言選單
+  const LANG_NAME = { zh: '中文', en: 'English', ja: '日本語', ko: '한국어', vi: 'Tiếng Việt' };
+  $('langCur').textContent = LANG_NAME[LANG];
+  const langSw = $('langSw'), langBtn = $('langBtn');
+  const langOpen = on => { langSw.classList.toggle('open', on); langBtn.setAttribute('aria-expanded', String(on)); };
+  langBtn.addEventListener('click', e => { e.stopPropagation(); langOpen(!langSw.classList.contains('open')); });
+  document.addEventListener('click', e => { if (!langSw.contains(e.target)) langOpen(false); });
+  // 日文、韓文、越南文需要另外載入字型
+  { const f = { ja: 'Noto+Serif+JP:wght@300;400', ko: 'Noto+Serif+KR:wght@300;400', vi: 'Noto+Serif:wght@300;400' }[LANG];
+    if (f) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = `https://fonts.googleapis.com/css2?family=${f}&display=swap`; document.head.appendChild(l); } }
+  document.querySelectorAll('#langMenu button').forEach(b => {
+    b.setAttribute('aria-current', String(b.dataset.lang === LANG));
     b.addEventListener('click', () => {
-      if (b.dataset.lang === LANG) return;
+      if (b.dataset.lang === LANG) { langOpen(false); return; }
       try { localStorage.setItem('iv_lang', b.dataset.lang); } catch (_) {}
       const u = new URL(location.href); u.searchParams.set('lang', b.dataset.lang); location.replace(u.toString());
     });
@@ -1186,11 +3848,11 @@
     MODEL_ENDPOINT: 'https://script.google.com/macros/s/AKfycbxgLq3Smhs8y1OUwGP_iEwS3hHRa0bDWdnHIQJPi7VoeGb1VOjW2Ov2vdNfZZmOqnB0/exec',
     // 想先預先生成好 .glb 放在網站裡、省錢又快？填資料夾，例如 'models/'，檔名為 O_hi.glb、E_lo.glb、BAL.glb …
     STATIC_MODELS: '',
-    LANG: L('zh-TW', 'en-US')          // 語音辨識語言
+    LANG: { zh: 'zh-TW', en: 'en-US', ja: 'ja-JP', ko: 'ko-KR', vi: 'vi-VN' }[LANG]          // 語音辨識語言
   };
 
   // 星座：程式內部一律用中文名稱當 key，顯示時再依語言轉換
-  const zName = z => { if (!EN) return z; const p = PETS.find(x => x.zh === z); return p ? p.sign[0] + p.sign.slice(1).toLowerCase() : z; };
+  const zName = z => { if (!EN) return z; const p = PETS.find(x => x.zh === z); return p ? tr(p.sign[0] + p.sign.slice(1).toLowerCase()) : z; };
 
   /* ---------- Google Sheets 儲存 ---------- */
   async function saveToSheet(payload = {}) {
@@ -2333,7 +4995,7 @@ function petSVG(i, opt = {}) {
       Sound.ping(p.id);
       tw(p, 'light', 1, 1.6);
       await sleep(.5);
-      await sayLines([{ tag: EN ? p.en : `${p.en}｜${p.zh}`, color: p.hex }, ...p.intro], { stagger: 1.1, hold: p.id === 'hop' ? 4 : 3.3, fade: 1 });
+      await sayLines([{ tag: EN ? tr(p.en) : `${p.en}｜${p.zh}`, color: p.hex }, ...p.intro], { stagger: 1.1, hold: p.id === 'hop' ? 4 : 3.3, fade: 1 });
       await sleep(.3);
     }
     await sleep(1);
@@ -2374,14 +5036,14 @@ function petSVG(i, opt = {}) {
     const dots = cycleEl.children;
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) dots[j].className = j < i ? 'done' : (j === i ? 'cur' : '');
-      buildCaption([{ text: 'Breathe in.', cls: 'en' }, ...L(['吸氣。'], [])], .4);
+      buildCaption([{ text: 'Breathe in.', cls: 'en' }, ...L(['吸氣。'], [], { ja: ['息を吸って。'], ko: ['숨을 들이쉬어요.'], vi: ['Hít vào.'] })], .4);
       Sound.breathIn(4);
       await tw(P, 'breath', 1.18, 4);
       hideCaption();
       const t2 = tw(P, 'breath', .86, 6);
       Sound.breathOut(6);
       await sleep(.7);
-      buildCaption([{ text: 'Breathe out.', cls: 'en' }, ...L(['呼氣。'], [])], .4);
+      buildCaption([{ text: 'Breathe out.', cls: 'en' }, ...L(['呼氣。'], [], { ja: ['息を吐いて。'], ko: ['숨을 내쉬어요.'], vi: ['Thở ra.'] })], .4);
       await t2;
       dots[i].className = 'done';
       hideCaption();
@@ -2406,7 +5068,7 @@ function petSVG(i, opt = {}) {
     // 鏡頭繼續拉遠，整個星系縮成一個小小光點
     tw(P, 'cam', .03, 9); tw(P, 'beacon', 1, 9); tw(P, 'galaxy', .8, 9);
     await sleep(4.5);
-    await sayLines([{ text: "You don't have to shine all the time.", cls: 'en' }, { text: 'You are still a universe.', cls: 'en' }, ...L(['你不需要一直發光。', '你依然是一整座宇宙。'], [])],
+    await sayLines([{ text: "You don't have to shine all the time.", cls: 'en' }, { text: 'You are still a universe.', cls: 'en' }, ...L(['你不需要一直發光。', '你依然是一整座宇宙。'], [], { ja: ['いつも輝いていなくていい。', 'あなたは今も、ひとつの宇宙。'], ko: ['늘 빛나지 않아도 돼요.', '당신은 여전히 하나의 우주예요.'], vi: ['Bạn không cần lúc nào cũng tỏa sáng.', 'Bạn vẫn là cả một vũ trụ.'] })],
       { stagger: 1.5, hold: 3, fade: 1.6, cls: 'final' });
     Sound.mood('end');
     await tw(P, 'fade', 1, 2.5);
@@ -2580,7 +5242,7 @@ function petSVG(i, opt = {}) {
     }
     if (best && best !== current && (!current || best.clarity > current.clarity + .03)) {
       current = best; quoteAt = time;
-      buildCaption([{ tag: EN ? best.en : `${best.zh}　${best.en}`, color: best.hex }, ...best.touch], .9);
+      buildCaption([{ tag: EN ? tr(best.en) : `${best.zh}　${best.en}`, color: best.hex }, ...best.touch], .9);
     }
     if (touchedCount > 0) promptEl.classList.add('dim');
     // 使用者只要成功靠近／觸碰第一顆情緒星球，就立即進入下一幕，
@@ -2978,6 +5640,7 @@ function petSVG(i, opt = {}) {
     // 2003年9月6日、二零零三年九月六日、九月六號、民國92年9月6日都可辨識。
     let t = String(text || '').trim()
       .replace(/[，,。．]/g, '.')
+      .replace(/(\d+)\s*년/g, '$1年').replace(/(\d+)\s*월/g, '$1月').replace(/(\d+)\s*일/g, '$1日')
       .replace(/號/g, '日')
       .replace(/号/g, '日')
       .replace(/出生於|出生在|生日是|我的生日是|我生日|生日|生於/g, '')
@@ -2985,12 +5648,16 @@ function petSVG(i, opt = {}) {
 
     let y = null, m = null, d = null, mt;
 
+    // 越南文：ngày 6 tháng 9 năm 2003
+    const vn = String(text || '').toLowerCase().match(/(?:ngày\s*)?(\d{1,2})\s*tháng\s*(\d{1,2})(?:\s*(?:năm|,)?\s*((?:19|20)\d{2}))?/);
     // 英文月份：Sep 6, 2003／6 September 2003／September 6th
-    const eng = parseEnDate(text);
+    const eng = vn ? { d: +vn[1], m: +vn[2], y: vn[3] ? +vn[3] : null } : parseEnDate(text);
     if (eng) { y = eng.y; m = eng.m; d = eng.d; }
     // 美式 MM/DD/YYYY（英文介面）
     else if (EN && (mt = t.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.]((?:19|20)\d{2})$/))) {
-      m = +mt[1]; d = +mt[2]; y = +mt[3];
+      // 英文：月/日/年；越南文與其他：日/月/年
+      if (LANG === 'en') { m = +mt[1]; d = +mt[2]; } else { d = +mt[1]; m = +mt[2]; }
+      y = +mt[3];
     }
     // 純 8 碼 YYYYMMDD，例如 20030906
     else if ((mt = t.match(/^(19|20)\d{6}$/))) {
@@ -3032,6 +5699,10 @@ function petSVG(i, opt = {}) {
     let s = text.trim().replace(/[。.!！,，、\s]+$/, '');
     s = s.replace(/^(你好|哈囉|嗨|您好)[，,\s]*/, '').replace(/^(hi|hello|hey)\b[,!.\s]*/i, '');
     s = s.replace(/^(my name is|my name's|i am|i'm|im|call me|you can call me|it's|this is)\s+/i, '');
+    // 日文・韓文・越南文的自我介紹
+    s = s.replace(/^(こんにちは|はじめまして)[、,\s]*/, '').replace(/^(わたしは|私は|僕は|ぼくは|俺は|名前は)\s*/, '').replace(/(と申します|といいます|って呼んで|です|だよ|。)+$/, '');
+    s = s.replace(/^(안녕하세요)[,\s]*/, '').replace(/^(제 이름은|내 이름은|저는|나는)\s*/, '').replace(/(이라고 불러 주세요|라고 불러 주세요|입니다|이에요|예요|이야|야|\.)+$/, '');
+    s = s.replace(/^(xin chào)[,\s]*/i, '').replace(/^(tên tôi là|tên mình là|tôi là|mình là|cứ gọi tôi là|gọi tôi là)\s+/i, '').replace(/(nhé|nha|ạ|\.)+$/i, '');
     s = s.replace(/^(我的名字是|我的名字叫|我的名字|我叫做|我叫|我是|大家都叫我|你可以叫我|可以叫我|叫我|請叫我)\s*/, '');
     s = s.replace(/(就可以了|可以了|就好了|就好|吧|啦|喔|哦|啊)$/, '');
     return s.trim().slice(0, 20);
@@ -3046,15 +5717,15 @@ function petSVG(i, opt = {}) {
     const worry = p.worry ? firstPhrase(p.worry, 24) : '';
     const hobby = p.hobbies ? firstPhrase(p.hobbies, 16) : '';
     const z = p.birthday && p.birthday.zodiac;
-    const out = [L(`${p.name}，謝謝你把這些說給我聽。`, `${p.name}, thank you for telling me all this.`)];
+    const out = [L(`${p.name}，謝謝你把這些說給我聽。`, `${p.name}, thank you for telling me all this.`, { ja: `${p.name}、話してくれてありがとう。`, ko: `${p.name}, 이야기해 줘서 고마워요.`, vi: `${p.name}, cảm ơn bạn đã kể cho mình nghe.` })];
     out.push(worry
       ? L(`你提到最近心裡有「${worry}」。它不是你的缺點，只是你宇宙裡一顆正在發出聲音的星球。你不需要馬上解決它，先讓它被聽見，就已經是很大的一步。`,
-          `You mentioned “${worry}” has been on your mind. It isn’t a flaw — it’s just a planet in your universe trying to be heard. You don’t have to fix it right away; letting it be heard is already a big step.`)
+          `You mentioned “${worry}” has been on your mind. It isn’t a flaw — it’s just a planet in your universe trying to be heard. You don’t have to fix it right away; letting it be heard is already a big step.`, { ja: `最近「${worry}」が心にあるって話してくれたね。それはあなたの欠点じゃなく、あなたの宇宙で声をあげている星のひとつ。すぐに解決しなくていい。聞いてもらえただけで、もう大きな一歩だよ。`, ko: `요즘 마음에 “${worry}”가 있다고 했죠. 그건 당신의 결점이 아니라, 당신의 우주에서 소리를 내고 있는 행성 하나예요. 바로 해결하지 않아도 돼요. 들려주는 것만으로도 큰 한 걸음이에요.`, vi: `Bạn kể rằng dạo này “${worry}” cứ ở trong lòng. Đó không phải khuyết điểm của bạn — chỉ là một hành tinh trong vũ trụ của bạn đang muốn được lắng nghe. Không cần giải quyết ngay; để nó được lắng nghe đã là một bước lớn rồi.` })
       : L('你這次沒有多說什麼煩惱，這也沒關係。想說的時候，宇宙一直都在。', 'You didn’t mention any worries this time, and that’s okay. Whenever you want to talk, the universe is here.'));
     if (hobby) out.push(L(`你也提到「${hobby}」。那是屬於你的光。今天試著留十分鐘給它，不用做得好，只是回到自己身邊。`,
-      `You also mentioned “${hobby}”. That is your own light. Try giving it ten minutes today — it doesn’t have to be done well; it’s simply a way back to yourself.`));
+      `You also mentioned “${hobby}”. That is your own light. Try giving it ten minutes today — it doesn’t have to be done well; it’s simply a way back to yourself.`, { ja: `「${hobby}」のことも話してくれたね。それはあなただけの光。今日は十分だけ、そのための時間をつくってみて。うまくできなくていい。自分のところへ帰るための時間だから。`, ko: `“${hobby}”도 이야기했죠. 그건 당신만의 빛이에요. 오늘 10분만 그 시간을 가져 보세요. 잘하지 않아도 돼요. 자기 자신에게 돌아가는 시간이니까요.`, vi: `Bạn cũng nhắc đến “${hobby}”. Đó là ánh sáng của riêng bạn. Hôm nay hãy dành cho nó mười phút — không cần làm giỏi; chỉ là một cách để trở về với chính mình.` }));
     out.push(L(`${z ? '你是' + z + '。' : ''}星座只是一個溫柔的座標，不是答案；真正的答案，在你每一次願意停下來的時候。`,
-      `${z ? 'You’re a ' + zName(z) + '. ' : ''}A star sign is only a gentle coordinate, not an answer; the real answer is in every moment you’re willing to pause.`));
+      `${z ? 'You’re a ' + zName(z) + '. ' : ''}A star sign is only a gentle coordinate, not an answer; the real answer is in every moment you’re willing to pause.`, { ja: `${z ? 'あなたは' + zName(z) + '。' : ''}星座はやさしい目じるしで、答えではないの。本当の答えは、あなたが立ち止まろうとするその一瞬一瞬にある。`, ko: `${z ? '당신은 ' + zName(z) + '예요. ' : ''}별자리는 다정한 좌표일 뿐, 답은 아니에요. 진짜 답은 당신이 잠시 멈춰 서려는 매 순간 속에 있어요.`, vi: `${z ? 'Bạn thuộc cung ' + zName(z) + '. ' : ''}Cung hoàng đạo chỉ là một tọa độ dịu dàng, không phải câu trả lời; câu trả lời thật nằm trong mỗi khoảnh khắc bạn sẵn lòng dừng lại.` }));
     out.push(L('現在，跟著我做一次：吸氣四秒，呼氣六秒。你不需要一直發光，你依然是一整座宇宙。', 'Now, do this with me once: breathe in for four seconds, out for six. You don’t have to shine all the time. You are still a whole universe.'));
     return out.join('\n\n');
   }
@@ -3081,12 +5752,12 @@ function petSVG(i, opt = {}) {
 
     const STEPS = [
       { key: 'name', q: () => L('你好。\n你希望我怎麼稱呼你？', 'Hello.\nWhat would you like me to call you?'), hint: L('說出或輸入你的名字，暱稱也可以', 'Say or type your name — a nickname is fine too'), cont: false, skip: false },
-      { key: 'bday', q: () => L(`${data.name}，你的生日是哪一天？`, `${data.name}, when is your birthday?`), hint: L('直接說或輸入都可以，例如「20030906」、「2003/09/06」或「2003 年 9 月 6 日」', 'Say it or type it, e.g. “20030906”, “2003/09/06” or “Sep 6, 2003”'), cont: false, skip: false },
+      { key: 'bday', q: () => L(`${data.name}，你的生日是哪一天？`, `${data.name}, when is your birthday?`, { ja: `${data.name}、誕生日はいつ？`, ko: `${data.name}, 생일이 언제예요?`, vi: `${data.name}, sinh nhật bạn là ngày nào?` }), hint: L('直接說或輸入都可以，例如「20030906」、「2003/09/06」或「2003 年 9 月 6 日」', 'Say it or type it, e.g. “20030906”, “2003/09/06” or “Sep 6, 2003”'), cont: false, skip: false },
       { key: 'hobby', q: () => L('平常做什麼事，\n會讓你覺得放鬆或開心？', 'What do you usually do\nthat helps you relax or feel happy?'), hint: L('興趣、愛好，想到什麼就說什麼', 'Hobbies, interests — whatever comes to mind'), cont: true, skip: true },
       { key: 'worry', q: () => L('最近，心裡有什麼煩惱嗎？', 'Has anything been weighing on you lately?'), hint: L('不用整理，慢慢說就好', 'No need to organize it. Take your time.'), cont: true, skip: true }
     ];
     const LABELS = L(['名字', '生日', '興趣愛好', '最近的煩惱'], ['Name', 'Birthday', 'Hobbies', 'Recent worries']);
-    const CARE_RE = /自殺|想死|不想活|不想再活|結束(自己的)?生命|輕生|傷害自己|自殘|活不下去|消失就好|尋短|suicid|kill myself|end my life|self[- ]?harm|hurt myself|want to die|don'?t want to live/i;
+    const CARE_RE = /自殺|想死|不想活|不想再活|結束(自己的)?生命|輕生|傷害自己|自殘|活不下去|消失就好|尋短|suicid|kill myself|end my life|self[- ]?harm|hurt myself|want to die|don'?t want to live|死にたい|消えたい|自傷|生きていたくない|죽고 ?싶|자살|자해|살기 ?싫|muốn chết|tự tử|tự sát|tự hại|không muốn sống/i;
     const IDLE_TEXT = Voice.supported ? L('輕觸，開始說話', 'Tap to start speaking') : L('這個瀏覽器不支援語音輸入，請直接打字', 'This browser doesn’t support voice input — please type instead');
 
     let step = 0, editing = false, data = blank(), token = 0, careShown = false, lastPayload = null;
@@ -3186,7 +5857,7 @@ function petSVG(i, opt = {}) {
     });
 
     const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const bdayText = b => L(`${b.year ? b.year + ' 年 ' : ''}${b.month} 月 ${b.day} 日，${b.zodiac}`, `${MON[b.month - 1]} ${b.day}${b.year ? ', ' + b.year : ''} · ${zName(b.zodiac)}`);
+    const bdayText = b => L(`${b.year ? b.year + ' 年 ' : ''}${b.month} 月 ${b.day} 日，${b.zodiac}`, `${MON[b.month - 1]} ${b.day}${b.year ? ', ' + b.year : ''} · ${zName(b.zodiac)}`, { ja: `${b.year ? b.year + '年' : ''}${b.month}月${b.day}日・${zName(b.zodiac)}`, ko: `${b.year ? b.year + '년 ' : ''}${b.month}월 ${b.day}일 · ${zName(b.zodiac)}`, vi: `${b.day}/${b.month}${b.year ? '/' + b.year : ''} · ${zName(b.zodiac)}` });
 
     function showSummary() {
       const vals = [data.name, bdayText(data.bday), data.raw.hobby || L('（略過）', '(skipped)'), data.raw.worry || L('（略過）', '(skipped)')];
@@ -3237,7 +5908,7 @@ function petSVG(i, opt = {}) {
     }
 
     function showResult(r) {
-      resTitle.textContent = L(`${data.name}，給你的一段話`, `${data.name}, a few words for you`);
+      resTitle.textContent = L(`${data.name}，給你的一段話`, `${data.name}, a few words for you`, { ja: `${data.name}へ、宇宙からのことば`, ko: `${data.name}에게 전하는 이야기`, vi: `Đôi lời gửi ${data.name}` });
       resMock.textContent = r.mock ? L('（目前是示範回應，尚未串接 AI）', '(This is a demo reply — AI isn’t connected yet)') : '';
       resBody.textContent = '';
       bRetry.hidden = true;
@@ -3708,7 +6379,7 @@ function petSVG(i, opt = {}) {
       gCap.textContent = L('宇宙為你準備了一份禮物', 'The universe has a gift for you');
       gSub.textContent = L('輕觸，打開它', 'Tap to open it');
       petIn.value = ''; petErr.textContent = '';
-      petDefault.textContent = L(`用牠本來的名字「${pet.en}」`, `Use its original name “${pet.en}”`);
+      petDefault.textContent = L(`用牠本來的名字「${pet.en}」`, `Use its original name “${pet.en}”`, { ja: `もとの名前「${pet.en}」にする`, ko: `원래 이름 “${pet.en}”으로 하기`, vi: `Dùng tên gốc “${pet.en}”` });
       Object.assign(P, { nebula: .7, starAlpha: .9, starSpeed: .02, galaxy: 0, dust: .3, extra: 1, fade: 0, orb: 0 });
     }
 
@@ -3766,7 +6437,7 @@ function petSVG(i, opt = {}) {
       if (!name) { petErr.textContent = L('給牠一個名字吧，也可以用牠本來的名字。', 'Give it a name — or use its original name.'); return; }
       App.petName = name;
       gPetName.textContent = name;
-      gAsk.textContent = L(`你知道，${name}來自哪裡嗎？`, `Do you know where ${name} comes from?`);
+      gAsk.textContent = L(`你知道，${name}來自哪裡嗎？`, `Do you know where ${name} comes from?`, { ja: `${name}がどこから来たか、知ってる？`, ko: `${name}이(가) 어디서 왔는지 알아요?`, vi: `Bạn có biết ${name} đến từ đâu không?` });
       swap(gCap, ''); swap(gSub, '');
       setPhase('hello');
       Sound.chime();
@@ -3813,7 +6484,7 @@ function petSVG(i, opt = {}) {
         tw(P, 'starAlpha', .95, 4); tw(P, 'nebula', .75, 6); tw(P, 'fade', 0, 4.5); tw(P, 'starSpeed', -.1, 3);
         await sleep(1.4);
         tw(O, 'lit', 0, 3);
-        await flashLine(L(['你知道，', `${pn}來自哪裡嗎？`], ['Do you know', `where ${pn} comes from?`]), .8);
+        await flashLine(L(['你知道，', `${pn}來自哪裡嗎？`], ['Do you know', `where ${pn} comes from?`], { ja: ['ねえ、知ってる？', `${pn}がどこから来たのか。`], ko: ['혹시 알고 있나요?', `${pn}이(가) 어디서 왔는지.`], vi: ['Bạn có biết', `${pn} đến từ đâu không?`] }), .8);
         tw(P, 'starSpeed', .02, 2);
         await flashLine(L(['牠們其實來自一個……', '很遠、很遠的地方。'], ['They actually come from…', 'a place far, far away.']), 1.2);
 
@@ -4011,7 +6682,7 @@ function petSVG(i, opt = {}) {
     if (best.dev < .5) return Object.assign({}, BALANCE, { level: '' });
     const hi = score[best.k] >= 3, t = TRAITS[best.k], v = hi ? t.hi : t.lo;
     const key = best.k + (hi ? '_hi' : '_lo');
-    return Object.assign({ key, dimName: EN ? t.en : `${t.en} ${t.name}`, level: hi ? L('偏高', 'high') : L('偏低', 'low') }, v, PLANET_NAMES[key]);
+    return Object.assign({ key, dimName: EN ? tr(t.en) : `${t.en} ${t.name}`, level: hi ? L('偏高', 'high') : L('偏低', 'low') }, v, PLANET_NAMES[key]);
   }
 
   /* 備用的 3D 水晶（沒有模型時、或模型還在生成時顯示）*/
@@ -4173,7 +6844,7 @@ function petSVG(i, opt = {}) {
     }
 
     function fillReply(text, name, label, isMock, my) {
-      head.textContent = /^(原來|So this is you)/.test(text.trim()) ? '' : L(`原來${name}，你是${label}的人。`, `So this is you, ${name}: ${label}.`);
+      head.textContent = /^(原來|So this is you|Thì ra)/.test(text.trim()) ? '' : L(`原來${name}，你是${label}的人。`, `So this is you, ${name}: ${label}.`, { ja: `${name}、あなたは「${label}」なんだね。`, ko: `${name}, 당신은 ‘${label}’이군요.`, vi: `Thì ra ${name} là “${label}”.` });
       reply.textContent = '';
       const paras = text.split(/\n{2,}|\n/).map(x => x.trim()).filter(Boolean);
       paras.forEach((t, i) => { const p = document.createElement('p'); p.textContent = t; reply.appendChild(p); setTimeout(() => { if (my === token) p.classList.add('in'); }, 400 + i * 1300); });
@@ -4183,7 +6854,7 @@ function petSVG(i, opt = {}) {
 
     async function runAI(my) {
       const { name, type, score } = cur;
-      head.textContent = L(`原來${name}，你是${type.label}的人。`, `So this is you, ${name}: ${type.label}.`);
+      head.textContent = L(`原來${name}，你是${type.label}的人。`, `So this is you, ${name}: ${type.label}.`, { ja: `${name}、あなたは「${type.label}」なんだね。`, ko: `${name}, 당신은 ‘${type.label}’이군요.`, vi: `Thì ra ${name} là “${type.label}”.` });
       reply.textContent = ''; mock.textContent = ''; retry.hidden = true;
       const w = document.createElement('div'); w.className = 'rs-wait'; w.innerHTML = '<i></i><i></i><i></i>'; reply.appendChild(w);
       const pet = PETS[App.petIdx];
@@ -4194,7 +6865,7 @@ function petSVG(i, opt = {}) {
       });
       try {
         let r;
-        if (!CONFIG.INTERPRET_ENDPOINT) { await wait(2200); r = { reply: L(`${name}，${type.praise}\n\n${App.petName || pet.en}一直在旁邊看著你，也一定感覺到了：你本來就很好。`, `${name}, ${type.praise}\n\n${App.petName || pet.en} has been right beside you the whole time, and surely felt it too: you were always enough.`), mock: true }; }
+        if (!CONFIG.INTERPRET_ENDPOINT) { await wait(2200); r = { reply: L(`${name}，${type.praise}\n\n${App.petName || pet.en}一直在旁邊看著你，也一定感覺到了：你本來就很好。`, `${name}, ${type.praise}\n\n${App.petName || pet.en} has been right beside you the whole time, and surely felt it too: you were always enough.`, { ja: `${name}、${type.praise}\n\n${App.petName || pet.en}はずっとそばで見ていて、きっと感じていたよ。あなたは、もとからじゅうぶん素敵だって。`, ko: `${name}, ${type.praise}\n\n${App.petName || pet.en}은(는) 내내 곁에서 지켜보며 분명 느꼈을 거예요. 당신은 원래부터 충분히 좋은 사람이라는 걸.`, vi: `${name}, ${type.praise}\n\n${App.petName || pet.en} đã luôn ở bên cạnh và chắc chắn cũng cảm nhận được: bạn vốn dĩ đã rất tốt rồi.` }), mock: true }; }
         else r = await interpret(payload);
         if (my !== token) return;
         fillReply(r.reply, name, type.label, r.mock, my);
@@ -4260,7 +6931,7 @@ function petSVG(i, opt = {}) {
       petBox.innerHTML = petSVG(App.petIdx, { uid: 'r' });
       petNm.innerHTML = '';
       petNm.append(document.createTextNode(App.petName || pet.en));
-      const sm = document.createElement('small'); sm.textContent = L(`${pet.en} ${pet.name}　·　${pet.zh}`, `${pet.name}  ·  ${zName(pet.zh)}`); petNm.appendChild(sm);
+      const sm = document.createElement('small'); sm.textContent = L(`${pet.en} ${pet.name}　·　${pet.zh}`, `${pet.name}  ·  ${zName(pet.zh)}`, { ja: `${pet.name}・${zName(pet.zh)}`, ko: `${pet.name} · ${zName(pet.zh)}`, vi: `${pet.name} · ${zName(pet.zh)}` }); petNm.appendChild(sm);
       status.textContent = '';
       Gem.start(type.key);
       Sound.mood('end');
@@ -4269,7 +6940,7 @@ function petSVG(i, opt = {}) {
       runAI(my);
       {
         const wq = String((App.user && App.user.worry) || '').trim();
-        const noW = !wq || /^(沒有|沒|無|沒事|沒什麼|不用|不需要|沒煩惱|沒有煩惱|沒啥|no|nope|none|nothing|nah|not really|no worries)[。！!，,.\s]*$/i.test(wq);
+        const noW = !wq || /^(沒有|沒|無|沒事|沒什麼|不用|不需要|沒煩惱|沒有煩惱|沒啥|no|nope|none|nothing|nah|not really|no worries|ない|なし|特にない|特になし|大丈夫|없어|없어요|없음|딱히 없어|không|không có|chẳng có gì)[。！!，,.\s]*$/i.test(wq);
         Me.build({ weather: noW ? 'sunny' : (score.N >= 3.8 ? 'fog' : 'rain') }); publishMe(); Universe.refresh();
       }
     }
@@ -4768,7 +7439,7 @@ function petSVG(i, opt = {}) {
       Object.assign(FL, { heart: 1, hug: 1, uni: 1, orbit: 1, zoom: .74, px: 0, py: -.07, ps: .44, pa: 1, pclose: 0, mono: 0, world: 0, tint: 0, ja: 0, arm: 0 });
       FL.a.fill(0); FL.lab.fill(0);
       P.starAlpha = .95; P.nebula = .8; P.fade = 0;
-      buildCaption([{ text: 'Every feeling belongs.', cls: 'en' }, ...L(['每一種情緒，都有存在的位置。'], [])], 1.2, 'final');
+      buildCaption([{ text: 'Every feeling belongs.', cls: 'en' }, ...L(['每一種情緒，都有存在的位置。'], [], { ja: ['どの感情にも、いていい場所がある。'], ko: ['모든 감정에는 머물 자리가 있어요.'], vi: ['Mọi cảm xúc đều có chỗ để tồn tại.'] })], 1.2, 'final');
       skip.hidden = true;
       later(instant ? 2 : 4, () => endCard.classList.add('on'));
     }
@@ -5241,7 +7912,7 @@ function petSVG(i, opt = {}) {
   /* ================================================================
      療癒儀式：有煩惱（A）／沒煩惱（B）→ 共同結尾
      ================================================================ */
-  const RT_CARE_RE = /自殺|想死|不想活|不想再活|結束(自己的)?生命|輕生|傷害自己|自殘|活不下去|消失就好|尋短|suicid|kill myself|end my life|self[- ]?harm|hurt myself|want to die|don'?t want to live/i;
+  const RT_CARE_RE = /自殺|想死|不想活|不想再活|結束(自己的)?生命|輕生|傷害自己|自殘|活不下去|消失就好|尋短|suicid|kill myself|end my life|self[- ]?harm|hurt myself|want to die|don'?t want to live|死にたい|消えたい|自傷|生きていたくない|죽고 ?싶|자살|자해|살기 ?싫|muốn chết|tự tử|tự sát|tự hại|không muốn sống/i;
   const Ritual = (() => {
     const hud = $('rtHud'), icon = $('rtIcon'), ins = $('rtIns'), sub = $('rtSub'), ok = $('rtOk'), pad = $('rtPad'), sw = $('rtSwitch'), skipBtn = $('rtSkip');
     const count = $('rtCount'), consent = $('rtConsent'), care = $('rtCare'), endB = $('rtEnd');
@@ -5250,7 +7921,7 @@ function petSVG(i, opt = {}) {
     const later = (sec, fn) => { sleep(sec).then(fn).catch(() => {}); };
     const say = async (lines, hold = 1.2, cls = '', stagger = .8) => { buildCaption(lines, stagger, cls); await sleep(1 + stagger * (lines.length - 1) + hold); hideCaption(); await sleep(.5); };
     const worryText = () => ((App.user && App.user.worry) || '').trim();
-    const hasWorry = () => { const w = worryText(); return w.length > 0 && !/^(沒有|沒|無|沒事|沒什麼|不用|不需要|沒煩惱|沒有煩惱|沒啥|no|nope|none|nothing|nah|not really|no worries)[。！!，,.\s]*$/i.test(w); };
+    const hasWorry = () => { const w = worryText(); return w.length > 0 && !/^(沒有|沒|無|沒事|沒什麼|不用|不需要|沒煩惱|沒有煩惱|沒啥|no|nope|none|nothing|nah|not really|no worries|ない|なし|特にない|特になし|大丈夫|없어|없어요|없음|딱히 없어|không|không có|chẳng có gì)[。！!，,.\s]*$/i.test(w); };
     const petName = () => App.petName || PETS[App.petIdx].en;
     const vib = p => { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) { /* ignore */ } };
     const u2s = (ux, uy) => [CX + ux * U, CY + uy * U * rtYS];
@@ -5272,7 +7943,7 @@ function petSVG(i, opt = {}) {
       } catch (e) { console.error('worry:', e); return mockCatch(w); }
     }
     function makeChars(w) {
-      const cs = [...w].filter(c => /[\u4e00-\u9fffA-Za-z0-9]/.test(c)).slice(0, 34), n = Math.max(1, cs.length);
+      const cs = [...w].filter(c => /[\u3040-\u30ff\u4e00-\u9fff\uac00-\ud7afA-Za-z0-9\u00c0-\u024f\u1e00-\u1eff]/.test(c)).slice(0, 34), n = Math.max(1, cs.length);
       return cs.map((ch, i) => ({ ch, a0: i * TAU / n + hs(i) * .5, r: .2 + .13 * hs(i * 3), sp: (.25 + .25 * hs(i)) * (i % 2 ? 1 : -1), sz: 15 + hs(i * 7) * 6, d: hs(i * 11) }));
     }
 
@@ -5459,7 +8130,7 @@ function petSVG(i, opt = {}) {
       const flip = { a: 0 }; tw(flip, 'a', TAU, .9); for (let i = 0; i < 18; i++) { RT.prot = flip.a; await sleep(.05); } RT.prot = 0;
       say(L(['太好了！'], ['Yay!']), 1.1, 'mid', 0);
       await sleep(1.8);
-      await say(L([`${n}很開心，`, '今天的你沒有什麼煩惱 ♡'], [`${n} is so happy`, 'that nothing is weighing on you today ♡']), 1.8, '', .9);
+      await say(L([`${n}很開心，`, '今天的你沒有什麼煩惱 ♡'], [`${n} is so happy`, 'that nothing is weighing on you today ♡'], { ja: [`${n}はとてもうれしい。`, '今日のあなたに悩みがなくて ♡'], ko: [`${n}은(는) 정말 기뻐요.`, '오늘 당신에게 고민이 없어서 ♡'], vi: [`${n} vui lắm,`, 'vì hôm nay bạn chẳng có gì bận lòng ♡'] }), 1.8, '', .9);
       for (let k = 0; k < 24; k++) rsp({ x: CX + rand(-.4, .4) * U, y: CY + rand(-.2, .3) * U * rtYS, vy: rand(-40, -10), vx: rand(-20, 20), drag: .6, life: rand(2, 3.5), s: rand(.8, 1.4), c: pick(LOVEC), t: 'star' });
 
       /* B-02 收藏好心情 */
@@ -5575,7 +8246,7 @@ function petSVG(i, opt = {}) {
     water: { zh: '水', tone: '羽', en: 'Water', toneEn: 'Yu', icon: '💧', c: [96, 170, 255], c2: [204, 232, 255],
       feel: L('深沉、流動', 'deep and flowing'), fit: L('緊張、不安，想慢慢靜下來的時候', 'When you feel tense and want to slowly calm down') }
   };
-  const wxLabel = k => L(`${WXD[k].zh}｜${WXD[k].tone}`, `${WXD[k].en} · ${WXD[k].toneEn}`);
+  const wxLabel = k => L(`${WXD[k].zh}｜${WXD[k].tone}`, `${WXD[k].en} · ${WXD[k].toneEn}`, { ja: `${WXD[k].zh}｜${WXD[k].tone}`, ko: `${tr(WXD[k].en)} · ${tr(WXD[k].toneEn)}`, vi: `${tr(WXD[k].en)} · ${tr(WXD[k].toneEn)}` });
   // 年干五行（立春前算前一年）；沒有年份時用月份對應的季節
   function elementOf(b) {
     if (!b || !b.month) return null;
@@ -5805,7 +8476,7 @@ function petSVG(i, opt = {}) {
       ctx.fillStyle = rgba([40, 26, 70], a); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.font = `400 ${Math.round(r * .95)}px "Noto Serif TC", serif`; ctx.fillText(d.tone, x, y + 1);
       ctx.fillStyle = rgba(d.c2, a * .85); ctx.font = `300 ${Math.round(Math.max(11, r * .42))}px ${bodyFont}`;
-      ctx.fillText(L(`${d.zh}`, d.en), x, y + r * 1.75);
+      ctx.fillText(L(`${d.zh}`, d.en, { ja: d.zh }), x, y + r * 1.75);
     }
     ctx.restore();
   }
@@ -6005,7 +8676,7 @@ function petSVG(i, opt = {}) {
     });
     function setTitle(k) {
       const d = WXD[k];
-      title.textContent = L(`${d.icon} 你的五行之音：${d.tone}`, `${d.icon} Your element tone: ${d.toneEn} (${d.tone})`);
+      title.textContent = L(`${d.icon} 你的五行之音：${d.tone}`, `${d.icon} Your element tone: ${d.toneEn} (${d.tone})`, { ja: `${d.icon} あなたの五行の音：${d.tone}`, ko: `${d.icon} 나의 오행의 음: ${tr(d.toneEn)} (${d.tone})`, vi: `${d.icon} Âm ngũ hành của bạn: ${tr(d.toneEn)} (${d.tone})` });
       sub.textContent = L('戴上耳機，聽聽屬於你的聲音。', 'Put on your headphones and listen to your own sound.');
     }
     function mark(k) { Array.from(cards.children).forEach(b => b.classList.toggle('on', b.dataset.el === k)); }
@@ -6014,7 +8685,7 @@ function petSVG(i, opt = {}) {
       wxPrev = wxEl; WXMIX.v = 0; tw(WXMIX, 'v', 1, 2.2);
       wxEl = k; mark(k); Sound.wxStart(k, wxOnSound); Sound.chime(WX_ORDER.indexOf(k) * .5);
       const d = WXD[k], [px, py] = wxPetXY(); emit(px, py, 40, [d.c2.join(','), d.c.join(','), '255,255,255'], { speed: 160, life: 1.1 });
-      title.textContent = L(`${d.icon} ${d.zh}｜${d.tone}`, `${d.icon} ${d.en} · ${d.toneEn} (${d.tone})`); sub.textContent = d.fit;
+      title.textContent = L(`${d.icon} ${d.zh}｜${d.tone}`, `${d.icon} ${d.en} · ${d.toneEn} (${d.tone})`, { ja: `${d.icon} ${d.zh}｜${d.tone}`, ko: `${d.icon} ${tr(d.en)} · ${tr(d.toneEn)} (${d.tone})`, vi: `${d.icon} ${tr(d.en)} · ${tr(d.toneEn)} (${d.tone})` }); sub.textContent = d.fit;
       wxSetScene(k); resetAuto(30);
     }
     function wxSetScene(k) {
@@ -6052,7 +8723,7 @@ function petSVG(i, opt = {}) {
       tw(WV, 'gather', 1, 4.2, easeIO); tw(WV, 'tint', .6, 4); Sound.chime(1);
       await sleep(3.4);
       Sound.ding(); tw(WV, 'glyph', 1, 1.4); const [px, py] = wxPetXY(); emit(px, py, 70, [d.c2.join(','), d.c.join(','), '255,255,255'], { speed: 220, life: 1.3 }); addRipple(px, py);
-      buildCaption([{ text: `${d.icon}`, cls: 'en wxbig' }, { text: L(`${d.zh}`, d.en), cls: 'wxname', color: `rgb(${d.c2.join(',')})` }, L(`你的主要五行是「${d.zh}」，${d.feel}。`, `Your main element is ${d.en} — ${d.feel}.`)], .9);
+      buildCaption([{ text: `${d.icon}`, cls: 'en wxbig' }, { text: L(`${d.zh}`, d.en, { ja: d.zh }), cls: 'wxname', color: `rgb(${d.c2.join(',')})` }, L(`你的主要五行是「${d.zh}」，${d.feel}。`, `Your main element is ${d.en} — ${d.feel}.`, { ja: `あなたの五行は「${d.zh}」。${d.feel}力。`, ko: `당신의 주요 오행은 ‘${tr(d.en)}’, ${d.feel} 기운이에요.`, vi: `Hành chủ đạo của bạn là ${tr(d.en)} — ${d.feel}.` })], .9);
       await sleep(5.6); hideCaption(); await sleep(.8);
       // 音樂慢慢淡出，宇宙突然安靜
       Sound.silence(4); tw(P, 'starSpeed', .002, 4); tw(WV, 'tint', .25, 4);
@@ -6071,7 +8742,7 @@ function petSVG(i, opt = {}) {
         const x = CX + (i / 4 - .5) * Math.min(W * .84, U * 1.25), y = CY + WV.toneY * U;
         wxRip.push({ x, y, age: 0, c: dd.c, life: 2.4, w: 1.6 });
         miniFx(k, x, y);
-        buildCaption([{ text: `${dd.icon} ${L(dd.zh, dd.en)} — ${dd.tone}`, cls: 'wxline', color: `rgb(${dd.c2.join(',')})` }, L(`${dd.feel}。`, `${dd.feel[0].toUpperCase()}${dd.feel.slice(1)}.`)], .5);
+        buildCaption([{ text: `${dd.icon} ${L(dd.zh, dd.en, { ja: dd.zh })} — ${dd.tone}`, cls: 'wxline', color: `rgb(${dd.c2.join(',')})` }, L(`${dd.feel}。`, `${dd.feel[0].toUpperCase()}${dd.feel.slice(1)}.`, { ja: `${dd.feel}音。`, ko: `${dd.feel} 소리.`, vi: `${dd.feel[0].toUpperCase()}${dd.feel.slice(1)}.` })], .5);
         await sleep(2.9); hideCaption(); toneHit[i] = .35; await sleep(.45);
       }
       // PART 3：你的音飛向寵物
@@ -6191,9 +8862,9 @@ function petSVG(i, opt = {}) {
     'Mika', '米粒', 'Sunny', '阿光', 'Hiro', 'Bella', '小白', 'Noa', 'Kiwi', '花花', 'Remy', 'Zoe', '阿葵', 'Finn', 'Yuna', '芒果', 'Skye', 'Taro', '晚晚', 'Lily', 'Owen', '露露', 'Aki', 'Maple', '小海', 'Rae', 'Ezra', '泡芙', 'Dani', 'Kuro', '雲朵', 'Mila', 'Ash', '可可', 'Wren', 'Haru', '布丁', 'Cleo', 'Jun', '星星', 'Pip', 'Nico', '安安', 'Elle', 'Riku', '小魚', 'Tess', 'Kei', '月月', 'Quinn', 'Uma', '豆豆', 'Leon', 'Fay', '小鹿', 'Sage'];
   const DEMO_PETS = ['Mochi', 'Puff', 'Bean', 'Pico', 'Lulu', 'Sesame', 'Kiki', 'Tofu', 'Dumpling', 'Pudding', 'Boba', 'Miso'];
   const UV_GIFTS = [
-    { k: 'star', icon: '⭐', zh: '一顆星星', en: 'a star' }, { k: 'leaf', icon: '🌱', zh: '一片葉子', en: 'a leaf' },
-    { k: 'drop', icon: '💧', zh: '一滴水', en: 'a drop of water' }, { k: 'light', icon: '✨', zh: '一點光', en: 'a little light' },
-    { k: 'heart', icon: '♡', zh: '一顆心', en: 'a heart' }
+    { k: 'star', icon: '⭐', zh: '一顆星星', en: 'a star', ja: 'ひとつの星', ko: '별 하나', vi: 'một ngôi sao' }, { k: 'leaf', icon: '🌱', zh: '一片葉子', en: 'a leaf', ja: '一枚の葉っぱ', ko: '나뭇잎 하나', vi: 'một chiếc lá' },
+    { k: 'drop', icon: '💧', zh: '一滴水', en: 'a drop of water', ja: 'ひとしずくの水', ko: '물 한 방울', vi: 'một giọt nước' }, { k: 'light', icon: '✨', zh: '一點光', en: 'a little light', ja: 'ちいさな光', ko: '작은 빛', vi: 'một chút ánh sáng' },
+    { k: 'heart', icon: '♡', zh: '一顆心', en: 'a heart', ja: 'ひとつのハート', ko: '하트 하나', vi: 'một trái tim' }
   ];
   const UV_KEYS = ['E_hi', 'E_lo', 'A_hi', 'A_lo', 'C_hi', 'C_lo', 'N_hi', 'N_lo', 'O_hi', 'O_lo', 'BAL'];
 
@@ -6433,7 +9104,7 @@ function petSVG(i, opt = {}) {
       UVS.react = { E: 'approach', O: 'curious', A: 'gift', C: 'wave', N: 'hide' }[top] || 'spin';
       UVS.reactT = 0; UVS.reactA = 1.6;
       if (UVS.react === 'gift') {
-        setTimeout(() => { if (sel && sel.petX) { emit(sel.petX, sel.petY, 18, ['255,236,190', '255,255,255'], { speed: 90, life: 1.2 }); Sound.chime(1.5); toast(L(`${sel.petName} 送你一顆小星星 ✦`, `${sel.petName} gave you a tiny star ✦`)); } }, 500);
+        setTimeout(() => { if (sel && sel.petX) { emit(sel.petX, sel.petY, 18, ['255,236,190', '255,255,255'], { speed: 90, life: 1.2 }); Sound.chime(1.5); toast(L(`${sel.petName} 送你一顆小星星 ✦`, `${sel.petName} gave you a tiny star ✦`, { ja: `${sel.petName}が小さな星をくれたよ ✦`, ko: `${sel.petName}이(가) 작은 별을 줬어요 ✦`, vi: `${sel.petName} tặng bạn một ngôi sao nhỏ ✦` })); } }, 500);
       } else if (UVS.react === 'approach') Sound.chime(.5);
       else if (UVS.react === 'hide') Sound.note(392, { dur: .8, gain: .04 });
       else Sound.note(784, { dur: .6, gain: .04 });
@@ -6470,20 +9141,20 @@ function petSVG(i, opt = {}) {
     function fillCard(p) {
       const d = WXD[p.el], pet = PETS[p.petIdx || 0] || PETS[0], w = WEATHER[p.weather] || WEATHER.sunny;
       card.style.setProperty('--c', `rgb(${d.c.join(',')})`);
-      $('uvcTitle').textContent = L(`✦ ${p.name} 的星球`, `✦ ${p.name.toUpperCase()}’S PLANET`);
+      $('uvcTitle').textContent = L(`✦ ${p.name} 的星球`, `✦ ${p.name.toUpperCase()}’S PLANET`, { ja: `✦ ${p.name} の星`, ko: `✦ ${p.name}의 행성`, vi: `✦ Hành tinh của ${p.name}` });
       $('uvcMe').hidden = !p.me;
       const rows = [
         [L('主人', 'Owner'), p.name], [L('星球名稱', 'Planet'), p.planetName || ''],
-        [L('宇宙寵物', 'Cosmic pet'), `${pet.glyph}︎ ${L(pet.zh, pet.sign[0] + pet.sign.slice(1).toLowerCase())}`],
+        [L('宇宙寵物', 'Cosmic pet'), `${pet.glyph}︎ ${L(pet.zh, pet.sign[0] + pet.sign.slice(1).toLowerCase(), { ja: tr(pet.sign), ko: tr(pet.sign), vi: tr(pet.sign[0] + pet.sign.slice(1).toLowerCase()) })}`],
         [L('寵物名字', 'Pet name'), p.petName || pet.en],
-        [L('主要五行', 'Element'), `${d.icon} ${L(d.zh, d.en)}`], [L('五行之音', 'Element tone'), L(d.tone, `${d.toneEn} (${d.tone})`)],
+        [L('主要五行', 'Element'), `${d.icon} ${L(d.zh, d.en, { ja: d.zh })}`], [L('五行之音', 'Element tone'), L(d.tone, `${d.toneEn} (${d.tone})`, { ja: d.tone, ko: `${tr(d.toneEn)} (${d.tone})`, vi: `${tr(d.toneEn)} (${d.tone})` })],
         [L('今天的星球天氣', 'Planet weather today'), `${w[0]} ${w[1]}`]
       ];
       const info = $('uvcInfo'); info.textContent = '';
       rows.forEach(([k, v]) => { const dt2 = document.createElement('dt'); dt2.textContent = k; const dd = document.createElement('dd'); dd.textContent = v; info.append(dt2, dd); });
       const bars = $('uvcBars'); bars.textContent = '';
       if (p.big5) ['O', 'C', 'E', 'A', 'N'].forEach(k => bars.appendChild(bar(`${k}`, p.big5[k] || 3)));
-      $('uvcStarsN').textContent = p.lights ? L(`已經有 ${p.lights} 點星光`, `${p.lights} bits of starlight so far`) : '';
+      $('uvcStarsN').textContent = p.lights ? L(`已經有 ${p.lights} 點星光`, `${p.lights} bits of starlight so far`, { ja: `これまでに ${p.lights} つの星の光`, ko: `지금까지 별빛 ${p.lights}개`, vi: `Đã có ${p.lights} chút ánh sao` }) : '';
       $('uvcGive').hidden = !!p.me;
       Array.from($('uvcGifts').children).forEach(b => b.classList.toggle('done', !!(given[p.pid || p.name] || {})[b.dataset.k]));
     }
@@ -6497,8 +9168,8 @@ function petSVG(i, opt = {}) {
       gifts.push({ icon: g.icon, x0: r.left + r.width / 2, y0: r.top + r.height / 2, p: sel, t: 0 });
       Sound.chime(UV_GIFTS.indexOf(g) * .3);
       sel.lights = (sel.lights || 0) + 1;
-      setTimeout(() => { if (sel) $('uvcStarsN').textContent = L(`已經有 ${sel.lights} 點星光`, `${sel.lights} bits of starlight so far`); }, 1300);
-      toast(L(`你留下了${g.zh} ✦`, `You left ${g.en} ✦`));
+      setTimeout(() => { if (sel) $('uvcStarsN').textContent = L(`已經有 ${sel.lights} 點星光`, `${sel.lights} bits of starlight so far`, { ja: `これまでに ${sel.lights} つの星の光`, ko: `지금까지 별빛 ${sel.lights}개`, vi: `Đã có ${sel.lights} chút ánh sao` }); }, 1300);
+      toast(L(`你留下了${g.zh} ✦`, `You left ${g.en} ✦`, { ja: `${g.ja}を残したよ ✦`, ko: `${g.ko}을(를) 남겼어요 ✦`, vi: `Bạn đã để lại ${g.vi} ✦` }));
       if (!sel.demo && sel.pid && CONFIG.DATA_ENDPOINT) {
         const me = Me.get() || {};
         apiPost(CONFIG.DATA_ENDPOINT, { action: 'starlight', to: sel.pid, kind: k, from: me.pid || '' }, 12000).catch(e => console.warn('starlight:', e));
@@ -6506,7 +9177,7 @@ function petSVG(i, opt = {}) {
     }
     UV_GIFTS.forEach(g => {
       const b = document.createElement('button'); b.type = 'button'; b.className = 'uv-gift'; b.dataset.k = g.k; b.textContent = g.icon;
-      b.setAttribute('aria-label', L(`送出${g.zh}`, `Give ${g.en}`)); b.addEventListener('click', () => give(g.k));
+      b.setAttribute('aria-label', L(`送出${g.zh}`, `Give ${g.en}`, { ja: `${g.ja}を贈る`, ko: `${g.ko} 보내기`, vi: `Tặng ${g.vi}` })); b.addEventListener('click', () => give(g.k));
       $('uvcGifts').appendChild(b);
     });
     $('uvcClose').addEventListener('click', back);
@@ -6585,7 +9256,7 @@ function petSVG(i, opt = {}) {
         const n = j && (j.travelers || j.count);
         if (n > 0) {
           const night = Date.now() - since > 6 * 3600e3;
-          setTimeout(() => toast(L(`${night ? '昨晚' : '你不在的時候'}，有 ${n} 位旅人經過你的星球。他們留下了一點星光。`, `${night ? 'Last night' : 'While you were away'}, ${n} traveler${n > 1 ? 's' : ''} passed by your planet and left a little starlight.`), 6), 5200);
+          setTimeout(() => toast(L(`${night ? '昨晚' : '你不在的時候'}，有 ${n} 位旅人經過你的星球。他們留下了一點星光。`, `${night ? 'Last night' : 'While you were away'}, ${n} traveler${n > 1 ? 's' : ''} passed by your planet and left a little starlight.`, { ja: `${night ? '昨夜' : 'あなたがいないあいだに'}、${n} 人の旅人があなたの星を通りかかり、星の光を残していったよ。`, ko: `${night ? '어젯밤' : '당신이 없는 동안'}, 여행자 ${n}명이 당신의 행성을 지나가며 별빛을 남겼어요.`, vi: `${night ? 'Đêm qua' : 'Khi bạn vắng nhà'}, có ${n} lữ khách ghé qua hành tinh của bạn và để lại chút ánh sao.` }), 6), 5200);
         }
       } catch (e) { console.warn('visits:', e); }
     }

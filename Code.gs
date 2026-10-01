@@ -82,10 +82,12 @@ function doGet(e) {
     if (action === 'checkName') return checkName_(e);
     if (action === 'universe') return universe_(e);
     if (action === 'visits') return visits_(e);
+    if (action === 'modelBin') return modelBin_(e);
+    if (action === 'tripoCheck') return tripoCheck_(e);
     return json_({
       ok:true,
       message:'INNERVERSE PLUS API is running',
-      actions:['saveInnerverse','interpret','worry','modelStart','modelStatus','modelGlb','checkName','publish','universe','starlight','visits'],
+      actions:['saveInnerverse','interpret','worry','modelStart','modelStatus','modelGlb','modelBin','tripoCheck','checkName','publish','universe','starlight','visits'],
       time:new Date().toISOString()
     });
   } catch (err) {
@@ -218,6 +220,8 @@ function modelStart_(body) {
   const task = {type:'text_to_model',prompt,negative_prompt:NEGATIVE,texture:true,pbr:true};
   const v = prop_('TRIPO_MODEL_VERSION');
   if (v) task.model_version = v;
+  const fl = Number(prop_('TRIPO_FACE_LIMIT'));
+  if (fl > 0) task.face_limit = fl;   // 選填：限制面數，模型檔比較小、手機載入比較快
 
   const r = UrlFetchApp.fetch(TRIPO_BASE + '/task',{
     method:'post',
@@ -231,7 +235,7 @@ function modelStart_(body) {
   let data = {};
   try { data = JSON.parse(text); } catch (_) {}
   if (status < 200 || status >= 300 || data.code !== 0 || !data.data || !data.data.task_id) {
-    return json_({ok:false,error:'Tripo 建立任務失敗',detail:text.slice(0,600)});
+    return json_({ok:false,error:'Tripo 建立任務失敗（HTTP ' + status + '）：' + ((data && data.message) || text.slice(0,300)),detail:text.slice(0,600)});
   }
   return json_({ok:true,taskId:data.data.task_id,prompt});
 }
@@ -280,6 +284,35 @@ function modelGlb_(e) {
   } catch (err) {
     return json_({ok:false,error:err.message});
   }
+}
+
+// 有些瀏覽器不能直接讀 Tripo 的模型網址（跨網域），改由後端代抓，以 base64 傳回
+function modelBin_(e) {
+  try {
+    const id = str_((e.parameter || {}).id,120);
+    const t = tripoTask_(id), out = t.output || {};
+    const url = out.pbr_model || out.model || out.base_model || out.model_url || '';
+    if (!url) return json_({ok:false,error:'模型還沒完成（' + (t.status || 'unknown') + '）'});
+    const r = UrlFetchApp.fetch(url,{muteHttpExceptions:true});
+    if (r.getResponseCode() !== 200) return json_({ok:false,error:'下載模型失敗 HTTP ' + r.getResponseCode()});
+    const bytes = r.getContent();
+    if (bytes.length > 30 * 1024 * 1024) return json_({ok:false,error:'模型太大（' + Math.round(bytes.length / 1048576) + 'MB），可設定 TRIPO_FACE_LIMIT'});
+    return json_({ok:true,size:bytes.length,b64:Utilities.base64Encode(bytes)});
+  } catch (err) {
+    return json_({ok:false,error:err.message});
+  }
+}
+
+// 診斷用：確認 Tripo 金鑰可用、還剩多少額度（不會花額度）
+function tripoCheck_(e) {
+  const key = prop_('TRIPO_API_KEY');
+  if (!key) return json_({ok:false,error:'TRIPO_API_KEY 尚未設定'});
+  const r = UrlFetchApp.fetch(TRIPO_BASE + '/user/balance',{method:'get',headers:{Authorization:'Bearer ' + key},muteHttpExceptions:true});
+  const text = r.getContentText();
+  let data = {};
+  try { data = JSON.parse(text); } catch (_) {}
+  if (r.getResponseCode() !== 200 || data.code !== 0) return json_({ok:false,error:'Tripo 金鑰檢查失敗（HTTP ' + r.getResponseCode() + '）：' + ((data && data.message) || text.slice(0,200))});
+  return json_({ok:true,balance:(data.data || {}).balance,frozen:(data.data || {}).frozen});
 }
 
 function saveInnerverse_(data) {
@@ -426,7 +459,7 @@ function testTripoStart() {
  * ================================================================ */
 const UNIVERSE_SHEET = 'UNIVERSE';
 const STARLIGHT_SHEET = 'STARLIGHT';
-const UNIVERSE_HEADERS = ['uid','pid','name','nameKey','planetName','typeKey','petIdx','petSign','petName','element','O','C','E','A','N','weather','lang','createdAt','updatedAt'];
+const UNIVERSE_HEADERS = ['uid','pid','name','nameKey','planetName','typeKey','petIdx','petSign','petName','element','O','C','E','A','N','weather','lang','createdAt','updatedAt','modelTask','img'];
 const STARLIGHT_HEADERS = ['time','toPid','kind','fromPid'];
 const WEATHERS = ['sunny','rain','fog','rainbow','night'];
 const ELEMENTS = ['earth','metal','wood','fire','water'];
@@ -437,6 +470,12 @@ function sheet_(name, headers) {
   let sh = ss.getSheetByName(name);
   if (!sh) sh = ss.insertSheet(name);
   if (sh.getLastRow() === 0) { sh.appendRow(headers); sh.setFrozenRows(1); }
+  else {
+    // 舊表格缺少新欄位時，自動補在最右邊
+    const lastCol = sh.getLastColumn(), head = sh.getRange(1, 1, 1, lastCol).getValues()[0];
+    const miss = headers.filter(h => head.indexOf(h) < 0);
+    if (miss.length) sh.getRange(1, lastCol + 1, 1, miss.length).setValues([miss]);
+  }
   return sh;
 }
 function rows_(sh) {
@@ -469,12 +508,18 @@ function publish_(b) {
     const big5 = b.big5 || {}, now = new Date();
     const mine = all.find(r => r.uid === uid);
     const pid = mine ? mine.pid : Utilities.getUuid().replace(/-/g, '').slice(0, 12);
-    const row = [
-      uid, pid, name, key, str_(b.planetName, 30), str_(b.typeKey, 8) || 'BAL', Number(b.petIdx) || 0, str_(b.petSign, 12), str_(b.petName, 20),
-      ELEMENTS.indexOf(b.element) >= 0 ? b.element : 'wood',
-      num_(big5.O), num_(big5.C), num_(big5.E), num_(big5.A), num_(big5.N),
-      WEATHERS.indexOf(b.weather) >= 0 ? b.weather : 'sunny', str_(b.lang, 4), mine ? mine.createdAt : now, now
-    ];
+    // 生成的 3D 星球：Tripo 任務 id ＋ 一張小縮圖（data URL，限制大小以免超過儲存格上限）
+    const task = /^[A-Za-z0-9_-]{8,120}$/.test(String(b.modelTask || '')) ? String(b.modelTask) : (mine ? mine.modelTask : '');
+    const img = /^data:image\/(webp|png|jpeg);base64,[A-Za-z0-9+\/=]+$/.test(String(b.img || '')) && String(b.img).length <= 45000 ? String(b.img) : (mine ? mine.img : '');
+    const val = {
+      uid, pid, name, nameKey:key, planetName:str_(b.planetName, 30), typeKey:str_(b.typeKey, 8) || 'BAL', petIdx:Number(b.petIdx) || 0, petSign:str_(b.petSign, 12), petName:str_(b.petName, 20),
+      element:ELEMENTS.indexOf(b.element) >= 0 ? b.element : 'wood',
+      O:num_(big5.O), C:num_(big5.C), E:num_(big5.E), A:num_(big5.A), N:num_(big5.N),
+      weather:WEATHERS.indexOf(b.weather) >= 0 ? b.weather : 'sunny', lang:str_(b.lang, 4), createdAt:mine ? mine.createdAt : now, updatedAt:now,
+      modelTask:task || '', img:img || ''
+    };
+    const head = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+    const row = head.map(h => val[h] !== undefined ? val[h] : (mine && mine[h] !== undefined ? mine[h] : ''));
     if (mine) sh.getRange(mine._row, 1, 1, row.length).setValues([row]); else sh.appendRow(row);
     return json_({ok:true, pid});
   } finally { lock.releaseLock(); }
@@ -483,9 +528,11 @@ function publish_(b) {
 function universe_(e) {
   const lights = {};
   rows_(sheet_(STARLIGHT_SHEET, STARLIGHT_HEADERS)).forEach(r => { lights[r.toPid] = (lights[r.toPid] || 0) + 1; });
+  let imgs = 0;
   const planets = rows_(sheet_(UNIVERSE_SHEET, UNIVERSE_HEADERS))
     .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)).slice(0, 600)
     .map(r => ({
+      model: r.modelTask || '', img: r.img && imgs++ < 80 ? r.img : '',   // 縮圖只給最近 80 顆，避免一次下載太多
       pid: r.pid, name: r.name, planetName: r.planetName, typeKey: r.typeKey, petIdx: Number(r.petIdx) || 0, petSign: r.petSign, petName: r.petName,
       element: r.element, weather: r.weather, lights: lights[r.pid] || 0,
       big5: { O: Number(r.O) || 3, C: Number(r.C) || 3, E: Number(r.E) || 3, A: Number(r.A) || 3, N: Number(r.N) || 3 }

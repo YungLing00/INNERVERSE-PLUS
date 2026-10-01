@@ -601,6 +601,11 @@
   .uv.c-on .uv-card { opacity: 1; transform: none; pointer-events: auto; }
   .uv-x { position: absolute; right: 10px; top: 8px; width: 36px; height: 36px; border: 0; border-radius: 50%; background: rgba(255,255,255,.06); color: var(--dim); font-size: 1.3rem; cursor: pointer; }
   .uv-card h3 { font-family: var(--latin); font-weight: 400; font-size: 1.15rem; letter-spacing: .16em; padding-right: 36px; color: #fff3dc; }
+  .uv-model { position: relative; height: 170px; margin-top: 10px; border-radius: 16px; overflow: hidden; background: radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--c, #aaf) 22%, transparent), transparent 70%); }
+  .uv-model model-viewer { width: 100%; height: 100%; background: transparent; --poster-color: transparent; opacity: 0; transition: opacity .8s ease; }
+  .uv-model[data-s="ok"] model-viewer { opacity: 1; }
+  .uv-model:not([data-s="ok"])::after { content: '✦'; position: absolute; inset: 0; display: grid; place-items: center; color: var(--dim); animation: pulse2 1.6s ease-in-out infinite; }
+  @media (max-width: 600px) { .uv-model { height: 130px; } }
   .uv-me { margin-top: .3rem; font-size: .74rem; letter-spacing: .14em; color: rgba(255,226,170,.85); }
   .uv-info { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 14px; margin-top: 14px; font-size: .86rem; }
   .uv-info dt { color: var(--dim); letter-spacing: .1em; font-size: .76rem; padding-top: .1rem; }
@@ -700,6 +705,9 @@
   .rs-stage.has-model canvas { opacity: 0; }
   .rs-status { position: absolute; left: 0; right: 0; bottom: 4px; text-align: center; font-size: .82rem; letter-spacing: .16em; color: var(--dim); text-shadow: 0 0 12px rgba(5,4,15,.9); transition: opacity .8s ease; }
   .rs-status:empty { opacity: 0; }
+  .rs-status { padding: 0 6%; line-height: 1.6; letter-spacing: .08em; }
+  .rs-status small { display: block; margin-top: .2rem; font-size: .72rem; letter-spacing: .04em; opacity: .8; }
+  .rs-status .linkbtn { pointer-events: auto; font-size: .78rem; padding: .3rem .5rem; }
   .rs-body {
     flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; text-align: center;
     padding: 14px 7vw calc(env(safe-area-inset-bottom, 0px) + 32px);
@@ -1123,6 +1131,7 @@
   <aside class="uv-card" id="uvCard" aria-live="polite">
     <button class="uv-x" id="uvcClose" type="button" aria-label="回到宇宙">×</button>
     <h3 id="uvcTitle"></h3><p class="uv-me" id="uvcMe" hidden>這是你的星球</p>
+    <div class="uv-model" id="uvcModel" hidden></div>
     <dl class="uv-info" id="uvcInfo"></dl>
     <p class="uv-sub">人格星圖</p><div class="uv-bars" id="uvcBars"></div>
     <div id="uvcGive"><p class="uv-sub">留下一點星光</p><div class="uv-gifts" id="uvcGifts"></div></div>
@@ -3957,6 +3966,13 @@
         const j = await apiPost(CONFIG.INTERPRET_ENDPOINT, { task: 'big5_praise', name: '測試', big5: { O: 3.5, C: 3, E: 2.5, A: 4, N: 3 } }, 60000);
         return '「' + String(j.reply || j.text || '').slice(0, 80) + '…」';
       });
+      await test('4. Tripo 3D 金鑰與額度（不花額度）', async () => {
+        const j = await PlanetGen.check();
+        if (!j.ok) throw new Error(j.error || 'Tripo 檢查失敗');
+        return '金鑰可用，剩餘額度 ' + j.balance + (j.frozen ? '（凍結中 ' + j.frozen + '）' : '');
+      });
+      const ps = PlanetGen.state();
+      if (ps) row('5. 這台裝置上次的 3D 星球', ps.status === 'success', ps.status + (ps.progress ? ' ' + ps.progress + '%' : '') + (ps.err ? '：' + ps.err : '') + (ps.img ? '，已有縮圖' : ''));
     };
   });
 
@@ -6942,17 +6958,10 @@ function petSVG(i, opt = {}) {
     const stage = $('rsStage'), status = $('rsStatus'), tType = $('rsType'), tDim = $('rsDim'), tTag = $('rsTag'), tDesc = $('rsDesc'), bars = $('rsBars');
     const petBox = $('rsPet'), petNm = $('rsPetName'), head = $('rsHead'), reply = $('rsReply'), mock = $('rsMock'), retry = $('rsRetry'), home = $('rsHome');
     const body = $('rsBody');
-    const VIEWER = 'https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js';
     let token = 0, cur = null, viewer = null;
 
-    const loadViewer = () => customElements.get('model-viewer') ? Promise.resolve() : new Promise((res, rej) => {
-      const s = document.createElement('script'); s.type = 'module'; s.src = VIEWER;
-      s.onload = () => res(); s.onerror = () => rej(new Error('viewer')); document.head.appendChild(s);
-      setTimeout(() => rej(new Error('viewer timeout')), 15000);
-    });
-
     async function showModel(url, my) {
-      await loadViewer();
+      await PlanetGen.loadViewer();
       if (my !== token) return;
       if (viewer) viewer.remove();
       viewer = document.createElement('model-viewer');
@@ -6960,39 +6969,51 @@ function petSVG(i, opt = {}) {
       ['auto-rotate', 'camera-controls', 'disable-zoom'].forEach(a => viewer.setAttribute(a, ''));
       viewer.setAttribute('shadow-intensity', '0'); viewer.setAttribute('exposure', '1.15');
       viewer.setAttribute('interaction-prompt', 'none'); viewer.setAttribute('camera-orbit', '30deg 78deg auto');
-      viewer.addEventListener('load', () => { if (my !== token) return; stage.classList.add('has-model'); status.textContent = ''; });
-      viewer.addEventListener('error', () => { if (my !== token) return; stage.classList.remove('has-model'); status.textContent = ''; viewer.remove(); viewer = null; });
+      let proxied = false;
+      viewer.addEventListener('load', () => { if (my !== token) return; stage.classList.add('has-model'); status.textContent = ''; if (!CONFIG.STATIC_MODELS) PlanetGen.capture(viewer); });
+      viewer.addEventListener('error', async () => {
+        if (my !== token || !viewer) return;
+        // 直接讀 Tripo 網址失敗（多半是跨網域），改由後端代抓一次
+        if (!proxied && !CONFIG.STATIC_MODELS) {
+          proxied = true; status.textContent = L('星球完成了，正在從宇宙另一端搬過來…', 'Your planet is ready — bringing it over…');
+          try { const u = await PlanetGen.proxyUrl(); if (my === token && viewer) { viewer.src = u; return; } } catch (e) { console.error('model proxy:', e); if (my === token) modelFail(apiErrText(e)); }
+        } else if (my === token) modelFail(L('（原因：3D 模型載入失敗）', '(Reason: the 3D model failed to load)'));
+        stage.classList.remove('has-model'); if (viewer) { viewer.remove(); viewer = null; }
+      });
       viewer.src = url;
       stage.insertBefore(viewer, status);
     }
 
-    async function jfetch(url, opt, ms = 20000) {
-      const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), ms);
-      try { const r = await fetch(url, Object.assign({ signal: ctl.signal }, opt)); if (!r.ok) throw new Error('HTTP ' + r.status); return await r.json(); } finally { clearTimeout(tm); }
+    function modelFail(why) {
+      status.textContent = '';
+      const t = document.createElement('span'); t.textContent = L('專屬 3D 星球這次沒有生成成功，先陪你看這顆小星球。', 'Your 3D planet didn’t come through this time — here’s a little one for now.');
+      const d = document.createElement('small'); d.className = 'rs-errd'; d.textContent = why || '';
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'linkbtn'; b.textContent = L('重新生成', 'Try again');
+      b.onclick = () => { const k = cur && cur.type && cur.type.key; if (k) runModel(k, token, true); };
+      status.append(t, d, b);
     }
 
-    async function runModel(key, my) {
+    let modelSub = null;
+    async function runModel(key, my, force) {
       if (CONFIG.STATIC_MODELS) { status.textContent = L('載入你的專屬星球…', 'Loading your planet…'); return showModel(`${CONFIG.STATIC_MODELS.replace(/\/?$/, '/')}${key}.glb`, my); }
       if (!CONFIG.MODEL_ENDPOINT) { status.textContent = ''; return; }
-      const base = CONFIG.MODEL_ENDPOINT.replace(/\/$/, '');
-      try {
-        status.textContent = L('宇宙正在為你雕刻專屬的星球…', 'The universe is sculpting your planet…');
-        const { taskId } = await apiPost(`${base}?action=modelStart`, { trait: key, zodiac: (App.user && App.user.birthday && App.user.birthday.zodiac) || '', rising: (App.user && App.user.rising) || '', big5: App.big5 || {} }, 30000);
-        if (!taskId) throw new Error('no task');
-        const t0 = Date.now();
-        while (my === token && Date.now() - t0 < 240000) {
-          await wait(2500);
-          if (my !== token) return;
-          const s = await jfetch(`${base}?action=modelStatus&id=${encodeURIComponent(taskId)}`);
-          if (s.status === 'success' && s.modelUrl) { status.textContent = L('星球完成了，正在載入…', 'Your planet is ready — loading…'); return showModel(s.modelUrl, my); }
-          if (['failed', 'cancelled', 'banned', 'expired', 'unknown'].includes(s.status)) throw new Error('task ' + s.status);
-          status.textContent = `${L('宇宙正在為你雕刻專屬的星球…', 'The universe is sculpting your planet…')} ${Math.max(0, Math.min(99, Math.round(s.progress || 0)))}%`;
-        }
-        throw new Error('timeout');
-      } catch (e) {
-        console.error('model:', e);
-        if (my === token) { status.textContent = L('專屬星球還在路上，先陪你看這顆小星球。', 'Your planet is still on its way — here’s a little one to keep you company.'); setTimeout(() => { if (my === token) status.textContent = ''; }, 6000); }
-      }
+      if (modelSub) PlanetGen.off(modelSub);
+      let shown = false;
+      const sculpt = L('宇宙正在為你雕刻專屬的 3D 星球…', 'The universe is sculpting your 3D planet…');
+      modelSub = async s => {
+        if (my !== token) { PlanetGen.off(modelSub); return; }
+        if (!s) return;
+        if (s.status === 'success') {
+          if (shown) return; shown = true;
+          status.textContent = L('星球完成了，正在載入…', 'Your planet is ready — loading…');
+          try { await showModel(await PlanetGen.url(), my); } catch (e) { console.error('model:', e); if (my === token) modelFail(apiErrText(e)); }
+        } else if (s.status === 'failed') { console.error('model:', s.err); modelFail(s.err); }
+        else status.textContent = `${sculpt} ${s.progress ? Math.round(s.progress) + '%' : ''}`.trim() + L('（約 1–3 分鐘，可以先往下看）', ' (about 1–3 min — feel free to scroll on)');
+      };
+      PlanetGen.on(modelSub);
+      const b = App.user && App.user.birthday;
+      await PlanetGen.start({ key, zodiac: (b && b.zodiac) || '', rising: (App.user && App.user.rising) || '', big5: App.big5 || {}, force });
+      modelSub(PlanetGen.state());
     }
 
     function fillReply(text, name, label, isMock, my) {
@@ -8485,6 +8506,154 @@ function petSVG(i, opt = {}) {
   }
 
   /* ================================================================
+     Tripo 3D 星球：測驗結束就開始生成，在背景一直等到完成（換頁也不中斷）
+     完成後拍一張小縮圖，放進「我們的宇宙」，別人也看得到你生成的星球
+     ================================================================ */
+  const PlanetGen = (() => {
+    const KEY = 'iv_planet3d', subs = new Set(), VIEWER = 'https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js';
+    let st = null, polling = false, blobUrl = '';
+    try { st = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (_) { st = null; }
+    const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (_) { /* ignore */ } };
+    const emit = () => subs.forEach(f => { try { f(st); } catch (e) { console.error(e); } });
+    const base = () => (CONFIG.MODEL_ENDPOINT || '').replace(/\/$/, '');
+    const pause = ms => new Promise(r => setTimeout(r, ms));
+    const set = o => { st = Object.assign({}, st, o); save(); emit(); };
+    const loadViewer = () => customElements.get('model-viewer') ? Promise.resolve() : new Promise((res, rej) => {
+      let s = document.querySelector('script[data-mv]');
+      if (!s) { s = document.createElement('script'); s.type = 'module'; s.src = VIEWER; s.dataset.mv = '1'; document.head.appendChild(s); }
+      customElements.whenDefined('model-viewer').then(() => { try { customElements.get('model-viewer').minimumRenderScale = 1; } catch (_) { /* ignore */ } res(); });
+      s.addEventListener('error', () => rej(new Error(L('3D 檢視器載入失敗', '3D viewer failed to load'))));
+      setTimeout(() => rej(new Error(L('3D 檢視器載入逾時', '3D viewer timed out'))), 20000);
+    });
+    async function getJ(params, ms = 20000) {
+      const u = new URL(base()); Object.keys(params).forEach(k => u.searchParams.set(k, params[k]));
+      const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), ms);
+      try { const r = await fetch(u.toString(), { signal: ctl.signal }); if (!r.ok) throw new Error('HTTP ' + r.status); return await r.json(); } finally { clearTimeout(tm); }
+    }
+    function sigOf(o) { const b = o.big5 || {}; return [o.key, o.zodiac || '', ...['O', 'C', 'E', 'A', 'N'].map(k => (+b[k] || 0).toFixed(1))].join('|'); }
+
+    async function start(o = {}) {
+      if (!CONFIG.MODEL_ENDPOINT) return;
+      const sig = sigOf(o);
+      // 同一份結果已經在生成或生成好了，就沿用，不重複花 Tripo 額度
+      if (!o.force && st && st.sig === sig && st.status !== 'failed') { if (st.status !== 'success') poll(); else emit(); return; }
+      set({ sig, key: o.key, status: 'starting', progress: 0, taskId: '', url: '', img: '', err: '', t: Date.now() });
+      { const m = Me.get(); if (m && (m.img || m.modelTask)) Me.set(Object.assign(m, { modelTask: '', img: '' })); }
+      if (blobUrl) { URL.revokeObjectURL(blobUrl); blobUrl = ''; }
+      try {
+        const j = await apiPost(`${base()}?action=modelStart`, { trait: o.key, zodiac: o.zodiac || '', rising: o.rising || '', big5: o.big5 || {} }, 40000);
+        if (!j.taskId) throw new Error(L('Tripo 沒有回傳任務編號', 'Tripo returned no task id'));
+        set({ taskId: j.taskId, status: 'queued' });
+        { const m = Me.get(); if (m) { Me.set(Object.assign(m, { modelTask: j.taskId })); publishMe(); } }
+        poll();
+      } catch (e) { console.error('tripo start:', e); set({ status: 'failed', err: apiErrText(e) }); }
+    }
+    async function poll() {
+      if (polling || !st || !st.taskId || st.status === 'success' || st.status === 'failed') return;
+      polling = true;
+      try {
+        let miss = 0;
+        while (st && st.taskId && Date.now() - st.t < 15 * 60 * 1000) {
+          await pause(3000);
+          let s;
+          try { s = await getJ({ action: 'modelStatus', id: st.taskId }); miss = 0; } catch (e) { if (++miss >= 5) throw e; continue; }
+          if (s.ok === false && s.error) throw new Error(s.error);
+          if (s.status === 'success' && s.modelUrl) { set({ status: 'success', progress: 100, url: s.modelUrl, urlT: Date.now() }); snapshot(); return; }
+          if (['failed', 'cancelled', 'banned', 'expired', 'unknown'].includes(s.status)) throw new Error('Tripo ' + s.status + (s.errorMessage ? '：' + s.errorMessage : ''));
+          set({ status: s.status || 'running', progress: Math.max(st.progress || 0, Math.min(99, Math.round(s.progress || 0))) });
+        }
+        if (st && st.status !== 'success') throw new Error(L('等候逾時（超過 15 分鐘）', 'timed out after 15 minutes'));
+      } catch (e) { console.error('tripo poll:', e); set({ status: 'failed', err: apiErrText(e) }); }
+      finally { polling = false; }
+    }
+    // Tripo 的模型網址會過期，太久的就重新拿一次
+    async function url() {
+      if (!st || st.status !== 'success') return '';
+      if (Date.now() - (st.urlT || 0) > 50 * 60 * 1000) {
+        try { const j = await getJ({ action: 'modelGlb', id: st.taskId }); if (j.modelUrl) set({ url: j.modelUrl, urlT: Date.now() }); } catch (e) { console.warn('modelGlb:', e); }
+      }
+      return st.url;
+    }
+    // 瀏覽器無法直接讀 Tripo 網址時（跨網域），改由後端代抓
+    async function proxyUrl(taskId = st && st.taskId) {
+      if (blobUrl && taskId === (st && st.taskId)) return blobUrl;
+      const j = await getJ({ action: 'modelBin', id: taskId }, 90000);
+      if (!j.ok || !j.b64) throw new Error(j.error || 'modelBin');
+      const bin = atob(j.b64), buf = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+      const u = URL.createObjectURL(new Blob([buf], { type: 'model/gltf-binary' }));
+      if (taskId === (st && st.taskId)) blobUrl = u;
+      return u;
+    }
+    // 在畫面外偷偷載入一次，拍一張小縮圖（宇宙裡畫星球用）
+    async function snapshot() {
+      if (!st || st.status !== 'success' || st.img) return;
+      // 畫面上已經有別的 3D 檢視器時（共用同一塊畫布，截圖會歪掉），等它自己截，或稍後再試
+      if (document.querySelector('model-viewer')) { setTimeout(snapshot, 5000); return; }
+      try {
+        await loadViewer();
+        const v = document.createElement('model-viewer');
+        v.style.cssText = 'position:fixed;right:0;bottom:0;width:180px;height:180px;opacity:.01;pointer-events:none;z-index:-1;background:transparent';
+        v.setAttribute('camera-orbit', '30deg 78deg auto'); v.setAttribute('exposure', '1.15'); v.setAttribute('shadow-intensity', '0'); v.setAttribute('interaction-prompt', 'none');
+        document.body.appendChild(v);
+        const loaded = src => new Promise((res, rej) => {
+          const ok = () => { v.removeEventListener('error', no); res(); }, no = () => { v.removeEventListener('load', ok); rej(new Error('load')); };
+          v.addEventListener('load', ok, { once: true }); v.addEventListener('error', no, { once: true }); v.src = src;
+        });
+        try { await loaded(await url()); } catch (_) { await loaded(await proxyUrl()); }
+        await pause(900);
+        const data = v.toDataURL('image/png');
+        v.remove();
+        await keep(data);
+      } catch (e) { console.warn('tripo snapshot:', e); }
+    }
+    async function keep(data) {
+      if (!st || st.img) return;
+      const img = await shrink(data);
+      if (!img) return;
+      set({ img }); const m = Me.get(); if (m) { Me.set(Object.assign(m, { modelTask: st.taskId, img })); publishMe(); }
+      if (typeof Universe !== 'undefined') Universe.refresh();
+    }
+    // 結果頁的 3D 星球載入好之後，直接從它拍縮圖
+    function capture(v) { setTimeout(() => { if (v.isConnected && st && st.status === 'success' && !st.img) { try { keep(v.toDataURL('image/png')); } catch (e) { console.warn('capture:', e); } } }, 1500); }
+    // 縮成小圖，盡量用 webp；確保 base64 不超過試算表儲存格上限
+    function shrink(src) {
+      return new Promise(res => {
+        const im = new Image();
+        im.onload = () => {
+          // 找出星球實際所在的範圍（不透明的像素），裁成置中的正方形
+          const W0 = im.width, H0 = im.height, f = document.createElement('canvas'); f.width = W0; f.height = H0;
+          const fg = f.getContext('2d'); fg.drawImage(im, 0, 0);
+          let x0 = W0, y0 = H0, x1 = -1, y1 = -1;
+          try {
+            const px = fg.getImageData(0, 0, W0, H0).data;
+            for (let y = 0; y < H0; y++) for (let x = 0; x < W0; x++) if (px[(y * W0 + x) * 4 + 3] > 12) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+          } catch (_) { x0 = 0; y0 = 0; x1 = W0 - 1; y1 = H0 - 1; }
+          if (x1 < 0) return res('');
+          const side = Math.max(x1 - x0, y1 - y0) * 1.08 + 2, cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+          for (const [n, type, q] of [[112, 'image/webp', .82], [96, 'image/webp', .7], [96, 'image/png'], [72, 'image/png'], [56, 'image/png']]) {
+            const c = document.createElement('canvas'); c.width = c.height = n;
+            const g = c.getContext('2d');
+            g.drawImage(f, cx - side / 2, cy - side / 2, side, side, 0, 0, n, n);
+            const d = c.toDataURL(type, q);
+            if (d.startsWith('data:' + type) && d.length <= 42000) return res(d);
+          }
+          res('');
+        };
+        im.onerror = () => res(''); im.src = src;
+      });
+    }
+    // 重新整理頁面後，接著等還沒完成的任務
+    if (st && st.taskId && st.status !== 'success' && st.status !== 'failed') setTimeout(poll, 1500);
+    if (st && st.status === 'success' && !st.img) setTimeout(snapshot, 4000);
+    return {
+      start, url, proxyUrl, loadViewer, capture, state: () => st,
+      async glb(taskId) { if (st && taskId === st.taskId && st.status === 'success') return url(); const j = await getJ({ action: 'modelGlb', id: taskId }); if (!j.modelUrl) throw new Error(j.error || 'no model'); return j.modelUrl; },
+      on(f) { subs.add(f); }, off(f) { subs.delete(f); },
+      async check() { return getJ({ action: 'tripoCheck' }); }
+    };
+  })();
+
+  /* ================================================================
      五行之音的畫面
      ================================================================ */
   const WV0 = () => ({
@@ -9078,7 +9247,7 @@ function petSVG(i, opt = {}) {
       const me = Me.get();
       if (me && me.name) {
         const hit = list.find(p => me.pid && p.pid === me.pid);
-        if (hit) hit.me = true; else list.unshift(Object.assign({}, me, { me: true, lights: 0 }));
+        if (hit) { hit.me = true; if (!hit.img && me.img) hit.img = me.img; if (!hit.model && me.modelTask) hit.model = me.modelTask; } else list.unshift(Object.assign({}, me, { me: true, lights: 0 }));
       }
       return list;
     }
@@ -9145,7 +9314,9 @@ function petSVG(i, opt = {}) {
         ctx.globalCompositeOperation = 'source-over';
         if (r < 2.2) { ctx.fillStyle = rgba(d.c2, a * .9); ctx.fillRect(p.sx - 1, p.sy - 1, 2, 2); continue; }
         ctx.globalAlpha = a;
-        if (p === sel && r > 40) drawBody(ctx, p.sx, p.sy, r, PSTYLE[p.typeKey] || PSTYLE.BAL, t, { spin: .2, ph: p.glowT });
+        const im = planetImg(p);
+        if (im) { const s2 = r * 2.6; ctx.save(); ctx.translate(p.sx, p.sy); ctx.rotate(Math.sin(t * .25 + p.glowT) * .1); ctx.drawImage(im, -s2 / 2, -s2 / 2, s2, s2); ctx.restore(); }
+        else if (p === sel && r > 40) drawBody(ctx, p.sx, p.sy, r, PSTYLE[p.typeKey] || PSTYLE.BAL, t, { spin: .2, ph: p.glowT });
         else ctx.drawImage(planetSpr(p.typeKey), p.sx - r * 2, p.sy - r * 2, r * 4, r * 4);
         ctx.globalAlpha = 1;
         if (p.me) drawMe(p, a);
@@ -9302,7 +9473,7 @@ function petSVG(i, opt = {}) {
     }
     function back() {
       if (!sel) return;
-      sel = null; root.classList.remove('c-on'); UVS.petPeek = 0;
+      sel = null; root.classList.remove('c-on'); UVS.petPeek = 0; cardTok++; setTimeout(() => { if (!sel) $('uvcModel').textContent = ''; }, 900);
       flyTo(0, 0, 0, 30, 2.2); Sound.whoosh(1.6); tw(cam, 'ox', 0, 1.8); tw(cam, 'oy', 0, 1.8);
       if (visited.size >= 3 && !finaleDone) setTimeout(() => { if (!sel && phase === 'free') finale(); }, 2600);
     }
@@ -9313,7 +9484,41 @@ function petSVG(i, opt = {}) {
       const n = document.createElement('b'); n.textContent = `${Math.round(clamp((v - 1) / 4) * 100)}%`;
       row.append(l, tr, n); return row;
     }
+    // 旅人用 Tripo 生成的星球縮圖
+    const imgCache = new Map();
+    function planetImg(p) {
+      if (!p.img) return null;
+      let im = imgCache.get(p.img);
+      if (!im) { im = new Image(); im.src = p.img; imgCache.set(p.img, im); }
+      return im.complete && im.naturalWidth ? im : null;
+    }
+    // 卡片裡放可以轉動的 3D 星球
+    let cardTok = 0;
+    function cardModel(p) {
+      const box = $('uvcModel'), my = ++cardTok; box.textContent = ''; box.hidden = true; delete box.dataset.s;
+      const task = p.demo ? '' : (p.model || (p.me && (Me.get() || {}).modelTask) || '');
+      if (!task || !CONFIG.MODEL_ENDPOINT) return;
+      box.hidden = false;
+      (async () => {
+        try {
+          await PlanetGen.loadViewer(); const u = await PlanetGen.glb(task);
+          if (my !== cardTok) return;
+          const v = document.createElement('model-viewer'); let tried = false;
+          v.setAttribute('alt', L(`${p.name} 生成的 3D 星球`, `${p.name}’s generated 3D planet`));
+          ['auto-rotate', 'camera-controls', 'disable-zoom'].forEach(a => v.setAttribute(a, ''));
+          v.setAttribute('shadow-intensity', '0'); v.setAttribute('exposure', '1.15'); v.setAttribute('interaction-prompt', 'none'); v.setAttribute('camera-orbit', '30deg 78deg auto');
+          v.addEventListener('load', () => { if (my === cardTok) box.dataset.s = 'ok'; });
+          v.addEventListener('error', async () => {
+            if (my !== cardTok) return;
+            if (!tried) { tried = true; try { const b = await PlanetGen.proxyUrl(task); if (my === cardTok) { v.src = b; return; } } catch (e) { console.warn('card model:', e); } }
+            if (my === cardTok) { box.hidden = true; box.textContent = ''; }
+          });
+          v.src = u; box.appendChild(v);
+        } catch (e) { console.warn('card model:', e); if (my === cardTok) { box.hidden = true; box.textContent = ''; } }
+      })();
+    }
     function fillCard(p) {
+      cardModel(p);
       const d = WXD[p.el], pet = PETS[p.petIdx || 0] || PETS[0], w = WEATHER[p.weather] || WEATHER.sunny;
       card.style.setProperty('--c', `rgb(${d.c.join(',')})`);
       $('uvcTitle').textContent = L(`✦ ${p.name} 的星球`, `✦ ${p.name.toUpperCase()}’S PLANET`, { ja: `✦ ${p.name} の星`, ko: `✦ ${p.name}의 행성`, vi: `✦ Hành tinh của ${p.name}` });
@@ -9474,6 +9679,8 @@ function petSVG(i, opt = {}) {
     if (/[?&]debug=1/.test(location.search)) {
       window.__uvPick = () => { const c = planetsW.filter(p => p.vis && !p.me && p !== sel && p.sx > W * .2 && p.sx < W * .8 && p.sy > H * .25 && p.sy < H * .75).sort((a, b) => b.sr - a.sr).slice(0, 6); const p = c[(Math.random() * c.length) | 0]; return p ? [p.sx, p.sy] : null; };
       window.__uvPet = () => (sel && sel.petX ? [sel.petX, sel.petY] : null);
+      window.__uvList = () => planetsW.map(p => [p.name, !!p.me, (p.img || '').length, !!planetImg(p), Math.round(p.sr), Math.round(p.sx), Math.round(p.sy), p.model || '']);
+      window.__uvSel = n => { const p = planetsW.find(q => q.name === n); if (p) select(p); return !!p; };
     }
     return { start, reset, draw, data, refresh() { list = null; } };
   })();

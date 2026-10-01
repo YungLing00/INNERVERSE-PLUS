@@ -4129,13 +4129,37 @@ function petSVG(i, opt = {}) {
     let base = LEVEL, ducked = false;
     const target = () => (muted ? 0 : base * (ducked ? .15 : 1));
 
-    // 和弦進行：Fmaj9 → Am9 → Cmaj9 → G6sus，緩慢循環，讓背景一直有溫柔的流動感
-    const CHORDS = [
-      { root: 87.31, pad: [174.61, 220, 261.63, 329.63, 392], mel: [349.23, 440, 523.25, 659.25, 783.99, 880] },
-      { root: 110, pad: [220, 261.63, 329.63, 392, 493.88], mel: [440, 523.25, 659.25, 783.99, 987.77, 880] },
-      { root: 65.41, pad: [196, 261.63, 329.63, 493.88, 587.33], mel: [392, 523.25, 587.33, 659.25, 783.99, 987.77] },
-      { root: 98, pad: [196, 246.94, 293.66, 329.63, 440], mel: [392, 440, 587.33, 659.25, 783.99, 880] }
-    ];
+    // 和弦庫：pad 五個聲部、mel 是旋律可以用的音（由低到高）
+    const CH = {
+      Fmaj9: { root: 87.31, pad: [174.61, 220, 261.63, 329.63, 392], mel: [349.23, 392, 440, 523.25, 659.25, 783.99, 880] },
+      Am9: { root: 110, pad: [220, 261.63, 329.63, 392, 493.88], mel: [440, 493.88, 523.25, 659.25, 783.99, 880, 987.77] },
+      Cmaj9: { root: 65.41, pad: [196, 261.63, 329.63, 493.88, 587.33], mel: [392, 493.88, 523.25, 587.33, 659.25, 783.99, 987.77] },
+      G6sus: { root: 98, pad: [196, 246.94, 293.66, 329.63, 440], mel: [392, 440, 493.88, 587.33, 659.25, 783.99, 880] },
+      Dm9: { root: 73.42, pad: [146.83, 174.61, 220, 261.63, 329.63], mel: [293.66, 349.23, 440, 523.25, 587.33, 659.25, 880] },
+      Esus: { root: 82.41, pad: [164.81, 220, 246.94, 329.63, 440], mel: [329.63, 440, 493.88, 587.33, 659.25, 880, 987.77] },
+      Fmaj7s11: { root: 87.31, pad: [174.61, 220, 246.94, 329.63, 523.25], mel: [349.23, 440, 493.88, 523.25, 659.25, 783.99, 987.77] },
+      Em7: { root: 82.41, pad: [164.81, 196, 246.94, 293.66, 392], mel: [329.63, 392, 493.88, 587.33, 659.25, 783.99, 987.77] },
+      Cadd9: { root: 65.41, pad: [196, 261.63, 293.66, 329.63, 392], mel: [392, 523.25, 587.33, 659.25, 783.99, 880, 1046.5] },
+      Am7: { root: 110, pad: [220, 261.63, 329.63, 392, 440], mel: [440, 523.25, 587.33, 659.25, 783.99, 880, 1046.5] },
+      Bbmaj7: { root: 116.54, pad: [233.08, 293.66, 349.23, 440, 523.25], mel: [466.16, 523.25, 587.33, 698.46, 783.99, 880, 932.33] }
+    };
+    Object.keys(CH).forEach(k => { CH[k].name = k; });
+    // 和弦進行：每種心情有兩三組，循環幾次後換一組；偶爾換成代理和弦，所以不會一直重複同一段
+    const PROGS = {
+      warm: ['Fmaj9', 'Am9', 'Cmaj9', 'G6sus'], warm2: ['Fmaj9', 'Cmaj9', 'Dm9', 'Am9'],
+      lost: ['Am9', 'Fmaj7s11', 'Dm9', 'Esus'], lost2: ['Am9', 'Em7', 'Fmaj7s11', 'Esus'],
+      float: ['Fmaj9', 'Cmaj9', 'Fmaj9', 'G6sus'],
+      bright: ['Cadd9', 'G6sus', 'Am7', 'Fmaj9'], bright2: ['Fmaj9', 'G6sus', 'Em7', 'Am7'],
+      wonder: ['Fmaj7s11', 'Em7', 'Dm9', 'Cmaj9'], wonder2: ['Bbmaj7', 'Fmaj9', 'Dm9', 'Cmaj9']
+    };
+    const SUBS = { Fmaj9: 'Dm9', Am9: 'Fmaj9', Cmaj9: 'Am7', G6sus: 'Em7', Dm9: 'Fmaj9', Em7: 'Cmaj9', Am7: 'Cadd9', Cadd9: 'Am7' };
+    const MOODS = {
+      lost: { p: ['lost', 'lost2'], dur: 11, v: ['xiao', 'sparse', 'pluck'] }, feel: { p: ['lost2', 'warm2'], dur: 10, v: ['sparse', 'pluck'] },
+      release: { p: ['warm', 'warm2'], dur: 9.6, v: ['pluck', 'low', 'bell', 'xiao'] }, breathe: { p: ['float'], dur: 14, v: ['sparse'] },
+      rebirth: { p: ['bright', 'bright2'], dur: 8, v: ['bell', 'low', 'pluck'] }, talk: { p: ['warm', 'float', 'warm2'], dur: 10.5, v: ['pluck', 'sparse', 'xiao', 'bell'] },
+      origin: { p: ['wonder', 'wonder2'], dur: 9, v: ['bell', 'pluck', 'xiao'] }, cute: { p: ['bright2', 'bright'], dur: 6.5, v: ['pluck', 'bell'] }
+    };
+    let moodSet = MOODS.talk, progName = 'warm', prog = PROGS.warm.map(k => CH[k]), progLoops = 0, curCh = CH.Am9;
     let chordIdx = 1, chordTimer = 0, padVoices = [], droneOsc = [];
 
     const ramp = (param, v, sec) => param.setTargetAtTime(v, ac.currentTime, Math.max(.01, sec / 3));
@@ -4163,9 +4187,9 @@ function petSVG(i, opt = {}) {
       const p = ac.createStereoPanner(); p.pan.value = v; return p;
     };
 
-    function setChord(i, glide) {
+    function setChord(i, glide, ch) {
       chordIdx = i;
-      const c = CHORDS[i], t = ac.currentTime;
+      const c = curCh = ch || prog[i], t = ac.currentTime;
       padVoices.forEach((v, k) => v.forEach(o => o.frequency.setTargetAtTime(c.pad[k], t, glide)));
       droneOsc.forEach((o, k) => o.frequency.setTargetAtTime(c.root * [1, 1.5, 2][k], t, glide * 1.4));
     }
@@ -4214,7 +4238,7 @@ function petSVG(i, opt = {}) {
       padGain.connect(padLP); padLP.connect(dry); padLP.connect(rev);
       const lfo = ac.createOscillator(), lfoG = ac.createGain();
       lfo.frequency.value = .06; lfoG.gain.value = 380; lfo.connect(lfoG); lfoG.connect(padLP.frequency); lfo.start();
-      padVoices = CHORDS[chordIdx].pad.map((f, k) => {
+      padVoices = prog[chordIdx].pad.map((f, k) => {
         const pn = panner((k / 4 - .5) * 1.1);
         pn.connect(padGain);
         return [-7, 7].map((dt, j) => {
@@ -4229,7 +4253,7 @@ function petSVG(i, opt = {}) {
         });
       });
       setChord(chordIdx, .01);
-      chordTimer = setInterval(() => { if (ac && ac.state === 'running' && !wxMode) setChord((chordIdx + 1) % CHORDS.length, 1.6); }, 9600);
+      nextChord();
 
       // 高頻空氣感
       const as = ac.createBufferSource(); as.buffer = noiseBuf(2); as.loop = true;
@@ -4273,26 +4297,75 @@ function petSVG(i, opt = {}) {
       });
     }
 
+    function setProg(name, glide = 2.5) {
+      progName = name; prog = PROGS[name].map(k => CH[k]); progLoops = 0;
+      if (ac) setChord(0, glide);
+    }
+    function useMood(name) {
+      const m = MOODS[name]; if (!m) return;
+      moodSet = m; secEnd = 0; motif = null;
+      if (!m.p.includes(progName)) setProg(m.p[0], 3);
+      nextChord();
+    }
+    // 換和弦：時間略有快慢，進行循環幾次後換一組，偶爾用代理和弦
+    function nextChord() {
+      clearTimeout(chordTimer);
+      chordTimer = setTimeout(() => {
+        if (ac && ac.state === 'running' && !wxMode) {
+          let i = chordIdx + 1;
+          if (i >= prog.length) {
+            i = 0; progLoops++;
+            if (progLoops >= 2 + (Math.random() * 2 | 0) && moodSet.p.length > 1) { const ps = moodSet.p; progName = ps[(ps.indexOf(progName) + 1) % ps.length]; prog = PROGS[progName].map(k => CH[k]); progLoops = 0; }
+          }
+          let ch = prog[i];
+          if (i > 0 && Math.random() < .2 && SUBS[ch.name]) ch = CH[SUBS[ch.name]];
+          setChord(i, 1.4 + Math.random() * 1.2, ch);
+        }
+        nextChord();
+      }, moodSet.dur * (.88 + Math.random() * .24) * 1000);
+    }
+    // 旋律：先做出一個 3～6 音的小動機，重複兩三次並做變化（移高、移低、倒過來），再換新的動機；
+    // 每 40～65 秒換一段（不同樂器、密度與音域），讓音樂一直有變化
+    let motif = null, motifLeft = 0, motifRep = 0, secEnd = 0, secIdx = 0, voiceMode = 'pluck';
+    function makeMotif() {
+      const n = 3 + (Math.random() * 4 | 0), steps = []; let d = 0;
+      for (let k = 0; k < n; k++) { steps.push({ d, r: [1, 1, 1, .5, .5, 2, 1.5][Math.random() * 7 | 0] }); d += [-2, -1, -1, 1, 1, 2, 0, 3][Math.random() * 8 | 0]; }
+      return { steps, start: 1 + (Math.random() * 3 | 0) };
+    }
     function schedulePiano() {
       clearTimeout(pianoTimer);
       if (!pianoOn || !ac) return;
-      const pool = CHORDS[chordIdx].mel, pick = () => pool[(Math.random() * pool.length) | 0] * oct;
-      const r = Math.random(), pan = (Math.random() - .5) * 1.2;
-      if (r < .55) pluck(pick(), { gain: .085, pan });
-      else if (r < .85) {                         // 兩三個音的小琶音
-        const n = 2 + (Math.random() < .5 ? 1 : 0), st = (Math.random() * (pool.length - n)) | 0, gap = .2 + Math.random() * .16;
-        for (let k = 0; k < n; k++) pluck(pool[st + k] * oct, { gain: .075 - k * .012, delay: k * gap, pan: pan + k * .2 });
-      } else {                                    // 偶爾一顆高音的星星聲
-        pluck(pick() * 2, { gain: .04, dur: 5, pan, bright: 1.4 });
+      const now = ac.currentTime;
+      if (now > secEnd) { secIdx++; secEnd = now + 40 + Math.random() * 25; const vs = moodSet.v; voiceMode = vs[(secIdx + (Math.random() < .3 ? 1 : 0)) % vs.length]; }
+      if (!motif || motifLeft <= 0) { motif = makeMotif(); motifLeft = 2 + (Math.random() * 3 | 0); motifRep = 0; }
+      const dens = Math.max(.5, Math.min(2.6, pianoDense)), beat = .52 / Math.sqrt(dens);
+      const mel = curCh.mel, shift = [0, 0, 1, -1, 2][motifRep % 5], steps = motifRep % 4 === 3 ? motif.steps.slice().reverse() : motif.steps;
+      const pan0 = (Math.random() - .5) * .9;
+      let t = 0;
+      if (voiceMode === 'sparse') {
+        const f = mel[(Math.random() * mel.length) | 0] * oct;
+        if (Math.random() < .5) bell(f * 2, { gain: .03, dur: 6, pan: pan0 }); else pluck(f, { gain: .06, dur: 5, pan: pan0, bright: .8 });
+        t = beat * (5 + Math.random() * 5);
+      } else {
+        steps.forEach((s, k) => {
+          const idx = Math.max(0, Math.min(mel.length - 1, motif.start + s.d + shift)), f = mel[idx] * oct, last = k === steps.length - 1;
+          if (voiceMode === 'xiao') { if (s.r >= 1 || last) xiao(f, { gain: .042, dur: beat * s.r * 1.9 + (last ? 1.4 : .2), delay: t, pan: pan0 * .5 }); }
+          else if (voiceMode === 'bell') bell(f * 2, { gain: .028, delay: t, dur: last ? 5 : 3.5, pan: pan0 + k * .07 });
+          else pluck(f, { gain: .07 - k * .003, delay: t, pan: pan0 + k * .07, dur: last ? 4.6 : 3 });
+          if (voiceMode === 'low' && k % 2 === 0) pluck(mel[Math.max(0, idx - 2)] * oct / 2, { gain: .045, delay: t + .02, dur: 4.2, bright: .7 });
+          t += beat * s.r;
+        });
+        t += beat * (2 + Math.random() * 4) / Math.min(1, dens);
       }
-      pianoTimer = setTimeout(schedulePiano, (2000 + Math.random() * 2600) / pianoDense);
+      motifRep++; motifLeft--;
+      pianoTimer = setTimeout(schedulePiano, t * 1000);
     }
 
     /* ================================================================
        五行音景：宮商角徵羽（C D E G A 五聲音階）
        古琴、簫、鐘、木魚、低鼓 + 水聲／森林／火焰等環境層，全部即時合成
        ================================================================ */
-    let wxMode = false, wxTimer = 0, wxEl = null, wxStepN = 0, wxCb = null, wxLayers = null, wxLevel = 1;
+    let wxMode = false, wxTimer = 0, wxEl = null, wxStepN = 0, wxCb = null, wxLayers = null, wxLevel = 1, wxMot = null;
     const C4 = 261.63, semi = n => C4 * Math.pow(2, n / 12);
     const PENTA = [0, 2, 4, 7, 9];
     const pentaIn = (lo, hi) => { const out = []; for (let n = lo; n <= hi; n++) if (PENTA.includes(((n % 12) + 12) % 12)) out.push(n); return out; };
@@ -4429,33 +4502,54 @@ function petSVG(i, opt = {}) {
       if (!wxMode || !ac || !wxEl) return;
       const el = wxEl === 'all' ? ['earth', 'metal', 'wood', 'fire', 'water'][(wxStepN >> 4) % 5] : wxEl;
       const d = WXS[wxEl], c = WXS[el], beat = wxStepN % 2 === 0, bar = wxStepN % 8 === 0, notes = pentaIn(c.range[0], c.range[1]);
-      const pickNote = () => {                       // 偏向核心音：大約一半時間回到核心音
-        if (Math.random() < .42) { const cs = notes.filter(n => ((n - c.core) % 12 + 12) % 12 === 0); if (cs.length) return cs[(Math.random() * cs.length) | 0]; }
-        return notes[(Math.random() * notes.length) | 0];
+      // 旋律動機：以核心音為中心的小樂句，重複 2～3 次（每次稍微移調），再換新的；樂句結尾回到核心音
+      const coreIdx = (() => { let best = 0, bd = 1e9; notes.forEach((n, i) => { if (((n - c.core) % 12 + 12) % 12 === 0) { const dd = Math.abs(i - notes.length / 2); if (dd < bd) { bd = dd; best = i; } } }); return best; })();
+      const pickNote = () => {
+        if (!wxMot || wxMot.el !== el || wxMot.i >= wxMot.seq.length) {
+          if (!wxMot || wxMot.el !== el || --wxMot.reps <= 0) {
+            const len = 4 + (Math.random() * 4 | 0), seq = []; let dd = [-2, 0, 2][Math.random() * 3 | 0];
+            for (let k = 0; k < len - 1; k++) { seq.push(dd); dd += [-2, -1, -1, 0, 1, 1, 2][Math.random() * 7 | 0]; }
+            seq.push(0);
+            wxMot = { el, seq, i: 0, reps: 2 + (Math.random() * 2 | 0), shift: 0 };
+          } else { wxMot.i = 0; wxMot.shift = [0, 1, -1, 2, 0][Math.random() * 5 | 0]; }
+        }
+        const idx = Math.max(0, Math.min(notes.length - 1, coreIdx + wxMot.seq[wxMot.i++] + (wxMot.i === wxMot.seq.length ? 0 : wxMot.shift)));
+        return notes[idx];
       };
+      const sec = Math.floor(wxStepN / 32) % 3;      // 每 32 步換一段編曲
       const hiOf = n => (n - c.range[0]) / (c.range[1] - c.range[0]);
       const fire = (type, n, extra) => { if (wxCb) try { wxCb(Object.assign({ type, el, hi: n === undefined ? .5 : hiOf(n), core: n !== undefined && ((n - c.core) % 12 + 12) % 12 === 0 }, extra)); } catch (e) { /* ignore */ } };
       const pan = () => (Math.random() - .5) * 1.1;
       if (el === 'earth') {
-        if (beat) { drum(55, { gain: bar ? .26 : .16 }); fire('beat'); }
-        if (bar || (beat && Math.random() < .35)) { const n = pickNote(); guqin(semi(n), { gain: .13, pan: pan(), dur: 4 }); fire('note', n); }
+        // A：穩定的鼓＋古琴　B：加高八度的琴聲回應　C：只剩小節頭的鼓，低音簫長音
+        if (beat && (sec < 2 || bar)) { drum(55, { gain: bar ? .26 : .15 }); fire('beat'); }
+        if (bar || (beat && Math.random() < (sec === 1 ? .55 : .35))) { const n = pickNote(); guqin(semi(n), { gain: .13, pan: pan(), dur: 4 }); fire('note', n); if (sec === 1 && Math.random() < .6) guqin(semi(n + 12), { gain: .05, delay: .36, pan: -pan(), dur: 3 }); }
+        if (sec === 2 && wxStepN % 16 === 4) { const n = pickNote() - 12; xiao(semi(n + 12), { gain: .04, dur: 4.2 }); fire('note', n + 12, { long: true }); }
       } else if (el === 'metal') {
-        if (beat && Math.random() < .42) { const n = pickNote(); bell(semi(n), { gain: .055, pan: pan() }); fire('bell', n); }
+        // A：清脆的鐘　B：加三音的琶音　C：高音簫＋留白
+        if (beat && Math.random() < (sec === 2 ? .22 : .42)) { const n = pickNote(); bell(semi(n), { gain: .055, pan: pan() }); fire('bell', n); }
         if (bar) { const n = pickNote() - 12; guqin(semi(n), { gain: .08, dur: 5 }); fire('note', n + 12); }
-        if (Math.random() < .12) { pluck(semi(pickNote() + 12), { gain: .025, dur: 5, pan: pan(), bright: 1.5 }); fire('spark'); }
+        if (sec === 1 && bar) { const n = pickNote(); [0, 2, 4].forEach((o, k) => pluck(semi(n + [0, 3, 7][k]), { gain: .04, delay: k * .16, dur: 3.4, bright: 1.4, pan: pan() })); fire('spark'); }
+        if (sec === 2 && wxStepN % 16 === 8) { const n = pickNote(); xiao(semi(n), { gain: .035, dur: 4 }); fire('note', n, { long: true }); }
+        if (Math.random() < .1) { pluck(semi(pickNote() + 12), { gain: .025, dur: 5, pan: pan(), bright: 1.5 }); fire('spark'); }
       } else if (el === 'wood') {
-        if (wxStepN % 16 === 0 || (bar && Math.random() < .5)) { const n = pickNote(); xiao(semi(n), { gain: .055, dur: 2.4 + Math.random() * 1.6, pan: pan() * .5 }); fire('note', n, { long: true }); }
-        if (beat && Math.random() < .55) { const n = pickNote(); guqin(semi(n), { gain: .1, pan: pan() }); fire('note', n); }
-        if (!beat && Math.random() < .4) { woodblock({ pan: pan(), f: 760 + Math.random() * 200 }); fire('beat'); }
+        // A：簫主旋律＋古琴　B：古琴八分音符＋木魚律動　C：簫的二重奏（三度和聲）
+        if (sec !== 1 && (wxStepN % 16 === 0 || (bar && Math.random() < .5))) { const n = pickNote(); const du = 2.4 + Math.random() * 1.6; xiao(semi(n), { gain: .055, dur: du, pan: pan() * .5 }); if (sec === 2) xiao(semi(n + 4), { gain: .03, dur: du, delay: .05, pan: -.3 }); fire('note', n, { long: true }); }
+        if (beat ? Math.random() < .55 : (sec === 1 && Math.random() < .5)) { const n = pickNote(); guqin(semi(n), { gain: .1, pan: pan() }); fire('note', n); }
+        if (!beat && Math.random() < (sec === 1 ? .7 : .35)) { woodblock({ pan: pan(), f: 760 + Math.random() * 200 }); fire('beat'); }
         if (Math.random() < .05) chirp({ pan: pan() });
       } else if (el === 'fire') {
+        // A：明亮的撥弦　B：八度疊奏、節奏更密　C：拍點上的鐘聲
         if (beat) { drum(70, { gain: wxStepN % 4 === 0 ? .2 : .1 }); fire('beat'); }
-        if (Math.random() < .62) { const n = pickNote(); pluck(semi(n), { gain: .07, pan: pan(), dur: 2.4, bright: 1.2 }); fire('note', n); }
-        for (let k = 0; k < 3; k++) if (Math.random() < .5) setTimeout(crackle, Math.random() * 280);
+        if (Math.random() < (sec === 1 ? .8 : .58)) { const n = pickNote(); pluck(semi(n), { gain: .07, pan: pan(), dur: 2.4, bright: 1.2 }); if (sec === 1) pluck(semi(n + 12), { gain: .03, delay: .03, dur: 2, bright: 1.4 }); fire('note', n); }
+        if (sec === 2 && beat && Math.random() < .5) { const n = pickNote(); bell(semi(n + 12), { gain: .03, pan: pan(), dur: 3 }); fire('bell', n); }
+        for (let k = 0; k < (sec === 2 ? 1 : 3); k++) if (Math.random() < .5) setTimeout(crackle, Math.random() * 280);
       } else if (el === 'water') {
+        // A：慢慢的古琴　B：低音簫更常出現　C：稀疏的鐘＋更多水滴
         if (bar || (beat && Math.random() < .25)) { const n = pickNote(); guqin(semi(n), { gain: .11, pan: pan(), dur: 5.5 }); fire('note', n); }
-        if (wxStepN % 32 === 12 && Math.random() < .7) { const n = pickNote() + 12; xiao(semi(n), { gain: .04, dur: 3.6 }); fire('note', n, { long: true }); }
-        if (Math.random() < .3) { droplet({ pan: pan() }); fire('drop'); }
+        if ((sec === 1 ? wxStepN % 16 === 6 : wxStepN % 32 === 12) && Math.random() < .75) { const n = pickNote() + (sec === 1 ? 0 : 12); xiao(semi(n), { gain: .04, dur: 3.6 }); fire('note', n, { long: true }); }
+        if (sec === 2 && beat && Math.random() < .2) { const n = pickNote() + 12; bell(semi(n), { gain: .03, dur: 6, pan: pan() }); fire('bell', n); }
+        if (Math.random() < (sec === 2 ? .45 : .28)) { droplet({ pan: pan() }); fire('drop'); }
       }
       wxStepN++;
       wxTimer = setTimeout(wxTick, 60000 / d.bpm / 2);
@@ -4485,6 +4579,7 @@ function petSVG(i, opt = {}) {
         if (!ac) return;
         if (wxMode) { clearTimeout(wxTimer); wxTimer = 0; wxCb = null; wxEl = null; wxMode = false; if (wxLayers) ['water', 'wind', 'fire'].forEach(k => ramp(wxLayers[k].gain, 0, 2)); }
         stopBreathLoop(); oct = 1;
+        useMood(name);
         if (name === 'lost') {
           ramp(droneGain.gain, .38, 4);
           const cycle = () => {

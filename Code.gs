@@ -377,17 +377,33 @@ function testSave() {
   }).getContent());
 }
 
+// 在編輯器選這個函式按「執行」，看「執行記錄」：成功會出現一段 AI 寫的話
 function testOpenAI() {
-  Logger.log(interpret_({
-    name:'測試使用者',
+  Logger.log(interpret_(testTraveler_()).getContent());
+}
+
+// 測試寵物「接住煩惱」：成功會出現 3 句話與關鍵字
+function testWorry() {
+  Logger.log(worry_(Object.assign(testTraveler_(), {task:'worry'})).getContent());
+}
+
+// 測試多人宇宙：寫入一顆測試星球，再讀出整個宇宙
+function testUniverse() {
+  Logger.log(publish_({uid:'test-uid', name:'INNERVERSE 測試', planetName:'奇想星', typeKey:'O_hi', petIdx:5, petSign:'VIRGO', petName:'Prism', element:'water', big5:{O:4.6,C:3.4,E:3,A:4.2,N:3.1}, weather:'sunny', lang:'zh'}).getContent());
+  Logger.log(universe_({parameter:{}}).getContent());
+}
+
+function testTraveler_() {
+  return {
+    lang:'zh', name:'測試使用者',
     birthday:{raw:'2003/09/06',year:2003,month:9,day:6,zodiac:'處女座'},
     hobbies:'設計、音樂、互動網站',
-    worry:'最近作業有點多',
-    big5:{O:4.7,C:4.2,E:3.9,A:4.5,N:3.1},
-    trait:{label:'探索型',dimension:'開放性較高'},
-    petName:'Prism',
-    pet:{species:'Prism 晶塵靈'}
-  }).getContent());
+    worry:'最近作業有點多，怕做不完',
+    big5:{O:4.7,C:4.2,E:3.9,A:4.5,N:3.1}, big5Pct:{O:93,C:80,E:73,A:88,N:53},
+    trait:{key:'O_hi',label:'好奇開放型',tag:'愛探索與想像的人',dimension:'Openness 開放性',level:'偏高',planet:'奇想星'},
+    pet:{sign:'VIRGO',zodiac:'處女座',species:'Prism',title:'晶塵靈'}, petName:'Prism',
+    wuxing:{element:'water',zh:'水',tone:'羽',emotion:'恐',color:'黑'}
+  };
 }
 
 function testTripoStart() {

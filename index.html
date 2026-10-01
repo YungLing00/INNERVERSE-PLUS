@@ -1050,8 +1050,8 @@
       <p class="rs-mock" id="rsMock"></p>
       <button class="ghost" id="rsRetry" type="button" hidden>再試一次</button>
     </div>
-    <button class="main rs-feel" id="rsRitual" type="button">接下來，讓寵物陪你</button>
-    <button class="ghost rs-alt" id="rsFeel" type="button">你看過情緒嗎？</button>
+    <button class="main rs-feel" id="rsFeel" type="button">接下來，你看過情緒嗎？</button>
+    <button class="ghost rs-alt" id="rsRitual" type="button" hidden>接下來，讓寵物陪你</button>
     <p class="rs-foot">這不是診斷，只是一個溫柔的座標。</p>
     <div class="acts"><button class="ghost" id="rsHome" type="button">回首頁</button></div>
   </div>
@@ -1088,7 +1088,7 @@
 </section>
 <div class="flend" id="rtEnd"><button class="main" id="rtNext" type="button">✦ 繼續旅程</button><button class="ghost" id="rtAgain" type="button">再來一次</button><button class="ghost" id="rtHome" type="button">回首頁</button></div>
 
-<div class="flend" id="flEnd"><button class="main" id="flNext" type="button">✦ 繼續旅程</button><button class="ghost" id="flAgain" type="button">再看一次</button><button class="ghost" id="flHome" type="button">回首頁</button></div>
+<div class="flend" id="flEnd"><button class="main" id="flNext" type="button">✦ 接下來，讓寵物陪你</button><button class="ghost" id="flAgain" type="button">再看一次</button><button class="ghost" id="flHome" type="button">回首頁</button></div>
 
 <section class="wx" id="wx" aria-live="polite">
   <div class="wx-top"><h2 id="wxTitle"></h2><p id="wxSub"></p></div>
@@ -1147,6 +1147,8 @@
   })();
   // 日文、韓文、越南文：以英文為 key 的對照表 [ja, ko, vi]
   const I18N = {
+    "Next: have you ever seen a feeling?": ["次は、感情を見たことある？", "다음: 감정을 본 적 있나요?", "Tiếp theo: bạn đã từng nhìn thấy cảm xúc chưa?"],
+    "✦ Next, let your pet keep you company": ["✦ 次は、ペットといっしょに", "✦ 이제 펫이 곁에 있어 줄게요", "✦ Tiếp theo, để thú cưng ở bên bạn"],
     "(Reason: timed out waiting for the server)": [
     "（原因：サーバーの応答がありませんでした）",
     "(원인: 서버 응답 시간이 초과되었어요)",
@@ -3809,7 +3811,8 @@
     '🖐️ 手勢控制': '🖐️ Hand control', '✦ 看見整座宇宙': '✦ See the whole universe',
     '🖐️ 張開手掌移動：旋轉宇宙': '🖐️ Move an open palm: turn the universe', '🤏 捏合：選擇星球': '🤏 Pinch: choose a planet', '✊ 握拳：回到整個宇宙': '✊ Make a fist: back to the whole universe',
     '回到宇宙': 'Back to the universe', '這是你的星球': 'This is your planet', '人格星圖': 'Personality star chart', '留下一點星光': 'Leave a little starlight',
-    '繼續探索': 'Keep exploring'
+    '繼續探索': 'Keep exploring',
+    '接下來，你看過情緒嗎？': 'Next: have you ever seen a feeling?', '✦ 接下來，讓寵物陪你': '✦ Next, let your pet keep you company'
   };
   if (EN) {
     document.title = 'INNERVERSE PLUS · ' + tr('Your inner universe');
@@ -6954,11 +6957,7 @@ function petSVG(i, opt = {}) {
       reply.textContent = ''; mock.textContent = ''; retry.hidden = true;
       const w = document.createElement('div'); w.className = 'rs-wait'; w.innerHTML = '<i></i><i></i><i></i>'; reply.appendChild(w);
       const pet = PETS[App.petIdx];
-      const payload = Object.assign({}, App.user || { name }, {
-        name, task: 'big5_praise', petName: App.petName || pet.en,
-        pet: { species: `${pet.en} ${pet.name}`, zodiac: pet.zh },
-        big5: score, trait: { key: type.key, label: type.label, dimension: type.dimName, level: type.level }
-      });
+      const payload = aiContext({ task: 'big5_praise', name });
       try {
         let r;
         if (!CONFIG.INTERPRET_ENDPOINT) { await wait(2200); r = { reply: L(`${name}，${type.praise}\n\n${App.petName || pet.en}一直在旁邊看著你，也一定感覺到了：你本來就很好。`, `${name}, ${type.praise}\n\n${App.petName || pet.en} has been right beside you the whole time, and surely felt it too: you were always enough.`, { ja: `${name}、${type.praise}\n\n${App.petName || pet.en}はずっとそばで見ていて、きっと感じていたよ。あなたは、もとからじゅうぶん素敵だって。`, ko: `${name}, ${type.praise}\n\n${App.petName || pet.en}은(는) 내내 곁에서 지켜보며 분명 느꼈을 거예요. 당신은 원래부터 충분히 좋은 사람이라는 걸.`, vi: `${name}, ${type.praise}\n\n${App.petName || pet.en} đã luôn ở bên cạnh và chắc chắn cũng cảm nhận được: bạn vốn dĩ đã rất tốt rồi.` }), mock: true }; }
@@ -6999,7 +6998,9 @@ function petSVG(i, opt = {}) {
           pet: { type: `${pet.en} ${pet.name}`, name: App.petName || pet.en },
           planet: { name: type.planet || '', prompt: '' },
           hobbies: u.hobbies || '',
-          worry: u.worry || ''
+          worry: u.worry || '',
+          wuxing: (() => { const el = elementOf(b), d = el && WXD[el]; return d ? { name: d.zh, element: el, tone: d.tone, emotion: d.emo, color: d.color } : {}; })(),
+          lang: LANG
         });
       }
 
@@ -7698,7 +7699,7 @@ function petSVG(i, opt = {}) {
       const k = FL.tapC++ % ALLC.length; burst(e.clientX, e.clientY, 22, ALLC[k], 200);
     });
     again.addEventListener('click', () => { endCard.classList.remove('on'); start(); });
-    $('flNext').addEventListener('click', () => { endCard.classList.remove('on'); Wuxing.start(); });
+    $('flNext').addEventListener('click', () => { endCard.classList.remove('on'); Ritual.start(); });
     homeB.addEventListener('click', () => resetWorld());
     $('rsFeel').addEventListener('click', () => { if (state === 'result') start(); });
 
@@ -8033,7 +8034,7 @@ function petSVG(i, opt = {}) {
     async function fetchCatch() {
       const w = worryText(); if (!CONFIG.WORRY_ENDPOINT) return mockCatch(w);
       try {
-        const j = await apiPost(CONFIG.WORRY_ENDPOINT, { name: (App.user && App.user.name) || '', worry: w, petName: petName() }, 15000);
+        const j = await apiPost(CONFIG.WORRY_ENDPOINT, aiContext({ task: 'worry', worry: w.slice(0, 500), petName: petName() }), 15000);
         if (!j || !Array.isArray(j.lines) || j.lines.length < 3) throw new Error('bad');
         return { lines: j.lines.slice(0, 3), keywords: (Array.isArray(j.keywords) && j.keywords.length ? j.keywords : extractKeywords(w)).slice(0, 6), care: j.care === true };
       } catch (e) { console.error('worry:', e); return mockCatch(w); }
@@ -8332,15 +8333,15 @@ function petSVG(i, opt = {}) {
   const WX_ORDER = ['earth', 'metal', 'wood', 'fire', 'water'];          // 宮 商 角 徵 羽
   const WXD = {
     earth: { zh: '土', tone: '宮', en: 'Earth', toneEn: 'Gong', icon: '🪨', c: [222, 166, 104], c2: [255, 224, 168],
-      feel: L('沉穩、厚實', 'steady and solid'), fit: L('腦袋很亂、想很多、想休息一下的時候', 'When your mind is crowded and you need a rest') },
+      emo: '思', color: '黃', feel: L('沉穩、厚實', 'steady and solid'), fit: L('腦袋很亂、想很多、想休息一下的時候', 'When your mind is crowded and you need a rest') },
     metal: { zh: '金', tone: '商', en: 'Metal', toneEn: 'Shang', icon: '✨', c: [255, 212, 116], c2: [255, 247, 214],
-      feel: L('清亮、俐落', 'clear and crisp'), fit: L('想整理心情、安靜一下的時候', 'When you want to sort out your feelings and be still') },
+      emo: '悲', color: '白', feel: L('清亮、俐落', 'clear and crisp'), fit: L('想整理心情、安靜一下的時候', 'When you want to sort out your feelings and be still') },
     wood: { zh: '木', tone: '角', en: 'Wood', toneEn: 'Jue', icon: '🌿', c: [118, 222, 138], c2: [212, 255, 204],
-      feel: L('舒展、生長', 'stretching and growing'), fit: L('煩躁、想舒展一下的時候', 'When you feel restless and want to stretch out') },
+      emo: '怒', color: '青', feel: L('舒展、生長', 'stretching and growing'), fit: L('煩躁、想舒展一下的時候', 'When you feel restless and want to stretch out') },
     fire: { zh: '火', tone: '徵', en: 'Fire', toneEn: 'Zhi', icon: '🔥', c: [255, 110, 90], c2: [255, 214, 150],
-      feel: L('明亮、活躍', 'bright and lively'), fit: L('想找回精神、想動起來的時候', 'When you want your energy back and feel like moving') },
+      emo: '喜', color: '赤', feel: L('明亮、活躍', 'bright and lively'), fit: L('想找回精神、想動起來的時候', 'When you want your energy back and feel like moving') },
     water: { zh: '水', tone: '羽', en: 'Water', toneEn: 'Yu', icon: '💧', c: [96, 170, 255], c2: [204, 232, 255],
-      feel: L('深沉、流動', 'deep and flowing'), fit: L('緊張、不安，想慢慢靜下來的時候', 'When you feel tense and want to slowly calm down') }
+      emo: '恐', color: '黑', feel: L('深沉、流動', 'deep and flowing'), fit: L('緊張、不安，想慢慢靜下來的時候', 'When you feel tense and want to slowly calm down') }
   };
   const wxLabel = k => L(`${WXD[k].zh}｜${WXD[k].tone}`, `${WXD[k].en} · ${WXD[k].toneEn}`, { ja: `${WXD[k].zh}｜${WXD[k].tone}`, ko: `${tr(WXD[k].en)} · ${tr(WXD[k].toneEn)}`, vi: `${tr(WXD[k].en)} · ${tr(WXD[k].toneEn)}` });
   // 年干五行（立春前算前一年）；沒有年份時用月份對應的季節
@@ -8356,6 +8357,30 @@ function petSVG(i, opt = {}) {
     sunny: ['☀️', L('晴朗', 'Sunny')], rain: ['🌧️', L('小雨', 'Light rain')], fog: ['🌫️', L('起霧', 'Misty')],
     rainbow: ['🌈', L('彩虹', 'Rainbow')], night: ['🌙', L('安靜的夜晚', 'A quiet night')]
   };
+
+  /* ---------- 送給 AI 的資料：一次整理好，解讀與煩惱回應都用同一份 ----------
+     只放 AI 需要的欄位，文字都限制長度；分數同時給 1–5 分與百分比 */
+  const B5_KEYS = ['O', 'C', 'E', 'A', 'N'];
+  function aiContext(extra = {}) {
+    const u = App.user || {}, b = u.birthday || {}, me = Me.get() || {};
+    const pet = PETS[App.petIdx] || PETS[0], type = App.type, big5 = App.big5 || me.big5;
+    const el = elementOf(b) || me.element || null, d = el ? WXD[el] : null;
+    const cut = (v, n) => String(v || '').trim().slice(0, n);
+    return Object.assign({
+      lang: LANG,
+      name: cut(u.name || me.name, 20),
+      birthday: { raw: cut(b.raw, 40), year: b.year || null, month: b.month || null, day: b.day || null, zodiac: b.zodiac || '' },
+      hobbies: cut(u.hobbies, 300),
+      worry: cut(u.worry, 500),
+      big5: big5 ? Object.fromEntries(B5_KEYS.map(k => [k, Math.round(big5[k] * 100) / 100])) : null,
+      big5Pct: big5 ? Object.fromEntries(B5_KEYS.map(k => [k, Math.round((big5[k] - 1) / 4 * 100)])) : null,
+      trait: type ? { key: type.key, letter: type.letter, label: type.label, tag: type.tag, dimension: type.dimName, level: type.level || '', planet: type.planet } : null,
+      pet: { sign: pet.sign, zodiac: pet.zh, species: pet.en, title: pet.name, words: pet.words },
+      petName: cut(App.petName || me.petName || pet.en, 20),
+      wuxing: d ? { element: el, zh: d.zh, tone: d.tone, emotion: d.emo, color: d.color } : null,
+      weather: me.weather || ''
+    }, extra);
+  }
 
   /* ---------- 我的星球（存在這台裝置；公開資料才會送到宇宙） ---------- */
   const Me = {

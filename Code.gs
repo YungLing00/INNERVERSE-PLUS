@@ -47,12 +47,15 @@ const ZODIAC = {
   '巨蟹座':'shimmering water pools, mist and tiny bubbles, ','天蠍座':'shimmering water pools, mist and tiny bubbles, ','雙魚座':'shimmering water pools, mist and tiny bubbles, '
 };
 
-const SYSTEM_PROMPT = `你是「INNERVERSE 內在宇宙」的 AI 人格陪伴者，用繁體中文（台灣用語）。
-你會收到名字、生日、星座、興趣、最近的煩惱、Big Five 分數、人格類型與寵物。
-Big Five 是主要人格依據；生日、星座、興趣與煩惱作為個人化敘事的輔助資訊，不把星座當成科學診斷。
-輸出 2～3 小段、約 150～260 個中文字。不要 Markdown、不要心理診斷、不要預測未來、不要說教。
-可以自然提到寵物；寵物沒有嘴巴，只用眼睛與光陪伴。
-若煩惱涉及自殺、自殘、想死、不想活，改以關心為主並提醒 1925、1995，緊急時 119。`;
+const SYSTEM_PROMPT = `你是「INNERVERSE PLUS 內在宇宙」的 AI 人格陪伴者，預設用繁體中文（台灣用語）。
+你會收到一份「旅人資料」：名字、生日與星座、五行（元素與五音）、興趣、最近的煩惱、Big Five 分數、人格類型、宇宙寵物。
+寫法：
+- Big Five 是主要依據：說出這個人最明顯的一兩個特質，具體、溫暖地肯定；不要逐項列分數，也不要提「Big Five」「神經質」等術語。
+- 星座、五行只當成溫柔的比喻或意象（例如「像木一樣舒展」），不當成科學或命運的判斷。
+- 有興趣就自然帶到一個可以照顧自己的小建議；有煩惱就先接住感受，不急著解決。
+- 可以提到寵物的名字；寵物沒有嘴巴，只用眼睛與光陪伴。
+- 輸出 2～3 小段、約 150～260 個中文字，段落之間空一行。不要 Markdown、不要條列、不要心理診斷、不要預測未來、不要說教。
+- 若煩惱涉及自殺、自殘、想死、不想活，改以關心為主並提醒 1925、1995，緊急時 119。`;
 
 // 使用者在網站選擇的語言：中文以外，在 system prompt 後面要求改用該語言回覆
 const LANG_NAMES = { en: 'English', ja: 'Japanese', ko: 'Korean', vi: 'Vietnamese' };
@@ -63,12 +66,13 @@ function langSuffix_(b) {
 }
 const isEn_ = b => !!langSuffix_(b);
 
-const WORRY_PROMPT = `你是 INNERVERSE 宇宙寵物背後的陪伴聲音，用繁體中文。
+const WORRY_PROMPT = `你是 INNERVERSE PLUS 宇宙寵物背後的陪伴聲音，預設用繁體中文（台灣用語）。
+你會收到旅人資料（人格、五行、寵物）與這次說出的煩惱。只回應煩惱本身，人格與五行只用來調整語氣（例如敏感的人更溫柔、外向的人更有活力）。
 只輸出 JSON：{"lines":["…","…","…"],"keywords":["…"],"care":false}
-lines 剛好 3 句，每句 12～40 字：接住感受、肯定使用者、陪伴。
-keywords 3～6 個，優先使用使用者原本的詞。
-不要說教、不要心理診斷、不要預測未來。
-若內容涉及自殺、自殘、想死、不想活，care=true。`;
+- lines 剛好 3 句，每句 12～40 字：第 1 句接住感受、第 2 句肯定使用者、第 3 句陪伴。
+- keywords 3～6 個，盡量直接取自使用者原本的詞，每個 2～6 個字。
+- 不要說教、不要心理診斷、不要預測未來、不要給一長串建議。
+- 若內容涉及自殺、自殘、想死、不想活，care=true。`;
 
 function doGet(e) {
   try {
@@ -114,23 +118,29 @@ function prop_(name) {
   return PropertiesService.getScriptProperties().getProperty(name) || '';
 }
 
-function interpret_(b) {
-  const big5 = b.big5 || {};
-  const trait = b.trait || {};
-  const pet = b.pet || {};
-  const bd = b.birthday || {};
-  const user = [
-    '名字：' + str_(b.name,20),
-    '生日原始輸入：' + (str_(bd.raw,40) || '未提供'),
-    '解析生日：' + [bd.year||'-',bd.month||'-',bd.day||'-'].join('-'),
+// 把前端送來的資料整理成給 AI 看的「旅人資料」（每個欄位都限制長度）
+function profileText_(b) {
+  const big5 = b.big5 || {}, pct = b.big5Pct || {}, trait = b.trait || {}, pet = b.pet || {}, bd = b.birthday || {}, wx = b.wuxing || {};
+  const b5 = k => num_(big5[k]) + (pct[k] !== undefined && pct[k] !== null ? '（' + num_(pct[k]) + '%）' : '');
+  return [
+    '【旅人資料】',
+    '名字：' + (str_(b.name,20) || '未提供'),
+    '介面語言：' + (str_(b.lang,4) || 'zh'),
+    '生日：' + (str_(bd.raw,40) || '未提供') + '（解析：' + [bd.year||'-',bd.month||'-',bd.day||'-'].join('-') + '）',
     '星座：' + (str_(bd.zodiac,10) || '未提供'),
-    '興趣：' + (str_(b.hobbies || b.hobby,160) || '未提供'),
-    '最近煩惱：' + (str_(b.worry || b.worryText,240) || '未提供'),
-    '寵物：' + str_(b.petName || pet.name,20) + '（' + str_(pet.species || pet.type,40) + '）',
-    'Big Five：O ' + num_(big5.O) + '、C ' + num_(big5.C) + '、E ' + num_(big5.E) + '、A ' + num_(big5.A) + '、N ' + num_(big5.N),
-    '人格類型：' + (str_(trait.label,30) || str_(b.dominantTrait,30) || '未提供'),
-    '人格維度：' + (str_(trait.dimension,50) || '未提供')
+    '五行：' + (wx.zh ? str_(wx.zh,2) + '（五音「' + str_(wx.tone,2) + '」，對應情緒「' + str_(wx.emotion,2) + '」）' : '未提供'),
+    '興趣：' + (str_(b.hobbies || b.hobby,300) || '未提供'),
+    '最近煩惱：' + (str_(b.worry || b.worryText,500) || '未提供'),
+    'Big Five（1–5 分）：開放性 ' + b5('O') + '、盡責性 ' + b5('C') + '、外向性 ' + b5('E') + '、親和性 ' + b5('A') + '、情緒敏感度 ' + b5('N'),
+    '人格類型：' + (str_(trait.label,40) || str_(b.dominantTrait,40) || '未提供') + (trait.tag ? '（' + str_(trait.tag,40) + '）' : ''),
+    '主要維度：' + (str_(trait.dimension,50) || '未提供') + (trait.level ? '，' + str_(trait.level,10) : ''),
+    '人格星球：' + (str_(trait.planet,30) || '未提供'),
+    '宇宙寵物：' + (str_(b.petName,20) || '未命名') + '（' + [str_(pet.zodiac,6), str_(pet.species,20), str_(pet.title,30)].filter(Boolean).join('・') + '）'
   ].join('\n');
+}
+
+function interpret_(b) {
+  const user = profileText_(b) + '\n\n請根據以上資料，寫一段給這位旅人的話。';
   return json_({ok:true,reply:callOpenAI_(SYSTEM_PROMPT + langSuffix_(b),user,false)});
 }
 
@@ -139,7 +149,7 @@ function worry_(b) {
   if (!worry) return json_({ok:false,error:'empty worry'});
   try {
     const raw = callOpenAI_(WORRY_PROMPT + langSuffix_(b),
-      '名字：' + (str_(b.name,20)||'你') + '\n寵物：' + (str_(b.petName,20)||'宇宙寵物') + '\n煩惱：' + worry, true);
+      profileText_(b) + '\n\n【這次說出的煩惱】\n' + worry, true);
     const out = JSON.parse(raw);
     const lines = (Array.isArray(out.lines)?out.lines:[]).map(x=>str_(x,100)).filter(Boolean).slice(0,3);
     const keywords = (Array.isArray(out.keywords)?out.keywords:[]).map(x=>str_(x,12)).filter(Boolean).slice(0,6);

@@ -858,6 +858,13 @@
     .g-box { width: min(64cqw, 78cqh, 300px); }
     .g-pet { width: min(86cqw, 88cqh, 380px); }
   }
+.ai-note { position: fixed; z-index: 30; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 10px); transform: translateX(-50%); width: min(92vw, 520px); margin: 0; padding: .45rem .8rem; border-radius: 12px; text-align: center;
+    font-size: .74rem; line-height: 1.5; letter-spacing: .04em; color: rgba(235,230,255,.78); background: rgba(10,8,30,.6); opacity: 0; pointer-events: none; transition: opacity .8s ease; }
+  .ai-note.on { opacity: 1; }
+  .diag { position: fixed; z-index: 99; inset: 12px; overflow-y: auto; padding: 18px; border-radius: 16px; background: rgba(8,6,24,.96); border: 1px solid rgba(255,255,255,.25); color: #eee; font: 14px/1.6 system-ui, sans-serif; word-break: break-all; }
+  .diag h3 { margin: 0 0 6px; font-size: 16px; } .diag .d-url { font-size: 11px; opacity: .6; }
+  .diag button { margin: 8px 8px 8px 0; padding: 8px 16px; border-radius: 10px; border: 1px solid #aab; background: #2a2160; color: #fff; font-size: 14px; }
+  .diag li { margin: 8px 0; } .diag li.bad { color: #ffb4b4; } .diag li.ok { color: #b8ffd0; }
 </style>
 </head>
 <body data-state="idle">
@@ -3914,6 +3921,44 @@
       return j;
     } finally { clearTimeout(tm); }
   }
+
+  // AI 沒接上時，在畫面下方淡淡提示原因（不打斷體驗）
+  function aiNote(txt) {
+    let el = document.getElementById('aiNote');
+    if (!el) { el = document.createElement('p'); el.id = 'aiNote'; el.className = 'ai-note'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+    el.textContent = txt; el.classList.add('on'); clearTimeout(aiNote.t); aiNote.t = setTimeout(() => el.classList.remove('on'), 12000);
+  }
+
+  // 連線診斷：網址加上 ?diag=1 會開啟，逐項測試後端與 OpenAI
+  if (/[?&]diag=1/.test(location.search)) (fn => document.readyState === 'loading' ? addEventListener('DOMContentLoaded', fn) : fn())(() => {
+    const box = document.createElement('div'); box.className = 'diag';
+    box.innerHTML = '<h3>INNERVERSE 連線診斷</h3><p class="d-url"></p><button type="button" id="diagRun">開始測試</button><button type="button" id="diagClose">關閉</button><ol id="diagOut"></ol>';
+    document.body.appendChild(box); box.querySelector('.d-url').textContent = CONFIG.DATA_ENDPOINT || '（沒有設定後端網址）';
+    const out = box.querySelector('#diagOut');
+    const row = (name, ok, msg) => { const li = document.createElement('li'); li.className = ok ? 'ok' : 'bad'; li.textContent = (ok ? '✅ ' : '❌ ') + name + '：' + msg; out.appendChild(li); };
+    const test = async (name, fn) => { const t0 = Date.now(); try { row(name, true, (await fn()) + '（' + ((Date.now() - t0) / 1000).toFixed(1) + ' 秒）'); } catch (e) { row(name, false, String((e && e.message) || e).slice(0, 300) + '（' + ((Date.now() - t0) / 1000).toFixed(1) + ' 秒）'); } };
+    box.querySelector('#diagClose').onclick = () => box.remove();
+    box.querySelector('#diagRun').onclick = async () => {
+      out.textContent = '';
+      await test('1. 連到後端（GET）', async () => {
+        const r = await fetch(CONFIG.DATA_ENDPOINT, { redirect: 'follow' }); const txt = await r.text();
+        let j; try { j = JSON.parse(txt); } catch (e) { throw new Error('回來的不是 JSON（多半是 Google 登入頁 → 部署的「誰可以存取」要選「所有人」）：' + txt.slice(0, 80)); }
+        if (!j.ok) throw new Error(j.error || '後端回報錯誤');
+        const acts = (j.actions || []).join(', ');
+        if (!/worry/.test(acts) || !/visits/.test(acts)) throw new Error('後端是舊版 Code.gs（沒有 worry / visits）。請貼上新版並「管理部署 → 編輯 → 新版本」：' + acts);
+        return '後端正常，版本是新的';
+      });
+      await test('2. 寵物回應（worry → OpenAI）', async () => {
+        const j = await apiPost(CONFIG.WORRY_ENDPOINT, { task: 'worry', worry: '最近考試壓力有點大', name: '測試', petName: 'Sol' }, 60000);
+        if (j.fallback) throw new Error('後端有收到，但 OpenAI 失敗，改用內建句子。原因：' + (j.error || '（舊版 Code.gs 不會回報原因，請更新）'));
+        return '「' + (j.lines || []).join(' / ').slice(0, 120) + '」';
+      });
+      await test('3. 人格解讀（interpret → OpenAI）', async () => {
+        const j = await apiPost(CONFIG.INTERPRET_ENDPOINT, { task: 'big5_praise', name: '測試', big5: { O: 3.5, C: 3, E: 2.5, A: 4, N: 3 } }, 60000);
+        return '「' + String(j.reply || j.text || '').slice(0, 80) + '…」';
+      });
+    };
+  });
 
 /* ================================================================
    十二隻宇宙寵物：只有眼睛，沒有鼻子和嘴巴
@@ -8042,10 +8087,11 @@ function petSVG(i, opt = {}) {
     async function fetchCatch() {
       const w = worryText(); if (!CONFIG.WORRY_ENDPOINT) return mockCatch(w);
       try {
-        const j = await apiPost(CONFIG.WORRY_ENDPOINT, aiContext({ task: 'worry', worry: w.slice(0, 500), petName: petName() }), 15000);
-        if (!j || !Array.isArray(j.lines) || j.lines.length < 3) throw new Error('bad');
+        const j = await apiPost(CONFIG.WORRY_ENDPOINT, aiContext({ task: 'worry', worry: w.slice(0, 500), petName: petName() }), 40000);
+        if (!j || !Array.isArray(j.lines) || j.lines.length < 3) throw new Error(L('後端回傳格式不對', 'unexpected reply from the server'));
+        if (j.fallback) aiNote(L('（寵物這次用的是內建句子，AI 沒有回應', '(Your pet used built-in lines this time — the AI didn’t answer') + (j.error ? '：' + String(j.error).slice(0, 140) : '') + L('）', ')'));
         return { lines: j.lines.slice(0, 3), keywords: (Array.isArray(j.keywords) && j.keywords.length ? j.keywords : extractKeywords(w)).slice(0, 6), care: j.care === true };
-      } catch (e) { console.error('worry:', e); return mockCatch(w); }
+      } catch (e) { console.error('worry:', e); aiNote(L('（寵物這次用的是內建句子', '(Your pet used built-in lines this time') + apiErrText(e).replace(/^（|^\(/, L('，', ' — '))); return mockCatch(w); }
     }
     function makeChars(w) {
       const cs = [...w].filter(c => /[\u3040-\u30ff\u4e00-\u9fff\uac00-\ud7afA-Za-z0-9\u00c0-\u024f\u1e00-\u1eff]/.test(c)).slice(0, 34), n = Math.max(1, cs.length);

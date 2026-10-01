@@ -155,7 +155,8 @@ function worry_(b) {
     const keywords = (Array.isArray(out.keywords)?out.keywords:[]).map(x=>str_(x,12)).filter(Boolean).slice(0,6);
     if (lines.length < 3) throw new Error('bad lines');
     return json_({ok:true,lines,keywords:keywords.length?keywords:extractKeywords_(worry),care:out.care===true});
-  } catch (_) {
+  } catch (err) {
+    console.error('worry_: ' + (err && err.message));
     const care = /自殺|想死|不想活|不想再活|輕生|傷害自己|自殘|活不下去|尋短|suicid|kill myself|end my life|self[- ]?harm|want to die|死にたい|消えたい|自傷|죽고 ?싶|자살|자해|muốn chết|tự tử|tự sát|tự hại/i.test(worry);
     return json_({
       ok:true,
@@ -165,7 +166,7 @@ function worry_(b) {
         ko:['요즘 많은 일이 쌓여 있었겠어요.','그걸 마음에 두는 건 정말 아끼기 때문이에요.','오랫동안 애써 왔어요. 지금은 내가 곁에 있을게요.'],
         vi:['Dạo này chắc hẳn nhiều chuyện đã dồn lại.','Việc bạn để tâm như vậy cho thấy bạn thật sự quan tâm.','Bạn đã cố gắng rất lâu rồi. Giờ mình ở đây với bạn.']
       })[String(b.lang || '').slice(0, 2)] || ['最近一定累積了很多事情吧。','你會把這些放在心上，也代表你真的很在乎。','你已經努力很久了，我先陪你待在這裡。'],
-      keywords:extractKeywords_(worry),care,fallback:true
+      keywords:extractKeywords_(worry),care,fallback:true,error:String((err && err.message) || err).slice(0,300)
     });
   }
 }

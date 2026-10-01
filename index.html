@@ -1159,12 +1159,20 @@ function petSVG(i, opt = {}) {
      聲音：全部用 Web Audio 即時合成，不需要任何音檔
      ================================================================ */
   const Sound = (() => {
-    let ac = null, master, dry, rev, droneGain, noiseFilt, noiseGain, padGain, padLP, airGain;
+    let ac = null, master, dry, rev, echo, droneGain, noiseFilt, noiseGain, padGain, padLP, airGain;
     let muted = false, pianoOn = false, pianoDense = 1, oct = 1, breathTimer = 0, pianoTimer = 0;
-    const SCALE = [220, 261.63, 329.63, 392, 440, 523.25, 659.25, 783.99];
     const LEVEL = .85;
     let base = LEVEL, ducked = false;
     const target = () => (muted ? 0 : base * (ducked ? .15 : 1));
+
+    // 和弦進行：Fmaj9 → Am9 → Cmaj9 → G6sus，緩慢循環，讓背景一直有溫柔的流動感
+    const CHORDS = [
+      { root: 87.31, pad: [174.61, 220, 261.63, 329.63, 392], mel: [349.23, 440, 523.25, 659.25, 783.99, 880] },
+      { root: 110, pad: [220, 261.63, 329.63, 392, 493.88], mel: [440, 523.25, 659.25, 783.99, 987.77, 880] },
+      { root: 65.41, pad: [196, 261.63, 329.63, 493.88, 587.33], mel: [392, 523.25, 587.33, 659.25, 783.99, 987.77] },
+      { root: 98, pad: [196, 246.94, 293.66, 329.63, 440], mel: [392, 440, 587.33, 659.25, 783.99, 880] }
+    ];
+    let chordIdx = 1, chordTimer = 0, padVoices = [], droneOsc = [];
 
     const ramp = (param, v, sec) => param.setTargetAtTime(v, ac.currentTime, Math.max(.01, sec / 3));
     const noiseBuf = sec => {
@@ -1176,29 +1184,58 @@ function petSVG(i, opt = {}) {
       const len = Math.floor(ac.sampleRate * sec), b = ac.createBuffer(2, len, ac.sampleRate);
       for (let c = 0; c < 2; c++) {
         const d = b.getChannelData(c);
-        for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+        let lp = 0;
+        for (let i = 0; i < len; i++) {
+          // 尾巴越後面越暗，聽起來像大空間而不是嘶嘶聲
+          const k = .25 + .7 * (i / len);
+          lp += ((Math.random() * 2 - 1) - lp) * (1 - k);
+          d[i] = lp * Math.pow(1 - i / len, decay) * 1.6;
+        }
       }
       return b;
     };
+    const panner = v => {
+      if (!ac.createStereoPanner) return ac.createGain();
+      const p = ac.createStereoPanner(); p.pan.value = v; return p;
+    };
+
+    function setChord(i, glide) {
+      chordIdx = i;
+      const c = CHORDS[i], t = ac.currentTime;
+      padVoices.forEach((v, k) => v.forEach(o => o.frequency.setTargetAtTime(c.pad[k], t, glide)));
+      droneOsc.forEach((o, k) => o.frequency.setTargetAtTime(c.root * [1, 1.5, 2][k], t, glide * 1.4));
+    }
 
     function init() {
       const AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) return false;
       ac = new AC();
-      master = ac.createGain(); master.gain.value = 0; master.connect(ac.destination);
+      // 壓縮器把所有聲音黏在一起，也避免突然太大聲
+      const comp = ac.createDynamicsCompressor();
+      comp.threshold.value = -20; comp.knee.value = 24; comp.ratio.value = 3; comp.attack.value = .02; comp.release.value = .4;
+      comp.connect(ac.destination);
+      master = ac.createGain(); master.gain.value = 0; master.connect(comp);
       dry = ac.createGain(); dry.connect(master);
-      rev = ac.createConvolver(); rev.buffer = impulse(3.2, 2.6);
-      const wet = ac.createGain(); wet.gain.value = .5; rev.connect(wet); wet.connect(master);
+      rev = ac.createConvolver(); rev.buffer = impulse(5.5, 2.2);
+      const wet = ac.createGain(); wet.gain.value = .62; rev.connect(wet); wet.connect(master);
 
-      // 低頻環境音
+      // 左右交錯的回聲：鋼琴音會在空間裡慢慢散開
+      echo = ac.createGain(); echo.gain.value = .3;
+      const dL = ac.createDelay(2), dR = ac.createDelay(2), fb = ac.createGain(), elp = ac.createBiquadFilter();
+      dL.delayTime.value = .46; dR.delayTime.value = .69; fb.gain.value = .38;
+      elp.type = 'lowpass'; elp.frequency.value = 2600;
+      const pL = panner(-.6), pR = panner(.6);
+      echo.connect(dL); dL.connect(elp); elp.connect(dR); dR.connect(fb); fb.connect(dL);
+      dL.connect(pL); dR.connect(pR); pL.connect(master); pR.connect(master); pL.connect(rev); pR.connect(rev);
+
+      // 低頻：柔和的正弦波，跟著和弦根音移動
       droneGain = ac.createGain(); droneGain.gain.value = 0;
-      const dlp = ac.createBiquadFilter(); dlp.type = 'lowpass'; dlp.frequency.value = 220;
+      const dlp = ac.createBiquadFilter(); dlp.type = 'lowpass'; dlp.frequency.value = 320;
       droneGain.connect(dlp); dlp.connect(dry); dlp.connect(rev);
-      [55, 82.41, 110.2].forEach((f, i) => {
-        const o = ac.createOscillator(); o.type = i === 2 ? 'sine' : 'sawtooth';
-        o.frequency.value = f; o.detune.value = (i - 1) * 6;
-        const g = ac.createGain(); g.gain.value = i === 2 ? .25 : .4;
-        o.connect(g); g.connect(droneGain); o.start();
+      droneOsc = [0, 1, 2].map(k => {
+        const o = ac.createOscillator(); o.type = k === 2 ? 'triangle' : 'sine';
+        const g = ac.createGain(); g.gain.value = [.55, .22, .12][k];
+        o.connect(g); g.connect(droneGain); o.start(); return o;
       });
 
       // 呼吸聲（濾波雜訊）
@@ -1207,16 +1244,28 @@ function petSVG(i, opt = {}) {
       noiseGain = ac.createGain(); noiseGain.gain.value = 0;
       ns.connect(noiseFilt); noiseFilt.connect(noiseGain); noiseGain.connect(dry); noiseGain.connect(rev); ns.start();
 
-      // Pad（Am9）
+      // Pad：每個聲部兩顆微微走音的振盪器（合唱感），濾波器緩慢開合像在呼吸
       padGain = ac.createGain(); padGain.gain.value = 0;
-      padLP = ac.createBiquadFilter(); padLP.type = 'lowpass'; padLP.frequency.value = 1400;
+      padLP = ac.createBiquadFilter(); padLP.type = 'lowpass'; padLP.frequency.value = 1400; padLP.Q.value = .4;
       padGain.connect(padLP); padLP.connect(dry); padLP.connect(rev);
-      [220, 261.63, 329.63, 392, 493.88].forEach((f, i) => {
-        const o = ac.createOscillator(); o.type = 'triangle';
-        o.frequency.value = f; o.detune.value = i % 2 ? 4 : -4;
-        const g = ac.createGain(); g.gain.value = .12;
-        o.connect(g); g.connect(padGain); o.start();
+      const lfo = ac.createOscillator(), lfoG = ac.createGain();
+      lfo.frequency.value = .06; lfoG.gain.value = 380; lfo.connect(lfoG); lfoG.connect(padLP.frequency); lfo.start();
+      padVoices = CHORDS[chordIdx].pad.map((f, k) => {
+        const pn = panner((k / 4 - .5) * 1.1);
+        pn.connect(padGain);
+        return [-7, 7].map((dt, j) => {
+          const o = ac.createOscillator(); o.type = j ? 'sine' : 'triangle';
+          o.frequency.value = f; o.detune.value = dt + (k - 2) * 1.5;
+          const g = ac.createGain(); g.gain.value = j ? .07 : .055;
+          // 每個聲部各自緩慢起伏，和弦聽起來是活的
+          const tl = ac.createOscillator(), tg = ac.createGain();
+          tl.frequency.value = .05 + k * .023 + j * .011; tg.gain.value = .025;
+          tl.connect(tg); tg.connect(g.gain); tl.start();
+          o.connect(g); g.connect(pn); o.start(); return o;
+        });
       });
+      setChord(chordIdx, .01);
+      chordTimer = setInterval(() => { if (ac && ac.state === 'running') setChord((chordIdx + 1) % CHORDS.length, 1.6); }, 9600);
 
       // 高頻空氣感
       const as = ac.createBufferSource(); as.buffer = noiseBuf(2); as.loop = true;
@@ -1228,24 +1277,51 @@ function petSVG(i, opt = {}) {
 
     function tone(f, o = {}) {
       if (!ac) return;
-      const { type = 'sine', dur = 3, gain = .1, delay = 0, attack = .02 } = o;
+      const { type = 'sine', dur = 3, gain = .1, delay = 0, attack = .02, pan = 0 } = o;
       const t = ac.currentTime + delay;
       const osc = ac.createOscillator(); osc.type = type; osc.frequency.value = f;
-      const g = ac.createGain();
+      const g = ac.createGain(), pn = panner(pan);
       g.gain.setValueAtTime(0, t);
       g.gain.linearRampToValueAtTime(gain, t + attack);
       g.gain.exponentialRampToValueAtTime(.0001, t + dur);
-      osc.connect(g); g.connect(dry); g.connect(rev);
+      osc.connect(g); g.connect(pn); pn.connect(dry); pn.connect(rev); pn.connect(echo);
       osc.start(t); osc.stop(t + dur + .1);
+    }
+
+    // 像鋼琴／鋼片琴的音色：幾個泛音各自衰減，加上由亮轉暗的濾波
+    function pluck(f, o = {}) {
+      if (!ac) return;
+      const { gain = .1, dur = 4, delay = 0, pan = 0, bright = 1 } = o;
+      const t = ac.currentTime + delay;
+      const out = ac.createGain(), lp = ac.createBiquadFilter(), pn = panner(pan);
+      lp.type = 'lowpass';
+      lp.frequency.setValueAtTime(Math.min(9000, f * 7 * bright), t);
+      lp.frequency.exponentialRampToValueAtTime(Math.max(300, f * 1.6), t + dur * .7);
+      out.connect(lp); lp.connect(pn); pn.connect(dry); pn.connect(rev); pn.connect(echo);
+      [[1, 1, 1], [2, .42, .55], [3, .16, .3], [4.02, .07, .18]].forEach(([m, a, d]) => {
+        const osc = ac.createOscillator(); osc.type = 'sine'; osc.frequency.value = f * m;
+        const g = ac.createGain();
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(gain * a, t + .006);
+        g.gain.exponentialRampToValueAtTime(.0001, t + dur * d);
+        osc.connect(g); g.connect(out);
+        osc.start(t); osc.stop(t + dur * d + .05);
+      });
     }
 
     function schedulePiano() {
       clearTimeout(pianoTimer);
       if (!pianoOn || !ac) return;
-      const f = SCALE[(Math.random() * SCALE.length) | 0] * oct;
-      tone(f, { type: 'triangle', dur: 3.2, gain: .09 });
-      tone(f * 2, { type: 'sine', dur: 2.4, gain: .03 });
-      pianoTimer = setTimeout(schedulePiano, (1800 + Math.random() * 2400) / pianoDense);
+      const pool = CHORDS[chordIdx].mel, pick = () => pool[(Math.random() * pool.length) | 0] * oct;
+      const r = Math.random(), pan = (Math.random() - .5) * 1.2;
+      if (r < .55) pluck(pick(), { gain: .085, pan });
+      else if (r < .85) {                         // 兩三個音的小琶音
+        const n = 2 + (Math.random() < .5 ? 1 : 0), st = (Math.random() * (pool.length - n)) | 0, gap = .2 + Math.random() * .16;
+        for (let k = 0; k < n; k++) pluck(pool[st + k] * oct, { gain: .075 - k * .012, delay: k * gap, pan: pan + k * .2 });
+      } else {                                    // 偶爾一顆高音的星星聲
+        pluck(pick() * 2, { gain: .04, dur: 5, pan, bright: 1.4 });
+      }
+      pianoTimer = setTimeout(schedulePiano, (2000 + Math.random() * 2600) / pianoDense);
     }
 
     function stopBreathLoop() { clearInterval(breathTimer); breathTimer = 0; }
@@ -1277,7 +1353,7 @@ function petSVG(i, opt = {}) {
           };
           cycle(); breathTimer = setInterval(cycle, 6400);
         } else if (name === 'feel') {
-          ramp(droneGain.gain, .3, 3); ramp(noiseGain.gain, .005, 3);
+          ramp(droneGain.gain, .42, 3); ramp(noiseGain.gain, .005, 3); ramp(padGain.gain, .14, 6);
         } else if (name === 'release') {
           ramp(padGain.gain, .5, 6); ramp(droneGain.gain, .18, 6); ramp(airGain.gain, .02, 8);
           pianoOn = true; pianoDense = 1; schedulePiano();
@@ -1306,10 +1382,10 @@ function petSVG(i, opt = {}) {
       breathIn(sec) { if (ac) { ramp(noiseFilt.frequency, 1500, sec); ramp(noiseGain.gain, .07, sec); } },
       breathOut(sec) { if (ac) { ramp(noiseFilt.frequency, 380, sec); ramp(noiseGain.gain, .006, sec); } },
       note(f, o) { tone(f, o); },
-      chime(k = 0) { tone(1046.5 * (1 + k * .12), { dur: 2.6, gain: .12 }); tone(1568 * (1 + k * .12), { dur: 2.2, gain: .06, delay: .09 }); },
+      chime(k = 0) { pluck(1046.5 * (1 + k * .12), { dur: 3.4, gain: .11, pan: -.15 }); pluck(1568 * (1 + k * .12), { dur: 3, gain: .06, delay: .09, pan: .15 }); },
       gift(build) {
         const n = build ? [262, 330, 392] : [523.25, 659.25, 783.99, 1046.5, 1318.5, 1568];
-        n.forEach((f, i) => tone(f, { type: 'triangle', dur: build ? 1.2 : 2.4, gain: build ? .05 : .08, delay: i * (build ? .26 : .09) }));
+        n.forEach((f, i) => pluck(f, { dur: build ? 1.6 : 3.2, gain: build ? .06 : .08, delay: i * (build ? .26 : .09), pan: (i / (n.length - 1) - .5) * .8 }));
       },
       ping(id) {
         if (!ac) return;

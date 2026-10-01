@@ -858,11 +858,11 @@
     // 後端解讀 API 的網址，例如 '/api/interpret'。留空＝使用內建的示範回應。
     // OpenAI API key 只能放在後端，千萬不要寫進這個前端檔案。
     DATA_ENDPOINT: 'https://script.google.com/macros/s/AKfycbxgLq3Smhs8y1OUwGP_iEwS3hHRa0bDWdnHIQJPi7VoeGb1VOjW2Ov2vdNfZZmOqnB0/exec',
-    INTERPRET_ENDPOINT: '',   // 例如 'https://xxx.workers.dev/interpret'
+    INTERPRET_ENDPOINT: 'https://script.google.com/macros/s/AKfycbxgLq3Smhs8y1OUwGP_iEwS3hHRa0bDWdnHIQJPi7VoeGb1VOjW2Ov2vdNfZZmOqnB0/exec?action=interpret',   // 例如 'https://xxx.workers.dev/interpret'
     // Tripo 3D 模型：填後端代理的 /model 網址，例如 'https://xxx.workers.dev/model'（留空＝只顯示內建水晶）
     // 煩惱「接住」的回應：填後端 /worry 網址，例如 'https://xxx.workers.dev/worry'（留空＝使用內建示範句）
-    WORRY_ENDPOINT: '',
-    MODEL_ENDPOINT: '',
+    WORRY_ENDPOINT: 'https://script.google.com/macros/s/AKfycbxgLq3Smhs8y1OUwGP_iEwS3hHRa0bDWdnHIQJPi7VoeGb1VOjW2Ov2vdNfZZmOqnB0/exec?action=worry',
+    MODEL_ENDPOINT: 'https://script.google.com/macros/s/AKfycbxgLq3Smhs8y1OUwGP_iEwS3hHRa0bDWdnHIQJPi7VoeGb1VOjW2Ov2vdNfZZmOqnB0/exec?action=model',
     // 想先預先生成好 .glb 放在網站裡、省錢又快？填資料夾，例如 'models/'，檔名為 O_hi.glb、E_lo.glb、BAL.glb …
     STATIC_MODELS: '',
     LANG: 'zh-TW'          // 語音辨識語言

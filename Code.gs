@@ -47,29 +47,45 @@ const ZODIAC = {
   '巨蟹座':'shimmering water pools, mist and tiny bubbles, ','天蠍座':'shimmering water pools, mist and tiny bubbles, ','雙魚座':'shimmering water pools, mist and tiny bubbles, '
 };
 
-const SYSTEM_PROMPT = \`你是「INNERVERSE 內在宇宙」的 AI 人格陪伴者，用繁體中文（台灣用語）。
-你會收到名字、生日、星座、興趣、最近的煩惱、Big Five 分數、人格類型與寵物。
-Big Five 是主要人格依據；生日、星座、興趣與煩惱作為個人化敘事的輔助資訊，不把星座當成科學診斷。
-輸出 2～3 小段、約 150～260 個中文字。不要 Markdown、不要心理診斷、不要預測未來、不要說教。
-可以自然提到寵物；寵物沒有嘴巴，只用眼睛與光陪伴。
-若煩惱涉及自殺、自殘、想死、不想活，改以關心為主並提醒 1925、1995，緊急時 119。\`;
+const SYSTEM_PROMPT = `你是「INNERVERSE PLUS 內在宇宙」的 AI 人格陪伴者，預設用繁體中文（台灣用語）。
+你會收到一份「旅人資料」：名字、生日與星座、五行（元素與五音）、興趣、最近的煩惱、Big Five 分數、人格類型、宇宙寵物。
+寫法：
+- Big Five 是主要依據：說出這個人最明顯的一兩個特質，具體、溫暖地肯定；不要逐項列分數，也不要提「Big Five」「神經質」等術語。
+- 星座、五行只當成溫柔的比喻或意象（例如「像木一樣舒展」），不當成科學或命運的判斷。
+- 有興趣就自然帶到一個可以照顧自己的小建議；有煩惱就先接住感受，不急著解決。
+- 可以提到寵物的名字；寵物沒有嘴巴，只用眼睛與光陪伴。
+- 輸出 2～3 小段、約 150～260 個中文字，段落之間空一行。不要 Markdown、不要條列、不要心理診斷、不要預測未來、不要說教。
+- 若煩惱涉及自殺、自殘、想死、不想活，改以關心為主並提醒 1925、1995，緊急時 119。`;
 
-const WORRY_PROMPT = \`你是 INNERVERSE 宇宙寵物背後的陪伴聲音，用繁體中文。
+// 使用者在網站選擇的語言：中文以外，在 system prompt 後面要求改用該語言回覆
+const LANG_NAMES = { en: 'English', ja: 'Japanese', ko: 'Korean', vi: 'Vietnamese' };
+function langSuffix_(b) {
+  const code = String((b && b.lang) || '').toLowerCase().slice(0, 2), name = LANG_NAMES[code];
+  if (!name) return '';
+  return '\n\nIMPORTANT: The user chose ' + name + '. Reply entirely in natural, warm ' + name + ' (ignore the Traditional Chinese requirement above). Keep the same structure, similar length and the same safety rules. For crisis support mention local emergency services and, in Taiwan, 1925 / 1995 / 119.';
+}
+const isEn_ = b => !!langSuffix_(b);
+
+const WORRY_PROMPT = `你是 INNERVERSE PLUS 宇宙寵物背後的陪伴聲音，預設用繁體中文（台灣用語）。
+你會收到旅人資料（人格、五行、寵物）與這次說出的煩惱。只回應煩惱本身，人格與五行只用來調整語氣（例如敏感的人更溫柔、外向的人更有活力）。
 只輸出 JSON：{"lines":["…","…","…"],"keywords":["…"],"care":false}
-lines 剛好 3 句，每句 12～40 字：接住感受、肯定使用者、陪伴。
-keywords 3～6 個，優先使用使用者原本的詞。
-不要說教、不要心理診斷、不要預測未來。
-若內容涉及自殺、自殘、想死、不想活，care=true。\`;
+- lines 剛好 3 句，每句 12～40 字：第 1 句接住感受、第 2 句肯定使用者、第 3 句陪伴。
+- keywords 3～6 個，盡量直接取自使用者原本的詞，每個 2～6 個字。
+- 不要說教、不要心理診斷、不要預測未來、不要給一長串建議。
+- 若內容涉及自殺、自殘、想死、不想活，care=true。`;
 
 function doGet(e) {
   try {
     const action = (e && e.parameter && e.parameter.action) || '';
     if (action === 'modelStatus') return modelStatus_(e);
     if (action === 'modelGlb') return modelGlb_(e);
+    if (action === 'checkName') return checkName_(e);
+    if (action === 'universe') return universe_(e);
+    if (action === 'visits') return visits_(e);
     return json_({
       ok:true,
       message:'INNERVERSE PLUS API is running',
-      actions:['saveInnerverse','interpret','worry','modelStart','modelStatus','modelGlb'],
+      actions:['saveInnerverse','interpret','worry','modelStart','modelStatus','modelGlb','checkName','publish','universe','starlight','visits'],
       time:new Date().toISOString()
     });
   } catch (err) {
@@ -85,6 +101,8 @@ function doPost(e) {
     if (action === 'worry') return worry_(body);
     if (action === 'modelStart') return modelStart_(body);
     if (action === 'saveInnerverse') return saveInnerverse_(body);
+    if (action === 'publish') return publish_(body);
+    if (action === 'starlight') return starlight_(body);
     return json_({ok:false,error:'Unknown action: ' + action});
   } catch (err) {
     return json_({ok:false,error:err.message});
@@ -100,42 +118,53 @@ function prop_(name) {
   return PropertiesService.getScriptProperties().getProperty(name) || '';
 }
 
-function interpret_(b) {
-  const big5 = b.big5 || {};
-  const trait = b.trait || {};
-  const pet = b.pet || {};
-  const bd = b.birthday || {};
-  const user = [
-    '名字：' + str_(b.name,20),
-    '生日原始輸入：' + (str_(bd.raw,40) || '未提供'),
-    '解析生日：' + [bd.year||'-',bd.month||'-',bd.day||'-'].join('-'),
+// 把前端送來的資料整理成給 AI 看的「旅人資料」（每個欄位都限制長度）
+function profileText_(b) {
+  const big5 = b.big5 || {}, pct = b.big5Pct || {}, trait = b.trait || {}, pet = b.pet || {}, bd = b.birthday || {}, wx = b.wuxing || {};
+  const b5 = k => num_(big5[k]) + (pct[k] !== undefined && pct[k] !== null ? '（' + num_(pct[k]) + '%）' : '');
+  return [
+    '【旅人資料】',
+    '名字：' + (str_(b.name,20) || '未提供'),
+    '介面語言：' + (str_(b.lang,4) || 'zh'),
+    '生日：' + (str_(bd.raw,40) || '未提供') + '（解析：' + [bd.year||'-',bd.month||'-',bd.day||'-'].join('-') + '）',
     '星座：' + (str_(bd.zodiac,10) || '未提供'),
-    '興趣：' + (str_(b.hobbies || b.hobby,160) || '未提供'),
-    '最近煩惱：' + (str_(b.worry || b.worryText,240) || '未提供'),
-    '寵物：' + str_(b.petName || pet.name,20) + '（' + str_(pet.species || pet.type,40) + '）',
-    'Big Five：O ' + num_(big5.O) + '、C ' + num_(big5.C) + '、E ' + num_(big5.E) + '、A ' + num_(big5.A) + '、N ' + num_(big5.N),
-    '人格類型：' + (str_(trait.label,30) || str_(b.dominantTrait,30) || '未提供'),
-    '人格維度：' + (str_(trait.dimension,50) || '未提供')
-  ].join('\\n');
-  return json_({ok:true,reply:callOpenAI_(SYSTEM_PROMPT,user,false)});
+    '五行：' + (wx.zh ? str_(wx.zh,2) + '（五音「' + str_(wx.tone,2) + '」，對應情緒「' + str_(wx.emotion,2) + '」）' : '未提供'),
+    '興趣：' + (str_(b.hobbies || b.hobby,300) || '未提供'),
+    '最近煩惱：' + (str_(b.worry || b.worryText,500) || '未提供'),
+    'Big Five（1–5 分）：開放性 ' + b5('O') + '、盡責性 ' + b5('C') + '、外向性 ' + b5('E') + '、親和性 ' + b5('A') + '、情緒敏感度 ' + b5('N'),
+    '人格類型：' + (str_(trait.label,40) || str_(b.dominantTrait,40) || '未提供') + (trait.tag ? '（' + str_(trait.tag,40) + '）' : ''),
+    '主要維度：' + (str_(trait.dimension,50) || '未提供') + (trait.level ? '，' + str_(trait.level,10) : ''),
+    '人格星球：' + (str_(trait.planet,30) || '未提供'),
+    '宇宙寵物：' + (str_(b.petName,20) || '未命名') + '（' + [str_(pet.zodiac,6), str_(pet.species,20), str_(pet.title,30)].filter(Boolean).join('・') + '）'
+  ].join('\n');
+}
+
+function interpret_(b) {
+  const user = profileText_(b) + '\n\n請根據以上資料，寫一段給這位旅人的話。';
+  return json_({ok:true,reply:callOpenAI_(SYSTEM_PROMPT + langSuffix_(b),user,false)});
 }
 
 function worry_(b) {
   const worry = str_(b.worry || b.worryText,500).trim();
   if (!worry) return json_({ok:false,error:'empty worry'});
   try {
-    const raw = callOpenAI_(WORRY_PROMPT,
-      '名字：' + (str_(b.name,20)||'你') + '\\n寵物：' + (str_(b.petName,20)||'宇宙寵物') + '\\n煩惱：' + worry, true);
+    const raw = callOpenAI_(WORRY_PROMPT + langSuffix_(b),
+      profileText_(b) + '\n\n【這次說出的煩惱】\n' + worry, true);
     const out = JSON.parse(raw);
     const lines = (Array.isArray(out.lines)?out.lines:[]).map(x=>str_(x,100)).filter(Boolean).slice(0,3);
     const keywords = (Array.isArray(out.keywords)?out.keywords:[]).map(x=>str_(x,12)).filter(Boolean).slice(0,6);
     if (lines.length < 3) throw new Error('bad lines');
     return json_({ok:true,lines,keywords:keywords.length?keywords:extractKeywords_(worry),care:out.care===true});
   } catch (_) {
-    const care = /自殺|想死|不想活|不想再活|輕生|傷害自己|自殘|活不下去|尋短/.test(worry);
+    const care = /自殺|想死|不想活|不想再活|輕生|傷害自己|自殘|活不下去|尋短|suicid|kill myself|end my life|self[- ]?harm|want to die|死にたい|消えたい|自傷|죽고 ?싶|자살|자해|muốn chết|tự tử|tự sát|tự hại/i.test(worry);
     return json_({
       ok:true,
-      lines:['最近一定累積了很多事情吧。','你會把這些放在心上，也代表你真的很在乎。','你已經努力很久了，我先陪你待在這裡。'],
+      lines:({
+        en:['A lot must have been piling up lately.','Holding this so close shows how much you care.','You have been trying hard for a long time. I am right here with you.'],
+        ja:['最近、いろいろなことが積み重なっていたんだね。','それを心にとめているのは、本当に大切に思っているから。','ずっとがんばってきたね。今はそばにいるよ。'],
+        ko:['요즘 많은 일이 쌓여 있었겠어요.','그걸 마음에 두는 건 정말 아끼기 때문이에요.','오랫동안 애써 왔어요. 지금은 내가 곁에 있을게요.'],
+        vi:['Dạo này chắc hẳn nhiều chuyện đã dồn lại.','Việc bạn để tâm như vậy cho thấy bạn thật sự quan tâm.','Bạn đã cố gắng rất lâu rồi. Giờ mình ở đây với bạn.']
+      })[String(b.lang || '').slice(0, 2)] || ['最近一定累積了很多事情吧。','你會把這些放在心上，也代表你真的很在乎。','你已經努力很久了，我先陪你待在這裡。'],
       keywords:extractKeywords_(worry),care,fallback:true
     });
   }
@@ -348,17 +377,33 @@ function testSave() {
   }).getContent());
 }
 
+// 在編輯器選這個函式按「執行」，看「執行記錄」：成功會出現一段 AI 寫的話
 function testOpenAI() {
-  Logger.log(interpret_({
-    name:'測試使用者',
+  Logger.log(interpret_(testTraveler_()).getContent());
+}
+
+// 測試寵物「接住煩惱」：成功會出現 3 句話與關鍵字
+function testWorry() {
+  Logger.log(worry_(Object.assign(testTraveler_(), {task:'worry'})).getContent());
+}
+
+// 測試多人宇宙：寫入一顆測試星球，再讀出整個宇宙
+function testUniverse() {
+  Logger.log(publish_({uid:'test-uid', name:'INNERVERSE 測試', planetName:'奇想星', typeKey:'O_hi', petIdx:5, petSign:'VIRGO', petName:'Prism', element:'water', big5:{O:4.6,C:3.4,E:3,A:4.2,N:3.1}, weather:'sunny', lang:'zh'}).getContent());
+  Logger.log(universe_({parameter:{}}).getContent());
+}
+
+function testTraveler_() {
+  return {
+    lang:'zh', name:'測試使用者',
     birthday:{raw:'2003/09/06',year:2003,month:9,day:6,zodiac:'處女座'},
     hobbies:'設計、音樂、互動網站',
-    worry:'最近作業有點多',
-    big5:{O:4.7,C:4.2,E:3.9,A:4.5,N:3.1},
-    trait:{label:'探索型',dimension:'開放性較高'},
-    petName:'Prism',
-    pet:{species:'Prism 晶塵靈'}
-  }).getContent());
+    worry:'最近作業有點多，怕做不完',
+    big5:{O:4.7,C:4.2,E:3.9,A:4.5,N:3.1}, big5Pct:{O:93,C:80,E:73,A:88,N:53},
+    trait:{key:'O_hi',label:'好奇開放型',tag:'愛探索與想像的人',dimension:'Openness 開放性',level:'偏高',planet:'奇想星'},
+    pet:{sign:'VIRGO',zodiac:'處女座',species:'Prism',title:'晶塵靈'}, petName:'Prism',
+    wuxing:{element:'water',zh:'水',tone:'羽',emotion:'恐',color:'黑'}
+  };
 }
 
 function testTripoStart() {
@@ -367,4 +412,100 @@ function testTripoStart() {
     zodiac:'處女座',
     big5:{O:4.7,C:4.2,E:3.8,A:4.5,N:3.1}
   }).getContent());
+}
+
+
+/* ================================================================
+ * OUR UNIVERSE：多人星球宇宙
+ * 只保存「公開」資料：名字、星球、寵物、五行、人格分數、抽象的星球天氣。
+ * 煩惱原文、生日、興趣都不會寫進這兩張表，也不會回傳給其他人。
+ *
+ * UNIVERSE  ：每位旅人一列（uid 只存在後端，公開時只給 pid）
+ * STARLIGHT ：別人留下的星光
+ * ================================================================ */
+const UNIVERSE_SHEET = 'UNIVERSE';
+const STARLIGHT_SHEET = 'STARLIGHT';
+const UNIVERSE_HEADERS = ['uid','pid','name','nameKey','planetName','typeKey','petIdx','petSign','petName','element','O','C','E','A','N','weather','lang','createdAt','updatedAt'];
+const STARLIGHT_HEADERS = ['time','toPid','kind','fromPid'];
+const WEATHERS = ['sunny','rain','fog','rainbow','night'];
+const ELEMENTS = ['earth','metal','wood','fire','water'];
+const GIFT_KINDS = ['star','leaf','drop','light','heart'];
+
+function sheet_(name, headers) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sh = ss.getSheetByName(name);
+  if (!sh) sh = ss.insertSheet(name);
+  if (sh.getLastRow() === 0) { sh.appendRow(headers); sh.setFrozenRows(1); }
+  return sh;
+}
+function rows_(sh) {
+  const last = sh.getLastRow();
+  if (last < 2) return [];
+  const head = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+  return sh.getRange(2, 1, last - 1, head.length).getValues().map((r, i) => {
+    const o = { _row: i + 2 }; head.forEach((h, k) => { o[h] = r[k]; }); return o;
+  });
+}
+// 名字比對：忽略大小寫與前後空白
+function nameKey_(n) { return String(n || '').trim().replace(/\s+/g, ' ').toLowerCase(); }
+function cleanName_(n) { return String(n || '').trim().replace(/\s+/g, ' ').slice(0, 20); }
+
+function checkName_(e) {
+  const p = e.parameter || {}, key = nameKey_(p.name), uid = str_(p.uid, 60);
+  if (!key) return json_({ok:true, available:false});
+  const hit = rows_(sheet_(UNIVERSE_SHEET, UNIVERSE_HEADERS)).find(r => r.nameKey === key);
+  return json_({ok:true, available: !hit || hit.uid === uid});
+}
+
+function publish_(b) {
+  const uid = str_(b.uid, 60), name = cleanName_(b.name);
+  if (!uid || !name) return json_({ok:false, error:'missing uid or name'});
+  const lock = LockService.getScriptLock(); lock.waitLock(10000);
+  try {
+    const sh = sheet_(UNIVERSE_SHEET, UNIVERSE_HEADERS), all = rows_(sh), key = nameKey_(name);
+    const taken = all.find(r => r.nameKey === key && r.uid !== uid);
+    if (taken) return json_({ok:false, error:'name_taken'});
+    const big5 = b.big5 || {}, now = new Date();
+    const mine = all.find(r => r.uid === uid);
+    const pid = mine ? mine.pid : Utilities.getUuid().replace(/-/g, '').slice(0, 12);
+    const row = [
+      uid, pid, name, key, str_(b.planetName, 30), str_(b.typeKey, 8) || 'BAL', Number(b.petIdx) || 0, str_(b.petSign, 12), str_(b.petName, 20),
+      ELEMENTS.indexOf(b.element) >= 0 ? b.element : 'wood',
+      num_(big5.O), num_(big5.C), num_(big5.E), num_(big5.A), num_(big5.N),
+      WEATHERS.indexOf(b.weather) >= 0 ? b.weather : 'sunny', str_(b.lang, 4), mine ? mine.createdAt : now, now
+    ];
+    if (mine) sh.getRange(mine._row, 1, 1, row.length).setValues([row]); else sh.appendRow(row);
+    return json_({ok:true, pid});
+  } finally { lock.releaseLock(); }
+}
+
+function universe_(e) {
+  const lights = {};
+  rows_(sheet_(STARLIGHT_SHEET, STARLIGHT_HEADERS)).forEach(r => { lights[r.toPid] = (lights[r.toPid] || 0) + 1; });
+  const planets = rows_(sheet_(UNIVERSE_SHEET, UNIVERSE_HEADERS))
+    .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)).slice(0, 600)
+    .map(r => ({
+      pid: r.pid, name: r.name, planetName: r.planetName, typeKey: r.typeKey, petIdx: Number(r.petIdx) || 0, petSign: r.petSign, petName: r.petName,
+      element: r.element, weather: r.weather, lights: lights[r.pid] || 0,
+      big5: { O: Number(r.O) || 3, C: Number(r.C) || 3, E: Number(r.E) || 3, A: Number(r.A) || 3, N: Number(r.N) || 3 }
+    }));
+  return json_({ok:true, planets});
+}
+
+function starlight_(b) {
+  const to = str_(b.to, 20), kind = GIFT_KINDS.indexOf(b.kind) >= 0 ? b.kind : 'star';
+  if (!to) return json_({ok:false, error:'missing target'});
+  sheet_(STARLIGHT_SHEET, STARLIGHT_HEADERS).appendRow([new Date(), to, kind, str_(b.from, 20)]);
+  return json_({ok:true});
+}
+
+// 「昨晚，有 3 位旅人經過你的星球」：since 之後收到的星光
+function visits_(e) {
+  const p = e.parameter || {}, uid = str_(p.uid, 60), since = Number(p.since) || 0;
+  const me = rows_(sheet_(UNIVERSE_SHEET, UNIVERSE_HEADERS)).find(r => r.uid === uid);
+  if (!me) return json_({ok:true, count:0, travelers:0, kinds:{}});
+  const got = rows_(sheet_(STARLIGHT_SHEET, STARLIGHT_HEADERS)).filter(r => r.toPid === me.pid && new Date(r.time).getTime() > since);
+  const kinds = {}, from = {};
+  got.forEach(r => { kinds[r.kind] = (kinds[r.kind] || 0) + 1; from[r.fromPid || ('anon' + r._row)] = 1; });
+  return json_({ok:true, count: got.length, travelers: Object.keys(from).length, kinds});
 }

@@ -2711,6 +2711,24 @@ function petSVG(i, opt = {}) {
       const name = petIn.value.trim().slice(0, 12);
       if (!name) { petErr.textContent = '給牠一個名字吧，也可以用牠本來的名字。'; return; }
       App.petName = name;
+      const u = App.user || {};
+      const b = u.birthday || {};
+      const pet = PETS[App.petIdx];
+      saveToSheet({
+        name: u.name || '',
+        birthday: b.raw || [b.year, String(b.month || '').padStart(2, '0'), String(b.day || '').padStart(2, '0')].filter(Boolean).join('-'),
+        birthYear: b.year || '',
+        birthMonth: b.month || '',
+        birthDay: b.day || '',
+        zodiac: b.zodiac || pet.zh || '',
+        big5: App.big5 || {},
+        dominantTrait: App.type ? `${App.type.letter || ''} ${App.type.label || ''}`.trim() : '',
+        personalityKeywords: App.type ? [App.type.label, App.type.tag].filter(Boolean) : [],
+        personalityAnalysis: App.type ? App.type.desc || '' : '',
+        pet: { type: `${pet.en} ${pet.name}`, name },
+        planet: { name: App.type ? App.type.planet || '' : '' },
+        worry: u.worry || ''
+      });
       gPetName.textContent = name;
       gAsk.textContent = `你知道，${name}來自哪裡嗎？`;
       swap(gCap, ''); swap(gSub, '');

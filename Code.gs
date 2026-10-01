@@ -70,10 +70,13 @@ function doGet(e) {
     const action = (e && e.parameter && e.parameter.action) || '';
     if (action === 'modelStatus') return modelStatus_(e);
     if (action === 'modelGlb') return modelGlb_(e);
+    if (action === 'checkName') return checkName_(e);
+    if (action === 'universe') return universe_(e);
+    if (action === 'visits') return visits_(e);
     return json_({
       ok:true,
       message:'INNERVERSE PLUS API is running',
-      actions:['saveInnerverse','interpret','worry','modelStart','modelStatus','modelGlb'],
+      actions:['saveInnerverse','interpret','worry','modelStart','modelStatus','modelGlb','checkName','publish','universe','starlight','visits'],
       time:new Date().toISOString()
     });
   } catch (err) {
@@ -89,6 +92,8 @@ function doPost(e) {
     if (action === 'worry') return worry_(body);
     if (action === 'modelStart') return modelStart_(body);
     if (action === 'saveInnerverse') return saveInnerverse_(body);
+    if (action === 'publish') return publish_(body);
+    if (action === 'starlight') return starlight_(body);
     return json_({ok:false,error:'Unknown action: ' + action});
   } catch (err) {
     return json_({ok:false,error:err.message});
@@ -373,4 +378,100 @@ function testTripoStart() {
     zodiac:'處女座',
     big5:{O:4.7,C:4.2,E:3.8,A:4.5,N:3.1}
   }).getContent());
+}
+
+
+/* ================================================================
+ * OUR UNIVERSE：多人星球宇宙
+ * 只保存「公開」資料：名字、星球、寵物、五行、人格分數、抽象的星球天氣。
+ * 煩惱原文、生日、興趣都不會寫進這兩張表，也不會回傳給其他人。
+ *
+ * UNIVERSE  ：每位旅人一列（uid 只存在後端，公開時只給 pid）
+ * STARLIGHT ：別人留下的星光
+ * ================================================================ */
+const UNIVERSE_SHEET = 'UNIVERSE';
+const STARLIGHT_SHEET = 'STARLIGHT';
+const UNIVERSE_HEADERS = ['uid','pid','name','nameKey','planetName','typeKey','petIdx','petSign','petName','element','O','C','E','A','N','weather','lang','createdAt','updatedAt'];
+const STARLIGHT_HEADERS = ['time','toPid','kind','fromPid'];
+const WEATHERS = ['sunny','rain','fog','rainbow','night'];
+const ELEMENTS = ['earth','metal','wood','fire','water'];
+const GIFT_KINDS = ['star','leaf','drop','light','heart'];
+
+function sheet_(name, headers) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sh = ss.getSheetByName(name);
+  if (!sh) sh = ss.insertSheet(name);
+  if (sh.getLastRow() === 0) { sh.appendRow(headers); sh.setFrozenRows(1); }
+  return sh;
+}
+function rows_(sh) {
+  const last = sh.getLastRow();
+  if (last < 2) return [];
+  const head = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+  return sh.getRange(2, 1, last - 1, head.length).getValues().map((r, i) => {
+    const o = { _row: i + 2 }; head.forEach((h, k) => { o[h] = r[k]; }); return o;
+  });
+}
+// 名字比對：忽略大小寫與前後空白
+function nameKey_(n) { return String(n || '').trim().replace(/\s+/g, ' ').toLowerCase(); }
+function cleanName_(n) { return String(n || '').trim().replace(/\s+/g, ' ').slice(0, 20); }
+
+function checkName_(e) {
+  const p = e.parameter || {}, key = nameKey_(p.name), uid = str_(p.uid, 60);
+  if (!key) return json_({ok:true, available:false});
+  const hit = rows_(sheet_(UNIVERSE_SHEET, UNIVERSE_HEADERS)).find(r => r.nameKey === key);
+  return json_({ok:true, available: !hit || hit.uid === uid});
+}
+
+function publish_(b) {
+  const uid = str_(b.uid, 60), name = cleanName_(b.name);
+  if (!uid || !name) return json_({ok:false, error:'missing uid or name'});
+  const lock = LockService.getScriptLock(); lock.waitLock(10000);
+  try {
+    const sh = sheet_(UNIVERSE_SHEET, UNIVERSE_HEADERS), all = rows_(sh), key = nameKey_(name);
+    const taken = all.find(r => r.nameKey === key && r.uid !== uid);
+    if (taken) return json_({ok:false, error:'name_taken'});
+    const big5 = b.big5 || {}, now = new Date();
+    const mine = all.find(r => r.uid === uid);
+    const pid = mine ? mine.pid : Utilities.getUuid().replace(/-/g, '').slice(0, 12);
+    const row = [
+      uid, pid, name, key, str_(b.planetName, 30), str_(b.typeKey, 8) || 'BAL', Number(b.petIdx) || 0, str_(b.petSign, 12), str_(b.petName, 20),
+      ELEMENTS.indexOf(b.element) >= 0 ? b.element : 'wood',
+      num_(big5.O), num_(big5.C), num_(big5.E), num_(big5.A), num_(big5.N),
+      WEATHERS.indexOf(b.weather) >= 0 ? b.weather : 'sunny', str_(b.lang, 4), mine ? mine.createdAt : now, now
+    ];
+    if (mine) sh.getRange(mine._row, 1, 1, row.length).setValues([row]); else sh.appendRow(row);
+    return json_({ok:true, pid});
+  } finally { lock.releaseLock(); }
+}
+
+function universe_(e) {
+  const lights = {};
+  rows_(sheet_(STARLIGHT_SHEET, STARLIGHT_HEADERS)).forEach(r => { lights[r.toPid] = (lights[r.toPid] || 0) + 1; });
+  const planets = rows_(sheet_(UNIVERSE_SHEET, UNIVERSE_HEADERS))
+    .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)).slice(0, 600)
+    .map(r => ({
+      pid: r.pid, name: r.name, planetName: r.planetName, typeKey: r.typeKey, petIdx: Number(r.petIdx) || 0, petSign: r.petSign, petName: r.petName,
+      element: r.element, weather: r.weather, lights: lights[r.pid] || 0,
+      big5: { O: Number(r.O) || 3, C: Number(r.C) || 3, E: Number(r.E) || 3, A: Number(r.A) || 3, N: Number(r.N) || 3 }
+    }));
+  return json_({ok:true, planets});
+}
+
+function starlight_(b) {
+  const to = str_(b.to, 20), kind = GIFT_KINDS.indexOf(b.kind) >= 0 ? b.kind : 'star';
+  if (!to) return json_({ok:false, error:'missing target'});
+  sheet_(STARLIGHT_SHEET, STARLIGHT_HEADERS).appendRow([new Date(), to, kind, str_(b.from, 20)]);
+  return json_({ok:true});
+}
+
+// 「昨晚，有 3 位旅人經過你的星球」：since 之後收到的星光
+function visits_(e) {
+  const p = e.parameter || {}, uid = str_(p.uid, 60), since = Number(p.since) || 0;
+  const me = rows_(sheet_(UNIVERSE_SHEET, UNIVERSE_HEADERS)).find(r => r.uid === uid);
+  if (!me) return json_({ok:true, count:0, travelers:0, kinds:{}});
+  const got = rows_(sheet_(STARLIGHT_SHEET, STARLIGHT_HEADERS)).filter(r => r.toPid === me.pid && new Date(r.time).getTime() > since);
+  const kinds = {}, from = {};
+  got.forEach(r => { kinds[r.kind] = (kinds[r.kind] || 0) + 1; from[r.fromPid || ('anon' + r._row)] = 1; });
+  return json_({ok:true, count: got.length, travelers: Object.keys(from).length, kinds});
 }

@@ -3201,7 +3201,7 @@ function petSVG(i, opt = {}) {
           await wait(2500);
           if (my !== token) return;
           const s = await jfetch(`${base}?action=modelStatus&id=${encodeURIComponent(taskId)}`);
-          if (s.status === 'success') { status.textContent = '星球完成了，正在載入…'; return showModel(`${base}?action=modelGlb&id=${encodeURIComponent(taskId)}`, my); }
+          if (s.status === 'success' && s.modelUrl) { status.textContent = '星球完成了，正在載入…'; return showModel(s.modelUrl, my); }
           if (['failed', 'cancelled', 'banned', 'expired', 'unknown'].includes(s.status)) throw new Error('task ' + s.status);
           status.textContent = `宇宙正在為你雕刻專屬的星球… ${Math.max(0, Math.min(99, Math.round(s.progress || 0)))}%`;
         }

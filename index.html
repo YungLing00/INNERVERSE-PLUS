@@ -677,8 +677,6 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
       </button>
       <p class="mic-state" id="micState"></p>
-      <button class="linkbtn" id="datePick" type="button" hidden>改用日期選擇</button>
-      <input class="dateIn" id="dateIn" type="date" tabindex="-1" aria-hidden="true">
     </div>
     <div class="field">
       <textarea id="ans" rows="3" placeholder="也可以直接打字" aria-label="你的回答"></textarea>
@@ -2025,24 +2023,51 @@ function petSVG(i, opt = {}) {
   }
 
   function parseBirthday(text) {
-    const t = text.replace(/\s+/g, '');
+    // 生日輸入盡量寬鬆：20030906、2003/09/06、2003-9-6、2003.09.06、
+    // 2003年9月6日、二零零三年九月六日、九月六號、民國92年9月6日都可辨識。
+    let t = String(text || '').trim()
+      .replace(/[，,。．]/g, '.')
+      .replace(/號/g, '日')
+      .replace(/号/g, '日')
+      .replace(/出生於|出生在|生日是|我的生日是|我生日|生日|生於/g, '')
+      .replace(/\s+/g, '');
+
     let y = null, m = null, d = null, mt;
-    if ((mt = t.match(/(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})/))) { y = +mt[1]; m = +mt[2]; d = +mt[3]; }
+
+    // 純 8 碼 YYYYMMDD，例如 20030906
+    if ((mt = t.match(/^(19|20)\d{6}$/))) {
+      y = +t.slice(0, 4); m = +t.slice(4, 6); d = +t.slice(6, 8);
+    }
+    // YYYY/MM/DD、YYYY-MM-DD、YYYY.MM.DD
+    else if ((mt = t.match(/((?:19|20)\d{2})[\/\-.](\d{1,2})[\/\-.](\d{1,2})/))) {
+      y = +mt[1]; m = +mt[2]; d = +mt[3];
+    }
+    // YYYYMMDD 前後有其他文字時
+    else if ((mt = t.match(/((?:19|20)\d{2})(\d{2})(\d{2})/))) {
+      y = +mt[1]; m = +mt[2]; d = +mt[3];
+    }
     else {
       const my = t.match(/(民國)?([0-9]{2,4}|[零〇一二兩三四五六七八九十百]{2,5})年/);
       const mm = t.match(/([0-9]{1,2}|[一二兩三四五六七八九十]{1,3})月/);
-      const md = t.match(/([0-9]{1,2}|[一二兩三四五六七八九十]{1,3})(?:日|號|号)/);
+      const md = t.match(/([0-9]{1,2}|[一二兩三四五六七八九十]{1,3})(?:日)/);
+
       if (mm && md) { m = cnToNum(mm[1]); d = cnToNum(md[1]); }
-      else if ((mt = t.match(/(\d{1,2})[\/\-](\d{1,2})/))) { m = +mt[1]; d = +mt[2]; }
+      else if ((mt = t.match(/(\d{1,2})[\/\-.](\d{1,2})/))) {
+        m = +mt[1]; d = +mt[2];
+      }
+
       if (my && m) {
-        let v = cnToNum(my[2]); if (my[1]) v += 1911;
+        let v = cnToNum(my[2]);
+        if (my[1]) v += 1911;
         if (v >= 1900 && v <= new Date().getFullYear()) y = v;
       }
     }
+
     if (!(m >= 1 && m <= 12 && d >= 1)) return null;
-    if (d > [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1]) return null;
-    if (y && m === 2 && d === 29 && !((y % 4 === 0 && y % 100 !== 0) || y % 400 === 0)) return null;
-    return { year: y, month: m, day: d, zodiac: zodiacOf(m, d) };
+    const maxDay = [31, (y && !((y % 4 === 0 && y % 100 !== 0) || y % 400 === 0)) ? 28 : 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1];
+    if (d > maxDay) return null;
+
+    return { year: y, month: m, day: d, zodiac: zodiacOf(m, d), raw: String(text || '').trim() };
   }
 
   function cleanName(text) {
@@ -2095,7 +2120,7 @@ function petSVG(i, opt = {}) {
   const Talk = (() => {
     const scr = { q: $('sQ'), sum: $('sSum'), load: $('sLoad'), res: $('sRes'), care: $('sCare') };
     const qBox = $('qBox'), qText = $('qText'), qHint = $('qHint');
-    const mic = $('mic'), micState = $('micState'), datePick = $('datePick'), dateIn = $('dateIn');
+    const mic = $('mic'), micState = $('micState');
     const ans = $('ans'), err = $('err'), bBack = $('bBack'), bNext = $('bNext');
     const sumList = $('sumList'), bSend = $('bSend');
     const resTitle = $('resTitle'), resMock = $('resMock'), resBody = $('resBody');
@@ -2104,7 +2129,7 @@ function petSVG(i, opt = {}) {
 
     const STEPS = [
       { key: 'name', q: () => '你好。\n你希望我怎麼稱呼你？', hint: '說出或輸入你的名字，暱稱也可以', cont: false, skip: false },
-      { key: 'bday', q: () => `${data.name}，你的生日是哪一天？`, hint: '例如「三月八號」或「1995 年 3 月 8 日」', cont: false, skip: false },
+      { key: 'bday', q: () => `${data.name}，你的生日是哪一天？`, hint: '直接說或輸入都可以，例如「20030906」、「2003/09/06」或「2003 年 9 月 6 日」', cont: false, skip: false },
       { key: 'hobby', q: () => '平常做什麼事，\n會讓你覺得放鬆或開心？', hint: '興趣、愛好，想到什麼就說什麼', cont: true, skip: true },
       { key: 'worry', q: () => '最近，心裡有什麼煩惱嗎？', hint: '不用整理，慢慢說就好', cont: true, skip: true }
     ];
@@ -2134,7 +2159,6 @@ function petSVG(i, opt = {}) {
       ans.value = data.raw[s.key];
       err.textContent = '';
       micState.textContent = IDLE_TEXT;
-      datePick.hidden = s.key !== 'bday';
       Array.from(tdots.children).forEach((d, i) => { d.className = i < step ? 'done' : (i === step ? 'cur' : ''); });
       bBack.style.visibility = (step === 0 && !editing) ? 'hidden' : 'visible';
       updateNext();
@@ -2175,12 +2199,6 @@ function petSVG(i, opt = {}) {
       if (e.key === 'Enter' && !e.shiftKey && (STEPS[step].key === 'name' || STEPS[step].key === 'bday')) { e.preventDefault(); next(); }
     });
 
-    datePick.addEventListener('click', () => { try { dateIn.showPicker ? dateIn.showPicker() : dateIn.click(); } catch (_) { dateIn.click(); } });
-    dateIn.addEventListener('change', () => {
-      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateIn.value || '');
-      if (m) { ans.value = `${+m[1]}年${+m[2]}月${+m[3]}日`; err.textContent = ''; updateNext(); }
-    });
-
     function next() {
       Voice.stop();
       const s = STEPS[step], text = ans.value.trim();
@@ -2191,7 +2209,7 @@ function petSVG(i, opt = {}) {
         data.raw.name = text; data.name = n;
       } else if (s.key === 'bday') {
         const b = parseBirthday(text);
-        if (!b) { err.textContent = '我沒有聽清楚日期。可以說「三月八號」，或用下方的日期選擇。'; return; }
+        if (!b) { err.textContent = '我還沒辨識出這個生日。可以輸入 20030906、2003/09/06、2003年9月6日，或直接用說的。'; return; }
         data.raw.bday = text; data.bday = b;
       } else {
         data.raw[s.key] = text;
@@ -2234,6 +2252,11 @@ function petSVG(i, opt = {}) {
         birthday: { raw: data.raw.bday, year: b.year, month: b.month, day: b.day, zodiac: b.zodiac },
         hobbies: data.raw.hobby,
         worry: data.raw.worry,
+        interpretationBasis: {
+          birthdayRaw: data.raw.bday,
+          hobbiesRaw: data.raw.hobby,
+          worryRaw: data.raw.worry
+        },
         locale: CONFIG.LANG
       };
     }

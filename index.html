@@ -809,6 +809,7 @@
   const CONFIG = {
     // 後端解讀 API 的網址，例如 '/api/interpret'。留空＝使用內建的示範回應。
     // OpenAI API key 只能放在後端，千萬不要寫進這個前端檔案。
+    DATA_ENDPOINT: 'https://script.google.com/macros/s/AKfycbxgLq3Smhs8y1OUwGP_iEwS3hHRa0bDWdnHIQJPi7VoeGb1VOjW2Ov2vdNfZZmOqnB0/exec',
     INTERPRET_ENDPOINT: '',   // 例如 'https://xxx.workers.dev/interpret'
     // Tripo 3D 模型：填後端代理的 /model 網址，例如 'https://xxx.workers.dev/model'（留空＝只顯示內建水晶）
     // 煩惱「接住」的回應：填後端 /worry 網址，例如 'https://xxx.workers.dev/worry'（留空＝使用內建示範句）
@@ -818,6 +819,28 @@
     STATIC_MODELS: '',
     LANG: 'zh-TW'          // 語音辨識語言
   };
+
+  /* ---------- Google Sheets 儲存 ---------- */
+  async function saveToSheet(payload = {}) {
+    if (!CONFIG.DATA_ENDPOINT) return false;
+    try {
+      await fetch(CONFIG.DATA_ENDPOINT, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'saveInnerverse',
+          createdAt: new Date().toISOString(),
+          ...payload
+        })
+      });
+      return true;
+    } catch (err) {
+      console.error('Google Sheets save failed:', err);
+      return false;
+    }
+  }
+  window.INNERVERSE_SAVE = saveToSheet;
 
 /* ================================================================
    十二隻宇宙寵物：只有眼睛，沒有鼻子和嘴巴

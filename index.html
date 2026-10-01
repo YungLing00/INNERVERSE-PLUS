@@ -862,7 +862,7 @@
     // Tripo 3D 模型：填後端代理的 /model 網址，例如 'https://xxx.workers.dev/model'（留空＝只顯示內建水晶）
     // 煩惱「接住」的回應：填後端 /worry 網址，例如 'https://xxx.workers.dev/worry'（留空＝使用內建示範句）
     WORRY_ENDPOINT: 'https://script.google.com/macros/s/AKfycbxgLq3Smhs8y1OUwGP_iEwS3hHRa0bDWdnHIQJPi7VoeGb1VOjW2Ov2vdNfZZmOqnB0/exec?action=worry',
-    MODEL_ENDPOINT: 'https://script.google.com/macros/s/AKfycbxgLq3Smhs8y1OUwGP_iEwS3hHRa0bDWdnHIQJPi7VoeGb1VOjW2Ov2vdNfZZmOqnB0/exec?action=model',
+    MODEL_ENDPOINT: 'https://script.google.com/macros/s/AKfycbxgLq3Smhs8y1OUwGP_iEwS3hHRa0bDWdnHIQJPi7VoeGb1VOjW2Ov2vdNfZZmOqnB0/exec',
     // 想先預先生成好 .glb 放在網站裡、省錢又快？填資料夾，例如 'models/'，檔名為 O_hi.glb、E_lo.glb、BAL.glb …
     STATIC_MODELS: '',
     LANG: 'zh-TW'          // 語音辨識語言
@@ -3194,14 +3194,14 @@ function petSVG(i, opt = {}) {
       const base = CONFIG.MODEL_ENDPOINT.replace(/\/$/, '');
       try {
         status.textContent = '宇宙正在為你雕刻專屬的星球…';
-        const { taskId } = await jfetch(`${base}/start`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ trait: key, zodiac: (App.user && App.user.birthday && App.user.birthday.zodiac) || '', rising: (App.user && App.user.rising) || '', big5: App.big5 || {} }) });
+        const { taskId } = await jfetch(`${base}?action=modelStart`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ trait: key, zodiac: (App.user && App.user.birthday && App.user.birthday.zodiac) || '', rising: (App.user && App.user.rising) || '', big5: App.big5 || {} }) });
         if (!taskId) throw new Error('no task');
         const t0 = Date.now();
         while (my === token && Date.now() - t0 < 240000) {
           await wait(2500);
           if (my !== token) return;
-          const s = await jfetch(`${base}/status?id=${encodeURIComponent(taskId)}`);
-          if (s.status === 'success') { status.textContent = '星球完成了，正在載入…'; return showModel(`${base}/glb?id=${encodeURIComponent(taskId)}`, my); }
+          const s = await jfetch(`${base}?action=modelStatus&id=${encodeURIComponent(taskId)}`);
+          if (s.status === 'success') { status.textContent = '星球完成了，正在載入…'; return showModel(`${base}?action=modelGlb&id=${encodeURIComponent(taskId)}`, my); }
           if (['failed', 'cancelled', 'banned', 'expired', 'unknown'].includes(s.status)) throw new Error('task ' + s.status);
           status.textContent = `宇宙正在為你雕刻專屬的星球… ${Math.max(0, Math.min(99, Math.round(s.progress || 0)))}%`;
         }

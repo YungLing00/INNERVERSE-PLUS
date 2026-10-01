@@ -1,5 +1,5 @@
 /**
- * Inner Cosmos 後端代理（Cloudflare Worker）
+ * INNERVERSE PLUS 後端代理（Cloudflare Worker）
  * 把 OpenAI 與 Tripo 的金鑰留在這裡，前端網站永遠看不到。
  *
  * 路由
@@ -52,7 +52,7 @@ function buildPlanetPrompt(key, body) {
 }
 const NEGATIVE = 'text, letters, face, eyes, mouth, nose, multiple objects, base, stand, scene, background, character, person';
 
-const SYSTEM_PROMPT = `你是「Inner Cosmos 內在宇宙」裡一位溫柔、真誠的宇宙陪伴者，用繁體中文（台灣用語）說話。
+const SYSTEM_PROMPT = `你是「INNERVERSE PLUS 內在宇宙」裡一位溫柔、真誠的宇宙陪伴者，用繁體中文（台灣用語）說話。
 使用者剛完成 Big Five 十題測驗，你會收到他的名字、生日（含使用者原始輸入與解析後日期／星座）、興趣、最近的煩惱、五個面向的分數（1–5）、判定出的人格類型，以及他的寵物。生日、興趣、煩惱都必須一起作為個人化判斷依據，但不要做命理斷言或把它們當成診斷。
 請寫一段「誇獎」，規則：
 1. 只寫誇獎本文，不要寫「原來○○，你是○○的人」這句開頭（前端會自己加）。
@@ -113,7 +113,7 @@ async function interpret(req, env, h) {
   return json({ reply: reply.trim() }, 200, h);
 }
 
-const WORRY_PROMPT = `你是「Inner Cosmos 內在宇宙」裡一隻沒有嘴巴的宇宙寵物背後的聲音，用繁體中文（台灣用語）、溫柔真誠地說話。
+const WORRY_PROMPT = `你是「INNERVERSE PLUS 內在宇宙」裡一隻沒有嘴巴的宇宙寵物背後的聲音，用繁體中文（台灣用語）、溫柔真誠地說話。
 使用者剛剛說出了最近的煩惱。請只輸出一個 JSON 物件，格式：
 {"lines":["…","…","…"],"keywords":["…"],"care":false}
 

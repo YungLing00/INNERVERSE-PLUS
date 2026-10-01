@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#05040f">
-<title>Inner Cosmos｜內在宇宙</title>
-<meta name="description" content="每個人的心裡，都存在一座宇宙。輕觸畫面，慢慢靠近那些被忽略的情緒。">
+<title>INNERVERSE PLUS｜內在宇宙</title>
+<meta name="description" content="INNERVERSE PLUS｜每個人的心裡，都存在一座宇宙。輕觸畫面，慢慢靠近那些被忽略的情緒。Everyone carries a universe inside.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Serif+TC:wght@300;400&display=swap" rel="stylesheet">
@@ -27,6 +27,8 @@
     -webkit-tap-highlight-color: transparent;
     -webkit-user-select: none; user-select: none;
     background: radial-gradient(120% 90% at 50% 45%, #0d0a26 0%, #070516 55%, #04030b 100%);
+    /* 中文只在標點／空白處換行，避免「你的生／日」這種斷字；真的太長才任意換行 */
+    word-break: keep-all; overflow-wrap: anywhere; line-break: strict;
   }
   #sky { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
 
@@ -57,8 +59,8 @@
   }
   .brand h1 {
     font-family: var(--latin); font-weight: 300;
-    font-size: clamp(1.6rem, 7.4vw, 3.2rem);
-    letter-spacing: .3em; text-indent: .3em; line-height: 1.1;
+    font-size: clamp(1.45rem, 7vw, 3.2rem);
+    letter-spacing: .24em; text-indent: .24em; line-height: 1.1; white-space: nowrap;
     text-shadow: 0 0 28px rgba(150,120,255,.55);
     animation: rise 2.4s ease .3s both;
   }
@@ -159,8 +161,8 @@
   }
   [data-state="end"] .end { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity 2.4s ease, visibility 0s; }
   .end h2 {
-    font-family: var(--latin); font-weight: 300;
-    font-size: clamp(1.9rem, 9vw, 3.4rem); letter-spacing: .3em; text-indent: .3em;
+    font-family: var(--latin); font-weight: 300; white-space: nowrap;
+    font-size: clamp(1.45rem, 7vw, 3.4rem); letter-spacing: .24em; text-indent: .24em;
     text-shadow: 0 0 28px rgba(150,120,255,.5);
   }
   .end p {
@@ -241,14 +243,25 @@
     min-height: 48px; padding: .8rem 1.7rem; border-radius: 999px; cursor: pointer;
     font-family: var(--tc); font-size: .95rem; font-weight: 300; letter-spacing: .2em; text-indent: .2em;
   }
-  .main { color: #0b0820; background: linear-gradient(135deg, #cfe9ff, #c9b9ff); border: 0; box-shadow: 0 0 24px rgba(160,170,255,.45); }
+  .main { position: relative; overflow: hidden; color: #0b0820; background: linear-gradient(135deg, #cfe9ff, #c9b9ff); border: 0; box-shadow: 0 0 24px rgba(160,170,255,.45); }
+  /* 主要按鈕：偶爾滑過一道柔光，按下時微微縮小 */
+  .main::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+    background: linear-gradient(110deg, transparent 32%, rgba(255,255,255,.65) 50%, transparent 68%);
+    transform: translateX(-130%); animation: sheen 6s ease-in-out 2.5s infinite;
+  }
+  @keyframes sheen { 0%, 72% { transform: translateX(-130%); } 100% { transform: translateX(130%); } }
+  .main:hover { box-shadow: 0 0 34px rgba(170,180,255,.75); }
+  .main:active, .ghost:active { transform: scale(.97); }
+  .main, .ghost { transition: transform .2s ease, box-shadow .3s ease, color .3s ease, border-color .3s ease; }
   .ghost { color: var(--dim); background: rgba(10,8,30,.4); border: 1px solid rgba(255,255,255,.2); }
   .ghost:hover { color: var(--ink); border-color: rgba(255,255,255,.45); }
   .main:focus-visible, .ghost:focus-visible, .mic:focus-visible, .linkbtn:focus-visible, .hot:focus-visible { outline: 2px solid var(--ice); outline-offset: 3px; }
   .linkbtn { background: none; border: 0; color: var(--dim); font-family: var(--tc); font-size: .82rem; letter-spacing: .14em; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; padding: .5rem; }
 
   .sumlist, .resbody, .hotlist { grid-area: list; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; gap: 12px; padding: 4px 2px; }
-  .sumlist { justify-content: center; }
+  .sumlist > :first-child { margin-top: auto; }
+  .sumlist > :last-child { margin-bottom: auto; }
   .row {
     display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 14px 16px; text-align: left;
     border: 1px solid rgba(255,255,255,.14); border-radius: 16px; background: rgba(10,8,30,.45);
@@ -460,6 +473,42 @@
     .q5 h2 { font-size: clamp(1.3rem, 6vh, 2rem); }
     .caption.mid { top: 22%; }
   }
+  /* 按鈕不超出畫面；英文字距縮小（中文的寬字距套在英文上會太散） */
+  .main, .ghost { max-width: 100%; white-space: normal; line-height: 1.4; }
+  html[lang="en"] .main, html[lang="en"] .ghost { letter-spacing: .08em; text-indent: .08em; }
+  html[lang="en"] .pill, html[lang="en"] .qhint, html[lang="en"] .mic-state, html[lang="en"] .linkbtn, html[lang="en"] .cta, html[lang="en"] .brand p { letter-spacing: .08em; text-indent: .08em; }
+
+  /* ===== LOGO：INNERVERSE ＋ ===== */
+  .logo .plus {
+    position: relative; display: inline-block; width: .7em; height: .7em; margin-left: .02em; vertical-align: .02em;
+    animation: plusGlow 5s ease-in-out infinite;
+  }
+  .logo .plus::before, .logo .plus::after {
+    content: ""; position: absolute; left: 50%; top: 50%; border-radius: 99px;
+    background: linear-gradient(135deg, #fff6dd, #ffd59a 40%, #c9b4ff);
+    box-shadow: 0 0 12px rgba(255,214,160,.85), 0 0 26px rgba(170,140,255,.6);
+  }
+  .logo .plus::before { width: 100%; height: .09em; min-height: 2px; transform: translate(-50%, -50%); }
+  .logo .plus::after { width: .09em; min-width: 2px; height: 100%; transform: translate(-50%, -50%); }
+  @keyframes plusGlow { 0%, 100% { filter: brightness(1); transform: scale(1); } 50% { filter: brightness(1.4); transform: scale(1.12); } }
+
+  /* ===== 語言切換 ===== */
+  .lang {
+    position: fixed; z-index: 4; display: flex; padding: 3px; gap: 2px;
+    top: calc(env(safe-area-inset-top, 0px) + 14px); left: calc(env(safe-area-inset-left, 0px) + 16px);
+    background: rgba(10,8,30,.4); border: 1px solid rgba(255,255,255,.16); border-radius: 999px;
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    opacity: 0; visibility: hidden; transition: opacity 1.2s ease 1.6s;
+  }
+  [data-state="idle"] .lang { opacity: 1; visibility: visible; }
+  .lang button {
+    min-height: 34px; padding: .35rem .9rem; border: 0; border-radius: 999px; cursor: pointer;
+    font-family: var(--tc); font-size: .78rem; letter-spacing: .12em; color: var(--dim); background: none;
+    transition: background .3s ease, color .3s ease;
+  }
+  .lang button[aria-pressed="true"] { color: #1a1440; background: linear-gradient(135deg, #f3eefc, #d9ccff); }
+  .lang button:focus-visible { outline: 2px solid var(--ice); outline-offset: 2px; }
+
   /* ===== 章節選單 ===== */
   .ctl-r { display: flex; gap: 10px; }
   #chap { display: none; }
@@ -659,7 +708,7 @@
     .brand { top: calc(env(safe-area-inset-top, 0px) + 15dvh); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .brand h1, .brand p, .cta, .cta b, .mic, .orb, .mic::before, .mic::after, .qbox.in { animation: none; }
+    .brand h1, .brand p, .cta, .cta b, .mic, .orb, .mic::before, .mic::after, .qbox.in, .main::after, .logo .plus { animation: none; }
   }
 </style>
 </head>
@@ -670,7 +719,7 @@
 
 <div class="intro">
   <div class="brand">
-    <h1>INNER COSMOS</h1>
+    <h1 class="logo" aria-label="INNERVERSE PLUS">INNERVERSE<span class="plus" aria-hidden="true"></span></h1>
     <p>內在宇宙</p>
   </div>
   <div class="cta">
@@ -680,6 +729,9 @@
 </div>
 <button class="enter" id="enter" type="button" aria-label="進入內在宇宙"></button>
 
+<div class="lang" id="langSw" role="group" aria-label="Language / 語言">
+  <button type="button" data-lang="zh" lang="zh-Hant">中文</button><button type="button" data-lang="en" lang="en">English</button>
+</div>
 <button class="pill chap-intro" id="chapIntro" type="button" aria-haspopup="dialog">章節選擇</button>
 
 <div class="chapters" id="chapters" role="dialog" aria-modal="true" aria-label="章節選擇">
@@ -709,7 +761,7 @@
 <div class="caption" id="caption" aria-live="polite"></div>
 
 <div class="end" id="end">
-  <h2>INNER COSMOS</h2>
+  <h2 class="logo" aria-label="INNERVERSE PLUS">INNERVERSE<span class="plus" aria-hidden="true"></span></h2>
   <p>Feel. Accept. Breathe. Begin again.</p>
 </div>
 
@@ -903,6 +955,65 @@
   const MOTION = reduce ? .35 : 1;
 
   /* ---------- 設定（之後串 OpenAI 只需要改這裡）---------- */
+  // 語言：首頁右上角切換，記在網址 ?lang= 與 localStorage，切換時重新載入頁面
+  const LANG = (() => {
+    try {
+      const q = new URLSearchParams(location.search).get('lang');
+      if (q === 'en' || q === 'zh') { try { localStorage.setItem('iv_lang', q); } catch (_) {} return q; }
+      const v = localStorage.getItem('iv_lang');
+      if (v === 'en' || v === 'zh') return v;
+    } catch (_) {}
+    return 'zh';
+  })();
+  const EN = LANG === 'en';
+  const L = (zh, en) => (EN ? en : zh);
+  document.documentElement.lang = EN ? 'en' : 'zh-Hant';
+
+  // 靜態 HTML 的英文：依中文原文對照替換文字節點、placeholder、aria-label
+  const HTML_EN = {
+    '內在宇宙': 'Your inner universe', '輕觸畫面，進入你的宇宙': 'Tap anywhere to enter your universe', '建議戴上耳機': 'Headphones recommended',
+    '進入內在宇宙': 'Enter your inner universe', '章節選擇': 'Chapters', '選擇想要前往的章節': 'Choose where you’d like to go', '繼續觀看': 'Keep watching',
+    '離開': 'Leave', '章節': 'Chapters', '聲音：開': 'Sound: On',
+    '靠近一個你現在正在感受的情緒。': 'Move toward a feeling you have right now.', '用手指按住，或滑向一顆星球': 'Press and hold, or glide toward a planet',
+    '開始語音輸入': 'Start voice input', '也可以直接打字': 'Or just type here', '你的回答': 'Your answer', '上一步': 'Back', '下一步': 'Next',
+    '讓我確認一下': 'Let me check', '想改的話，點「修改」回去重說': 'Tap “Edit” to change an answer', '確認，收下我的禮物': 'Confirm and receive my gift',
+    '宇宙正在聆聽你說的話…': 'The universe is listening…', '再試一次': 'Try again', '重新說一次': 'Start over', '回首頁': 'Home',
+    '謝謝你願意說出來。': 'Thank you for sharing this.',
+    '如果你現在很痛苦，或有想傷害自己的念頭，請先聯絡可以陪你的人。': 'If you’re in pain right now or thinking about hurting yourself, please reach out to someone who can be with you first.',
+    '安心專線': 'Taiwan mental health line', '24 小時，免費': '24 hrs, free', '生命線': 'Lifeline', '24 小時': '24 hrs', '張老師專線': 'Teacher Chang line',
+    '有立即危險，請撥': 'In immediate danger, call', '回上一步': 'Go back', '我想繼續': 'I’d like to continue', '略過動畫': 'Skip animation',
+    '打開禮物': 'Open the gift', '說出來，或打字': 'Say it, or type', '寵物的名字': 'Pet name', '用說的取名字': 'Name by voice', '就叫這個名字': 'That’s the name',
+    '很高興認識你。': 'Nice to meet you.', '讓我告訴你': 'Tell me', '你，是什麼樣的人？': 'Who are you, really?',
+    '10 個小問題，': '10 little questions', '讓宇宙聽見你的訊號。': 'to let the universe hear your signal.', '✦ 開始探索我的內在宇宙': '✦ Explore my inner universe',
+    '這句話，像你嗎？': 'Does this sound like you?', '上一題': 'Previous', '你的人格星球': 'Your personality planet', '你的人格星球，是': 'Your personality planet is',
+    '接下來，讓寵物陪你': 'Next, let your pet keep you company', '你看過情緒嗎？': 'Have you ever seen a feeling?',
+    '這不是診斷，只是一個溫柔的座標。': 'This isn’t a diagnosis — just a gentle point of reference.',
+    '改用觸控': 'Use touch instead', '略過這一步': 'Skip this step', '使用相機': 'Use camera', '接下來，需要借用你的相機': 'Next, may I borrow your camera?',
+    '寵物會透過相機看見你的手勢：張開手掌、握拳、再張開。': 'Your pet will watch your hand through the camera: open palm, fist, then open again.',
+    '影像只在你的手機裡即時處理，': 'The video is processed live on your device only — ', '不會錄影，也不會上傳': 'nothing is recorded or uploaded', '。': '.',
+    '在不方便的地方，也可以改用觸控完成。': 'If now isn’t a good moment, you can use touch instead.', '開啟相機': 'Turn on camera', '關心': 'Care',
+    '我想先停下來，陪你一下': 'I want to pause and stay with you for a moment',
+    '聽起來你現在真的很辛苦。這件事比任何動畫都重要，你不需要一個人撐著。如果此刻有想傷害自己的念頭，請讓真人陪你一下：': 'It sounds like things are really hard right now. This matters more than any animation, and you don’t have to carry it alone. If you’re having thoughts of hurting yourself, please let a real person be with you:',
+    '1925 安心專線': '1925 Mental health line', '1995 生命線': '1995 Lifeline', '119 緊急狀況': '119 Emergency', '有立即危險時': 'if in immediate danger',
+    '我還好，繼續': 'I’m okay, continue', '再來一次': 'Once more', '再看一次': 'Watch again'
+  };
+  if (EN) {
+    document.title = 'INNERVERSE PLUS · Your inner universe';
+    const tw0 = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodes = []; while (tw0.nextNode()) nodes.push(tw0.currentNode);
+    nodes.forEach(n => { const k = n.nodeValue.trim(); if (k && HTML_EN[k]) n.nodeValue = n.nodeValue.replace(k, HTML_EN[k]); });
+    document.querySelectorAll('[placeholder],[aria-label]').forEach(el => {
+      ['placeholder', 'aria-label'].forEach(a => { const v = el.getAttribute(a); if (v && HTML_EN[v]) el.setAttribute(a, HTML_EN[v]); });
+    });
+  }
+  document.querySelectorAll('#langSw button').forEach(b => {
+    b.setAttribute('aria-pressed', String(b.dataset.lang === LANG));
+    b.addEventListener('click', () => {
+      if (b.dataset.lang === LANG) return;
+      try { localStorage.setItem('iv_lang', b.dataset.lang); } catch (_) {}
+      const u = new URL(location.href); u.searchParams.set('lang', b.dataset.lang); location.replace(u.toString());
+    });
+  });
   const CONFIG = {
     // 後端解讀 API 的網址，例如 '/api/interpret'。留空＝使用內建的示範回應。
     // OpenAI API key 只能放在後端，千萬不要寫進這個前端檔案。
@@ -914,8 +1025,11 @@
     MODEL_ENDPOINT: 'https://script.google.com/macros/s/AKfycbxgLq3Smhs8y1OUwGP_iEwS3hHRa0bDWdnHIQJPi7VoeGb1VOjW2Ov2vdNfZZmOqnB0/exec',
     // 想先預先生成好 .glb 放在網站裡、省錢又快？填資料夾，例如 'models/'，檔名為 O_hi.glb、E_lo.glb、BAL.glb …
     STATIC_MODELS: '',
-    LANG: 'zh-TW'          // 語音辨識語言
+    LANG: L('zh-TW', 'en-US')          // 語音辨識語言
   };
+
+  // 星座：程式內部一律用中文名稱當 key，顯示時再依語言轉換
+  const zName = z => { if (!EN) return z; const p = PETS.find(x => x.zh === z); return p ? p.sign[0] + p.sign.slice(1).toLowerCase() : z; };
 
   /* ---------- Google Sheets 儲存 ---------- */
   async function saveToSheet(payload = {}) {
@@ -939,23 +1053,42 @@
   }
   window.INNERVERSE_SAVE = saveToSheet;
 
+  /* ---------- 呼叫後端（Google Apps Script）----------
+     Apps Script 不回應 CORS 預檢（OPTIONS），所以不能送 application/json。
+     改用 text/plain 的「簡單請求」，後端一樣用 JSON.parse(e.postData.contents) 讀取。 */
+  async function apiPost(url, payload, ms = 45000) {
+    const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), ms);
+    try {
+      const r = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(Object.assign({ lang: LANG }, payload)),
+        signal: ctl.signal
+      });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const j = await r.json();
+      if (j && j.ok === false) throw new Error(j.error || 'api error');
+      return j;
+    } finally { clearTimeout(tm); }
+  }
+
 /* ================================================================
    十二隻宇宙寵物：只有眼睛，沒有鼻子和嘴巴
    petSVG(i, { closed, uid }) → SVG 字串（viewBox 0 0 240 240）
    ================================================================ */
 const PETS = [
-  { sign: 'ARIES',       zh: '牡羊座', glyph: '♈', en: 'Flare', name: '火光靈', words: ['勇敢', '行動', '釋放'], c: '#ff9d7a', c2: '#ffd36b', aura: [255, 160, 120] },
-  { sign: 'TAURUS',      zh: '金牛座', glyph: '♉', en: 'Terra', name: '植星靈', words: ['安定', '感官', '滋養'], c: '#8fd68a', c2: '#ffc6dc', aura: [150, 220, 140] },
-  { sign: 'GEMINI',      zh: '雙子座', glyph: '♊', en: 'Lumi',  name: '雙星靈', words: ['好奇', '連結', '表達'], c: '#8fc7ff', c2: '#c9b8ff', aura: [140, 190, 255] },
-  { sign: 'CANCER',      zh: '巨蟹座', glyph: '♋', en: 'Nox',   name: '月殼靈', words: ['安全', '陪伴', '療癒'], c: '#9fb4ff', c2: '#ffc4e8', aura: [160, 180, 255] },
-  { sign: 'LEO',         zh: '獅子座', glyph: '♌', en: 'Sol',   name: '日耀靈', words: ['自信', '溫暖', '綻放'], c: '#ffc766', c2: '#fff0b8', aura: [255, 200, 110] },
-  { sign: 'VIRGO',       zh: '處女座', glyph: '♍', en: 'Prism', name: '晶塵靈', words: ['純粹', '秩序', '放下'], c: '#9be8d4', c2: '#d9c8ff', aura: [160, 235, 215] },
-  { sign: 'LIBRA',       zh: '天秤座', glyph: '♎', en: 'Astra', name: '衡星靈', words: ['平衡', '和諧', '選擇'], c: '#ffb8d9', c2: '#ffe08a', aura: [255, 190, 220] },
-  { sign: 'SCORPIO',     zh: '天蠍座', glyph: '♏', en: 'Umbra', name: '深淵靈', words: ['轉化', '保護', '重生'], c: '#9a7cff', c2: '#e0a6ff', aura: [160, 130, 255] },
-  { sign: 'SAGITTARIUS', zh: '射手座', glyph: '♐', en: 'Nova',  name: '星旅靈', words: ['探索', '自由', '相信'], c: '#ffd77a', c2: '#ffffff', aura: [255, 225, 160] },
-  { sign: 'CAPRICORN',   zh: '摩羯座', glyph: '♑', en: 'Cairn', name: '岩曜靈', words: ['堅持', '責任', '休息'], c: '#e7c98a', c2: '#fff1c9', aura: [235, 205, 140] },
-  { sign: 'AQUARIUS',    zh: '水瓶座', glyph: '♒', en: 'Nebu',  name: '星環靈', words: ['創新', '連結', '接納'], c: '#8de6ff', c2: '#d6b8ff', aura: [140, 225, 255] },
-  { sign: 'PISCES',      zh: '雙魚座', glyph: '♓', en: 'Mare',  name: '夢泡靈', words: ['共感', '想像', '接納'], c: '#ffa8d2', c2: '#9fd8ff', aura: [255, 175, 215] }
+  { sign: 'ARIES',       zh: '牡羊座', glyph: '♈', en: 'Flare', name: L('火光靈', 'Ember Sprite'), words: L(['勇敢', '行動', '釋放'], ['Courage', 'Action', 'Release']), c: '#ff9d7a', c2: '#ffd36b', aura: [255, 160, 120] },
+  { sign: 'TAURUS',      zh: '金牛座', glyph: '♉', en: 'Terra', name: L('植星靈', 'Bloom Sprite'), words: L(['安定', '感官', '滋養'], ['Steadiness', 'Senses', 'Nurture']), c: '#8fd68a', c2: '#ffc6dc', aura: [150, 220, 140] },
+  { sign: 'GEMINI',      zh: '雙子座', glyph: '♊', en: 'Lumi',  name: L('雙星靈', 'Twin-Star Sprite'), words: L(['好奇', '連結', '表達'], ['Curiosity', 'Connection', 'Expression']), c: '#8fc7ff', c2: '#c9b8ff', aura: [140, 190, 255] },
+  { sign: 'CANCER',      zh: '巨蟹座', glyph: '♋', en: 'Nox',   name: L('月殼靈', 'Moonshell Sprite'), words: L(['安全', '陪伴', '療癒'], ['Safety', 'Company', 'Healing']), c: '#9fb4ff', c2: '#ffc4e8', aura: [160, 180, 255] },
+  { sign: 'LEO',         zh: '獅子座', glyph: '♌', en: 'Sol',   name: L('日耀靈', 'Sunshine Sprite'), words: L(['自信', '溫暖', '綻放'], ['Confidence', 'Warmth', 'Blooming']), c: '#ffc766', c2: '#fff0b8', aura: [255, 200, 110] },
+  { sign: 'VIRGO',       zh: '處女座', glyph: '♍', en: 'Prism', name: L('晶塵靈', 'Crystal Dust Sprite'), words: L(['純粹', '秩序', '放下'], ['Purity', 'Order', 'Letting go']), c: '#9be8d4', c2: '#d9c8ff', aura: [160, 235, 215] },
+  { sign: 'LIBRA',       zh: '天秤座', glyph: '♎', en: 'Astra', name: L('衡星靈', 'Balance Sprite'), words: L(['平衡', '和諧', '選擇'], ['Balance', 'Harmony', 'Choice']), c: '#ffb8d9', c2: '#ffe08a', aura: [255, 190, 220] },
+  { sign: 'SCORPIO',     zh: '天蠍座', glyph: '♏', en: 'Umbra', name: L('深淵靈', 'Abyss Sprite'), words: L(['轉化', '保護', '重生'], ['Change', 'Protection', 'Rebirth']), c: '#9a7cff', c2: '#e0a6ff', aura: [160, 130, 255] },
+  { sign: 'SAGITTARIUS', zh: '射手座', glyph: '♐', en: 'Nova',  name: L('星旅靈', 'Star Voyager'), words: L(['探索', '自由', '相信'], ['Exploring', 'Freedom', 'Belief']), c: '#ffd77a', c2: '#ffffff', aura: [255, 225, 160] },
+  { sign: 'CAPRICORN',   zh: '摩羯座', glyph: '♑', en: 'Cairn', name: L('岩曜靈', 'Stoneglow Sprite'), words: L(['堅持', '責任', '休息'], ['Persistence', 'Responsibility', 'Rest']), c: '#e7c98a', c2: '#fff1c9', aura: [235, 205, 140] },
+  { sign: 'AQUARIUS',    zh: '水瓶座', glyph: '♒', en: 'Nebu',  name: L('星環靈', 'Star Ring Sprite'), words: L(['創新', '連結', '接納'], ['Invention', 'Connection', 'Acceptance']), c: '#8de6ff', c2: '#d6b8ff', aura: [140, 225, 255] },
+  { sign: 'PISCES',      zh: '雙魚座', glyph: '♓', en: 'Mare',  name: L('夢泡靈', 'Dream Bubble Sprite'), words: L(['共感', '想像', '接納'], ['Empathy', 'Imagination', 'Acceptance']), c: '#ffa8d2', c2: '#9fd8ff', aura: [255, 175, 215] }
 ];
 
 function petSVG(i, opt = {}) {
@@ -1431,24 +1564,24 @@ function petSVG(i, opt = {}) {
   const planets = [
     { id: 'sad', en: 'Sadness', zh: '悲傷', hex: '#7fa6ff', rgb: [111, 155, 255], rr: .075, orR: .20, w: .26, ang: -2.2,
       f1: .7, f2: .45, ph1: 0, ph2: 1.3, p: [.30, .28], l: [.24, .38],
-      intro: ['「我不是想讓你難過。」', '「我只是希望，你能停下來看看我。」'],
-      touch: ['你不需要現在就振作。'] },
+      intro: L(['「我不是想讓你難過。」', '「我只是希望，你能停下來看看我。」'], ['“I’m not here to make you sad.”', '“I only hope you’ll stop and look at me.”']),
+      touch: L(['你不需要現在就振作。'], ['You don’t have to pull yourself together right now.']) },
     { id: 'anx', en: 'Anxiety', zh: '焦慮', hex: '#f2dc62', rgb: [242, 220, 98], rr: .06, orR: .27, w: .20, ang: -.9,
       f1: 1.1, f2: .8, ph1: 2, ph2: .4, p: [.72, .20], l: [.62, .24],
-      intro: ['「我一直想著還沒發生的事情。」', '「因為我害怕，你來不及準備。」'],
-      touch: ['不是所有事情，', '都需要現在得到答案。'] },
+      intro: L(['「我一直想著還沒發生的事情。」', '「因為我害怕，你來不及準備。」'], ['“I keep thinking about things that haven’t happened yet.”', '“Because I’m afraid you won’t be ready in time.”']),
+      touch: L(['不是所有事情，', '都需要現在得到答案。'], ['Not everything', 'needs an answer right now.']) },
     { id: 'ang', en: 'Anger', zh: '憤怒', hex: '#ff7a66', rgb: [255, 106, 85], rr: .08, orR: .34, w: .15, ang: .5,
       f1: .9, f2: .6, ph1: 4, ph2: .2, p: [.70, .52], l: [.80, .52],
-      intro: ['「我不是壞情緒。」', '「有時候，我只是想保護你。」'],
-      touch: ['你的感受值得被聽見。'] },
+      intro: L(['「我不是壞情緒。」', '「有時候，我只是想保護你。」'], ['“I’m not a bad feeling.”', '“Sometimes I just want to protect you.”']),
+      touch: L(['你的感受值得被聽見。'], ['Your feelings deserve to be heard.']) },
     { id: 'lon', en: 'Loneliness', zh: '孤單', hex: '#b9aaf5', rgb: [180, 164, 242], rr: .065, orR: .40, w: .10, ang: 2.4,
       f1: .5, f2: .35, ph1: 1, ph2: 3, p: [.16, .60], l: [.09, .68],
-      intro: ['「我不是因為沒有人陪。」', '「而是我希望，有人真正理解我。」'],
-      touch: ['即使現在只有你自己，', '你仍然可以陪著自己。'] },
+      intro: L(['「我不是因為沒有人陪。」', '「而是我希望，有人真正理解我。」'], ['“It’s not that no one is around.”', '“It’s that I wish someone truly understood me.”']),
+      touch: L(['即使現在只有你自己，', '你仍然可以陪著自己。'], ['Even if it’s only you right now,', 'you can still keep yourself company.']) },
     { id: 'hop', en: 'Hope', zh: '希望', hex: '#ffe9a8', rgb: [255, 233, 168], rr: .022, orR: .11, w: .42, ang: 1.4,
       f1: .8, f2: .55, ph1: 5, ph2: 2, p: [.46, .40], l: [.46, .52],
-      intro: ['「我一直都在。」', '「只是有時候，我的光很小。」'],
-      touch: ['不用一次照亮整個宇宙。', '一點點光，就夠了。'] }
+      intro: L(['「我一直都在。」', '「只是有時候，我的光很小。」'], ['“I’ve always been here.”', '“It’s just that sometimes my light is small.”']),
+      touch: L(['不用一次照亮整個宇宙。', '一點點光，就夠了。'], ['You don’t have to light up the whole universe at once.', 'A little light is enough.']) }
   ];
   planets.forEach(p => { p.light = 0; p.clarity = 0; p.touched = false; p.hold = 0; p.sx = 0; p.sy = 0; p.sr = 10; p.pp = 1; });
 
@@ -1792,7 +1925,7 @@ function petSVG(i, opt = {}) {
     planets.forEach(p => tw(p, 'light', .07, 5));
     Sound.mood('lost');
     await sleep(5);
-    await sayLines(['有些時候，', '我們不知道自己怎麼了。', '只是覺得，', '心裡好像有點吵。'], { stagger: 1.9, hold: 3.4, fade: 1.4 });
+    await sayLines(L(['有些時候，', '我們不知道自己怎麼了。', '只是覺得，', '心裡好像有點吵。'], ['Sometimes', 'we don’t know what’s wrong.', 'It just feels like', 'it’s a little noisy inside.']), { stagger: 1.9, hold: 3.4, fade: 1.4 });
     await sleep(1.2);
   }
 
@@ -1808,7 +1941,7 @@ function petSVG(i, opt = {}) {
       Sound.ping(p.id);
       tw(p, 'light', 1, 1.6);
       await sleep(.5);
-      await sayLines([{ tag: `${p.en}｜${p.zh}`, color: p.hex }, ...p.intro], { stagger: 1.1, hold: p.id === 'hop' ? 4 : 3.3, fade: 1 });
+      await sayLines([{ tag: EN ? p.en : `${p.en}｜${p.zh}`, color: p.hex }, ...p.intro], { stagger: 1.1, hold: p.id === 'hop' ? 4 : 3.3, fade: 1 });
       await sleep(.3);
     }
     await sleep(1);
@@ -1834,12 +1967,12 @@ function petSVG(i, opt = {}) {
     tw(P, 'lines', 1, 9); tw(P, 'nebula', .4, 12); tw(P, 'starAlpha', .9, 8); tw(P, 'starSpeed', .03, 4);
     planets.forEach(p => tw(p, 'clarity', .8, 3));
     await sleep(1.5);
-    await sayLines(['我曾經以為，', '療癒就是讓悲傷消失。'], { stagger: 1.4, hold: 3 });
+    await sayLines(L(['我曾經以為，', '療癒就是讓悲傷消失。'], ['I used to think', 'healing meant making sadness disappear.']), { stagger: 1.4, hold: 3 });
     await sleep(.4);
-    await sayLines(['後來才發現——'], { hold: 2.2 });
-    await sayLines(['療癒不是沒有情緒，', '而是終於可以讓它們存在。'], { stagger: 1.6, hold: 3.6 });
+    await sayLines(L(['後來才發現——'], ['Then I realized—']), { hold: 2.2 });
+    await sayLines(L(['療癒不是沒有情緒，', '而是終於可以讓它們存在。'], ['Healing isn’t having no feelings,', 'it’s finally letting them exist.']), { stagger: 1.6, hold: 3.6 });
     await sleep(.4);
-    await sayLines(['悲傷沒有消失。', '焦慮沒有消失。', '憤怒也沒有消失。', '但是它們不再互相撞擊。'], { stagger: 1.3, hold: 3, fade: 1.4 });
+    await sayLines(L(['悲傷沒有消失。', '焦慮沒有消失。', '憤怒也沒有消失。', '但是它們不再互相撞擊。'], ['Sadness didn’t disappear.', 'Anxiety didn’t disappear.', 'Anger didn’t disappear either.', 'But they no longer crash into each other.']), { stagger: 1.3, hold: 3, fade: 1.4 });
     await sleep(.8);
   }
 
@@ -1849,14 +1982,14 @@ function petSVG(i, opt = {}) {
     const dots = cycleEl.children;
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) dots[j].className = j < i ? 'done' : (j === i ? 'cur' : '');
-      buildCaption([{ text: 'Breathe in.', cls: 'en' }, '吸氣。'], .4);
+      buildCaption([{ text: 'Breathe in.', cls: 'en' }, ...L(['吸氣。'], [])], .4);
       Sound.breathIn(4);
       await tw(P, 'breath', 1.18, 4);
       hideCaption();
       const t2 = tw(P, 'breath', .86, 6);
       Sound.breathOut(6);
       await sleep(.7);
-      buildCaption([{ text: 'Breathe out.', cls: 'en' }, '呼氣。'], .4);
+      buildCaption([{ text: 'Breathe out.', cls: 'en' }, ...L(['呼氣。'], [])], .4);
       await t2;
       dots[i].className = 'done';
       hideCaption();
@@ -1875,13 +2008,13 @@ function petSVG(i, opt = {}) {
     tw(P, 'glow', 1, 8); tw(P, 'nebula', .8, 12); tw(P, 'dust', .35, 6);
     tw(P, 'starSpeed', -.05, 6);
     await sleep(2);
-    await sayLines(['你不只是你的悲傷。', '也不只是你的焦慮。'], { stagger: 1.4, hold: 2.6 });
-    await sayLines(['那些快樂、失落、害怕、憤怒、孤單與希望，', '都曾經成為你的一部分。'], { stagger: 1.6, hold: 3 });
-    await sayLines(['它們沒有讓你的宇宙變得殘缺。', '它們讓你的宇宙，成為現在的模樣。'], { stagger: 1.8, hold: 4 });
+    await sayLines(L(['你不只是你的悲傷。', '也不只是你的焦慮。'], ['You are more than your sadness.', 'More than your anxiety, too.']), { stagger: 1.4, hold: 2.6 });
+    await sayLines(L(['那些快樂、失落、害怕、憤怒、孤單與希望，', '都曾經成為你的一部分。'], ['All the joy, loss, fear, anger, loneliness and hope', 'have each become a part of you.']), { stagger: 1.6, hold: 3 });
+    await sayLines(L(['它們沒有讓你的宇宙變得殘缺。', '它們讓你的宇宙，成為現在的模樣。'], ['They didn’t leave your universe broken.', 'They made your universe what it is now.']), { stagger: 1.8, hold: 4 });
     // 鏡頭繼續拉遠，整個星系縮成一個小小光點
     tw(P, 'cam', .03, 9); tw(P, 'beacon', 1, 9); tw(P, 'galaxy', .8, 9);
     await sleep(4.5);
-    await sayLines([{ text: "You don't have to shine all the time.", cls: 'en' }, { text: 'You are still a universe.', cls: 'en' }, '你不需要一直發光。', '你依然是一整座宇宙。'],
+    await sayLines([{ text: "You don't have to shine all the time.", cls: 'en' }, { text: 'You are still a universe.', cls: 'en' }, ...L(['你不需要一直發光。', '你依然是一整座宇宙。'], [])],
       { stagger: 1.5, hold: 3, fade: 1.6, cls: 'final' });
     Sound.mood('end');
     await tw(P, 'fade', 1, 2.5);
@@ -1908,13 +2041,13 @@ function petSVG(i, opt = {}) {
      章節選單：不用看完前一幕，也能直接跳到想看的章節
      ================================================================ */
   const CHAPTERS = [
-    { n: 'I', zh: '迷失', en: 'Lost', d: '有些時候，我們不知道自己怎麼了' },
-    { n: 'II', zh: '情緒出現', en: 'Feel', d: '五顆情緒星球，依序亮起' },
-    { n: 'III', zh: '靠近', en: 'Listen', d: '觸碰一個你正在感受的情緒' },
-    { n: 'IV', zh: '釋放', en: 'Release', d: '讓情緒們不再互相撞擊' },
-    { n: 'V', zh: '呼吸', en: 'Breathe', d: '跟著光，一起呼吸三次' },
-    { n: 'VI', zh: '重生', en: 'Rebirth', d: '你依然是一整座宇宙' },
-    { n: '✦', zh: '與宇宙對話', en: 'Talk', d: '跳過開場，直接開始', talk: true }
+    { n: 'I', zh: '迷失', en: 'Lost', d: L('有些時候，我們不知道自己怎麼了', 'Sometimes we don’t know what’s wrong') },
+    { n: 'II', zh: '情緒出現', en: 'Feel', d: L('五顆情緒星球，依序亮起', 'Five feeling-planets light up one by one') },
+    { n: 'III', zh: '靠近', en: 'Listen', d: L('觸碰一個你正在感受的情緒', 'Touch a feeling you have right now') },
+    { n: 'IV', zh: '釋放', en: 'Release', d: L('讓情緒們不再互相撞擊', 'Let the feelings stop colliding') },
+    { n: 'V', zh: '呼吸', en: 'Breathe', d: L('跟著光，一起呼吸三次', 'Breathe three times with the light') },
+    { n: 'VI', zh: '重生', en: 'Rebirth', d: L('你依然是一整座宇宙', 'You are still a whole universe') },
+    { n: '✦', zh: '與宇宙對話', en: 'Talk', full: 'Talk with the Universe', d: L('跳過開場，直接開始', 'Skip the intro and start now'), talk: true }
   ];
   // 每一幕開始時，世界應有的樣子（＝前面幾幕跑完後的參數）
   const ACT_START = [
@@ -1933,8 +2066,8 @@ function petSVG(i, opt = {}) {
     b.style.setProperty('--d', (i * .05) + 's');
     const n = document.createElement('i'); n.textContent = c.n;
     const box = document.createElement('span');
-    const t = document.createElement('b'); t.textContent = c.zh;
-    const en = document.createElement('em'); en.textContent = c.en; t.appendChild(en);
+    const t = document.createElement('b'); t.textContent = L(c.zh, c.full || c.en);
+    const en = document.createElement('em'); en.textContent = c.en; if (!EN) t.appendChild(en);
     const d = document.createElement('small'); d.textContent = c.d;
     box.appendChild(t); box.appendChild(d);
     b.appendChild(n); b.appendChild(box);
@@ -1944,7 +2077,7 @@ function petSVG(i, opt = {}) {
   function openChapters() {
     const cur = /^act(\d)$/.exec(state);
     Array.from(chList.children).forEach((b, i) => b.classList.toggle('cur', !!cur && +cur[1] === i + 1));
-    $('chClose').textContent = state === 'idle' ? '關閉' : '繼續觀看';
+    $('chClose').textContent = state === 'idle' ? L('關閉', 'Close') : L('繼續觀看', 'Keep watching');
     paused = state !== 'idle';
     chapEl.classList.add('on');
     setTimeout(() => (chList.querySelector('.cur') || chList.firstChild).focus({ preventScroll: true }), 50);
@@ -1996,7 +2129,7 @@ function petSVG(i, opt = {}) {
     storyRun++; closeChapters();
     Talk.reset(); Gift.reset(); Origin.reset(); Quiz.reset(); Result.reset(); Feel.reset(); Ritual.reset();
     App.petIdx = 0; App.petName = ''; App.user = null; App.big5 = null; App.type = null; sparks.length = 0;
-    leaveBtn.textContent = '離開';
+    leaveBtn.textContent = L('離開', 'Leave');
     Sound.stop();
     setState('idle');
     tw(P, 'orb', 1, 2.5);
@@ -2050,7 +2183,7 @@ function petSVG(i, opt = {}) {
     }
     if (best && best !== current && (!current || best.clarity > current.clarity + .03)) {
       current = best; quoteAt = time;
-      buildCaption([{ tag: `${best.zh}　${best.en}`, color: best.hex }, ...best.touch], .9);
+      buildCaption([{ tag: EN ? best.en : `${best.zh}　${best.en}`, color: best.hex }, ...best.touch], .9);
     }
     if (touchedCount > 0) promptEl.classList.add('dim');
     // 使用者只要成功靠近／觸碰第一顆情緒星球，就立即進入下一幕，
@@ -2085,7 +2218,7 @@ function petSVG(i, opt = {}) {
   sndBtn.addEventListener('click', () => {
     const m = sndBtn.getAttribute('aria-pressed') === 'true';
     sndBtn.setAttribute('aria-pressed', String(!m));
-    sndBtn.textContent = m ? '聲音：關' : '聲音：開';
+    sndBtn.textContent = m ? L('聲音：關', 'Sound: Off') : L('聲音：開', 'Sound: On');
     Sound.setMuted(m);
   });
   document.addEventListener('visibilitychange', () => { document.hidden ? Sound.pause() : Sound.resume(); });
@@ -2295,7 +2428,7 @@ function petSVG(i, opt = {}) {
       ctx.font = '300 13px "Noto Serif TC", serif';
       ctx.textAlign = 'center';
       ctx.fillStyle = rgbaOf(rgb, .75, 1, .3);
-      ctx.fillText(p.zh, x, y + r * 2.1 + 10);
+      ctx.fillText(L(p.zh, p.en), x, y + r * 2.1 + 10);
     }
     ctx.restore();
   }
@@ -2432,6 +2565,17 @@ function petSVG(i, opt = {}) {
     return '射手座';
   }
 
+  function parseEnDate(text) {
+    const s = String(text || '').toLowerCase();
+    const M = '(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\\.?';
+    const ix = k => 'janfebmaraprmayjunjulaugsepoctnovdec'.indexOf(k) / 3 + 1;
+    let r = s.match(new RegExp(M + '\\s*(\\d{1,2})(?!\\d)(?:st|nd|rd|th)?(?:,?\\s*((?:19|20)\\d{2}))?'));
+    if (r) return { m: ix(r[1]), d: +r[2], y: r[3] ? +r[3] : null };
+    r = s.match(new RegExp('(?:^|\\D)(\\d{1,2})(?:st|nd|rd|th)?\\s*(?:of\\s*)?' + M + '(?:,?\\s*((?:19|20)\\d{2}))?'));
+    if (r) return { m: ix(r[2]), d: +r[1], y: r[3] ? +r[3] : null };
+    return null;
+  }
+
   function parseBirthday(text) {
     // 生日輸入盡量寬鬆：20030906、2003/09/06、2003-9-6、2003.09.06、
     // 2003年9月6日、二零零三年九月六日、九月六號、民國92年9月6日都可辨識。
@@ -2444,8 +2588,15 @@ function petSVG(i, opt = {}) {
 
     let y = null, m = null, d = null, mt;
 
+    // 英文月份：Sep 6, 2003／6 September 2003／September 6th
+    const eng = parseEnDate(text);
+    if (eng) { y = eng.y; m = eng.m; d = eng.d; }
+    // 美式 MM/DD/YYYY（英文介面）
+    else if (EN && (mt = t.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.]((?:19|20)\d{2})$/))) {
+      m = +mt[1]; d = +mt[2]; y = +mt[3];
+    }
     // 純 8 碼 YYYYMMDD，例如 20030906
-    if ((mt = t.match(/^(19|20)\d{6}$/))) {
+    else if ((mt = t.match(/^(19|20)\d{6}$/))) {
       y = +t.slice(0, 4); m = +t.slice(4, 6); d = +t.slice(6, 8);
     }
     // YYYY/MM/DD、YYYY-MM-DD、YYYY.MM.DD
@@ -2482,7 +2633,8 @@ function petSVG(i, opt = {}) {
 
   function cleanName(text) {
     let s = text.trim().replace(/[。.!！,，、\s]+$/, '');
-    s = s.replace(/^(你好|哈囉|嗨|您好)[，,\s]*/, '');
+    s = s.replace(/^(你好|哈囉|嗨|您好)[，,\s]*/, '').replace(/^(hi|hello|hey)\b[,!.\s]*/i, '');
+    s = s.replace(/^(my name is|my name's|i am|i'm|im|call me|you can call me|it's|this is)\s+/i, '');
     s = s.replace(/^(我的名字是|我的名字叫|我的名字|我叫做|我叫|我是|大家都叫我|你可以叫我|可以叫我|叫我|請叫我)\s*/, '');
     s = s.replace(/(就可以了|可以了|就好了|就好|吧|啦|喔|哦|啊)$/, '');
     return s.trim().slice(0, 20);
@@ -2496,13 +2648,17 @@ function petSVG(i, opt = {}) {
   function mockReply(p) {
     const worry = p.worry ? firstPhrase(p.worry, 24) : '';
     const hobby = p.hobbies ? firstPhrase(p.hobbies, 16) : '';
-    const out = [`${p.name}，謝謝你把這些說給我聽。`];
+    const z = p.birthday && p.birthday.zodiac;
+    const out = [L(`${p.name}，謝謝你把這些說給我聽。`, `${p.name}, thank you for telling me all this.`)];
     out.push(worry
-      ? `你提到最近心裡有「${worry}」。它不是你的缺點，只是你宇宙裡一顆正在發出聲音的星球。你不需要馬上解決它，先讓它被聽見，就已經是很大的一步。`
-      : '你這次沒有多說什麼煩惱，這也沒關係。想說的時候，宇宙一直都在。');
-    if (hobby) out.push(`你也提到「${hobby}」。那是屬於你的光。今天試著留十分鐘給它，不用做得好，只是回到自己身邊。`);
-    out.push(`${p.birthday && p.birthday.zodiac ? '你是' + p.birthday.zodiac + '。' : ''}星座只是一個溫柔的座標，不是答案；真正的答案，在你每一次願意停下來的時候。`);
-    out.push('現在，跟著我做一次：吸氣四秒，呼氣六秒。你不需要一直發光，你依然是一整座宇宙。');
+      ? L(`你提到最近心裡有「${worry}」。它不是你的缺點，只是你宇宙裡一顆正在發出聲音的星球。你不需要馬上解決它，先讓它被聽見，就已經是很大的一步。`,
+          `You mentioned “${worry}” has been on your mind. It isn’t a flaw — it’s just a planet in your universe trying to be heard. You don’t have to fix it right away; letting it be heard is already a big step.`)
+      : L('你這次沒有多說什麼煩惱，這也沒關係。想說的時候，宇宙一直都在。', 'You didn’t mention any worries this time, and that’s okay. Whenever you want to talk, the universe is here.'));
+    if (hobby) out.push(L(`你也提到「${hobby}」。那是屬於你的光。今天試著留十分鐘給它，不用做得好，只是回到自己身邊。`,
+      `You also mentioned “${hobby}”. That is your own light. Try giving it ten minutes today — it doesn’t have to be done well; it’s simply a way back to yourself.`));
+    out.push(L(`${z ? '你是' + z + '。' : ''}星座只是一個溫柔的座標，不是答案；真正的答案，在你每一次願意停下來的時候。`,
+      `${z ? 'You’re a ' + zName(z) + '. ' : ''}A star sign is only a gentle coordinate, not an answer; the real answer is in every moment you’re willing to pause.`));
+    out.push(L('現在，跟著我做一次：吸氣四秒，呼氣六秒。你不需要一直發光，你依然是一整座宇宙。', 'Now, do this with me once: breathe in for four seconds, out for six. You don’t have to shine all the time. You are still a whole universe.'));
     return out.join('\n\n');
   }
 
@@ -2510,20 +2666,9 @@ function petSVG(i, opt = {}) {
     if (!CONFIG.INTERPRET_ENDPOINT) {      await wait(2600);
       return { reply: mockReply(payload), mock: true };
     }
-    const ctl = new AbortController();
-    const timer = setTimeout(() => ctl.abort(), 45000);
-    try {
-      const res = await fetch(CONFIG.INTERPRET_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        signal: ctl.signal
-      });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const json = await res.json();
-      if (!json || typeof json.reply !== 'string' || !json.reply.trim()) throw new Error('empty reply');
-      return { reply: json.reply, mock: false };
-    } finally { clearTimeout(timer); }
+    const json = await apiPost(CONFIG.INTERPRET_ENDPOINT, payload);
+    if (!json || typeof json.reply !== 'string' || !json.reply.trim()) throw new Error('empty reply');
+    return { reply: json.reply, mock: false };
   }
 
   /* ---------- 對話流程 ---------- */
@@ -2538,14 +2683,14 @@ function petSVG(i, opt = {}) {
     const bCareBack = $('bCareBack'), bCareGo = $('bCareGo'), tdots = $('tdots');
 
     const STEPS = [
-      { key: 'name', q: () => '你好。\n你希望我怎麼稱呼你？', hint: '說出或輸入你的名字，暱稱也可以', cont: false, skip: false },
-      { key: 'bday', q: () => `${data.name}，你的生日是哪一天？`, hint: '直接說或輸入都可以，例如「20030906」、「2003/09/06」或「2003 年 9 月 6 日」', cont: false, skip: false },
-      { key: 'hobby', q: () => '平常做什麼事，\n會讓你覺得放鬆或開心？', hint: '興趣、愛好，想到什麼就說什麼', cont: true, skip: true },
-      { key: 'worry', q: () => '最近，心裡有什麼煩惱嗎？', hint: '不用整理，慢慢說就好', cont: true, skip: true }
+      { key: 'name', q: () => L('你好。\n你希望我怎麼稱呼你？', 'Hello.\nWhat would you like me to call you?'), hint: L('說出或輸入你的名字，暱稱也可以', 'Say or type your name — a nickname is fine too'), cont: false, skip: false },
+      { key: 'bday', q: () => L(`${data.name}，你的生日是哪一天？`, `${data.name}, when is your birthday?`), hint: L('直接說或輸入都可以，例如「20030906」、「2003/09/06」或「2003 年 9 月 6 日」', 'Say it or type it, e.g. “20030906”, “2003/09/06” or “Sep 6, 2003”'), cont: false, skip: false },
+      { key: 'hobby', q: () => L('平常做什麼事，\n會讓你覺得放鬆或開心？', 'What do you usually do\nthat helps you relax or feel happy?'), hint: L('興趣、愛好，想到什麼就說什麼', 'Hobbies, interests — whatever comes to mind'), cont: true, skip: true },
+      { key: 'worry', q: () => L('最近，心裡有什麼煩惱嗎？', 'Has anything been weighing on you lately?'), hint: L('不用整理，慢慢說就好', 'No need to organize it. Take your time.'), cont: true, skip: true }
     ];
-    const LABELS = ['名字', '生日', '興趣愛好', '最近的煩惱'];
-    const CARE_RE = /自殺|想死|不想活|不想再活|結束(自己的)?生命|輕生|傷害自己|自殘|活不下去|消失就好|尋短/;
-    const IDLE_TEXT = Voice.supported ? '輕觸，開始說話' : '這個瀏覽器不支援語音輸入，請直接打字';
+    const LABELS = L(['名字', '生日', '興趣愛好', '最近的煩惱'], ['Name', 'Birthday', 'Hobbies', 'Recent worries']);
+    const CARE_RE = /自殺|想死|不想活|不想再活|結束(自己的)?生命|輕生|傷害自己|自殘|活不下去|消失就好|尋短|suicid|kill myself|end my life|self[- ]?harm|hurt myself|want to die|don'?t want to live/i;
+    const IDLE_TEXT = Voice.supported ? L('輕觸，開始說話', 'Tap to start speaking') : L('這個瀏覽器不支援語音輸入，請直接打字', 'This browser doesn’t support voice input — please type instead');
 
     let step = 0, editing = false, data = blank(), token = 0, careShown = false, lastPayload = null;
     function blank() { return { raw: { name: '', bday: '', hobby: '', worry: '' }, name: '', bday: null }; }
@@ -2559,7 +2704,7 @@ function petSVG(i, opt = {}) {
 
     function updateNext() {
       const s = STEPS[step], empty = !ans.value.trim();
-      bNext.textContent = empty && s.skip ? '略過' : (editing ? '完成' : '下一步');
+      bNext.textContent = empty && s.skip ? L('略過', 'Skip') : (editing ? L('完成', 'Done') : L('下一步', 'Next'));
     }
 
     function render() {
@@ -2577,17 +2722,17 @@ function petSVG(i, opt = {}) {
     }
 
     const errMsg = code => ({
-      'not-allowed': '需要允許麥克風，才能用說的。也可以直接打字。',
-      'service-not-allowed': '需要允許麥克風，才能用說的。也可以直接打字。',
-      'no-speech': '好像沒有聽到聲音，再試一次，或直接打字。',
-      'audio-capture': '找不到麥克風，請直接打字。',
-      'network': '語音辨識需要網路連線，請直接打字或稍後再試。',
+      'not-allowed': L('需要允許麥克風，才能用說的。也可以直接打字。', 'Microphone permission is needed to speak. You can also type.'),
+      'service-not-allowed': L('需要允許麥克風，才能用說的。也可以直接打字。', 'Microphone permission is needed to speak. You can also type.'),
+      'no-speech': L('好像沒有聽到聲音，再試一次，或直接打字。', 'I didn’t hear anything. Try again, or type instead.'),
+      'audio-capture': L('找不到麥克風，請直接打字。', 'No microphone found — please type instead.'),
+      'network': L('語音辨識需要網路連線，請直接打字或稍後再試。', 'Speech recognition needs a network connection. Please type, or try again later.'),
       'aborted': ''
-    }[code] ?? '語音暫時無法使用，請直接打字。');
+    }[code] ?? L('語音暫時無法使用，請直接打字。', 'Voice input isn’t available right now — please type instead.'));
 
     function setListening(on) {
       mic.classList.toggle('live', on);
-      micState.textContent = on ? '正在聆聽…再點一次結束' : IDLE_TEXT;
+      micState.textContent = on ? L('正在聆聽…再點一次結束', 'Listening… tap again to finish') : IDLE_TEXT;
       Sound.duck(on);
     }
 
@@ -2615,11 +2760,11 @@ function petSVG(i, opt = {}) {
       err.textContent = '';
       if (s.key === 'name') {
         const n = cleanName(text);
-        if (!n) { err.textContent = '請告訴我，我可以怎麼稱呼你。'; return; }
+        if (!n) { err.textContent = L('請告訴我，我可以怎麼稱呼你。', 'Please tell me what I can call you.'); return; }
         data.raw.name = text; data.name = n;
       } else if (s.key === 'bday') {
         const b = parseBirthday(text);
-        if (!b) { err.textContent = '我還沒辨識出這個生日。可以輸入 20030906、2003/09/06、2003年9月6日，或直接用說的。'; return; }
+        if (!b) { err.textContent = L('我還沒辨識出這個生日。可以輸入 20030906、2003/09/06、2003年9月6日，或直接用說的。', 'I couldn’t read that birthday yet. Try 20030906, 2003/09/06 or Sep 6, 2003 — or just say it.'); return; }
         data.raw.bday = text; data.bday = b;
       } else {
         data.raw[s.key] = text;
@@ -2636,10 +2781,11 @@ function petSVG(i, opt = {}) {
       else if (step > 0) { step--; render(); }
     });
 
-    const bdayText = b => `${b.year ? b.year + ' 年 ' : ''}${b.month} 月 ${b.day} 日，${b.zodiac}`;
+    const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const bdayText = b => L(`${b.year ? b.year + ' 年 ' : ''}${b.month} 月 ${b.day} 日，${b.zodiac}`, `${MON[b.month - 1]} ${b.day}${b.year ? ', ' + b.year : ''} · ${zName(b.zodiac)}`);
 
     function showSummary() {
-      const vals = [data.name, bdayText(data.bday), data.raw.hobby || '（略過）', data.raw.worry || '（略過）'];
+      const vals = [data.name, bdayText(data.bday), data.raw.hobby || L('（略過）', '(skipped)'), data.raw.worry || L('（略過）', '(skipped)')];
       sumList.textContent = '';
       vals.forEach((v, i) => {
         const row = document.createElement('div'); row.className = 'row';
@@ -2647,7 +2793,7 @@ function petSVG(i, opt = {}) {
         const b = document.createElement('b'); b.textContent = LABELS[i];
         const sp = document.createElement('span'); sp.className = 'v'; sp.textContent = v;
         box.appendChild(b); box.appendChild(sp);
-        const edit = document.createElement('button'); edit.type = 'button'; edit.className = 'linkbtn'; edit.textContent = '修改';
+        const edit = document.createElement('button'); edit.type = 'button'; edit.className = 'linkbtn'; edit.textContent = L('修改', 'Edit');
         edit.addEventListener('click', () => { editing = true; step = i; render(); });
         row.appendChild(box); row.appendChild(edit);
         sumList.appendChild(row);
@@ -2687,8 +2833,8 @@ function petSVG(i, opt = {}) {
     }
 
     function showResult(r) {
-      resTitle.textContent = `${data.name}，給你的一段話`;
-      resMock.textContent = r.mock ? '（目前是示範回應，尚未串接 AI）' : '';
+      resTitle.textContent = L(`${data.name}，給你的一段話`, `${data.name}, a few words for you`);
+      resMock.textContent = r.mock ? L('（目前是示範回應，尚未串接 AI）', '(This is a demo reply — AI isn’t connected yet)') : '';
       resBody.textContent = '';
       bRetry.hidden = true;
       const paras = r.reply.split(/\n{2,}|\n/).map(x => x.trim()).filter(Boolean);
@@ -2700,10 +2846,10 @@ function petSVG(i, opt = {}) {
     }
 
     function showError() {
-      resTitle.textContent = '訊號有點弱';
+      resTitle.textContent = L('訊號有點弱', 'The signal is a little weak');
       resMock.textContent = '';
       resBody.textContent = '';
-      const p = document.createElement('p'); p.textContent = '暫時沒有連上宇宙，請稍後再試一次。'; resBody.appendChild(p);
+      const p = document.createElement('p'); p.textContent = L('暫時沒有連上宇宙，請稍後再試一次。', 'Couldn’t reach the universe just now. Please try again in a moment.'); resBody.appendChild(p);
       setTimeout(() => p.classList.add('in'), 300);
       bRetry.hidden = false;
       show('res');
@@ -2744,7 +2890,7 @@ function petSVG(i, opt = {}) {
       nebula: .2, starSpeed: .015, starAlpha: .8, dust: .3, extra: 1, orb: 0 });
     planets.forEach(p => { p.light = 0; });
     setState('talk');
-    leaveBtn.textContent = '回首頁';
+    leaveBtn.textContent = L('回首頁', 'Home');
     Sound.mood('talk');
     tw(P, 'fade', 0, 3); tw(P, 'galaxy', .3, 5); tw(P, 'nebula', .5, 6);
     await sleep(1.8);
@@ -2796,13 +2942,31 @@ function petSVG(i, opt = {}) {
       const p = sparks[i]; p.age += dt;
       if (p.age >= p.life) { sparks.splice(i, 1); continue; }
       p.vy += p.g * dt; p.x += p.vx * dt; p.y += p.vy * dt;
-      const a = 1 - p.age / p.life;
-      ctx.fillStyle = `rgba(${p.c},${(a * .9).toFixed(3)})`;
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.s * (.5 + a * .5), 0, TAU); ctx.fill();
+      const a = 1 - p.age / p.life, tw2 = .65 + .35 * Math.sin(p.age * 14 + p.s * 5);
+      const fs = p.s * (3.2 + a * 3.2) * tw2;
+      ctx.globalAlpha = clamp(a * .95);
+      ctx.drawImage(flareSpr(p.c), p.x - fs, p.y - fs, fs * 2, fs * 2);
+      ctx.fillStyle = `rgba(${p.c},1)`;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.s * .45 * (.4 + a * .6), 0, TAU); ctx.fill();
     }
     ctx.restore();
   }
   const SPARK_COLS = ['255,236,190', '255,200,235', '190,220,255', '215,190,255', '255,255,255'];
+
+  /* ---------- 指尖星塵：手指或滑鼠移動時，留下一小串慢慢消失的星光 ---------- */
+  const TRAIL_STATES = ['idle', 'act1', 'act2', 'act3', 'act4', 'act5', 'act6', 'talk', 'gift', 'origin', 'quiz', 'result'];
+  let trailAt = 0;
+  if (!reduce) {
+    window.addEventListener('pointermove', e => {
+      if (!TRAIL_STATES.includes(state)) return;
+      const now = performance.now(); if (now - trailAt < 34) return; trailAt = now;
+      emit(e.clientX, e.clientY, 1, SPARK_COLS, { speed: 22, up: 10, life: 1.1, size: 1.15 });
+    }, { passive: true });
+    window.addEventListener('pointerdown', e => {
+      if (!TRAIL_STATES.includes(state)) return;
+      emit(e.clientX, e.clientY, 9, SPARK_COLS, { speed: 70, up: 14, life: .8, size: .75 });
+    }, { passive: true });
+  }
 
   /* ================================================================
      起源動畫《你的宇宙寵物從哪裡來？》的畫布場景
@@ -2893,7 +3057,7 @@ function petSVG(i, opt = {}) {
       ctx.fillStyle = pg; ctx.beginPath(); ctx.arc(x, y + s * .38, s * .2, 0, TAU); ctx.fill(); ctx.restore();
       drawPet(i, x, y, s, { alpha: a, rot: Math.sin(time * 3 + i) * .05 });
       ctx.save(); ctx.globalAlpha = a * .85; ctx.fillStyle = '#f3eefc'; ctx.textAlign = 'center';
-      ctx.font = '300 14px "Noto Serif TC", serif'; ctx.fillText(`${PETS[i].zh}　${PETS[i].en}`, x, y + s * .56); ctx.restore();
+      ctx.font = '300 14px "Noto Serif TC", serif'; ctx.fillText(L(`${PETS[i].zh}　${PETS[i].en}`, PETS[i].en), x, y + s * .56); ctx.restore();
       if (Math.random() < .5) emit(x + s * .3, y, 1, [al.join(',')], { dir: 0, spread: .8, speed: 60, life: .8 });
     }
   }
@@ -3133,14 +3297,14 @@ function petSVG(i, opt = {}) {
       setPhase('wrap');
       gPet.innerHTML = petSVG(idx, { uid: 'g' });
       gGlyph.textContent = pet.glyph + '\uFE0E';
-      gSignTxt.textContent = `${pet.sign} ${pet.zh}`;
+      gSignTxt.textContent = L(`${pet.sign} ${pet.zh}`, pet.sign);
       gSign.classList.remove('on');
-      gEn.textContent = pet.en; gName.textContent = pet.name; gWords.textContent = pet.words.join('　·　');
+      gEn.textContent = pet.en; gName.textContent = pet.name; gWords.textContent = pet.words.join(L('　·　', '  ·  '));
       gCap.style.opacity = 1; gSub.style.opacity = 1;
-      gCap.textContent = '宇宙為你準備了一份禮物';
-      gSub.textContent = '輕觸，打開它';
+      gCap.textContent = L('宇宙為你準備了一份禮物', 'The universe has a gift for you');
+      gSub.textContent = L('輕觸，打開它', 'Tap to open it');
       petIn.value = ''; petErr.textContent = '';
-      petDefault.textContent = `用牠本來的名字「${pet.en}」`;
+      petDefault.textContent = L(`用牠本來的名字「${pet.en}」`, `Use its original name “${pet.en}”`);
       Object.assign(P, { nebula: .7, starAlpha: .9, starSpeed: .02, galaxy: 0, dust: .3, extra: 1, fade: 0, orb: 0 });
     }
 
@@ -3163,13 +3327,13 @@ function petSVG(i, opt = {}) {
         tw(P, 'nebula', 1, 3);
         await sleep(.9);
         setPhase('reveal');
-        swap(gCap, '牠來了。');
-        swap(gSub, '牠沒有嘴巴，只用眼睛和光芒說話。');
+        swap(gCap, L('牠來了。', 'Here it comes.'));
+        swap(gSub, L('牠沒有嘴巴，只用眼睛和光芒說話。', 'It has no mouth — it speaks only with its eyes and light.'));
         gSign.classList.add('on');
         emit(c.x, c.y, 60, SPARK_COLS, { speed: 140, life: 1.6 });
         await sleep(1.35);
         setPhase('name');
-        swap(gCap, '幫牠取個名字吧');
+        swap(gCap, L('幫牠取個名字吧', 'Give it a name'));
         swap(gSub, '');
       } catch (e) { if (!(e instanceof Cancel)) throw e; }
     }
@@ -3185,9 +3349,9 @@ function petSVG(i, opt = {}) {
       petErr.textContent = '';
       Voice.start({
         lang: CONFIG.LANG, continuous: false,
-        onText: t => { petIn.value = t.replace(/[。.!！,，、\s]+$/, '').replace(/^(就叫做|就叫|叫牠|叫他|叫它|牠叫|它叫|名字是|叫做|叫)/, '').slice(0, 12); },
+        onText: t => { petIn.value = t.replace(/[。.!！,，、\s]+$/, '').replace(/^(就叫做|就叫|叫牠|叫他|叫它|牠叫|它叫|名字是|叫做|叫)/, '').replace(/^(let'?s call (it|him|her)|call (it|him|her)|name (it|him|her)|its name is|it's called)\s+/i, '').slice(0, 12); },
         onState: on => { petMic.classList.toggle('live', on); Sound.duck(on); },
-        onError: code => { petErr.textContent = code === 'not-allowed' ? '需要允許麥克風，也可以直接打字。' : '語音暫時無法使用，請直接打字。'; }
+        onError: code => { petErr.textContent = code === 'not-allowed' ? L('需要允許麥克風，也可以直接打字。', 'Microphone permission is needed — you can also type.') : L('語音暫時無法使用，請直接打字。', 'Voice input isn’t available right now — please type instead.'); }
       });
     });
 
@@ -3195,10 +3359,10 @@ function petSVG(i, opt = {}) {
       if (phase !== 'name') return;
       Voice.stop();
       const name = petIn.value.trim().slice(0, 12);
-      if (!name) { petErr.textContent = '給牠一個名字吧，也可以用牠本來的名字。'; return; }
+      if (!name) { petErr.textContent = L('給牠一個名字吧，也可以用牠本來的名字。', 'Give it a name — or use its original name.'); return; }
       App.petName = name;
       gPetName.textContent = name;
-      gAsk.textContent = `你知道，${name}來自哪裡嗎？`;
+      gAsk.textContent = L(`你知道，${name}來自哪裡嗎？`, `Do you know where ${name} comes from?`);
       swap(gCap, ''); swap(gSub, '');
       setPhase('hello');
       Sound.chime();
@@ -3245,15 +3409,15 @@ function petSVG(i, opt = {}) {
         tw(P, 'starAlpha', .95, 4); tw(P, 'nebula', .75, 6); tw(P, 'fade', 0, 4.5); tw(P, 'starSpeed', -.1, 3);
         await sleep(1.4);
         tw(O, 'lit', 0, 3);
-        await flashLine(['你知道，', `${pn}來自哪裡嗎？`], .8);
+        await flashLine(L(['你知道，', `${pn}來自哪裡嗎？`], ['Do you know', `where ${pn} comes from?`]), .8);
         tw(P, 'starSpeed', .02, 2);
-        await flashLine(['牠們其實來自一個……', '很遠、很遠的地方。'], 1.2);
+        await flashLine(L(['牠們其實來自一個……', '很遠、很遠的地方。'], ['They actually come from…', 'a place far, far away.']), 1.2);
 
         /* B　往宇宙深處飛，遠方出現十二顆星球圍成的星系 */
         tw(O, 'flight', 1, 3); tw(P, 'starSpeed', .45, 3); tw(O, 'sysA', 1, 2.5); tw(O, 'sys', 1, 9);
         await sleep(2);
-        await flashLine(['在我們看不見的宇宙深處，', '藏著一座小小的星系。'], 1.2);
-        await flashLine(['那裡，住著十二種神秘的生命。'], 1.2);
+        await flashLine(L(['在我們看不見的宇宙深處，', '藏著一座小小的星系。'], ['Deep in the universe, beyond what we can see,', 'hides a tiny galaxy.']), 1.2);
+        await flashLine(L(['那裡，住著十二種神秘的生命。'], ['Twelve mysterious beings live there.']), 1.2);
 
         /* C　十二隻宇宙寵物（音樂變可愛，快速經過十二顆星球）*/
         Sound.mood('cute');
@@ -3261,45 +3425,45 @@ function petSVG(i, opt = {}) {
         O.sweep = 0;
         tw(O, 'sweep', 10.5, 10.5, t => t);
         await sleep(8.6);
-        buildCaption(['牠們沒有語言。'], 0);
+        buildCaption(L(['牠們沒有語言。'], ['They have no language.']), 0);
         await sleep(2);
         tw(O, 'grid', 1, 3);
         await sleep(1.2);
         hideCaption(); await sleep(.6);
-        await flashLine(['卻能感受到，', '宇宙中每一顆心的聲音。'], 1);
+        await flashLine(L(['卻能感受到，', '宇宙中每一顆心的聲音。'], ['Yet they can feel', 'the voice of every heart in the universe.']), 1);
         O.sweep = -1; tw(P, 'starSpeed', .03, 2);
 
         /* D　每一隻都不一樣 */
         await sleep(.4);
         const hi = async (ids, dur) => { ids.forEach(i => tw(O.hi, i, 1, .5)); await sleep(dur); ids.forEach(i => tw(O.hi, i, 0, .7)); };
-        const lines = [['有些勇敢。', [0, 4, 8]], ['有些敏感。', [3, 7, 11]], ['有些喜歡探索。', [2, 8, 10]], ['有些喜歡安靜。', [1, 6, 9]], ['有些總是在照顧別人。', [5, 11, 3]]];
+        const lines = [[L('有些勇敢。', 'Some are brave.'), [0, 4, 8]], [L('有些敏感。', 'Some are sensitive.'), [3, 7, 11]], [L('有些喜歡探索。', 'Some love to explore.'), [2, 8, 10]], [L('有些喜歡安靜。', 'Some love quiet.'), [1, 6, 9]], [L('有些總是在照顧別人。', 'Some are always caring for others.'), [5, 11, 3]]];
         for (const [txt, ids] of lines) {
           buildCaption([txt], 0);
           await hi(ids, 1.8);
           hideCaption(); await sleep(.5);
         }
         await sleep(.6);
-        await flashLine(['就像我們一樣。'], 1.2);
+        await flashLine(L(['就像我們一樣。'], ['Just like us.']), 1.2);
 
         /* E　牠們正在尋找一個人 */
         Sound.mood('origin');
         tw(O, 'still', 1, 2); tw(O, 'beam', 1, 4.5); tw(O, 'hue', 1, 9); tw(O, 'come', 1, 5);
         await sleep(1.2);
-        await flashLine(['每當一個人的內心，', '產生屬於自己的光……'], 1);
+        await flashLine(L(['每當一個人的內心，', '產生屬於自己的光……'], ['Whenever someone’s heart', 'begins to glow with its own light…']), 1);
         tw(O, 'shapes', 1, 2);
-        await flashLine(['牠們就會感受到。'], 1.2);
+        await flashLine(L(['牠們就會感受到。'], ['they can feel it.']), 1.2);
 
         /* F　原來是「你的內在」：五種能量 */
         tw(O, 'gdim', 1, 2); tw(O, 'beamA', 0, 2);
         // 五種能量：向外擴散、整齊軌道、快速跳動、溫柔連結、水波起伏
-        const labels = ['你看世界的方式。', '你做事情的方式。', '你對新事物的好奇。', '你與別人相處的方式。', '你面對情緒的方式。'];
+        const labels = L(['你看世界的方式。', '你做事情的方式。', '你對新事物的好奇。', '你與別人相處的方式。', '你面對情緒的方式。'], ['The way you see the world.', 'The way you do things.', 'Your curiosity about new things.', 'The way you are with others.', 'The way you meet your feelings.']);
         for (let k = 0; k < 5; k++) {
           tw(O.e, k, 1, 1.2);
           Sound.note([523.25, 587.33, 659.25, 783.99, 880][k], { dur: 2.4, gain: .09 });
           await flashLine([labels[k]], .5);
         }
         tw(O, 'merge', 1, 2.5);
-        await flashLine(['都會形成只屬於你的訊號。'], 1.6);
+        await flashLine(L(['都會形成只屬於你的訊號。'], ['all form a signal that belongs only to you.']), 1.6);
 
         /* G　寵物選擇你 */
         tw(O, 'merge', 0, 2); O.e.forEach((_, k) => tw(O.e, k, 0, 1.6));
@@ -3310,12 +3474,12 @@ function petSVG(i, opt = {}) {
         await sleep(1.4);
         tw(O, 'dim', 0, 2.5); tw(P, 'starSpeed', .6, 2.5);
         tw(O, 'fly', 1, 5, t => t);
-        buildCaption(['所以——'], 0);
+        buildCaption(L(['所以——'], ['So—']), 0);
         await sleep(2.2);
         hideCaption(); await sleep(.6);
-        await flashLine(['不是你選擇了牠。'], .6);
+        await flashLine(L(['不是你選擇了牠。'], ['You didn’t choose it.']), .6);
         await sleep(.8);
-        buildCaption(['是牠在宇宙裡，', '認出了你。'], 1.2);
+        buildCaption(L(['是牠在宇宙裡，', '認出了你。'], ['It found you', 'somewhere in the universe.']), 1.2);
         await sleep(3.4);
         hideCaption(); tw(P, 'starSpeed', .03, 2);
         await sleep(.8);
@@ -3327,10 +3491,10 @@ function petSVG(i, opt = {}) {
         Sound.chime(); emit(CX, CY, 70, SPARK_COLS, { speed: 220, life: 1.4 });
         [0, .25, .5].forEach(d => setTimeout(() => addRipple(CX, CY), d * 1000));
         tw(O, 'flash', .5, .25); setTimeout(() => tw(O, 'flash', 0, 1.6), 260);
-        buildCaption([{ text: '叮 ✦', cls: 'en' }], 0, 'mid');
+        buildCaption([{ text: L('叮 ✦', 'Ding ✦'), cls: 'en' }], 0, 'mid');
         await sleep(2.2);
         hideCaption(); await sleep(.6);
-        await flashLine(['但在牠找到你以前……', '牠需要先知道——'], 1.2);
+        await flashLine(L(['但在牠找到你以前……', '牠需要先知道——'], ['But before it can find you…', 'it needs to know—']), 1.2);
         tw(O, 'arm', 0, 1.2);
         await tw(P, 'fade', 1, 2.4);
 
@@ -3377,64 +3541,64 @@ function petSVG(i, opt = {}) {
      Big Five 十題（BFI-10 題型：每個面向 2 題，其中 1 題反向計分）
      ================================================================ */
   const BIG5 = [
-    { t: '我是個內向、話不多的人。', k: 'E', rev: true },
-    { t: '我通常願意相信別人。', k: 'A' },
-    { t: '我有時會偷懶，不太想動。', k: 'C', rev: true },
-    { t: '我能放鬆，面對壓力也不太慌。', k: 'N', rev: true },
-    { t: '我對藝術與美感沒什麼興趣。', k: 'O', rev: true },
-    { t: '我外向，喜歡和人相處。', k: 'E' },
-    { t: '我常常會挑別人的毛病。', k: 'A', rev: true },
-    { t: '我做事認真，會把事情做完整。', k: 'C' },
-    { t: '我容易緊張、不安。', k: 'N' },
-    { t: '我的想像力很豐富。', k: 'O' }
+    { t: L('我是個內向、話不多的人。', 'I’m reserved and don’t talk much.'), k: 'E', rev: true },
+    { t: L('我通常願意相信別人。', 'I generally trust other people.'), k: 'A' },
+    { t: L('我有時會偷懶，不太想動。', 'I can be a bit lazy sometimes.'), k: 'C', rev: true },
+    { t: L('我能放鬆，面對壓力也不太慌。', 'I’m relaxed and handle stress well.'), k: 'N', rev: true },
+    { t: L('我對藝術與美感沒什麼興趣。', 'I’m not very interested in art or beauty.'), k: 'O', rev: true },
+    { t: L('我外向，喜歡和人相處。', 'I’m outgoing and enjoy being with people.'), k: 'E' },
+    { t: L('我常常會挑別人的毛病。', 'I tend to find fault with others.'), k: 'A', rev: true },
+    { t: L('我做事認真，會把事情做完整。', 'I’m thorough and see things through.'), k: 'C' },
+    { t: L('我容易緊張、不安。', 'I get nervous and uneasy easily.'), k: 'N' },
+    { t: L('我的想像力很豐富。', 'I have a vivid imagination.'), k: 'O' }
   ];
-  const B5_LABEL = { E: '外向', A: '親和', C: '盡責', N: '情緒起伏', O: '開放' };
+  const B5_LABEL = L({ E: '外向', A: '親和', C: '盡責', N: '情緒起伏', O: '開放' }, { E: 'Outgoing', A: 'Warmth', C: 'Diligence', N: 'Sensitivity', O: 'Openness' });
   const B5_COLOR = { E: '#ffe29a', A: '#d6b4ff', C: '#8fe6ff', N: '#8fb8ff', O: '#ffb0d2' };
-  const LIKERT = ['完全不像我', '不太像我', '普通', '有點像我', '非常像我'];
+  const LIKERT = L(['完全不像我', '不太像我', '普通', '有點像我', '非常像我'], ['Not me at all', 'Not really me', 'Neutral', 'A bit like me', 'Very much me']);
 
   /* ================================================================
      結果頁：Big Five 人格 → 3D 模型（Tripo）→ 寵物 + AI 回應（OpenAI）
      ================================================================ */
   const TRAITS = {
-    E: { name: '外向性', en: 'Extraversion',
-      hi: { label: '閃耀外向型', tag: '愛發光、帶動氣氛的人', color: '#ffd27a',
-        desc: '你像一顆會發光的恆星，和人相處時能量特別足，很擅長讓氣氛變得溫暖。你在人群裡會被點亮，表達與行動都帶著熱度。',
-        praise: '你身上有一種讓人想靠近的光，跟你在一起，別人會不自覺地放鬆下來。這份溫度不是學來的，是你本來就有的天賦。' },
-      lo: { label: '安靜內斂型', tag: '在安靜裡充電的人', color: '#9fc6ff',
-        desc: '你像一顆安靜的行星，內在世界很豐富，習慣在獨處裡慢慢充電。你話不多，但每一句都有重量，也很擅長專注與觀察。',
-        praise: '你的安靜不是缺少什麼，而是把力氣留給真正重要的事。你看見的細節、說出口的話，往往比別人更深。' } },
-    A: { name: '親和性', en: 'Agreeableness',
-      hi: { label: '溫柔親和型', tag: '總是接住別人的人', color: '#ffb8d9',
-        desc: '你像一道柔軟的引力，總是自然地把人聚在一起。你願意相信、也願意體諒，身邊的人在你旁邊會覺得被接住。',
-        praise: '你的溫柔很有力量，讓人覺得被理解、被放在心上。也請記得，你同樣值得被這樣溫柔地對待。' },
-      lo: { label: '獨立直率型', tag: '想法清楚、敢說真話的人', color: '#ff9d8a',
-        desc: '你像一顆有自己軌道的星，想法清楚、說話直接。你不容易被人情左右，願意為了真實與公平說出自己的看法。',
-        praise: '你的坦率讓人很安心，因為大家知道你說的是真心話。有主見又不盲從，是很難得的品質。' } },
-    C: { name: '盡責性', en: 'Conscientiousness',
-      hi: { label: '踏實盡責型', tag: '說到做到的人', color: '#8fe6ff',
-        desc: '你像一座穩穩運行的星環，做事有條理、說到做到。別人在你身上能感到可靠，你的堅持會慢慢累積成力量。',
-        praise: '你認真對待每一件事，這份可靠讓身邊的人很踏實。你一步一步走出來的成果，真的值得為自己驕傲。' },
-      lo: { label: '自由隨興型', tag: '靈活自在的人', color: '#c9ff9f',
-        desc: '你像一顆順著氣流漂浮的彗星，不愛被框住，總能靈活應變。你重視當下的感受與彈性，替生活留下呼吸的空間。',
-        praise: '你懂得隨機應變，也知道生活不只有計畫表。你帶來的輕盈感，常常讓緊繃的人鬆一口氣。' } },
-    N: { name: '情緒敏感度', en: 'Neuroticism',
-      hi: { label: '細膩敏感型', tag: '感受特別豐富的人', color: '#a9b8ff',
-        desc: '你像一片很會感應的星雲，對情緒與氛圍特別敏銳。這份敏感讓你懂得體貼，也讓你的感受格外豐富；只是有時會比別人更累，需要被好好照顧。',
-        praise: '你的敏感是一種珍貴的天線，能接收到別人沒注意到的溫柔與細節。你不需要變得更堅硬，慢慢來，你已經做得很好。' },
-      lo: { label: '沉穩平靜型', tag: '遇事穩得住的人', color: '#9fe8d4',
-        desc: '你像一座平靜的星湖，遇到風浪也比較能穩住自己。你面對壓力時不太慌，往往成為身邊人安心的依靠。',
-        praise: '你有一種讓人安定的氣場，事情再亂，你都能先穩住自己。這份沉著，是別人很需要的力量。' } },
-    O: { name: '開放性', en: 'Openness',
-      hi: { label: '好奇開放型', tag: '愛探索與想像的人', color: '#e0a8ff',
-        desc: '你像一艘愛探索的星艦，對新事物、創意與想像總是很有興趣。你的腦袋裡有很多顏色，願意嘗試不一樣的可能。',
-        praise: '你的好奇心像一盞永遠不熄的燈，總能在平凡裡看見有趣的東西。你的想像力，是你最亮的光之一。' },
-      lo: { label: '務實穩健型', tag: '腳踏實地的人', color: '#ffd9a0',
-        desc: '你像一塊踏實的星岩，重視經驗與實際的做法。你不追逐花俏，卻能把事情做得穩、做得久。',
-        praise: '你踏實的做事方式，讓人很有安全感。不急著追逐新鮮，卻能把眼前的事做到最好，這是真正的實力。' } }
+    E: { name: L('外向性', 'Extraversion'), en: 'Extraversion',
+      hi: { label: L('閃耀外向型', 'Radiant Extravert'), tag: L('愛發光、帶動氣氛的人', 'someone who lights up the room'), color: '#ffd27a',
+        desc: L('你像一顆會發光的恆星，和人相處時能量特別足，很擅長讓氣氛變得溫暖。你在人群裡會被點亮，表達與行動都帶著熱度。', 'You’re like a shining star — your energy rises around people, and you naturally warm up any room. Crowds light you up, and your words and actions carry real warmth.'),
+        praise: L('你身上有一種讓人想靠近的光，跟你在一起，別人會不自覺地放鬆下來。這份溫度不是學來的，是你本來就有的天賦。', 'There’s a light in you that draws people close; around you, others relax without even noticing. That warmth isn’t learned — it’s a gift you were born with.') },
+      lo: { label: L('安靜內斂型', 'Quiet Introvert'), tag: L('在安靜裡充電的人', 'someone who recharges in stillness'), color: '#9fc6ff',
+        desc: L('你像一顆安靜的行星，內在世界很豐富，習慣在獨處裡慢慢充電。你話不多，但每一句都有重量，也很擅長專注與觀察。', 'You’re like a quiet planet with a rich inner world, recharging slowly in solitude. You don’t say much, but every word carries weight, and you’re great at focusing and observing.'),
+        praise: L('你的安靜不是缺少什麼，而是把力氣留給真正重要的事。你看見的細節、說出口的話，往往比別人更深。', 'Your quietness isn’t a lack of anything — it’s saving your energy for what truly matters. The details you notice and the words you choose often go deeper than most.') } },
+    A: { name: L('親和性', 'Agreeableness'), en: 'Agreeableness',
+      hi: { label: L('溫柔親和型', 'Gentle Harmonizer'), tag: L('總是接住別人的人', 'someone who is always there for others'), color: '#ffb8d9',
+        desc: L('你像一道柔軟的引力，總是自然地把人聚在一起。你願意相信、也願意體諒，身邊的人在你旁邊會覺得被接住。', 'You’re like a soft gravity that naturally brings people together. You’re willing to trust and to understand, and people feel held when they’re near you.'),
+        praise: L('你的溫柔很有力量，讓人覺得被理解、被放在心上。也請記得，你同樣值得被這樣溫柔地對待。', 'Your gentleness is powerful — it makes people feel understood and cared for. Please remember that you deserve to be treated just as gently.') },
+      lo: { label: L('獨立直率型', 'Independent Straight-Talker'), tag: L('想法清楚、敢說真話的人', 'someone clear-minded who speaks the truth'), color: '#ff9d8a',
+        desc: L('你像一顆有自己軌道的星，想法清楚、說話直接。你不容易被人情左右，願意為了真實與公平說出自己的看法。', 'You’re like a star with its own orbit — clear in your thinking and direct in your words. You’re not easily swayed, and you speak up for honesty and fairness.'),
+        praise: L('你的坦率讓人很安心，因為大家知道你說的是真心話。有主見又不盲從，是很難得的品質。', 'Your honesty puts people at ease, because they know you mean what you say. Having your own view without following blindly is a rare quality.') } },
+    C: { name: L('盡責性', 'Conscientiousness'), en: 'Conscientiousness',
+      hi: { label: L('踏實盡責型', 'Steady Achiever'), tag: L('說到做到的人', 'someone who keeps their word'), color: '#8fe6ff',
+        desc: L('你像一座穩穩運行的星環，做事有條理、說到做到。別人在你身上能感到可靠，你的堅持會慢慢累積成力量。', 'You’re like a steadily turning star ring — organized and true to your word. People feel they can rely on you, and your persistence slowly builds into strength.'),
+        praise: L('你認真對待每一件事，這份可靠讓身邊的人很踏實。你一步一步走出來的成果，真的值得為自己驕傲。', 'You take everything seriously, and that reliability steadies the people around you. What you’ve built step by step is truly worth being proud of.') },
+      lo: { label: L('自由隨興型', 'Free Spirit'), tag: L('靈活自在的人', 'someone flexible and easygoing'), color: '#c9ff9f',
+        desc: L('你像一顆順著氣流漂浮的彗星，不愛被框住，總能靈活應變。你重視當下的感受與彈性，替生活留下呼吸的空間。', 'You’re like a comet drifting on the currents — you don’t like being boxed in and you adapt easily. You value the present moment and flexibility, leaving room for life to breathe.'),
+        praise: L('你懂得隨機應變，也知道生活不只有計畫表。你帶來的輕盈感，常常讓緊繃的人鬆一口氣。', 'You know how to adapt, and that life is more than a schedule. The lightness you bring often helps tense people breathe out.') } },
+    N: { name: L('情緒敏感度', 'Emotional sensitivity'), en: 'Neuroticism',
+      hi: { label: L('細膩敏感型', 'Delicate Feeler'), tag: L('感受特別豐富的人', 'someone who feels everything deeply'), color: '#a9b8ff',
+        desc: L('你像一片很會感應的星雲，對情緒與氛圍特別敏銳。這份敏感讓你懂得體貼，也讓你的感受格外豐富；只是有時會比別人更累，需要被好好照顧。', 'You’re like a nebula that senses everything, especially attuned to emotions and atmosphere. This sensitivity makes you caring and your inner life rich — it also means you sometimes tire sooner and need gentle care.'),
+        praise: L('你的敏感是一種珍貴的天線，能接收到別人沒注意到的溫柔與細節。你不需要變得更堅硬，慢慢來，你已經做得很好。', 'Your sensitivity is a precious antenna, picking up kindness and details others miss. You don’t need to become harder. Take your time — you’re already doing so well.') },
+      lo: { label: L('沉穩平靜型', 'Calm Anchor'), tag: L('遇事穩得住的人', 'someone who stays steady when things get rough'), color: '#9fe8d4',
+        desc: L('你像一座平靜的星湖，遇到風浪也比較能穩住自己。你面對壓力時不太慌，往往成為身邊人安心的依靠。', 'You’re like a calm, starlit lake that stays steady even in storms. You don’t panic under pressure, and you often become the person others lean on.'),
+        praise: L('你有一種讓人安定的氣場，事情再亂，你都能先穩住自己。這份沉著，是別人很需要的力量。', 'You have a grounding presence — however messy things get, you steady yourself first. That composure is a strength others really need.') } },
+    O: { name: L('開放性', 'Openness'), en: 'Openness',
+      hi: { label: L('好奇開放型', 'Curious Explorer'), tag: L('愛探索與想像的人', 'someone who loves to explore and imagine'), color: '#e0a8ff',
+        desc: L('你像一艘愛探索的星艦，對新事物、創意與想像總是很有興趣。你的腦袋裡有很多顏色，願意嘗試不一樣的可能。', 'You’re like a starship that loves to explore, always drawn to new things, creativity and imagination. Your mind is full of colors, and you’re open to trying different possibilities.'),
+        praise: L('你的好奇心像一盞永遠不熄的燈，總能在平凡裡看見有趣的東西。你的想像力，是你最亮的光之一。', 'Your curiosity is a lamp that never goes out, finding wonder in ordinary things. Your imagination is one of your brightest lights.') },
+      lo: { label: L('務實穩健型', 'Grounded Realist'), tag: L('腳踏實地的人', 'someone with their feet on the ground'), color: '#ffd9a0',
+        desc: L('你像一塊踏實的星岩，重視經驗與實際的做法。你不追逐花俏，卻能把事情做得穩、做得久。', 'You’re like a solid star-rock, valuing experience and practical ways of doing things. You don’t chase flashy things, yet you do things steadily and for the long run.'),
+        praise: L('你踏實的做事方式，讓人很有安全感。不急著追逐新鮮，卻能把眼前的事做到最好，這是真正的實力。', 'Your grounded way of working makes people feel secure. Without rushing after novelty, you do what’s in front of you as well as it can be done — that’s real strength.') } }
   };
-  const BALANCE = { planet: '調和星', letter: '五', label: '均衡調音型', tag: '能在不同模式間切換的人', color: '#cfe0ff', key: 'BAL', dimName: '五種光很均衡', en: 'Balance',
-    desc: '你的五種光強弱很接近，像一首調得很均衡的樂曲。你能依情境在外向與安靜、認真與放鬆之間切換，彈性正是你的強項。',
-    praise: '你很會看情況調整自己，不會被單一模式綁住。這份彈性讓你能和各種人相處，也讓你在變動裡站得很穩。' };
+  const BALANCE = { planet: L('調和星', 'Harmony Star'), letter: L('五', '✦'), label: L('均衡調音型', 'Balanced Tuner'), tag: L('能在不同模式間切換的人', 'someone who switches modes with ease'), color: '#cfe0ff', key: 'BAL', dimName: L('五種光很均衡', 'all five lights in balance'), en: 'Balance',
+    desc: L('你的五種光強弱很接近，像一首調得很均衡的樂曲。你能依情境在外向與安靜、認真與放鬆之間切換，彈性正是你的強項。', 'Your five lights are close in strength, like a beautifully balanced piece of music. You can move between outgoing and quiet, serious and relaxed as the moment needs — flexibility is your strength.'),
+    praise: L('你很會看情況調整自己，不會被單一模式綁住。這份彈性讓你能和各種人相處，也讓你在變動裡站得很穩。', 'You’re great at reading a situation and adjusting, never stuck in a single mode. That flexibility lets you get along with all kinds of people and stay steady through change.') };
   const B5_ORDER = ['O', 'E', 'A', 'C', 'N'];
 
   function pickType(score) {
@@ -3443,7 +3607,7 @@ function petSVG(i, opt = {}) {
     if (best.dev < .5) return Object.assign({}, BALANCE, { level: '' });
     const hi = score[best.k] >= 3, t = TRAITS[best.k], v = hi ? t.hi : t.lo;
     const key = best.k + (hi ? '_hi' : '_lo');
-    return Object.assign({ key, dimName: `${t.en} ${t.name}`, level: hi ? '偏高' : '偏低' }, v, PLANET_NAMES[key]);
+    return Object.assign({ key, dimName: EN ? t.en : `${t.en} ${t.name}`, level: hi ? L('偏高', 'high') : L('偏低', 'low') }, v, PLANET_NAMES[key]);
   }
 
   /* 備用的 3D 水晶（沒有模型時、或模型還在生成時顯示）*/
@@ -3451,11 +3615,11 @@ function petSVG(i, opt = {}) {
      人格星球（備用 2D 星球：沒有 Tripo 模型時顯示，也用在後面的銀河）
      ================================================================ */
   const PLANET_NAMES = {
-    E_hi: { planet: '耀光星', letter: 'E' }, E_lo: { planet: '靜月星', letter: 'E' },
-    A_hi: { planet: '暖心星', letter: 'A' }, A_lo: { planet: '直言星', letter: 'A' },
-    C_hi: { planet: '軌道星', letter: 'C' }, C_lo: { planet: '流雲星', letter: 'C' },
-    N_hi: { planet: '靈潮星', letter: 'N' }, N_lo: { planet: '靜湖星', letter: 'N' },
-    O_hi: { planet: '奇想星', letter: 'O' }, O_lo: { planet: '磐石星', letter: 'O' }
+    E_hi: { planet: L('耀光星', 'Radiant Star'), letter: 'E' }, E_lo: { planet: L('靜月星', 'Quiet Moon'), letter: 'E' },
+    A_hi: { planet: L('暖心星', 'Warmheart Star'), letter: 'A' }, A_lo: { planet: L('直言星', 'Candid Star'), letter: 'A' },
+    C_hi: { planet: L('軌道星', 'Orbit Star'), letter: 'C' }, C_lo: { planet: L('流雲星', 'Drifting Cloud Star'), letter: 'C' },
+    N_hi: { planet: L('靈潮星', 'Spirit Tide Star'), letter: 'N' }, N_lo: { planet: L('靜湖星', 'Still Lake Star'), letter: 'N' },
+    O_hi: { planet: L('奇想星', 'Wonder Star'), letter: 'O' }, O_lo: { planet: L('磐石星', 'Bedrock Star'), letter: 'O' }
   };
   const PSTYLE = {
     E_hi: { c: [255, 232, 150], m: [255, 172, 84], d: [128, 52, 40], bands: 6, bc: [255, 248, 205], glow: [255, 205, 100], spots: 2, sc: [255, 122, 62] },
@@ -3565,7 +3729,7 @@ function petSVG(i, opt = {}) {
       if (my !== token) return;
       if (viewer) viewer.remove();
       viewer = document.createElement('model-viewer');
-      viewer.setAttribute('alt', '依你的人格生成的 3D 星球');
+      viewer.setAttribute('alt', L('依你的人格生成的 3D 星球', 'A 3D planet generated from your personality'));
       ['auto-rotate', 'camera-controls', 'disable-zoom'].forEach(a => viewer.setAttribute(a, ''));
       viewer.setAttribute('shadow-intensity', '0'); viewer.setAttribute('exposure', '1.15');
       viewer.setAttribute('interaction-prompt', 'none'); viewer.setAttribute('camera-orbit', '30deg 78deg auto');
@@ -3581,41 +3745,41 @@ function petSVG(i, opt = {}) {
     }
 
     async function runModel(key, my) {
-      if (CONFIG.STATIC_MODELS) { status.textContent = '載入你的專屬星球…'; return showModel(`${CONFIG.STATIC_MODELS.replace(/\/?$/, '/')}${key}.glb`, my); }
+      if (CONFIG.STATIC_MODELS) { status.textContent = L('載入你的專屬星球…', 'Loading your planet…'); return showModel(`${CONFIG.STATIC_MODELS.replace(/\/?$/, '/')}${key}.glb`, my); }
       if (!CONFIG.MODEL_ENDPOINT) { status.textContent = ''; return; }
       const base = CONFIG.MODEL_ENDPOINT.replace(/\/$/, '');
       try {
-        status.textContent = '宇宙正在為你雕刻專屬的星球…';
-        const { taskId } = await jfetch(`${base}?action=modelStart`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ trait: key, zodiac: (App.user && App.user.birthday && App.user.birthday.zodiac) || '', rising: (App.user && App.user.rising) || '', big5: App.big5 || {} }) });
+        status.textContent = L('宇宙正在為你雕刻專屬的星球…', 'The universe is sculpting your planet…');
+        const { taskId } = await apiPost(`${base}?action=modelStart`, { trait: key, zodiac: (App.user && App.user.birthday && App.user.birthday.zodiac) || '', rising: (App.user && App.user.rising) || '', big5: App.big5 || {} }, 30000);
         if (!taskId) throw new Error('no task');
         const t0 = Date.now();
         while (my === token && Date.now() - t0 < 240000) {
           await wait(2500);
           if (my !== token) return;
           const s = await jfetch(`${base}?action=modelStatus&id=${encodeURIComponent(taskId)}`);
-          if (s.status === 'success' && s.modelUrl) { status.textContent = '星球完成了，正在載入…'; return showModel(s.modelUrl, my); }
+          if (s.status === 'success' && s.modelUrl) { status.textContent = L('星球完成了，正在載入…', 'Your planet is ready — loading…'); return showModel(s.modelUrl, my); }
           if (['failed', 'cancelled', 'banned', 'expired', 'unknown'].includes(s.status)) throw new Error('task ' + s.status);
-          status.textContent = `宇宙正在為你雕刻專屬的星球… ${Math.max(0, Math.min(99, Math.round(s.progress || 0)))}%`;
+          status.textContent = `${L('宇宙正在為你雕刻專屬的星球…', 'The universe is sculpting your planet…')} ${Math.max(0, Math.min(99, Math.round(s.progress || 0)))}%`;
         }
         throw new Error('timeout');
       } catch (e) {
         console.error('model:', e);
-        if (my === token) { status.textContent = '專屬星球還在路上，先陪你看這顆小星球。'; setTimeout(() => { if (my === token) status.textContent = ''; }, 6000); }
+        if (my === token) { status.textContent = L('專屬星球還在路上，先陪你看這顆小星球。', 'Your planet is still on its way — here’s a little one to keep you company.'); setTimeout(() => { if (my === token) status.textContent = ''; }, 6000); }
       }
     }
 
     function fillReply(text, name, label, isMock, my) {
-      head.textContent = /^原來/.test(text.trim()) ? '' : `原來${name}，你是${label}的人。`;
+      head.textContent = /^(原來|So this is you)/.test(text.trim()) ? '' : L(`原來${name}，你是${label}的人。`, `So this is you, ${name}: ${label}.`);
       reply.textContent = '';
       const paras = text.split(/\n{2,}|\n/).map(x => x.trim()).filter(Boolean);
       paras.forEach((t, i) => { const p = document.createElement('p'); p.textContent = t; reply.appendChild(p); setTimeout(() => { if (my === token) p.classList.add('in'); }, 400 + i * 1300); });
-      mock.textContent = isMock ? '（目前是示範回應，尚未串接 OpenAI）' : '';
+      mock.textContent = isMock ? L('（目前是示範回應，尚未串接 OpenAI）', '(This is a demo reply — OpenAI isn’t connected yet)') : '';
       retry.hidden = true;
     }
 
     async function runAI(my) {
       const { name, type, score } = cur;
-      head.textContent = `原來${name}，你是${type.label}的人。`;
+      head.textContent = L(`原來${name}，你是${type.label}的人。`, `So this is you, ${name}: ${type.label}.`);
       reply.textContent = ''; mock.textContent = ''; retry.hidden = true;
       const w = document.createElement('div'); w.className = 'rs-wait'; w.innerHTML = '<i></i><i></i><i></i>'; reply.appendChild(w);
       const pet = PETS[App.petIdx];
@@ -3626,20 +3790,20 @@ function petSVG(i, opt = {}) {
       });
       try {
         let r;
-        if (!CONFIG.INTERPRET_ENDPOINT) { await wait(2200); r = { reply: `${name}，${type.praise}\n\n${App.petName || pet.en}一直在旁邊看著你，也一定感覺到了：你本來就很好。`, mock: true }; }
+        if (!CONFIG.INTERPRET_ENDPOINT) { await wait(2200); r = { reply: L(`${name}，${type.praise}\n\n${App.petName || pet.en}一直在旁邊看著你，也一定感覺到了：你本來就很好。`, `${name}, ${type.praise}\n\n${App.petName || pet.en} has been right beside you the whole time, and surely felt it too: you were always enough.`), mock: true }; }
         else r = await interpret(payload);
         if (my !== token) return;
         fillReply(r.reply, name, type.label, r.mock, my);
       } catch (e) {
         console.error('interpret:', e);
         if (my !== token) return;
-        reply.textContent = ''; const p = document.createElement('p'); p.textContent = '暫時沒有連上宇宙，請稍後再試一次。'; p.className = 'in'; reply.appendChild(p);
+        reply.textContent = ''; const p = document.createElement('p'); p.textContent = L('暫時沒有連上宇宙，請稍後再試一次。', 'Couldn’t reach the universe just now. Please try again in a moment.'); p.className = 'in'; reply.appendChild(p);
         retry.hidden = false;
       }
     }
 
     function start(score) {
-      const my = ++token, name = (App.user && App.user.name) || '你', type = pickType(score);
+      const my = ++token, name = (App.user && App.user.name) || L('你', 'friend'), type = pickType(score);
       cur = { name, type, score };
       App.type = type;
 
@@ -3691,7 +3855,7 @@ function petSVG(i, opt = {}) {
       petBox.innerHTML = petSVG(App.petIdx, { uid: 'r' });
       petNm.innerHTML = '';
       petNm.append(document.createTextNode(App.petName || pet.en));
-      const sm = document.createElement('small'); sm.textContent = `${pet.en} ${pet.name}　·　${pet.zh}`; petNm.appendChild(sm);
+      const sm = document.createElement('small'); sm.textContent = L(`${pet.en} ${pet.name}　·　${pet.zh}`, `${pet.name}  ·  ${zName(pet.zh)}`); petNm.appendChild(sm);
       status.textContent = '';
       Gem.start(type.key);
       Sound.mood('end');
@@ -4134,7 +4298,7 @@ function petSVG(i, opt = {}) {
       orbFace(bx, by, r, EMO[i].rgb, ['sad', 'anger', 'anx', 'lone'][i], FL.calm[i], t, a);
       if (FL.lab[i] > .01) {
         ctx.save(); ctx.globalAlpha = FL.lab[i] * a; ctx.textAlign = 'center'; ctx.fillStyle = rgba(mixc(EMO[i].rgb, 255, .65), 1);
-        ctx.font = '300 15px "Noto Serif TC", serif'; ctx.fillText(`${EMO[i].en}｜${EMO[i].zh}`, Math.max(84, Math.min(W - 84, bx)), by + r * 1.9 + 10); ctx.restore();
+        ctx.font = '300 15px "Noto Serif TC", serif'; ctx.fillText(L(`${EMO[i].en}｜${EMO[i].zh}`, EMO[i].en), Math.max(84, Math.min(W - 84, bx)), by + r * 1.9 + 10); ctx.restore();
       }
     }
     // 快樂
@@ -4194,7 +4358,7 @@ function petSVG(i, opt = {}) {
       Object.assign(FL, { heart: 1, hug: 1, uni: 1, orbit: 1, zoom: .74, px: 0, py: -.07, ps: .44, pa: 1, pclose: 0, mono: 0, world: 0, tint: 0, ja: 0, arm: 0 });
       FL.a.fill(0); FL.lab.fill(0);
       P.starAlpha = .95; P.nebula = .8; P.fade = 0;
-      buildCaption([{ text: 'Every feeling belongs.', cls: 'en' }, '每一種情緒，都有存在的位置。'], 1.2, 'final');
+      buildCaption([{ text: 'Every feeling belongs.', cls: 'en' }, ...L(['每一種情緒，都有存在的位置。'], [])], 1.2, 'final');
       skip.hidden = true;
       later(instant ? 2 : 4, () => endCard.classList.add('on'));
     }
@@ -4210,11 +4374,11 @@ function petSVG(i, opt = {}) {
         /* 序：你看過情緒嗎？ */
         tw(FL, 'seed', 1, 2.2); await sleep(1.8);
         tw(P, 'starAlpha', .85, 5); tw(P, 'nebula', .55, 6);
-        buildCaption([{ text: '你看過情緒嗎？', cls: 'en' }], 0, 'mid'); await sleep(3.6); hideCaption(); await sleep(.7);
-        buildCaption([{ text: '牠們有顏色，', color: '#9fc0ff' }, { text: '有形狀，', color: '#ff9a8c' }, { text: '也有自己的聲音。', color: '#cfaaff' }], 1.1);
+        buildCaption([{ text: L('你看過情緒嗎？', 'Have you ever seen a feeling?'), cls: 'en' }], 0, 'mid'); await sleep(3.6); hideCaption(); await sleep(.7);
+        buildCaption([{ text: L('牠們有顏色，', 'They have colors,'), color: '#9fc0ff' }, { text: L('有形狀，', 'shapes,'), color: '#ff9a8c' }, { text: L('也有自己的聲音。', 'and voices of their own.'), color: '#cfaaff' }], 1.1);
         [[1.3, 0, 'sad'], [2.4, 1, 'ang'], [3.5, 2, 'anx']].forEach(([s, k, id]) => later(s, () => { burst(CX, CY, 34, EMO[k].rgb, 280); addRipple(CX, CY); Sound.ping(id); }));
         await sleep(5.6); hideCaption(); await sleep(.6);
-        await say(['我們先從，', '最受歡迎的那一個開始。'], .9);
+        await say(L(['我們先從，', '最受歡迎的那一個開始。'], ['Let’s start with', 'the most popular one.']), .9);
 
         /* 快樂世界 */
         Sound.mood('cute');
@@ -4226,7 +4390,7 @@ function petSVG(i, opt = {}) {
         tw(FL, 'px', .1, 1.4); await sleep(1.4); tw(FL, 'px', -.1, 1.8);
         tw(FL, 'jx', .0, 2); tw(FL, 'jy', .17, 2); tw(FL, 'js', .8, 2);
         await sleep(1);
-        await say(['如果每天都可以開開心心的，', '是不是就好了？'], 1.3);
+        await say(L(['如果每天都可以開開心心的，', '是不是就好了？'], ['If we could be happy every single day,', 'wouldn’t that be nice?']), 1.3);
 
         /* 不受歡迎的訪客 */
         tw(FL, 'px', 0, 1);
@@ -4239,7 +4403,7 @@ function petSVG(i, opt = {}) {
           await sleep(.8);
         }
         tw(FL, 'js', .7, 1); tw(FL, 'jy', .08, 1.2); tw(FL, 'jhide', 1, 1); await sleep(.6); FL.jfront = 0;
-        await say(['牠們不是怪物。', '只是小小的，不知所措。'], 1.1);
+        await say(L(['牠們不是怪物。', '只是小小的，不知所措。'], ['They aren’t monsters.', 'Just small, and a little lost.']), 1.1);
 
         /* 「我不要這些情緒」 */
         Sound.mood('lost');
@@ -4253,7 +4417,7 @@ function petSVG(i, opt = {}) {
           }
           tw(FL, 'px', 0, .6);
         };
-        await Promise.all([pushAll(), (async () => { await sleep(.4); await say(['我們總是想留下開心。', '然後把那些「不好」的感覺……', '藏得遠遠的。'], 1.5); })()]);
+        await Promise.all([pushAll(), (async () => { await sleep(.4); await say(L(['我們總是想留下開心。', '然後把那些「不好」的感覺……', '藏得遠遠的。'], ['We always want to keep the happy ones,', 'and push the “bad” feelings…', 'far, far away.']), 1.5); })()]);
 
         /* 只剩快樂的世界 */
         monoOn = true; monoTick();
@@ -4261,14 +4425,14 @@ function petSVG(i, opt = {}) {
         FL.jfront = 1; tw(FL, 'jhide', 0, .6); tw(FL, 'jscare', 0, .6); tw(FL, 'js', 1, 1); tw(FL, 'jx', .26, 1); tw(FL, 'jy', .16, 1);
         tw(FL, 'joyMove', 1, 1.4); await sleep(3.4);
         tw(FL, 'joyMove', 0, 1); FL.pclose = 1; await sleep(.5); FL.pclose = 0;
-        await say(['可是……', '如果只剩下快樂，', '我們真的還能感受到快樂嗎？'], 1.6);
+        await say(L(['可是……', '如果只剩下快樂，', '我們真的還能感受到快樂嗎？'], ['But…', 'if only happiness were left,', 'could we still really feel happy?']), 1.6);
         monoOn = false;
 
         /* 回頭 */
         tw(FL, 'mono', 0, 2.2); tw(FL, 'tint', .08, 3); tw(FL, 'world', 0, 2.8); tw(P, 'starAlpha', 1, 2); tw(P, 'nebula', .7, 3);
         tw(FL, 'px', -.2, 2.2); tw(FL, 'py', .3, 2.2); tw(FL, 'ps', .62, 2.2); tw(FL, 'jx', .24, 2.2); tw(FL, 'jy', .46, 2.2); tw(FL, 'js', .5, 2); tw(FL, 'jm', .12, 2);
         tw(P, 'starSpeed', .5, 2); burst(CX, CY, 60, [[255, 226, 150], [255, 255, 255]], 300);
-        await say(['牠決定回頭，', '去找那些被自己推走的光。'], 1);
+        await say(L(['牠決定回頭，', '去找那些被自己推走的光。'], ['It decided to turn back', 'and find the lights it had pushed away.']), 1);
         tw(P, 'starSpeed', .03, 2);
 
         /* 難過・陪坐 */
@@ -4279,7 +4443,7 @@ function petSVG(i, opt = {}) {
         await sleep(3.2); tw(FL, 'px', -.1, 2); tw(FL, 'py', .32, 2);
         later(1.5, () => { tw(FL.st, 0, 1, 3.5); tw(FL.calm, 0, 1, 4); tw(FL.m, 0, 1, 6); });
         Sound.mood('release');
-        await say(['難過，讓我們知道——', '有些事情，對我們真的很重要。'], 2.4);
+        await say(L(['難過，讓我們知道——', '有些事情，對我們真的很重要。'], ['Sadness tells us—', 'some things truly matter to us.']), 2.4);
         stash(0); tw(FL, 'px', -.2, 1.5);
 
         /* 生氣・伸手 */
@@ -4289,7 +4453,7 @@ function petSVG(i, opt = {}) {
         tw(FL, 'px', -.18, 1.8); tw(FL, 'ps', .62, 1.8); FL.ax = -.06; FL.ay = -.06; tw(FL, 'arm', 1, 2);
         await sleep(2.1); Sound.mood('release'); burst(CX + FL.x[1] * U, CY + FL.y[1] * U * flYS, 50, EMO[1].rgb, 220);
         go(1, { calm: 1, st: 1, m: .9 }, 3);
-        await say(['生氣，讓我們知道——', '有些界線，需要被保護。'], 1.8);
+        await say(L(['生氣，讓我們知道——', '有些界線，需要被保護。'], ['Anger tells us—', 'some boundaries need protecting.']), 1.8);
         tw(FL, 'arm', 0, .6); stash(1);
 
         /* 焦慮・跟著看 */
@@ -4299,7 +4463,7 @@ function petSVG(i, opt = {}) {
         await sleep(1.4); burst(CX + FL.x[2] * U, CY + FL.y[2] * U * flYS, 40, EMO[2].rgb, 240); Sound.chime();
         go(2, { calm: 1, st: 1, m: 1 }, 3.5); tw(FL, 'anxPath', 0, 2.5); tw(FL, 'danger', 0, 2.5); FL.look = 0;
         Sound.mood('release');
-        await say(['焦慮，有時候是在提醒我們——', '「這件事情，我真的很在意。」'], 1.8);
+        await say(L(['焦慮，有時候是在提醒我們——', '「這件事情，我真的很在意。」'], ['Anxiety sometimes reminds us—', '“I really care about this.”']), 1.8);
         stash(2);
 
         /* 孤單・等待 */
@@ -4309,7 +4473,7 @@ function petSVG(i, opt = {}) {
         await sleep(4.2); tw(FL, 'lonStar', 1, 5); Sound.ping('hop');
         later(3.5, () => { tw(FL.calm, 3, 1, 2.5); tw(FL.st, 3, 1, 2); tw(FL.m, 3, 1, 4); });
         Sound.mood('release');
-        await say(['孤單，讓我們知道——', '我們渴望被理解，也渴望連結。'], 2.4);
+        await say(L(['孤單，讓我們知道——', '我們渴望被理解，也渴望連結。'], ['Loneliness tells us—', 'we long to be understood and connected.']), 2.4);
         stash(3); tw(FL, 'lonStar', 0, 1.5);
 
         /* 真正的轉折 */
@@ -4319,28 +4483,28 @@ function petSVG(i, opt = {}) {
         for (let i = 0; i < 4; i++) go(i, { x: ORB5[i][0], y: ORB5[i][1], s: 1, m: .35, a: 1, st: 0 }, 2.5);
         tw(FL, 'jx', 0, 2.5); tw(FL, 'jy', -.18, 2.5); tw(FL, 'js', 1.1, 2.5); tw(FL, 'jm', .4, 2.5); tw(FL, 'jhide', 0, .5); tw(FL, 'tint', .2, 3);
         await sleep(2.5);
-        await say(['原來……', '沒有一種情緒，是來傷害我們的。'], 1.2);
+        await say(L(['原來……', '沒有一種情緒，是來傷害我們的。'], ['So…', 'no feeling is here to hurt us.']), 1.2);
         await sleep(.4);
-        await say(['它們只是用不同的方式告訴我們：', '「我有一些事情，想讓你知道。」'], 1.6);
+        await say(L(['它們只是用不同的方式告訴我們：', '「我有一些事情，想讓你知道。」'], ['They’re just telling us, in their own ways:', '“There’s something I want you to know.”']), 1.6);
         tw(FL, 'jm', 1, 2.5); tw(FL, 'js', 1.3, 2); burst(CX, CY - .18 * U * flYS, 60, JOY, 260); Sound.chime(1);
-        await say(['快樂也變得更亮了，', '因為，終於有了影子。'], 1.2);
+        await say(L(['快樂也變得更亮了，', '因為，終於有了影子。'], ['Happiness grew brighter too,', 'because it finally had a shadow.']), 1.2);
 
         /* 不是把黑暗變成光 */
         tw(FL, 'uni', 1, 4.5); tw(FL, 'orbit', 1, 5); tw(FL, 'tint', 0, 3);
         for (let i = 0; i < 4; i++) { tw(FL.a, i, 0, 2.5); tw(FL.m, i, 0, 2.5); }
         tw(FL, 'ja', 0, 2.5); tw(FL, 'jm', 0, 2.5); tw(FL, 'px', 0, 2); tw(FL, 'py', -.02, 2); tw(FL, 'ps', .42, 2);
         tw(P, 'starSpeed', -.12, 3); burst(CX, CY, 120, ALLC, 360); Sound.gift();
-        await say(['療癒，', '不是把所有「不好」的感覺變成快樂。', '而是讓每一種感受，', '都有被看見的位置。'], 1.4, '', .7);
+        await say(L(['療癒，', '不是把所有「不好」的感覺變成快樂。', '而是讓每一種感受，', '都有被看見的位置。'], ['Healing', 'isn’t turning every “bad” feeling into happiness.', 'It’s giving every feeling', 'a place to be seen.']), 1.4, '', .7);
 
         /* 完整的自己 */
         tw(FL, 'zoom', .72, 9); tw(P, 'starSpeed', .02, 3);
-        await say(['快樂的你，是你。', '難過的你，也是你。', '生氣、害怕、焦慮、孤單的你……', '也都是你。'], 1.4, '', .9);
+        await say(L(['快樂的你，是你。', '難過的你，也是你。', '生氣、害怕、焦慮、孤單的你……', '也都是你。'], ['The happy you is you.', 'The sad you is you, too.', 'The angry, scared, anxious, lonely you…', 'is all you.']), 1.4, '', .9);
 
         /* ENDING */
         tw(FL, 'heart', 1, 5); tw(FL, 'zoom', .74, 8); tw(FL, 'py', -.07, 4); Sound.mood('end');
         await sleep(3.4); tw(FL, 'hug', 1, 2.5);
-        await say(['好的情緒，值得被感受。'], 1.8, '', 0);
-        await say(['不好的情緒，也值得被看見。'], 1.8, '', 0);
+        await say(L(['好的情緒，值得被感受。'], ['Good feelings deserve to be felt.']), 1.8, '', 0);
+        await say(L(['不好的情緒，也值得被看見。'], ['Hard feelings deserve to be seen, too.']), 1.8, '', 0);
         showEnd(false);
       } catch (e) { if (!(e instanceof Cancel)) throw e; }
     }
@@ -4665,7 +4829,7 @@ function petSVG(i, opt = {}) {
   /* ================================================================
      療癒儀式：有煩惱（A）／沒煩惱（B）→ 共同結尾
      ================================================================ */
-  const RT_CARE_RE = /自殺|想死|不想活|不想再活|結束(自己的)?生命|輕生|傷害自己|自殘|活不下去|消失就好|尋短/;
+  const RT_CARE_RE = /自殺|想死|不想活|不想再活|結束(自己的)?生命|輕生|傷害自己|自殘|活不下去|消失就好|尋短|suicid|kill myself|end my life|self[- ]?harm|hurt myself|want to die|don'?t want to live/i;
   const Ritual = (() => {
     const hud = $('rtHud'), icon = $('rtIcon'), ins = $('rtIns'), sub = $('rtSub'), ok = $('rtOk'), pad = $('rtPad'), sw = $('rtSwitch'), skipBtn = $('rtSkip');
     const count = $('rtCount'), consent = $('rtConsent'), care = $('rtCare'), endB = $('rtEnd');
@@ -4674,7 +4838,7 @@ function petSVG(i, opt = {}) {
     const later = (sec, fn) => { sleep(sec).then(fn).catch(() => {}); };
     const say = async (lines, hold = 1.2, cls = '', stagger = .8) => { buildCaption(lines, stagger, cls); await sleep(1 + stagger * (lines.length - 1) + hold); hideCaption(); await sleep(.5); };
     const worryText = () => ((App.user && App.user.worry) || '').trim();
-    const hasWorry = () => { const w = worryText(); return w.length > 0 && !/^(沒有|沒|無|沒事|沒什麼|不用|不需要|沒煩惱|沒有煩惱|沒啥)[。！!，,\s]*$/.test(w); };
+    const hasWorry = () => { const w = worryText(); return w.length > 0 && !/^(沒有|沒|無|沒事|沒什麼|不用|不需要|沒煩惱|沒有煩惱|沒啥|no|nope|none|nothing|nah|not really|no worries)[。！!，,.\s]*$/i.test(w); };
     const petName = () => App.petName || PETS[App.petIdx].en;
     const vib = p => { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) { /* ignore */ } };
     const u2s = (ux, uy) => [CX + ux * U, CY + uy * U * rtYS];
@@ -4684,18 +4848,16 @@ function petSVG(i, opt = {}) {
     function extractKeywords(w) {
       const seg = w.split(/[，。、！？,.!?\s；;：:「」『』（）()]+/).map(x => x.trim()).filter(x => x.length >= 2);
       const out = []; seg.forEach(x => { const k = x.slice(0, 6); if (!out.includes(k)) out.push(k); });
-      return out.slice(0, 5).length ? out.slice(0, 5) : ['煩惱'];
+      return out.slice(0, 5).length ? out.slice(0, 5) : L(['煩惱'], ['worry']);
     }
-    const mockCatch = w => ({ lines: ['最近一定累積了很多事情吧。', '會把這些放在心上，也代表你真的很在乎。', '你已經努力很久了。'], keywords: extractKeywords(w), care: false, mock: true });
+    const mockCatch = w => ({ lines: L(['最近一定累積了很多事情吧。', '會把這些放在心上，也代表你真的很在乎。', '你已經努力很久了。'], ['A lot must have been piling up lately.', 'Holding this close shows how much you care.', 'You’ve been working hard for a long time.']), keywords: extractKeywords(w), care: false, mock: true });
     async function fetchCatch() {
       const w = worryText(); if (!CONFIG.WORRY_ENDPOINT) return mockCatch(w);
-      const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 9000);
       try {
-        const r = await fetch(CONFIG.WORRY_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: (App.user && App.user.name) || '', worry: w, petName: petName() }), signal: ctl.signal });
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        const j = await r.json(); if (!j || !Array.isArray(j.lines) || j.lines.length < 3) throw new Error('bad');
+        const j = await apiPost(CONFIG.WORRY_ENDPOINT, { name: (App.user && App.user.name) || '', worry: w, petName: petName() }, 15000);
+        if (!j || !Array.isArray(j.lines) || j.lines.length < 3) throw new Error('bad');
         return { lines: j.lines.slice(0, 3), keywords: (Array.isArray(j.keywords) && j.keywords.length ? j.keywords : extractKeywords(w)).slice(0, 6), care: j.care === true };
-      } catch (e) { console.error('worry:', e); return mockCatch(w); } finally { clearTimeout(tm); }
+      } catch (e) { console.error('worry:', e); return mockCatch(w); }
     }
     function makeChars(w) {
       const cs = [...w].filter(c => /[\u4e00-\u9fffA-Za-z0-9]/.test(c)).slice(0, 34), n = Math.max(1, cs.length);
@@ -4705,8 +4867,8 @@ function petSVG(i, opt = {}) {
     /* ---------- 手勢介面 ---------- */
     function refresh(kind) {
       const cam = camMode(); pad.classList.toggle('on', !cam);
-      pad.textContent = { open: '輕觸\n＝張開手掌', fist: '按住\n＝握拳', release: '放開\n＝張開手' }[kind] || '';
-      pad.style.whiteSpace = 'pre-line'; sw.textContent = cam ? '改用觸控' : '改用相機';
+      pad.textContent = L({ open: '輕觸\n＝張開手掌', fist: '按住\n＝握拳', release: '放開\n＝張開手' }, { open: 'Tap\n= open palm', fist: 'Hold\n= make a fist', release: 'Let go\n= open hand' })[kind] || '';
+      pad.style.whiteSpace = 'pre-line'; sw.textContent = cam ? L('改用觸控', 'Use touch instead') : L('改用相機', 'Use camera instead');
     }
     function setHud(on, o = {}) { hud.classList.toggle('on', on); if (o.icon) icon.textContent = o.icon; if (o.ins !== undefined) ins.textContent = o.ins; if (o.sub !== undefined) sub.textContent = o.sub; if (on) { ok.classList.remove('on'); } else { pad.classList.remove('on'); skipBtn.hidden = true; } }
     const note = txt => { sub.textContent = txt; };
@@ -4716,7 +4878,7 @@ function petSVG(i, opt = {}) {
     skipBtn.addEventListener('click', () => { skipStep = true; });
     sw.addEventListener('click', async () => {
       if (camMode()) { Hand.stop(); refresh('open'); return; }
-      try { await Hand.start(); } catch (e) { console.error('camera:', e); note('相機暫時無法使用，繼續用觸控。'); Hand.stop(); }
+      try { await Hand.start(); } catch (e) { console.error('camera:', e); note(L('相機暫時無法使用，繼續用觸控。', 'The camera isn’t available — continuing with touch.')); Hand.stop(); }
       refresh('open');
     });
     async function askCam() {
@@ -4735,7 +4897,7 @@ function petSVG(i, opt = {}) {
         const cam = camMode(), good = skipStep || (cam ? (Hand.S.present && Hand.S.open > .8 && Hand.S.ext >= 4) : padTap);
         stable = good ? stable + .05 : 0; if (stable >= (cam && !skipStep ? .6 : .05)) return;
         waited += .05; if (waited > 9) skipBtn.hidden = false;
-        if (cam) note(Hand.S.present ? '再把五隻手指都張開一點' : '等待手勢……');
+        if (cam) note(Hand.S.present ? L('再把五隻手指都張開一點', 'Spread all five fingers a little more') : L('等待手勢……', 'Waiting for your hand…'));
         await sleep(.05);
       }
     }
@@ -4743,7 +4905,7 @@ function petSVG(i, opt = {}) {
       let acc = 0;
       for (;;) {
         const good = skipStep || !camMode() || (Hand.S.present && Hand.S.open > .6);
-        if (good) { acc += .05; if (camMode()) note(''); } else note('把手掌放回鏡頭裡');
+        if (good) { acc += .05; if (camMode()) note(''); } else note(L('把手掌放回鏡頭裡', 'Bring your palm back into view'));
         if (acc >= sec) return; await sleep(.05);
       }
     }
@@ -4772,7 +4934,7 @@ function petSVG(i, opt = {}) {
     /* ---------- 關心（偵測到危險字眼時，不做「炸掉煩惱」的遊戲）---------- */
     function careFlow() {
       return new Promise(res => {
-        buildCaption(['先不玩了。', '我想先陪你一下。'], .9, 'mid');
+        buildCaption(L(['先不玩了。', '我想先陪你一下。'], ['Let’s pause the game.', 'I want to stay with you for a moment.']), .9, 'mid');
         care.classList.add('on');
         $('rtCareGo').onclick = () => { care.classList.remove('on'); hideCaption(); res(); };
         $('rtCareHome').onclick = () => { care.classList.remove('on'); resetWorld(); };
@@ -4789,7 +4951,7 @@ function petSVG(i, opt = {}) {
       if (ai.care || RT_CARE_RE.test(w)) { RT.charA = 0; await careFlow(); return false; }
       for (let i = 0; i < 3; i++) { if (i === 2) tw(RT, 'ps', .64, 2); await say([ai.lines[i]], 1.5, '', 0); }
       rtKw = ai.keywords;
-      await say(['接下來，讓我陪你一起，', '把它暫時放下吧。'], 1.6, 'mid', .9);
+      await say(L(['接下來，讓我陪你一起，', '把它暫時放下吧。'], ['Now, let me help you', 'set it down for a while.']), 1.6, 'mid', .9);
 
       /* A-02 煩惱具象化 */
       tw(RT, 'charShake', 1, 1.2); Sound.note(110, { dur: 1.4, gain: .12 }); await sleep(1.4);
@@ -4799,16 +4961,16 @@ function petSVG(i, opt = {}) {
       tw(RT, 'px', -.3, 2); tw(RT, 'py', .3, 2); tw(RT, 'ps', .48, 2); await sleep(2.2);
       RT.fx = -.3 + .1 + .02; RT.fy = .08; RT.fopen = .7; tw(RT, 'fx', -.18, .9); tw(RT, 'fy', -.08, .9); tw(RT, 'fist', 1, .6); await sleep(1);
       RT.beat = 1; const [sx, sy] = u2s(RT.wx, RT.wy); addRipple(sx, sy); Sound.chime(); await sleep(.5); tw(RT, 'fist', 0, .6);
-      await say(['這就是剛才困擾你的事情。'], 1.4, '', 0);
-      await say(['這一次，我們不躲開它。', '我們一起看看它。'], 1.7, '', .9);
+      await say(L(['這就是剛才困擾你的事情。'], ['This is what was troubling you.']), 1.4, '', 0);
+      await say(L(['這一次，我們不躲開它。', '我們一起看看它。'], ['This time, we won’t look away.', 'Let’s look at it together.']), 1.7, '', .9);
 
       /* A-03 張開手掌 */
       await askCam();
       tw(RT, 'px', -.34, 1.4); tw(RT, 'py', .38, 1.4); tw(RT, 'ps', .4, 1.4); tw(RT, 'wy', -.14, 1.4); tw(RT, 'wr', .26, 1.4);
-      setHud(true, { icon: '🖐️', ins: '請對著鏡頭，張開你的手掌。', sub: '讓五隻手指都被鏡頭看見' }); tw(RT, 'palmA', 1, .8);
+      setHud(true, { icon: '🖐️', ins: L('請對著鏡頭，張開你的手掌。', 'Open your palm toward the camera.'), sub: L('讓五隻手指都被鏡頭看見', 'Let the camera see all five fingers') }); tw(RT, 'palmA', 1, .8);
       await waitOpen();
-      ok.textContent = '✓ 偵測到了！'; ok.classList.add('on'); RT.pglow = 1; tw(RT, 'pglow', 0, 1.6); Sound.chime(); vib(30);
-      ins.textContent = '保持住。'; sub.textContent = ''; skipBtn.hidden = true; pad.classList.remove('on');
+      ok.textContent = L('✓ 偵測到了！', '✓ Got it!'); ok.classList.add('on'); RT.pglow = 1; tw(RT, 'pglow', 0, 1.6); Sound.chime(); vib(30);
+      ins.textContent = L('保持住。', 'Hold it there.'); sub.textContent = ''; skipBtn.hidden = true; pad.classList.remove('on');
       await sleep(1.2);
 
       /* A-04 倒數 */
@@ -4818,7 +4980,7 @@ function petSVG(i, opt = {}) {
       Sound.duck(true); tw(RT, 'crack', 1, .5); await sleep(.9);
 
       /* A-05 握住它 */
-      icon.textContent = '✊'; ins.textContent = '現在，把它握住。'; sub.textContent = '慢慢握拳 ✊'; ok.classList.remove('on');
+      icon.textContent = '✊'; ins.textContent = L('現在，把它握住。', 'Now, hold on to it.'); sub.textContent = L('慢慢握拳 ✊', 'Slowly make a fist ✊'); ok.classList.remove('on');
       await waitFist();
 
       /* A-06 煩惱炸開 */
@@ -4836,10 +4998,10 @@ function petSVG(i, opt = {}) {
       tw(RT, 'px', clamp(pu - .26, -.36, .36), 1.8); tw(RT, 'py', clamp(pv + .08, -.1, .5), 1.8); tw(RT, 'ps', .46, 1.8); tw(RT, 'palmA', .5, 1);
       await sleep(1.6);
       RT.fx = RT.px + .13; RT.fy = RT.py - .02; RT.fopen = 0; tw(RT, 'fist', 1, .8); await sleep(1.4);
-      await say(['有些事情，不會因為一次努力就消失。'], 1.8, '', 0);
-      await say(['但你不需要，', '一直把它握得這麼緊。'], 2, '', .9);
+      await say(L(['有些事情，不會因為一次努力就消失。'], ['Some things don’t disappear after one try.']), 1.8, '', 0);
+      await say(L(['但你不需要，', '一直把它握得這麼緊。'], ['But you don’t have to', 'hold on to it so tightly.']), 2, '', .9);
       tw(RT, 'fopen', 1, 1.8);
-      setHud(true, { icon: '✊', ins: '跟著我。', sub: '慢慢張開你的手' });
+      setHud(true, { icon: '✊', ins: L('跟著我。', 'Follow me.'), sub: L('慢慢張開你的手', 'Slowly open your hand') });
 
       /* A-08 釋放 */
       let stage = 0;
@@ -4863,12 +5025,12 @@ function petSVG(i, opt = {}) {
       await sleep(1.4);
 
       /* A-10 鼓勵 */
-      await say(['做得很好。♡'], 1.6, 'mid', 0);
-      await say(['你剛剛沒有逃開，', '你願意看著自己的煩惱。'], 1.7, '', .9);
+      await say(L(['做得很好。♡'], ['You did so well. ♡']), 1.6, 'mid', 0);
+      await say(L(['你剛剛沒有逃開，', '你願意看著自己的煩惱。'], ['You didn’t run away just now —', 'you were willing to look at your worry.']), 1.7, '', .9);
       tw(RT, 'hy', .12, 2.2); tw(RT, 'hsz', .15, 2.2);
-      await say(['問題出現，不代表你做得不夠好。', '很多時候，它只是提醒我們——', '有一件重要的事情，正在等著我們處理。'], 1.9, '', 1);
+      await say(L(['問題出現，不代表你做得不夠好。', '很多時候，它只是提醒我們——', '有一件重要的事情，正在等著我們處理。'], ['A problem showing up doesn’t mean you’re not good enough.', 'Often it’s just reminding us—', 'something important is waiting for us.']), 1.9, '', 1);
       tw(RT, 'pglow', 1, 2);
-      await say(['而願意面對它的你，', '已經往前走了一步。'], 2.4, 'mid', 1);
+      await say(L(['而願意面對它的你，', '已經往前走了一步。'], ['And by being willing to face it,', 'you’ve already taken a step forward.']), 2.4, 'mid', 1);
       tw(RT, 'pglow', 0, 1.5); tw(RT, 'hA', 0, 1.5);
       return true;
     }
@@ -4883,26 +5045,26 @@ function petSVG(i, opt = {}) {
       emit(CX, CY, 40, ['255,236,190', '255,200,235', '255,255,255'], { speed: 260, life: 1.2 });
       await sleep(.9);
       const flip = { a: 0 }; tw(flip, 'a', TAU, .9); for (let i = 0; i < 18; i++) { RT.prot = flip.a; await sleep(.05); } RT.prot = 0;
-      say(['太好了！'], 1.1, 'mid', 0);
+      say(L(['太好了！'], ['Yay!']), 1.1, 'mid', 0);
       await sleep(1.8);
-      await say([`${n}很開心，`, '今天的你沒有什麼煩惱 ♡'], 1.8, '', .9);
+      await say(L([`${n}很開心，`, '今天的你沒有什麼煩惱 ♡'], [`${n} is so happy`, 'that nothing is weighing on you today ♡']), 1.8, '', .9);
       for (let k = 0; k < 24; k++) rsp({ x: CX + rand(-.4, .4) * U, y: CY + rand(-.2, .3) * U * rtYS, vy: rand(-40, -10), vx: rand(-20, 20), drag: .6, life: rand(2, 3.5), s: rand(.8, 1.4), c: pick(LOVEC), t: 'star' });
 
       /* B-02 收藏好心情 */
       tw(RT, 'exclaim', 1, .2); Sound.note(1046, { dur: .5, gain: .1 }); await sleep(1);
       tw(RT, 'exclaim', 0, .3); RT.hx = 0; RT.hy = .3; RT.hsz = .08; RT.hfill = 0; tw(RT, 'hA', 1, .8);
-      await say(['那我們把今天的好心情……'], 1.3, '', 0);
+      await say(L(['那我們把今天的好心情……'], ['Then let’s take today’s good mood…']), 1.3, '', 0);
       tw(RT, 'hy', .02, 1.6); tw(RT, 'hsz', .12, 1.6);
-      await say(['偷偷收藏起來吧！'], 1.6, 'mid', 0);
+      await say(L(['偷偷收藏起來吧！'], ['and tuck it away for safekeeping!']), 1.6, 'mid', 0);
 
       /* B-03 張開手掌 */
       await askCam();
       tw(RT, 'py', .2, 1.2); tw(RT, 'ps', .44, 1.2); tw(RT, 'palmA', 1, .8);
-      setHud(true, { icon: '🖐️', ins: '請對著鏡頭，張開你的手掌。', sub: '讓五隻手指都被鏡頭看見' });
+      setHud(true, { icon: '🖐️', ins: L('請對著鏡頭，張開你的手掌。', 'Open your palm toward the camera.'), sub: L('讓五隻手指都被鏡頭看見', 'Let the camera see all five fingers') });
       await waitOpen();
-      ok.textContent = '✓ 偵測到了！'; ok.classList.add('on'); Sound.chime(); vib(30); skipBtn.hidden = true; pad.classList.remove('on');
+      ok.textContent = L('✓ 偵測到了！', '✓ Got it!'); ok.classList.add('on'); Sound.chime(); vib(30); skipBtn.hidden = true; pad.classList.remove('on');
       tw(RT, 'py', .12, .25); await sleep(.3); tw(RT, 'py', .2, .3);
-      ins.textContent = '保持住。'; sub.textContent = ''; await sleep(.8);
+      ins.textContent = L('保持住。', 'Hold it there.'); sub.textContent = ''; await sleep(.8);
 
       /* B-04 倒數 */
       const [hx, hy] = s2u(pal.x, pal.y);
@@ -4923,9 +5085,9 @@ function petSVG(i, opt = {}) {
       for (let i = 0; i < 96; i++) { RT.px = Math.cos(orb.a) * .3; RT.py = Math.sin(orb.a) * .2 + .02; RT.prot = Math.sin(orb.a * 2) * .3; await sleep(.05); }
       RT.prot = 0; tw(RT, 'px', 0, 1); tw(RT, 'py', .3, 1); tw(RT, 'ps', .6, 1); RT.hx = 0; RT.hy = .42; RT.hsz = .1; RT.hfill = 1; tw(RT, 'hA', 1, 1);
       await sleep(1.4);
-      await say(['收到！♡'], 1.6, 'mid', 0);
-      await say(['今天的好心情，', '我幫你收好了。'], 1.8, '', .9);
-      await say(['希望下一次見面的時候，', '也能再聽你說說今天發生的事。'], 2.2, '', .9);
+      await say(L(['收到！♡'], ['Got it! ♡']), 1.6, 'mid', 0);
+      await say(L(['今天的好心情，', '我幫你收好了。'], ['I’ve kept today’s good mood', 'safe for you.']), 1.8, '', .9);
+      await say(L(['希望下一次見面的時候，', '也能再聽你說說今天發生的事。'], ['Next time we meet,', 'I hope to hear about your day again.']), 2.2, '', .9);
       tw(RT, 'hA', 0, 1.2);
       return true;
     }
@@ -4938,14 +5100,14 @@ function petSVG(i, opt = {}) {
       await sleep(3);
       tw(RT, 'gal', 1, 9); tw(RT, 'zoom', .36, 17); tw(P, 'starSpeed', -.06, 3);
       await sleep(3.5);
-      await say(['有些日子閃閃發亮。'], 1.4, '', 0);
-      await say(['有些日子，', '可能沒有那麼晴朗。'], 1.6, '', .9);
-      await say(['都沒關係。'], 1.8, 'mid', 0);
-      await say(['因為不管今天是什麼樣子——'], 1.6, '', 0);
-      await say(['都是只屬於你的這一天。'], 2.2, '', 0);
+      await say(L(['有些日子閃閃發亮。'], ['Some days sparkle.']), 1.4, '', 0);
+      await say(L(['有些日子，', '可能沒有那麼晴朗。'], ['Some days', 'might not be so bright.']), 1.6, '', .9);
+      await say(L(['都沒關係。'], ['That’s okay.']), 1.8, 'mid', 0);
+      await say(L(['因為不管今天是什麼樣子——'], ['Because whatever today looks like—']), 1.6, '', 0);
+      await say(L(['都是只屬於你的這一天。'], ['it’s a day that belongs only to you.']), 2.2, '', 0);
       RT.fpx = 0; RT.fpy = .36; RT.fps = .56; tw(RT, 'fp', 1, 2); tw(RT, 'pa', 0, 2); tw(RT, 'wave', 1, .8); tw(RT, 'hug', 1, 2.4); tw(RT, 'zoom', .34, 4);
       await sleep(2.6);
-      buildCaption(['今天的你，也辛苦了。♡'], 0, 'mid'); await sleep(4.4); hideCaption(); await sleep(.8);
+      buildCaption(L(['今天的你，也辛苦了。♡'], ['You did your best today, too. ♡']), 0, 'mid'); await sleep(4.4); hideCaption(); await sleep(.8);
       buildCaption([{ text: 'See you among the stars. ✦', cls: 'en' }], 0, 'mid'); await sleep(3.6);
       tw(P, 'fade', .85, 4); await sleep(3);
       hideCaption(); endB.classList.add('on');

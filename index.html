@@ -927,6 +927,12 @@
     .g-box { width: min(64cqw, 78cqh, 300px); }
     .g-pet { width: min(86cqw, 88cqh, 380px); }
   }
+.g-mail { position: fixed; z-index: 31; right: calc(env(safe-area-inset-right, 0px) + 14px); bottom: calc(env(safe-area-inset-bottom, 0px) + 56px); width: 54px; height: 54px; border-radius: 50%; border: 1px solid rgba(255, 226, 150, .55); background: radial-gradient(circle at 35% 30%, rgba(255, 236, 190, .35), rgba(40, 30, 80, .85)); color: #fff; font-size: 1.5rem; cursor: pointer; box-shadow: 0 0 22px rgba(255, 210, 140, .45); animation: gMailBob 2.2s ease-in-out infinite; }
+.g-mail[hidden] { display: none; }
+body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-top, 0px) + 66px); }
+.g-mail b { position: absolute; top: -4px; right: -4px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; background: #ff7a9a; font: 700 .75rem/20px system-ui, sans-serif; }
+@keyframes gMailBob { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-6px) rotate(4deg); } }
+@media (prefers-reduced-motion: reduce) { .g-mail { animation: none; } }
 .ai-note { position: fixed; z-index: 30; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 10px); transform: translateX(-50%); width: min(92vw, 520px); margin: 0; padding: .45rem .8rem; border-radius: 12px; text-align: center;
     font-size: .74rem; line-height: 1.5; letter-spacing: .04em; color: rgba(235,230,255,.78); background: rgba(10,8,30,.6); opacity: 0; pointer-events: none; transition: opacity .8s ease; }
   .ai-note.on { opacity: 1; }
@@ -1272,6 +1278,7 @@
   </div>
 </div>
 
+<button class="g-mail" id="gMail" type="button" hidden aria-label="打開星星信件">💌<b>0</b></button>
 <script>
 (() => {
   'use strict';
@@ -4127,7 +4134,7 @@
         let j; try { j = JSON.parse(txt); } catch (e) { throw new Error('回來的不是 JSON（多半是 Google 登入頁 → 部署的「誰可以存取」要選「所有人」）：' + txt.slice(0, 80)); }
         if (!j.ok) throw new Error(j.error || '後端回報錯誤');
         const acts = (j.actions || []).join(', ');
-        const miss = ['worry', 'visits', 'lookup', 'invite', 'inbox'].filter(a => !(j.actions || []).includes(a));
+        const miss = ['worry', 'visits', 'lookup', 'invite', 'inbox', 'ack', 'event'].filter(a => !(j.actions || []).includes(a));
         if (miss.length) throw new Error('後端是舊版 Code.gs（缺少：' + miss.join('、') + '）。請貼上新版並「管理部署 → 編輯 → 新版本」');
         return '後端正常，版本是新的';
       });
@@ -5527,6 +5534,7 @@ function petSVG(i, opt = {}) {
     setTimeout(() => (chList.querySelector('.cur') || chList.firstChild).focus({ preventScroll: true }), 50);
   }
   function closeChapters() { chapEl.classList.remove('on'); paused = false; }
+  window.addEventListener('iv:universe', () => jumpTo(ACTS.length + 5));
   function jumpTo(n) {
     closeChapters();
     const fromIdle = state === 'idle';
@@ -10157,7 +10165,7 @@ function petSVG(i, opt = {}) {
       friends: new Map(),   // 我的朋友：pid → { level, danceCount, meteor, travel, partner }
       sent: new Set(),      // 我已經送出、還在等的邀請
       queue: [],            // 信箱：邀請、留言、邀請結果
-      busy: false, D: null, R: null, polled: 0, pollT: 0, alertT: 0, seen: new Set()
+      busy: false, D: null, R: null, polled: 0, pollT: 0, alertT: 0, seen: (() => { try { return new Set(JSON.parse(localStorage.getItem('iv_mail_seen') || '[]')); } catch (_) { return new Set(); } })()
     };
     const myPet = () => { const m = Me.get() || {}; const i = Number.isInteger(m.petIdx) ? m.petIdx : 0; return { idx: i, name: m.petName || (PETS[i] || PETS[0]).en, glyph: (PETS[i] || PETS[0]).glyph, pid: m.pid || '' }; };
     const petOf = p => { const i = Number(p.petIdx) || 0; return { idx: i, name: p.petName || (PETS[i] || PETS[0]).en, glyph: (PETS[i] || PETS[0]).glyph }; };
@@ -10356,8 +10364,16 @@ function petSVG(i, opt = {}) {
     }
 
     /* ---------- 星星信件：收到的邀請、留言、邀請結果 ---------- */
+    // 收下一封信：記在這台裝置，並告訴後端「已讀」（後端讀信箱時不會自己標已讀，信不會還沒看到就消失）
+    function markSeen(q) {
+      Fr.seen.add(q.id);
+      try { localStorage.setItem('iv_mail_seen', JSON.stringify([...Fr.seen].slice(-300))); } catch (_) { /* ignore */ }
+      const kind = q.kind === 'note' ? 'notes' : q.kind === 'outcome' ? 'outcomes' : '';
+      if (kind) apiPost(CONFIG.DATA_ENDPOINT, { action: 'ack', uid: Me.uid(), [kind]: [q.id.slice(1)] }, 12000).catch(e => console.warn('ack:', e));
+    }
     async function pollInbox() {
-      if (!canFriend() || state !== 'universe') return;
+      if (!canFriend() || Fr.polling) return;
+      Fr.polling = true;
       try {
         const j = await apiGet({ action: 'inbox', uid: Me.uid() }, 12000);
         (j.friends || []).forEach(f => { if (f.partner) { Fr.friends.set(f.partner.pid, f); setEdge(f.partner.pid, f.level); } });
@@ -10368,12 +10384,21 @@ function petSVG(i, opt = {}) {
         (j.notes || []).forEach(n => { if (!has('n' + n.id)) { Fr.queue.push({ id: 'n' + n.id, kind: 'note', n }); newNote++; } });
         if (newInv || newNote) mailAlert(newInv, newNote);
         updatePills();
-        // 寄出的邀請有了結果：直接演給寄件人看（不用兩人同時在線）
-        const outs = Fr.queue.filter(q => q.kind === 'outcome');
-        for (const q of outs) { Fr.queue.splice(Fr.queue.indexOf(q), 1); await showOutcome(q.o); }
-        updatePills();
         Fr.polled = Date.now();
       } catch (e) { console.warn('inbox:', e); }
+      finally { Fr.polling = false; }
+      playOutcomes();
+    }
+    // 寄出的邀請有了結果：回到宇宙時直接演給寄件人看（不用兩人同時在線）
+    async function playOutcomes() {
+      if (state !== 'universe' || Fr.D || Fr.playing) return;
+      Fr.playing = true;
+      try {
+        for (const q of Fr.queue.filter(x => x.kind === 'outcome')) {
+          if (state !== 'universe') break;
+          Fr.queue.splice(Fr.queue.indexOf(q), 1); markSeen(q); updatePills(); await showOutcome(q.o);
+        }
+      } finally { Fr.playing = false; updatePills(); }
     }
     async function showOutcome(o) {
       const me = myPet(), them = petOf(o.partner), p = planetsW.find(x => x.pid === o.partner.pid) || { pid: o.partner.pid };
@@ -10389,17 +10414,19 @@ function petSVG(i, opt = {}) {
       const nm = myPet().name, parts = [];
       if (inv) parts.push(L(`${inv} 份共舞邀請`, `${inv} dance invitation${inv > 1 ? 's' : ''}`, { ja: `ダンスの招待 ${inv} 通`, ko: `춤 초대 ${inv}개`, vi: `${inv} lời mời nhảy` }));
       if (notes) parts.push(L(`${notes} 句留言`, `${notes} message${notes > 1 ? 's' : ''}`, { ja: `メッセージ ${notes} 通`, ko: `메시지 ${notes}개`, vi: `${notes} lời nhắn` }));
-      toast(L(`💌 ${nm} 收到了 ${parts.join('、')}！點牠旁邊的星星信件打開`, `💌 ${nm} received ${parts.join(' and ')}! Tap the star letter beside it`, { ja: `💌 ${nm} に ${parts.join('と')} が届いたよ！そばの星の手紙をタップしてね`, ko: `💌 ${nm}에게 ${parts.join(', ')}이(가) 도착했어요! 곁의 별 편지를 눌러 보세요`, vi: `💌 ${nm} nhận được ${parts.join(' và ')}! Chạm vào lá thư sao bên cạnh` }), 5.5);
-      if (sel && sel.me) fillBond();
+      if (state === 'universe') toast(L(`💌 ${nm} 收到了 ${parts.join('、')}！點牠旁邊的星星信件打開`, `💌 ${nm} received ${parts.join(' and ')}! Tap the star letter beside it`, { ja: `💌 ${nm} に ${parts.join('と')} が届いたよ！そばの星の手紙をタップしてね`, ko: `💌 ${nm}에게 ${parts.join(', ')}이(가) 도착했어요! 곁의 별 편지를 눌러 보세요`, vi: `💌 ${nm} nhận được ${parts.join(' và ')}! Chạm vào lá thư sao bên cạnh` }), 5.5);
+      if (state !== 'universe') aiNote(L(`💌 ${nm} 收到了 ${parts.join('、')}！按右下角的信封打開`, `💌 ${nm} received ${parts.join(' and ')}! Tap the envelope at the bottom right`, { ja: `💌 ${nm} に ${parts.join('と')} が届いたよ！右下の封筒をタップしてね`, ko: `💌 ${nm}에게 ${parts.join(', ')}이(가) 도착했어요! 오른쪽 아래 봉투를 눌러 보세요`, vi: `💌 ${nm} nhận được ${parts.join(' và ')}! Chạm vào phong bì ở góc dưới bên phải` }));
+      else if (sel && sel.me) fillBond();
     }
     function updatePills() {
-      const n = Fr.queue.length, mb = $('uvMail'), fb = $('uvFriends');
+      const n = Fr.queue.length, mb = $('uvMail'), fb = $('uvFriends'), gm = $('gMail');
       mb.hidden = !n; mb.textContent = `💌 ${n}`;
+      gm.hidden = !n || state === 'universe'; gm.querySelector('b').textContent = n;
       if (sel && sel.me) { const mb2 = $('upMail'); mb2.hidden = !n; mb2.textContent = L(`💌 打開信件（${n}）`, `💌 Open letters (${n})`, { ja: `💌 手紙をひらく（${n}）`, ko: `💌 편지 열기(${n})`, vi: `💌 Mở thư (${n})` }); }
       fb.hidden = !Fr.friends.size; fb.textContent = L(`✦ 友情星圖 ${Fr.friends.size}`, `✦ Friends ${Fr.friends.size}`, { ja: `✦ 友情星図 ${Fr.friends.size}`, ko: `✦ 우정 별자리 ${Fr.friends.size}`, vi: `✦ Bạn bè ${Fr.friends.size}` });
     }
     function openMail() {
-      const q = Fr.queue[0]; if (!q || Fr.D) return; Fr.seen.add(q.id);
+      const q = Fr.queue.find(x => x.kind !== 'outcome'); if (!q || Fr.D) return;
       const dlg = $('mailDlg'), go = $('mlGo'), later = $('mlLater');
       if (q.kind === 'invite') {
         const v = q.v, them = petOf(v.from), age = Date.now() - new Date(v.createdAt).getTime();
@@ -10417,13 +10444,13 @@ function petSVG(i, opt = {}) {
         $('mlTitle').textContent = L(`${who} 在你的星球留了一句話`, `${who} left you a few words`, { ja: `${who} があなたの星にひとこと残したよ`, ko: `${who}이(가) 당신의 행성에 한마디를 남겼어요`, vi: `${who} đã để lại một lời trên hành tinh của bạn` });
         $('mlBody').textContent = `「${n.text}」`; $('mlSmall').textContent = '';
         go.textContent = L('收下 ✦', 'Keep it ✦', { ja: '受け取る ✦', ko: '받기 ✦', vi: 'Giữ lại ✦' }); later.hidden = true;
-        go.onclick = () => { Fr.queue.shift(); dlg.classList.remove('on'); updatePills(); Sound.chime(.8); };
+        go.onclick = () => { Fr.queue.splice(Fr.queue.indexOf(q), 1); markSeen(q); dlg.classList.remove('on'); updatePills(); Sound.chime(.8); };
       }
       dlg.classList.add('on'); Sound.chime(.2);
     }
     async function answer(q, choice) {
       $('mailDlg').classList.remove('on');
-      Fr.queue.shift(); updatePills();
+      Fr.queue.splice(Fr.queue.indexOf(q), 1); markSeen(q); updatePills();
       const v = q.v, me = myPet(), them = petOf(v.from);
       if (choice === 'later') {
         // 不做「拒絕」：對方只會看到「也許下一次，你們會再遇見」
@@ -10542,6 +10569,9 @@ function petSVG(i, opt = {}) {
     // 點碎片收集、點星星送光
     function evTap(x, y) {
       if (!evOn() || !EV.going || EV.data.done) return false;
+      // 手上有光、又點在星星上：一定是要送光（就算前面剛好飄過一顆碎片）
+      const onStar = EV.star && Math.hypot(EV.star[0] - x, EV.star[1] - y) < Math.max(40, EV.star[2] * 1.3);
+      if (onStar && EV.carry) { evGive(); return true; }
       let best = null, bd = 1e9;
       for (const f of EV.frags) { if (!f.vis) continue; const d = Math.hypot(f.sx - x, f.sy - y); if (d < Math.max(26, f.ss * 2.4) && d < bd) { bd = d; best = f; } }
       if (best) {
@@ -10549,7 +10579,7 @@ function petSVG(i, opt = {}) {
         EV.carry++; EV.frags.splice(EV.frags.indexOf(best), 1); setTimeout(evSpawn, 3500);
         emit(best.sx, best.sy, 14, ['255,236,190', '255,255,255'], { speed: 90, life: .8 }); Sound.chime(EV.carry * .25); evBanner(); return true;
       }
-      if (EV.star && Math.hypot(EV.star[0] - x, EV.star[1] - y) < Math.max(40, EV.star[2] * 1.3)) { evGive(); return true; }
+      if (onStar) { evGive(); return true; }
       return false;
     }
     async function evGive() {
@@ -10866,16 +10896,16 @@ function petSVG(i, opt = {}) {
       $('upActs').appendChild(b);
     });
 
-    // 不在宇宙裡的時候：每分鐘偷看一下信箱（不標記已讀），有新信就提醒
-    let peekN = -1;
-    setInterval(async () => {
-      if (state === 'universe' || !canFriend() || document.hidden) return;
-      try {
-        const j = await apiGet({ action: 'inbox', uid: Me.uid(), peek: 1 }, 10000), n = (j.invites || 0) + (j.notes || 0) + (j.outcomes || 0);
-        if (n > 0 && n !== peekN) aiNote(L(`💌 ${myPet().name} 收到了 ${n} 封星星信件！到「章節選擇 → 我們的宇宙」打開它`, `💌 ${myPet().name} has ${n} star letter${n > 1 ? 's' : ''}! Open them in Chapters → Our Universe`, { ja: `💌 ${myPet().name} に星の手紙が ${n} 通！「章節 → わたしたちの宇宙」でひらこう`, ko: `💌 ${myPet().name}에게 별 편지 ${n}통! ‘챕터 → 우리의 우주’에서 열어 보세요`, vi: `💌 ${myPet().name} có ${n} lá thư sao! Mở ở Chương → Vũ trụ của chúng ta` }));
-        peekN = n;
-      } catch (_) { /* 靜靜地略過 */ }
-    }, 60000);
+    // 即時收信：在哪個畫面都會收（宇宙裡每 5 秒、其他畫面每 10 秒；切回這個分頁時馬上收一次）
+    setInterval(() => {
+      if (document.hidden || !canFriend()) return;
+      if (Date.now() - Fr.polled >= (state === 'universe' ? 5000 : 8000) - 300) pollInbox();
+    }, 1000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) pollInbox(); });
+    addEventListener('focus', () => pollInbox());
+    if (canFriend()) setTimeout(pollInbox, 1500);
+    // 不在宇宙裡也看得到的信封：點了直接飛進宇宙打開
+    $('gMail').addEventListener('click', () => { Fr.openOnArrive = true; $('gMail').hidden = true; window.dispatchEvent(new CustomEvent('iv:universe')); });
     $('uvMail').addEventListener('click', () => openMail());
     $('evGo').addEventListener('click', () => evGo());
     $('upMail').addEventListener('click', () => openMail());
@@ -11060,7 +11090,7 @@ function petSVG(i, opt = {}) {
         }
         visits();
         Fr.polled = 0; updatePills(); pollInbox();
-        clearInterval(Fr.pollT); Fr.pollT = setInterval(() => { if (state === 'universe' && !Fr.D) pollInbox(); }, 15000);
+        if (Fr.openOnArrive) { Fr.openOnArrive = false; setTimeout(() => { if (my === token) openMail(); }, 600); }
         evPoll(); clearInterval(EV.t); EV.t = setInterval(evPoll, 5000);
       } catch (e) { if (!(e instanceof Cancel)) throw e; }
     }
@@ -11108,7 +11138,7 @@ function petSVG(i, opt = {}) {
     function reset(keep) {
       token++; sel = null; hover = null; gifts = []; phase = ''; drag = null; pinch = null; pts.clear();
       if (Fr.D) { const r = Fr.D.res; Fr.D = null; r(); } clearInterval(Fr.pollT); root.classList.remove('ev-dance', 'ev-on');
-      clearInterval(EV.t); EV.going = false; EV.carry = 0; EV.frags = []; EV.beams = []; EV.dance = 0; EV.data = null; $('uvEvent').hidden = true; toastQ.length = 0; clearTimeout(toastT); toastBusy = false; toastEl.classList.remove('on'); Fr.queue = []; ['mailDlg', 'frDlg'].forEach(id => $(id).classList.remove('on'));
+      clearInterval(EV.t); EV.going = false; EV.carry = 0; EV.frags = []; EV.beams = []; EV.dance = 0; EV.data = null; $('uvEvent').hidden = true; toastQ.length = 0; clearTimeout(toastT); toastBusy = false; toastEl.classList.remove('on'); ['mailDlg', 'frDlg'].forEach(id => $(id).classList.remove('on'));
       root.className = 'uv'; finEl.classList.remove('on'); $('uvFinBtns').classList.remove('on');
       UVS.a = 0; UVS.allGlow = 0; UVS.wave = -1; UVS.petPeek = 0;
       if (hand.on) { Hand.stop(); hand.on = false; handB.textContent = L('🖐️ 手勢控制', '🖐️ Hand control'); }

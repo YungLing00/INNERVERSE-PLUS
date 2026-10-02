@@ -620,6 +620,20 @@
   .uv-gift.done { background: rgba(255,226,170,.16); border-color: rgba(255,226,170,.6); }
   .uv-gift.shake { animation: giftNo .4s ease; }
   @keyframes giftNo { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+  .up { margin-top: 14px; padding: 12px 12px 10px; border-radius: 16px; background: rgba(255,226,170,.06); border: 1px solid rgba(255,226,170,.22); }
+  .up-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: .84rem; letter-spacing: .08em; color: #fff3dc; }
+  .up-head span { font-size: .74rem; color: rgba(255,214,150,.9); white-space: nowrap; }
+  .up-bar { margin-top: 8px; height: 7px; border-radius: 99px; background: rgba(255,255,255,.1); overflow: hidden; }
+  .up-bar i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #ffd6e8, #ffe3a8); box-shadow: 0 0 10px rgba(255,214,170,.8); transition: width 1s ease; }
+  .up-next { margin-top: 6px; font-size: .7rem; letter-spacing: .06em; color: var(--dim); }
+  .up-acts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+  .up-act { display: grid; justify-items: center; gap: 2px; padding: 8px 2px; border-radius: 14px; cursor: pointer; color: var(--ink); font-family: var(--tc); font-size: .7rem; letter-spacing: .04em;
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.16); transition: transform .2s ease, background .3s ease, box-shadow .3s ease; }
+  .up-act b { font-size: 1.35rem; font-weight: 400; line-height: 1.2; }
+  .up-act:hover, .up-act:focus-visible { transform: translateY(-2px); background: rgba(255,226,170,.12); box-shadow: 0 0 16px rgba(255,214,170,.35); outline: none; }
+  .up-act.busy { opacity: .5; pointer-events: none; }
+  .up-tasks { list-style: none; display: grid; gap: 4px; font-size: .76rem; letter-spacing: .06em; color: var(--dim); }
+  .up-tasks li.ok { color: #d4ffe4; }
   .uv-tune { margin-top: 12px; font-size: .78rem; letter-spacing: .1em; color: var(--dim); }
   .uv-tune i { display: inline-block; font-style: normal; animation: pulse2 1.6s ease-in-out infinite; margin-right: .3em; }
   .uv-n { min-height: 1.4em; margin-top: 10px; font-size: .78rem; letter-spacing: .1em; color: rgba(255,226,170,.85); }
@@ -1154,6 +1168,13 @@
     <div class="uv-model" id="uvcModel" hidden></div>
     <dl class="uv-info" id="uvcInfo"></dl>
     <p class="uv-sub">人格星圖</p><div class="uv-bars" id="uvcBars"></div>
+    <div class="up" id="uvcPet" hidden>
+      <div class="up-head"><b id="upLv"></b><span id="upStreak"></span></div>
+      <div class="track up-bar"><i id="upBar"></i></div>
+      <p class="up-next" id="upNext"></p>
+      <div class="up-acts" id="upActs"></div>
+      <p class="uv-sub" id="upTaskT"></p><ul class="up-tasks" id="upTasks"></ul>
+    </div>
     <div id="uvcGive"><p class="uv-sub">留下一點星光</p><div class="uv-gifts" id="uvcGifts"></div></div>
     <p class="uv-tune" id="uvcTune"></p>
     <p class="uv-n" id="uvcStarsN"></p>
@@ -6399,6 +6420,7 @@ function petSVG(i, opt = {}) {
     ctx.globalAlpha = clamp(o.alpha === undefined ? 1 : o.alpha);
     ctx.translate(x, y);
     if (o.rot) ctx.rotate(o.rot);
+    if (o.kx || o.ky) ctx.scale(o.kx || 1, o.ky || 1);   // 跳舞時的擠壓伸展
     ctx.drawImage(im, -s / 2, -s / 2, s, s);
     ctx.restore();
   }
@@ -9656,9 +9678,9 @@ function petSVG(i, opt = {}) {
         try { const j = await apiGet({ action: 'universe' }, 9000); if (j && Array.isArray(j.planets)) rows = j.planets; } catch (e) { console.warn('universe:', e); }
       }
       rows = (rows || []).filter(p => p && p.name && p.typeKey);
-      demo = rows.length < 3;
-      // 真實旅人不夠多時，補上示範星球（畫面上會標示「示範」）
-      list = demo ? rows.concat(demoList()) : rows;
+      // 只顯示真人測試過的星球，不再補示範星球
+      demo = false;
+      list = rows;
       const me = Me.get();
       if (me && me.name) {
         const hit = list.find(p => me.pid && p.pid === me.pid);
@@ -9666,13 +9688,16 @@ function petSVG(i, opt = {}) {
       }
       return list;
     }
+    // 旅人少的時候，星球排得緊一點、鏡頭近一點，才不會只看到幾個小點
+    let spread = 23, homeD = 30;
     function layout() {
+      spread = Math.min(23, 5 + Math.sqrt(list.length) * 2.6); homeD = clamp(spread * 1.35, 10, 30);
       planetsW = list.map((p, i) => {
         let x, y, z;
         if (p.me) { x = 2.6; y = .5; z = 4.2; }
         else {
           const arm = i % 4, rn = .12 + Math.pow(hs(i * 3 + 1), .7) * .88, ang = arm * TAU / 4 + rn * 4.4 + (hs(i * 7) - .5) * .6;
-          x = Math.cos(ang) * rn * 23; z = Math.sin(ang) * rn * 23; y = (hs(i * 11) - .5) * 3.2 * (1 - rn * .5);
+          x = Math.cos(ang) * rn * spread; z = Math.sin(ang) * rn * spread; y = (hs(i * 11) - .5) * 3.2 * (1 - rn * .5);
         }
         const R = p.me ? .4 : .22 + (((p.big5 && p.big5.E) || 3) - 1) / 4 * .12;
         return Object.assign({}, p, { x, y, z, R, el: WXD[p.element] ? p.element : 'wood', sx: 0, sy: 0, sr: 0, depth: 0, glowT: hs(i) * 10 });
@@ -9721,7 +9746,10 @@ function petSVG(i, opt = {}) {
       // 星球
       planetsW.forEach(p => { proj(p.x, p.y, p.z, tmp); p.vis = tmp.vis; p.sx = tmp.sx; p.sy = tmp.sy; p.depth = tmp.depth; p.sr = tmp.vis ? p.R * tmp.s : 0; });
       const order = planetsW.filter(p => p.vis && p.sx > -200 && p.sx < W + 200 && p.sy > -200 && p.sy < H + 200).sort((p, q) => q.depth - p.depth);
+      const aU = a;
       for (const p of order) {
+        // 選了某顆星球時，擋在它前面的星球變淡，才看得清楚寵物
+        const a = aU * (sel && p !== sel && p.depth < sel.depth - .15 ? .14 : 1);
         const d = WXD[p.el], r = p.sr, wave = UVS.wave >= 0 ? clamp(1 - Math.abs(UVS.wave - Math.hypot(p.x, p.z) / 24) * 4) : 0;
         const lit = .55 + .45 * Math.sin(t * .8 + p.glowT) * .3 + UVS.allGlow * .6 + wave * .8, isH = p === hover || p === sel;
         ctx.globalCompositeOperation = 'lighter';
@@ -9782,8 +9810,23 @@ function petSVG(i, opt = {}) {
         else if (UVS.react === 'spin') rot = Math.min(1, rt / 1.2) * TAU;
         else if (UVS.react === 'gift') { y -= Math.abs(Math.sin(rt * 6)) * r * .12 * e; }
       }
+      let kx = 1, ky = 1, closed = (t % 4.2) < .12;
+      if (ra > 0 && UVS.react === 'dance') {
+        // 💃 跳舞：每 4 拍換一個舞步（搖擺 → 彈跳 → 轉圈 → 左右滑步），最後漸漸停下
+        const fade = clamp(ra / .6), bp = rt * 2.2, mv = Math.floor(bp / 4) % 4, ph = bp % 1, beat = Math.sin(bp * Math.PI);
+        if (mv === 0) { x += beat * r * .28 * fade; rot += beat * .28 * fade; }
+        else if (mv === 1) { const h = Math.abs(Math.sin(bp * Math.PI)); y -= h * r * .38 * fade; ky = 1 + (h - .5) * .16 * fade; kx = 2 - ky; }
+        else if (mv === 2) { rot += (bp % 4) / 4 * TAU * fade; y -= Math.sin((bp % 4) / 4 * Math.PI) * r * .2 * fade; }
+        else { x += (Math.floor(bp) % 2 ? 1 : -1) * easeIO(Math.min(1, ph * 2)) * r * .22 * fade; ky = 1 - Math.abs(beat) * .08 * fade; kx = 2 - ky; }
+        closed = ph > .85 && mv === 1;
+        if (Math.random() < dt * 3) note(x + rand(-1, 1) * s * .5, y - s * .3, Math.random() < .5 ? '♪' : '♫', ['#ffe3a8', '#ffc2dc', '#c9b8ff', '#b8f0ff'][(Math.random() * 4) | 0]);
+        if (Math.random() < dt * 8) emit(x, y + s * .4, 1, ['255,236,190', '255,200,235'], { speed: 60, life: .8, size: .7 });
+      } else if (ra > 0 && UVS.react === 'love') { const e2 = Math.sin(Math.min(1, rt / 1.2) * Math.PI); ky = 1 - e2 * .14; kx = 1 + e2 * .12; closed = e2 > .3; }
+      else if (ra > 0 && UVS.react === 'sing') { const bp = rt * 3; y -= Math.abs(Math.sin(bp * Math.PI)) * r * .1; rot += Math.sin(bp * Math.PI / 2) * .12; ky = 1 + Math.abs(Math.sin(bp * Math.PI)) * .06; }
       p.petX = x; p.petY = y; p.petS = s;
-      drawPet(p.petIdx || 0, x, y + Math.sin(t * 1.7) * r * .05, s, { alpha: al, rot, closed: (t % 4.2) < .12 });
+      drawPet(p.petIdx || 0, x, y + Math.sin(t * 1.7) * r * .05, s, { alpha: al, rot, closed, kx, ky });
+      if (p.me) drawAcc(x, y + Math.sin(t * 1.7) * r * .05, s, Bond.level(), t);
+      drawNotes(dt, a);
     }
     function drawGifts(dt) {
       for (let i = gifts.length - 1; i >= 0; i--) {
@@ -9881,7 +9924,7 @@ function petSVG(i, opt = {}) {
       canvas.style.cursor = hover ? 'pointer' : (state === 'universe' ? 'grab' : '');
     }
     function tapAt(x, y) {
-      if (sel && sel.petX !== undefined && Math.hypot(x - sel.petX, y - sel.petY) < sel.petS * .45) { petReact(); return; }
+      if (sel && sel.petX !== undefined && Math.hypot(x - sel.petX, y - sel.petY) < sel.petS * .45) { if (sel.me) petAction('pet'); else petReact(); return; }
       const p = nearest(x, y, 22);
       if (p && p !== sel) select(p);
     }
@@ -9911,11 +9954,11 @@ function petSVG(i, opt = {}) {
     }
     function select(p) {
       sel = p; UVS.petPeek = 0; UVS.react = ''; UVS.reactA = 0; petHover = false;
-      flyTo(p.x, p.y, p.z, p.R * 6.2, 1.9); Sound.chime(WX_ORDER.indexOf(p.el) * .4); Sound.whoosh(1.4);
+      flyTo(p.x, p.y, p.z, p.R * (p.me ? 4.4 : 6.2), 1.9);   // 自己的星球靠近一點，寵物看得更清楚 Sound.chime(WX_ORDER.indexOf(p.el) * .4); Sound.whoosh(1.4);
       // 播放星球主人的五行之音
       Sound.wxStart(p.el, null); Sound.wxLevel(.85, 2.5);
       // 資訊卡會蓋住畫面的一部分：把星球移到看得到的地方（手機往上、電腦往左）
-      if (W <= 600) { tw(cam, 'ox', 0, 1.6); tw(cam, 'oy', -H * .24, 1.6); } else { tw(cam, 'ox', -Math.min(200, W * .16), 1.6); tw(cam, 'oy', 0, 1.6); }
+      if (W <= 600) { tw(cam, 'ox', 0, 1.6); tw(cam, 'oy', -H * (p.me ? .13 : .24), 1.6); } else { tw(cam, 'ox', -Math.min(200, W * .16), 1.6); tw(cam, 'oy', 0, 1.6); }
       setTimeout(() => { if (sel === p) tw(UVS, 'petPeek', 1, 1.4); }, 1500);
       fillCard(p); root.classList.add('c-on'); hintEl.textContent = '';
       if (!p.me) visited.add(p.pid || p.name);
@@ -9924,7 +9967,7 @@ function petSVG(i, opt = {}) {
     function back() {
       if (!sel) return;
       sel = null; root.classList.remove('c-on'); UVS.petPeek = 0; cardTok++; setTimeout(() => { if (!sel) $('uvcModel').textContent = ''; }, 900);
-      flyTo(0, 0, 0, 30, 2.2); Sound.whoosh(1.6); tw(cam, 'ox', 0, 1.8); tw(cam, 'oy', 0, 1.8);
+      flyTo(0, 0, 0, homeD, 2.2); Sound.whoosh(1.6); tw(cam, 'ox', 0, 1.8); tw(cam, 'oy', 0, 1.8);
       Sound.wxStart('all', null); Sound.wxLevel(.55, 3);     // 回到整座宇宙的聲音
       if (visited.size >= 3 && !finaleDone) setTimeout(() => { if (!sel && phase === 'free') finale(); }, 2600);
     }
@@ -9935,6 +9978,107 @@ function petSVG(i, opt = {}) {
       const n = document.createElement('b'); n.textContent = `${Math.round(clamp((v - 1) / 4) * 100)}%`;
       row.append(l, tr, n); return row;
     }
+    /* ---------- 和寵物的羈絆：親密度、每日陪伴、小任務、配件 ---------- */
+    const Bond = (() => {
+      const K = 'iv_bond', LV = [0, 30, 80, 160, 280, 450, 700];
+      const dayKey = d => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+      let b = null; try { b = JSON.parse(localStorage.getItem(K) || 'null'); } catch (_) { b = null; }
+      if (!b || typeof b.xp !== 'number') b = { xp: 0, streak: 0, last: '', day: '', done: {} };
+      const save = () => { try { localStorage.setItem(K, JSON.stringify(b)); } catch (_) { /* ignore */ } };
+      const roll = () => { const t = dayKey(new Date()); if (b.day !== t) { b.day = t; b.done = {}; } };
+      const level = () => { let l = 0; while (l + 1 < LV.length && b.xp >= LV[l + 1]) l++; return l + 1; };
+      const progress = () => { const l = level() - 1; return LV[l + 1] ? (b.xp - LV[l]) / (LV[l + 1] - LV[l]) : 1; };
+      const toNext = () => { const l = level(); return LV[l] ? LV[l] - b.xp : 0; };
+      // 每天第一次來：連續天數＋親密度
+      function checkIn() {
+        roll(); const t = dayKey(new Date()); if (b.last === t) return null;
+        b.streak = b.last === dayKey(new Date(Date.now() - 864e5)) ? b.streak + 1 : 1; b.last = t;
+        const lv0 = level(), gain = 10 + Math.min(10, (b.streak - 1) * 2); b.xp += gain; save();
+        return { streak: b.streak, gain, up: level() > lv0 };
+      }
+      const XP = { pet: 2, dance: 6, feed: 3, sing: 4, gift: 2 }, CAP = { pet: 5, dance: 3, feed: 5, sing: 3, gift: 5 };
+      const TASKS = ['pet', 'dance', 'gift'];
+      function act(k) {
+        roll(); const n = (b.done[k] || 0) + 1; b.done[k] = n;
+        let gain = n <= CAP[k] ? XP[k] : 0, task = false; const lv0 = level();
+        if (!b.done._bonus && TASKS.every(t => (b.done[t] || 0) >= 1)) { b.done._bonus = 1; gain += 15; task = true; }
+        b.xp += gain; save();
+        return { gain, up: level() > lv0, task };
+      }
+      const tasks = () => { roll(); return TASKS.map(t => [t, (b.done[t] || 0) >= 1]); };
+      return { get: () => b, level, progress, toNext, checkIn, act, tasks };
+    })();
+    // 配件：親密度越高，寵物身上的裝飾越多
+    const ACC = [null, null,
+      { zh: '🌸 花冠', en: '🌸 flower crown', ja: '🌸 花かんむり', ko: '🌸 꽃관', vi: '🌸 vòng hoa' },
+      { zh: '🎀 蝴蝶結', en: '🎀 ribbon bow', ja: '🎀 リボン', ko: '🎀 리본', vi: '🎀 nơ ruy băng' },
+      { zh: '⭐ 星星光環', en: '⭐ star halo', ja: '⭐ 星のわっか', ko: '⭐ 별 고리', vi: '⭐ vòng sao' },
+      { zh: '👑 小皇冠', en: '👑 little crown', ja: '👑 小さな王冠', ko: '👑 작은 왕관', vi: '👑 vương miện nhỏ' },
+      { zh: '🌙 月亮與流光', en: '🌙 moon & stardust', ja: '🌙 月と星くず', ko: '🌙 달과 별가루', vi: '🌙 trăng và bụi sao' },
+      { zh: '🌈 極光羽翼', en: '🌈 aurora wings', ja: '🌈 オーロラの羽', ko: '🌈 오로라 날개', vi: '🌈 đôi cánh cực quang' }];
+    const accName = l => { const a = ACC[l]; return a ? L(a.zh, a.en, { ja: a.ja, ko: a.ko, vi: a.vi }) : ''; };
+    function drawAcc(x, y, s, lv, t) {
+      if (lv < 2) return;
+      ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      const em = (ch, dx, dy, k, rot = 0) => { ctx.save(); ctx.translate(x + dx * s, y + dy * s); ctx.rotate(rot); ctx.font = `${Math.round(s * k)}px serif`; ctx.fillText(ch, 0, 0); ctx.restore(); };
+      if (lv >= 7) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = .55 + .2 * Math.sin(t * 2); em('🪽', -.42, -.02, .32, -.3 + Math.sin(t * 6) * .12); em('🪽', .42, -.02, .32, .3 - Math.sin(t * 6) * .12); ctx.restore(); }
+      if (lv >= 4) for (let i = 0; i < 3; i++) { const a = t * 1.4 + i * TAU / 3; em('⭐', Math.cos(a) * .42, -.42 + Math.sin(a) * .08, .1); }
+      if (lv >= 6) { em('🌙', -.36, -.36, .16, -.3); for (let i = 0; i < 4; i++) { const a = t * .9 + i * 1.6; em('✨', Math.cos(a) * .5, Math.sin(a) * .45, .09); } }
+      if (lv >= 5) em('👑', 0, -.5, .2); else if (lv >= 2) { em('🌸', -.18, -.42, .13, -.4); em('🌸', 0, -.47, .13); em('🌸', .18, -.42, .13, .4); }
+      if (lv >= 3) em('🎀', .3, -.28, .14, .3);
+      ctx.restore();
+    }
+    // 跳舞、唱歌時飄出的音符與愛心
+    const notes = [];
+    function note(x, y, ch, col) { notes.push({ x, y, ch, col, t: 0, vx: rand(-30, 30), r: rand(-.4, .4) }); }
+    function drawNotes(dt, a) {
+      ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      for (let i = notes.length - 1; i >= 0; i--) {
+        const n = notes[i]; n.t += dt / 1.8; if (n.t >= 1) { notes.splice(i, 1); continue; }
+        ctx.globalAlpha = a * Math.sin(n.t * Math.PI); ctx.fillStyle = n.col;
+        ctx.font = `${Math.round(U * .045)}px serif`; ctx.save(); ctx.translate(n.x + n.vx * n.t, n.y - n.t * U * .22); ctx.rotate(n.r * n.t); ctx.fillText(n.ch, 0, 0); ctx.restore();
+      }
+      ctx.restore();
+    }
+    function petAction(k) {
+      if (!sel || !sel.me) return;
+      const p = sel, nm = p.petName || ((Me.get() || {}).petName) || 'Pet';
+      UVS.reactT = 0; lastInteract = time;
+      if (k === 'dance') { UVS.react = 'dance'; UVS.reactA = 4.1; Sound.wxStart(p.el, null); Sound.wxLevel(1, 1.2); }
+      else if (k === 'pet') { UVS.react = 'love'; UVS.reactA = 1.4; Sound.chime(.6); if (p.petX) { emit(p.petX, p.petY, 20, ['255,190,220', '255,255,255'], { speed: 90, life: 1.1 }); for (let i = 0; i < 4; i++) setTimeout(() => sel && note(sel.petX + rand(-20, 20), sel.petY - sel.petS * .3, '♡', '#ffc2dc'), i * 140); } }
+      else if (k === 'feed') {
+        const r = $('upActs').querySelector('[data-k="feed"]').getBoundingClientRect();
+        gifts.push({ icon: '✨', x0: r.left + r.width / 2, y0: r.top + r.height / 2, p, t: 0 });
+        setTimeout(() => { if (sel === p) { UVS.react = 'gift'; UVS.reactT = 0; UVS.reactA = 1.6; Sound.chime(1.2); } }, 1300);
+      } else if (k === 'sing') {
+        UVS.react = 'sing'; UVS.reactA = 2.7; const base = [261.63, 293.66, 329.63, 392, 440], o = { earth: 0, metal: 1, wood: 2, fire: 3, water: 4 }[p.el] || 0;
+        [0, 2, 4, 2, 0, 4, 3, 0].forEach((d, i) => setTimeout(() => { Sound.note(base[(o + d) % 5] * (d > 2 ? 2 : 1), { dur: 1.1, gain: .07 }); if (sel === p && p.petX) note(p.petX + rand(-30, 30), p.petY - p.petS * .35, i % 2 ? '♫' : '♪', '#e6dcff'); }, i * 330));
+      }
+      const r = Bond.act(k); fillBond();
+      if (r.task) setTimeout(() => toast(L(`今日小任務完成！${nm} 好開心 ✦ 親密度 +15`, `Today's tasks done! ${nm} is so happy ✦ +15 affection`, { ja: `今日のミッション達成！${nm} 大よろこび ✦ 親密度 +15`, ko: `오늘의 미션 완료! ${nm}이(가) 정말 기뻐해요 ✦ 친밀도 +15`, vi: `Hoàn thành nhiệm vụ hôm nay! ${nm} vui lắm ✦ +15 thân thiết` }), 4.2), 900);
+      if (r.up) setTimeout(() => { const l = Bond.level(); toast(L(`${nm} 的親密度升到 Lv.${l}！解鎖了 ${accName(l)}`, `${nm} reached affection Lv.${l}! Unlocked ${accName(l)}`, { ja: `${nm} の親密度が Lv.${l} に！${accName(l)} を手に入れた`, ko: `${nm}의 친밀도가 Lv.${l}! ${accName(l)} 획득`, vi: `${nm} đạt thân thiết Lv.${l}! Mở khóa ${accName(l)}` }), 4.5); if (sel && sel.petX) emit(sel.petX, sel.petY, 50, ['255,236,190', '255,200,235', '255,255,255'], { speed: 160, life: 1.5 }); Sound.gift(); }, r.task ? 4800 : 600);
+    }
+    function fillBond() {
+      const box = $('uvcPet'); if (!sel || !sel.me) { box.hidden = true; return; }
+      box.hidden = false;
+      const bd = Bond.get(), lv = Bond.level(), nm = sel.petName || ((Me.get() || {}).petName) || 'Pet';
+      $('upLv').textContent = L(`${nm} 的親密度 Lv.${lv}`, `${nm} · affection Lv.${lv}`, { ja: `${nm} の親密度 Lv.${lv}`, ko: `${nm} 친밀도 Lv.${lv}`, vi: `${nm} · thân thiết Lv.${lv}` });
+      $('upStreak').textContent = bd.streak ? L(`🔥 連續陪伴 ${bd.streak} 天`, `🔥 ${bd.streak}-day streak`, { ja: `🔥 ${bd.streak} 日連続`, ko: `🔥 ${bd.streak}일 연속`, vi: `🔥 ${bd.streak} ngày liên tiếp` }) : '';
+      $('upBar').style.width = `${Math.round(Bond.progress() * 100)}%`;
+      const nx = Bond.toNext();
+      $('upNext').textContent = nx > 0 ? L(`再 ${nx} 點親密度 → 解鎖 ${accName(lv + 1)}`, `${nx} more → unlock ${accName(lv + 1)}`, { ja: `あと ${nx} で ${accName(lv + 1)} を解放`, ko: `${nx} 더 모으면 ${accName(lv + 1)} 해금`, vi: `Thêm ${nx} nữa → mở khóa ${accName(lv + 1)}` }) : L('所有配件都解鎖了 ✦', 'All accessories unlocked ✦', { ja: 'アクセサリーをぜんぶ解放 ✦', ko: '모든 장식을 해금했어요 ✦', vi: 'Đã mở khóa mọi phụ kiện ✦' });
+      const T = { pet: L('摸摸寵物', 'Pat your pet', { ja: 'ペットをなでる', ko: '펫 쓰다듬기', vi: 'Vuốt ve thú cưng' }), dance: L('一起跳一支舞', 'Dance together', { ja: 'いっしょにダンス', ko: '함께 춤추기', vi: 'Cùng nhảy một điệu' }), gift: L('送星光給別的旅人', 'Leave starlight for another traveler', { ja: 'ほかの旅人に星の光を贈る', ko: '다른 여행자에게 별빛 남기기', vi: 'Để lại ánh sao cho lữ khách khác' }) };
+      $('upTaskT').textContent = L('今日小任務（全部完成 +15）', "Today's little tasks (all done: +15)", { ja: '今日のミッション（ぜんぶで +15）', ko: '오늘의 작은 미션(모두 완료 +15)', vi: 'Nhiệm vụ nhỏ hôm nay (xong hết +15)' });
+      const ul = $('upTasks'); ul.textContent = '';
+      Bond.tasks().forEach(([k, ok]) => { const li = document.createElement('li'); li.className = ok ? 'ok' : ''; li.textContent = `${ok ? '✓' : '○'} ${T[k]}`; ul.appendChild(li); });
+    }
+    [['dance', '💃', '跳舞', 'Dance', 'ダンス', '춤추기', 'Nhảy'], ['pet', '🤲', '摸摸', 'Pat', 'なでる', '쓰다듬기', 'Vuốt ve'], ['feed', '✨', '餵星光', 'Feed', '星をあげる', '별빛 주기', 'Cho ăn'], ['sing', '🎵', '一起唱', 'Sing', 'うたう', '노래하기', 'Hát']].forEach(([k, ic, zh, en, ja, ko, vi]) => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'up-act'; b.dataset.k = k;
+      const i = document.createElement('b'); i.textContent = ic; b.append(i, L(zh, en, { ja, ko, vi }));
+      b.addEventListener('click', () => { petAction(k); b.classList.add('busy'); setTimeout(() => b.classList.remove('busy'), k === 'dance' ? 2500 : 900); });
+      $('upActs').appendChild(b);
+    });
+
     // 旅人用 Tripo 生成的星球縮圖
     const imgCache = new Map();
     function planetImg(p) {
@@ -9993,7 +10137,7 @@ function petSVG(i, opt = {}) {
       const bars = $('uvcBars'); bars.textContent = '';
       if (p.big5) ['O', 'C', 'E', 'A', 'N'].forEach(k => bars.appendChild(bar(`${k}`, p.big5[k] || 3)));
       $('uvcStarsN').textContent = p.lights ? L(`已經有 ${p.lights} 點星光`, `${p.lights} bits of starlight so far`, { ja: `これまでに ${p.lights} つの星の光`, ko: `지금까지 별빛 ${p.lights}개`, vi: `Đã có ${p.lights} chút ánh sao` }) : '';
-      $('uvcGive').hidden = !!p.me;
+      $('uvcGive').hidden = !!p.me; fillBond();
       Array.from($('uvcGifts').children).forEach(b => b.classList.toggle('done', !!(given[p.pid || p.name] || {})[b.dataset.k]));
     }
     function give(k) {
@@ -10002,6 +10146,7 @@ function petSVG(i, opt = {}) {
       const btn = $('uvcGifts').querySelector(`[data-k="${k}"]`);
       if (gv[k]) { btn.classList.remove('shake'); void btn.offsetWidth; btn.classList.add('shake'); return; }
       gv[k] = true; btn.classList.add('done');
+      { const rb = Bond.act('gift'); if (rb.task) setTimeout(() => toast(L('今日小任務完成！親密度 +15 ✦', "Today's tasks done! +15 affection ✦", { ja: '今日のミッション達成！親密度 +15 ✦', ko: '오늘의 미션 완료! 친밀도 +15 ✦', vi: 'Hoàn thành nhiệm vụ hôm nay! +15 thân thiết ✦' })), 2600); }
       const g = UV_GIFTS.find(x => x.k === k), r = btn.getBoundingClientRect();
       gifts.push({ icon: g.icon, x0: r.left + r.width / 2, y0: r.top + r.height / 2, p: sel, t: 0 });
       Sound.chime(UV_GIFTS.indexOf(g) * .3);
@@ -10063,7 +10208,7 @@ function petSVG(i, opt = {}) {
       if (pin && !hand.pinched && phase === 'free') { hand.pinched = true; if (hover && hover !== sel) select(hover); }
       if (!pin) hand.pinched = false;
       // ✊ 握拳：回到整個宇宙
-      if (fist && !pin) { hand.fistT += dt; if (hand.fistT > .6) { hand.fistT = -2; if (sel) back(); else flyTo(0, 0, 0, 30, 2); } }
+      if (fist && !pin) { hand.fistT += dt; if (hand.fistT > .6) { hand.fistT = -2; if (sel) back(); else flyTo(0, 0, 0, homeD, 2); } }
       else if (hand.fistT > 0) hand.fistT = 0; else hand.fistT = Math.min(0, hand.fistT + dt);
     }
 
@@ -10081,7 +10226,7 @@ function petSVG(i, opt = {}) {
         await data(); if (my !== token) return;
         layout();
         Object.assign(cam, { yaw: .5, pitch: .5, dist: 64, tx: 0, ty: 0, tz: 0, vy: 0, vp: 0, ox: 0, oy: 0 });
-        UVS.a = 0; tw(UVS, 'a', 1, 2.2); tw(cam, 'dist', 30, 4.5, easeOut); tw(cam, 'pitch', .36, 4.5, easeOut);
+        UVS.a = 0; tw(UVS, 'a', 1, 2.2); tw(cam, 'dist', homeD, 4.5, easeOut); tw(cam, 'pitch', .36, 4.5, easeOut);
         Sound.wxStart('all', null); Sound.wxLevel(.55, 3);
         demoEl.hidden = !demo;
         await sleep(.6);
@@ -10091,7 +10236,12 @@ function petSVG(i, opt = {}) {
         root.classList.add('h-on'); phase = 'free'; lastInteract = time;
         hintEl.textContent = L('單指旋轉・雙指縮放與平移・點一顆星球去看看', 'One finger to turn · two fingers to zoom & pan · tap a planet to visit', { ja: '1本指で回転・2本指で拡大と移動・星をタップして訪ねよう', ko: '한 손가락으로 회전 · 두 손가락으로 확대·이동 · 행성을 눌러 방문하기', vi: 'Một ngón để xoay · hai ngón để phóng to và di chuyển · chạm vào một hành tinh để ghé thăm' });
         const me = list.find(p => p.me);
-        if (me) setTimeout(() => toast(L('有光圈的那一顆，是你的星球。', 'The one with the halo is your planet.')), 1200);
+        if (me) {
+          setTimeout(() => toast(L('有光圈的那一顆，是你的星球。', 'The one with the halo is your planet.')), 1200);
+          // 每天回來：寵物想你了＋連續天數
+          const ck = Bond.checkIn(), nm = me.petName || 'Pet';
+          if (ck) setTimeout(() => { if (my === token) toast(ck.streak > 1 ? L(`${nm} 好想你！連續陪伴第 ${ck.streak} 天 ✦ 親密度 +${ck.gain}`, `${nm} missed you! Day ${ck.streak} in a row ✦ +${ck.gain} affection`, { ja: `${nm} はさみしかったよ！${ck.streak} 日連続 ✦ 親密度 +${ck.gain}`, ko: `${nm}이(가) 보고 싶었대요! ${ck.streak}일 연속 ✦ 친밀도 +${ck.gain}`, vi: `${nm} nhớ bạn lắm! Ngày thứ ${ck.streak} liên tiếp ✦ +${ck.gain} thân thiết` }) : L(`${nm} 在等你。點你的星球，和牠一起玩吧 ✦ 親密度 +${ck.gain}`, `${nm} is waiting. Tap your planet to play together ✦ +${ck.gain} affection`, { ja: `${nm} が待ってるよ。自分の星をタップしていっしょに遊ぼう ✦ +${ck.gain}`, ko: `${nm}이(가) 기다려요. 내 행성을 눌러 함께 놀아요 ✦ +${ck.gain}`, vi: `${nm} đang đợi. Chạm vào hành tinh của bạn để chơi cùng ✦ +${ck.gain}` }), 5); }, 5200);
+        }
         visits();
       } catch (e) { if (!(e instanceof Cancel)) throw e; }
     }
@@ -10131,7 +10281,7 @@ function petSVG(i, opt = {}) {
     }
     $('uvKeep').addEventListener('click', () => {
       finEl.classList.remove('on'); $('uvFinBtns').classList.remove('on'); tw(UVS, 'allGlow', 0, 2); UVS.wave = -1;
-      flyTo(0, 0, 0, 30, 2.4); phase = 'free'; root.classList.add('h-on', 't-on'); Sound.wxLevel(.55, 3);
+      flyTo(0, 0, 0, homeD, 2.4); phase = 'free'; root.classList.add('h-on', 't-on'); Sound.wxLevel(.55, 3);
     });
     $('uvHome').addEventListener('click', () => resetWorld());
     window.addEventListener('keydown', e => { if (state === 'universe' && e.key === 'Escape' && sel) { e.stopImmediatePropagation(); back(); } }, true);
@@ -10148,7 +10298,7 @@ function petSVG(i, opt = {}) {
     if (/[?&]debug=1/.test(location.search)) {
       window.__uvPick = () => { const c = planetsW.filter(p => p.vis && !p.me && p !== sel && p.sx > W * .2 && p.sx < W * .8 && p.sy > H * .25 && p.sy < H * .75).sort((a, b) => b.sr - a.sr).slice(0, 6); const p = c[(Math.random() * c.length) | 0]; return p ? [p.sx, p.sy] : null; };
       window.__uvPet = () => (sel && sel.petX ? [sel.petX, sel.petY] : null);
-      window.__uvList = () => planetsW.map(p => [p.name, !!p.me, (p.img || '').length, (planetImg(p) || {}).naturalWidth || 0, Math.round(p.sr), Math.round(p.sx), Math.round(p.sy), p.model || '']);
+      window.__uvList = () => planetsW.map(p => [p.name, !!p.me, (p.img || '').length, (planetImg(p) || {}).naturalWidth || 0, Math.round(p.sr), Math.round(p.sx), Math.round(p.sy), p.model || '', +(p.depth || 0).toFixed(2), p === sel]);
       window.__handSim = o => { hand.on = true; Object.assign(Hand.S, o); return [cam.dist, cam.tx, cam.ty, cam.tz, cam.yaw]; };
       window.__uvSel = n => { const p = planetsW.find(q => q.name === n); if (p) select(p); return !!p; };
     }

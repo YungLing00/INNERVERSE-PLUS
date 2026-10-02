@@ -105,10 +105,11 @@ function doGet(e) {
     if (action === 'modelBin') return modelBin_(e);
     if (action === 'tripoCheck') return tripoCheck_(e);
     if (action === 'inbox') return inbox_(e);
+    if (action === 'event') return event_(e);
     return json_({
       ok:true,
       message:'INNERVERSE PLUS API is running',
-      actions:['saveInnerverse','interpret','worry','modelStart','modelStatus','modelGlb','modelBin','tripoCheck','checkName','publish','universe','starlight','visits','lookup','invite','inbox','respond','friendAct','note'],
+      actions:['saveInnerverse','interpret','worry','modelStart','modelStatus','modelGlb','modelBin','tripoCheck','checkName','publish','universe','starlight','visits','lookup','invite','inbox','respond','friendAct','note','event','eventGive'],
       time:new Date().toISOString()
     });
   } catch (err) {
@@ -131,6 +132,7 @@ function doPost(e) {
     if (action === 'respond') return respond_(body);
     if (action === 'friendAct') return friendAct_(body);
     if (action === 'note') return note_(body);
+    if (action === 'eventGive') return eventGive_(body);
     return json_({ok:false,error:'Unknown action: ' + action});
   } catch (err) {
     return json_({ok:false,error:err.message});
@@ -907,4 +909,75 @@ function note_(b) {
   const safe = /^[=+\-@]/.test(text) ? "'" + text : text;   // 避免被試算表當成公式
   sheet_(NOTE_SHEET, NOTE_HEADERS).appendRow([Utilities.getUuid().slice(0, 12), new Date(), to, me.pid, safe, '']);
   return json_({ok:true});
+}
+
+
+/* ================================================================
+ * 🌎 LIGHT THE UNIVERSE｜全宇宙事件「THE LOST STAR」
+ * 每小時整點開始 20 分鐘（台灣時間）：一顆巨大的星星失去光，所有在線的人一起收集光之碎片點亮它。
+ * 進度放在 CacheService（快、可多人同時寫入），完成時另記一筆到 EVENTS 表。
+ * 指令碼屬性 EVENT_MODE：hourly（預設）／always（測試用，一直開著）／off（關閉）
+ * ================================================================ */
+const EVENT_SHEET = 'EVENTS', EVENT_HEADERS = ['id','doneAt','participants','fragments','goal','mixO','mixC','mixE','mixA','mixN'];
+const EVENT_MIN = 20;
+function eventWindow_() {
+  const mode = prop_('EVENT_MODE') || 'hourly', now = new Date();
+  const tz = 'Asia/Taipei', min = Number(Utilities.formatDate(now, tz, 'm'));
+  if (mode === 'off') return { active: false, off: true };
+  if (mode === 'always') { const id = 'A' + Utilities.formatDate(now, tz, 'yyyyMMdd'); return { active: true, id, endsAt: now.getTime() + 3600e3 }; }
+  const id = Utilities.formatDate(now, tz, 'yyyyMMddHH');
+  const start = now.getTime() - (min * 60 + now.getSeconds()) * 1000;
+  return min < EVENT_MIN ? { active: true, id, endsAt: start + EVENT_MIN * 60e3 } : { active: false, nextAt: start + 3600e3 };
+}
+function evGet_(id) { const v = CacheService.getScriptCache().get('ev_' + id); return v ? JSON.parse(v) : { id, progress: 0, done: false, parts: {} }; }
+function evPut_(ev) { CacheService.getScriptCache().put('ev_' + ev.id, JSON.stringify(ev), 21600); }
+// 旅人資料快取 6 小時，避免每次輪詢都讀試算表
+function evMe_(uid) {
+  uid = str_(uid, 60); if (!uid) return null;
+  const c = CacheService.getScriptCache(), k = 'u_' + uid, hit = c.get(k);
+  if (hit) return JSON.parse(hit);
+  const r = meByUid_(uid); if (!r) return null;
+  const me = { pid: r.pid, petIdx: Number(r.petIdx) || 0, petName: r.petName, b: ['O','C','E','A','N'].map(x => Number(r[x]) || 3) };
+  c.put(k, JSON.stringify(me), 21600); return me;
+}
+const evGoal_ = n => Math.min(1500, 25 + 15 * Math.max(0, n - 1));
+function evOut_(w, ev, me) {
+  const now = Date.now(), parts = Object.keys(ev.parts).map(k => Object.assign({ pid: k }, ev.parts[k]));
+  const mix = [0, 0, 0, 0, 0]; parts.forEach(p => p.b.forEach((v, i) => { mix[i] += v; }));
+  return { ok: true, active: true, id: ev.id, endsAt: w.endsAt, progress: ev.progress, goal: evGoal_(parts.length), done: ev.done, doneAt: ev.doneAt || 0,
+    online: parts.filter(p => now - p.seen < 25000).length, joined: parts.length,
+    pets: parts.sort((a, b) => b.seen - a.seen).slice(0, 60).map(p => ({ pid: p.pid, petIdx: p.petIdx, petName: p.petName, n: p.n })),
+    mix: mix.map(v => parts.length ? Math.round(v / parts.length * 10) / 10 : 3), mine: me && ev.parts[me.pid] ? ev.parts[me.pid].n : 0 };
+}
+function event_(e) {
+  const w = eventWindow_(); if (!w.active) return json_({ ok: true, active: false, nextAt: w.nextAt || 0, off: !!w.off });
+  const me = evMe_((e.parameter || {}).uid);
+  if (me && (e.parameter || {}).join) {   // 在宇宙裡＝出席（顯示在大家的畫面上）
+    const lock = LockService.getScriptLock(); lock.waitLock(5000);
+    try { const ev = evGet_(w.id), p = ev.parts[me.pid] || { n: 0, last: 0 }; ev.parts[me.pid] = Object.assign(p, { petIdx: me.petIdx, petName: me.petName, b: me.b, seen: Date.now() }); evPut_(ev); return json_(evOut_(w, ev, me)); }
+    finally { lock.releaseLock(); }
+  }
+  return json_(evOut_(w, evGet_(w.id), me));
+}
+// 送進光之碎片：每次最多 5 顆、每 2 秒最多一次
+function eventGive_(b) {
+  const w = eventWindow_(); if (!w.active) return json_({ ok: false, error: 'no_event' });
+  const me = evMe_(b.uid); if (!me) return json_({ ok: false, error: 'no_planet' });
+  const n = Math.max(0, Math.min(5, Math.floor(Number(b.n) || 0)));
+  const lock = LockService.getScriptLock(); lock.waitLock(8000);
+  try {
+    const ev = evGet_(w.id), now = Date.now(), p = ev.parts[me.pid] || { n: 0, last: 0 };
+    ev.parts[me.pid] = Object.assign(p, { petIdx: me.petIdx, petName: me.petName, b: me.b, seen: now });
+    if (n && now - (p.last || 0) > 2000 && !ev.done) {
+      p.n += n; p.last = now; ev.progress += n;
+      const goal = evGoal_(Object.keys(ev.parts).length);
+      if (ev.progress >= goal) {
+        ev.done = true; ev.doneAt = now; ev.progress = goal;
+        const out = evOut_(w, ev, me);
+        try { sheet_(EVENT_SHEET, EVENT_HEADERS).appendRow([ev.id, new Date(now), out.joined, ev.progress, goal].concat(out.mix)); } catch (_) {}
+      }
+    }
+    evPut_(ev);
+    return json_(evOut_(w, ev, me));
+  } finally { lock.releaseLock(); }
 }

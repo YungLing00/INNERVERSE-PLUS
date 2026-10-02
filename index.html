@@ -631,6 +631,22 @@
   .uv-gift.done { background: rgba(255,226,170,.16); border-color: rgba(255,226,170,.6); }
   .uv-gift.shake { animation: giftNo .4s ease; }
   @keyframes giftNo { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+  .uv-ev { position: absolute; left: 50%; transform: translateX(-50%); top: calc(env(safe-area-inset-top, 0px) + 96px); width: min(440px, calc(100vw - 24px)); padding: 10px 14px 10px; border-radius: 16px;
+    background: rgba(14,10,40,.62); border: 1px solid rgba(255,214,150,.4); box-shadow: 0 0 26px rgba(255,200,120,.18); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); z-index: 3; pointer-events: auto; }
+  .uv-ev.ev-mini { width: auto; padding: 6px 14px; border-color: rgba(255,255,255,.18); box-shadow: none; }
+  .uv-ev.ev-mini .ev-bar, .uv-ev.ev-mini .ev-row { display: none; }
+  .ev-t { font-size: .8rem; letter-spacing: .04em; line-height: 1.5; color: #fff3dc; }
+  .uv-ev.ev-mini .ev-t { font-size: .74rem; color: var(--dim); white-space: nowrap; }
+  .ev-s { margin-top: .2rem; font-size: .72rem; letter-spacing: .04em; line-height: 1.55; color: var(--dim); }
+  .ev-s:empty { display: none; }
+  .ev-bar { margin-top: 8px; height: 6px; border-radius: 99px; background: rgba(255,255,255,.1); overflow: hidden; }
+  .ev-bar i { display: block; height: 100%; width: 0; border-radius: 99px; background: linear-gradient(90deg, #ffd6e8, #ffe3a8); box-shadow: 0 0 10px rgba(255,214,170,.8); transition: width 1s ease; }
+  .ev-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; }
+  .ev-n { font-size: .72rem; letter-spacing: .04em; color: rgba(255,236,200,.85); }
+  .ev-go { padding: .45rem 1.1rem; font-size: .82rem; }
+  .uv.c-on .uv-ev, .uv.ev-dance .uv-ev { opacity: 0; pointer-events: none; }
+  .uv.ev-on .uv-toast { top: calc(env(safe-area-inset-top, 0px) + 236px); }
+  @media (orientation: landscape) and (max-height: 520px) { .uv-ev { top: calc(env(safe-area-inset-top, 0px) + 52px); width: min(380px, 46vw); left: auto; right: 12px; transform: none; } }
   .uf { margin-top: 12px; padding: 12px; border-radius: 16px; background: rgba(255,200,235,.06); border: 1px solid rgba(255,200,235,.22); }
   .uf-head { font-size: .92rem; letter-spacing: .06em; color: #fff3dc; line-height: 1.6; }
   .uf-sub { margin-top: .25rem; font-size: .74rem; letter-spacing: .06em; color: var(--dim); line-height: 1.6; }
@@ -1187,6 +1203,7 @@
 <section class="uv" id="uv">
   <div class="uv-title"><h2>✦ OUR UNIVERSE ✦</h2><p class="uv-demo" id="uvDemo" hidden>示範宇宙：真實旅人還不多，先用示範星球陪你逛逛</p></div>
   <p class="uv-hint" id="uvHint"></p>
+  <div class="uv-ev" id="uvEvent" hidden><p class="ev-t" id="evTitle"></p><p class="ev-s" id="evSub"></p><div class="ev-bar"><i id="evBar"></i></div><div class="ev-row"><span class="ev-n" id="evN"></span><button class="main ev-go" id="evGo" type="button"></button></div></div>
   <div class="uv-tools"><button class="pill" id="uvHand" type="button">🖐️ 手勢控制</button><button class="pill" id="uvAll" type="button">✦ 看見整座宇宙</button><button class="pill uv-mail" id="uvMail" type="button" hidden>💌</button><button class="pill" id="uvFriends" type="button" hidden>✦</button></div>
   <div class="uv-gest" id="uvGest"><span>🖐️ 張開手掌移動：旋轉宇宙</span><span>🖐️ 手掌靠近／遠離鏡頭：放大／縮小</span><span>✌️ 兩指或三指移動：平移</span><span>🤏 捏合：選擇星球</span><span>✊ 握拳：回到整個宇宙</span></div>
   <aside class="uv-card" id="uvCard" aria-live="polite">
@@ -4790,7 +4807,7 @@ function petSVG(i, opt = {}) {
 
     // iOS 在使用麥克風／相機、來電、切換 App 之後，常把聲音暫停（suspended / interrupted）
     // 畫面還在前景時就自動接回來；需要手勢才能恢復的，就在下一次觸碰時接回
-    let duckTimer = 0, userPaused = false;
+    let duckTimer = 0, userPaused = false; let galT = 0;
     function ensureOn() {
       if (!ac || userPaused || document.hidden) return;
       if (ac.state !== 'running') ac.resume().catch(() => { /* 等下一次觸碰 */ });
@@ -4894,6 +4911,31 @@ function petSVG(i, opt = {}) {
         else if (el === 'wood') { xiao(f, { gain: .07, dur: 2.2 }); woodblock({ delay: .02 }); }
         else if (el === 'fire') { pluck(f * 2, { gain: .1, bright: 1.3 }); pluck(f * 3, { gain: .05, delay: .12, bright: 1.3 }); for (let k = 0; k < 5; k++) setTimeout(crackle, k * 70); }
         else if (el === 'water') { guqin(f / 2, { gain: .14, dur: 5 }); droplet({ delay: .1 }); droplet({ delay: .45 }); }
+      },
+      // 🪩 GALAXY DANCE：依在場寵物的 Big Five 比例混出今天的音樂（O 多→空靈層、E 多→鼓、A 多→和聲、C 多→穩定節奏、N 多→柔和長音）
+      galaxy(mix = [3, 3, 3, 3, 3], sec = 16) {
+        if (!ac) return;
+        clearTimeout(galT); stopBreathLoop(); pianoOn = false; clearTimeout(pianoTimer);
+        if (wxMode) { clearTimeout(wxTimer); wxTimer = 0; wxCb = null; wxMode = false; }
+        base = LEVEL; ducked = false; ensureOn(); ramp(master.gain, target(), 1);
+        ramp(padGain.gain, .32 + Math.max(0, mix[3] - 3) * .12, 2); ramp(padLP.frequency, 2600, 2);
+        const w = k => clamp((mix[k] - 2.2) / 2.3, 0, 1), [O, C, E, A, N] = [0, 1, 2, 3, 4].map(w);
+        const scale = [261.63, 293.66, 329.63, 392, 440, 523.25, 587.33, 659.25, 783.99, 880];
+        const prog = [[0, 2, 4], [4, 6, 8], [5, 7, 9], [3, 5, 7]], bpm = 96 + E * 22, step = 60 / bpm / 2;
+        let n = 0; const end = ac.currentTime + sec;
+        const tick = () => {
+          if (!ac || ac.currentTime > end) { ramp(padGain.gain, .2, 3); return; }
+          const bar = Math.floor(n / 8) % prog.length, ch = prog[bar], beat = n % 2 === 0;
+          if (n % 8 === 0) { ch.forEach((d, i) => pluck(scale[d] / 2, { gain: .05 + A * .04, delay: i * .03, dur: 3, pan: (i - 1) * .4 })); if (N > .3) xiao(scale[ch[0]] / 2, { gain: .025 + N * .03, dur: 3.6 }); }
+          if (beat && Math.random() < .55 + E * .3) pluck(scale[Math.min(scale.length - 1, ch[(n / 2) % 3] + (Math.random() < .3 ? 1 : 0))] * (Math.random() < .5 ? 1 : 2), { gain: .045, dur: 1.4, pan: rand(-.6, .6) });
+          if (E > .15 && n % 4 === 0) drum(n % 16 === 0 ? 55 : 70, { gain: .1 + E * .14 });
+          if (E > .5 && n % 4 === 2) drum(90, { gain: .05 + E * .05 });
+          if (C > .2 && !beat) woodblock({ f: 780 + (n % 4) * 60, gain: .02 + C * .035, pan: n % 4 ? .3 : -.3 });
+          if (O > .2 && Math.random() < .12 + O * .2) bell(scale[5 + ((Math.random() * 5) | 0)] * 2, { gain: .02 + O * .03, dur: 4, pan: rand(-.8, .8) });
+          if (A > .3 && n % 8 === 4) ch.forEach(d => pluck(scale[d] * 2, { gain: .02 + A * .025, dur: 2.4, bright: .8 }));
+          n++; galT = setTimeout(tick, step * 1000);
+        };
+        tick();
       },
       faint(f = 1318.5) { if (ac) { bell(f, { gain: .02, dur: 6 }); } },
       ding(k = 0) { if (ac) { bell(1567.98 * (1 + k * .06), { gain: .09, dur: 4 }); bell(2093 * (1 + k * .06), { gain: .035, delay: .06, dur: 3 }); } },
@@ -10022,6 +10064,7 @@ function petSVG(i, opt = {}) {
           ctx.font = `300 ${Math.round(clamp(r * .32, 11, 15))}px ${bodyFont}`; ctx.fillText(p.name, p.sx, p.sy + r * 1.55 + 12);
         }
       }
+      drawEvent(dt, a);
       // 選到的星球：寵物從後面探出頭
       if (sel && sel.vis && UVS.petPeek > .01) drawSelPet(dt, a);
       // 送出的星光
@@ -10435,6 +10478,153 @@ function petSVG(i, opt = {}) {
       ctx.translate(x, y); ctx.rotate(Math.sin(time * 1.5) * .12); ctx.fillText('💌', 0, 0); ctx.restore();
     }
 
+    /* ================================================================
+       🌎 LIGHT THE UNIVERSE｜THE LOST STAR 全宇宙事件
+       一顆巨大的星星失去光。所有在線的旅人收集光之碎片，一起把它點亮；
+       點亮後，所有寵物一起 GALAXY DANCE，音樂依在場寵物的 Big Five 混出來。
+       ================================================================ */
+    const LS = { x: 0, y: 2.4, z: 0, R: 1.15 };
+    const EV = { data: null, t: 0, intro: new Set(), going: false, carry: 0, frags: [], beams: [], doneShown: '', dance: 0, danceMix: null, sending: false };
+    const evOn = () => !!(EV.data && EV.data.active);
+    async function evPoll() {
+      if (state !== 'universe' || !CONFIG.DATA_ENDPOINT || document.hidden) return;
+      try {
+        const q = { action: 'event' }; if ((Me.get() || {}).pid) { q.uid = Me.uid(); q.join = 1; }
+        const d = await apiGet(q, 9000); if (state !== 'universe') return;
+        const was = EV.data; EV.data = d; evBanner();
+        if (d.active && !d.done && !EV.intro.has(d.id) && phase === 'free') { EV.intro.add(d.id); evIntro(); }
+        if (d.active && d.done && EV.doneShown !== d.id && (EV.going || (was && was.active && !was.done))) evFinale();
+      } catch (e) { console.warn('event:', e); }
+    }
+    function evBanner() {
+      const d = EV.data, box = $('uvEvent'), go = $('evGo');
+      if (!d || d.off || (!d.active && !d.nextAt)) { box.hidden = true; root.classList.remove('ev-on'); return; }
+      box.hidden = false; box.classList.toggle('ev-mini', !d.active); root.classList.toggle('ev-on', !!d.active);
+      if (!d.active) {
+        const hm = new Date(d.nextAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        $('evTitle').textContent = L(`🌑 下一場 THE LOST STAR｜${hm}`, `🌑 Next THE LOST STAR · ${hm}`, { ja: `🌑 次の THE LOST STAR｜${hm}`, ko: `🌑 다음 THE LOST STAR｜${hm}`, vi: `🌑 THE LOST STAR tiếp theo · ${hm}` });
+        $('evSub').textContent = ''; $('evN').textContent = ''; $('evBar').style.width = '0'; go.hidden = true; return;
+      }
+      const pct = Math.round(d.progress / Math.max(1, d.goal) * 100);
+      $('evBar').style.width = pct + '%';
+      if (d.done) {
+        $('evTitle').textContent = L('✦ 星星被大家點亮了！', '✦ Everyone lit the star!', { ja: '✦ みんなで星を灯した！', ko: '✦ 모두가 별을 밝혔어요!', vi: '✦ Mọi người đã thắp sáng ngôi sao!' });
+        $('evSub').textContent = L(`${d.joined} 位旅人一起完成`, `${d.joined} travelers did it together`, { ja: `${d.joined} 人の旅人がいっしょに`, ko: `여행자 ${d.joined}명이 함께 해냈어요`, vi: `${d.joined} lữ khách cùng nhau hoàn thành` });
+        go.hidden = false; go.textContent = L('🪩 再看一次 Galaxy Dance', '🪩 Watch the Galaxy Dance again', { ja: '🪩 Galaxy Dance をもう一度', ko: '🪩 Galaxy Dance 다시 보기', vi: '🪩 Xem lại Galaxy Dance' });
+      } else {
+        $('evTitle').textContent = L('🌑 THE LOST STAR｜宇宙裡，有一顆星星正在等待大家。', '🌑 THE LOST STAR · A star in the universe is waiting for everyone.', { ja: '🌑 THE LOST STAR｜宇宙で、ひとつの星がみんなを待っている。', ko: '🌑 THE LOST STAR｜우주의 한 별이 모두를 기다리고 있어요.', vi: '🌑 THE LOST STAR · Một ngôi sao đang đợi mọi người.' });
+        $('evSub').textContent = EV.going ? L(`點「✦ 光之碎片」收集（最多 5 顆），再點中央的星星送進去・你帶著 ✦ ${EV.carry}/5`, `Tap ✦ light fragments (up to 5), then tap the star to give them · carrying ✦ ${EV.carry}/5`, { ja: `✦ 光のかけらを集めて（5こまで）、星をタップして届けよう・✦ ${EV.carry}/5`, ko: `✦ 빛 조각을 모아(최대 5개) 별을 눌러 전해요 · ✦ ${EV.carry}/5`, vi: `Chạm ✦ mảnh ánh sáng (tối đa 5), rồi chạm ngôi sao để gửi · ✦ ${EV.carry}/5` })
+          : L('每個人都帶一點點光，就能讓它重新亮起來。', 'If everyone brings a little light, it can shine again.', { ja: 'みんなが少しずつ光を持ち寄れば、また輝ける。', ko: '모두가 조금씩 빛을 가져오면 다시 빛날 수 있어요.', vi: 'Mỗi người mang một chút ánh sáng, nó sẽ sáng lại.' });
+        go.hidden = EV.going; go.textContent = L('前往 ✦', 'Go ✦', { ja: '向かう ✦', ko: '가기 ✦', vi: 'Đi ✦' });
+      }
+      $('evN').textContent = L(`${pct}%・${d.online} 位旅人正在幫忙`, `${pct}% · ${d.online} travelers helping now`, { ja: `${pct}%・${d.online} 人が手伝っている`, ko: `${pct}% · ${d.online}명이 돕는 중`, vi: `${pct}% · ${d.online} lữ khách đang giúp` });
+    }
+    function evIntro() {
+      // 宇宙震動、音樂停一下，天空出現 THE LOST STAR
+      const y0 = cam.yaw; let k = 0; const shake = setInterval(() => { cam.yaw = y0 + Math.sin(k * 1.7) * .02 * (1 - k / 24); if (++k > 24) { clearInterval(shake); cam.yaw = y0; } }, 40);
+      Sound.wxLevel(.05, .4); Sound.boom(); setTimeout(() => Sound.wxLevel(.55, 3), 2600);
+      buildCaption([{ text: 'THE LOST STAR', cls: 'en' }, L('宇宙裡，有一顆星星正在等待大家。', 'A star in the universe is waiting for everyone.', { ja: '宇宙で、ひとつの星がみんなを待っている。', ko: '우주의 한 별이 모두를 기다리고 있어요.', vi: 'Một ngôi sao trong vũ trụ đang đợi mọi người.' })], 1.2, 'mid');
+      setTimeout(hideCaption, 5200);
+    }
+    function evGo() {
+      const d = EV.data; if (!d || !d.active) return;
+      if (d.done) { evFinale(true); return; }
+      if (sel) back();
+      EV.going = true; flyTo(LS.x, LS.y, LS.z, 10, 2.4); tw(cam, 'pitch', .3, 2.4);
+      EV.frags = []; for (let i = 0; i < 14; i++) evSpawn();
+      evBanner(); hintEl.textContent = '';
+      if (!(Me.get() || {}).pid) toast(L('完成測驗、有了自己的星球之後，就能一起送光進去喔。', 'Once you have your own planet, you can bring light too.'));
+    }
+    function evSpawn() {
+      const an = Math.random() * TAU, r = rand(2, 4.2), y = rand(-1.3, 1.5);   // 都在星星附近、看得到的地方
+      EV.frags.push({ x: LS.x + Math.cos(an) * r, y: LS.y + y, z: LS.z + Math.sin(an) * r, ph: rand(0, TAU), born: time });
+    }
+    // 點碎片收集、點星星送光
+    function evTap(x, y) {
+      if (!evOn() || !EV.going || EV.data.done) return false;
+      let best = null, bd = 1e9;
+      for (const f of EV.frags) { if (!f.vis) continue; const d = Math.hypot(f.sx - x, f.sy - y); if (d < Math.max(26, f.ss * 2.4) && d < bd) { bd = d; best = f; } }
+      if (best) {
+        if (EV.carry >= 5) { toast(L('手上已經有 5 顆了，先送進星星裡吧 ✦', 'You are carrying 5 already — give them to the star ✦')); return true; }
+        EV.carry++; EV.frags.splice(EV.frags.indexOf(best), 1); setTimeout(evSpawn, 3500);
+        emit(best.sx, best.sy, 14, ['255,236,190', '255,255,255'], { speed: 90, life: .8 }); Sound.chime(EV.carry * .25); evBanner(); return true;
+      }
+      if (EV.star && Math.hypot(EV.star[0] - x, EV.star[1] - y) < Math.max(40, EV.star[2] * 1.3)) { evGive(); return true; }
+      return false;
+    }
+    async function evGive() {
+      if (!EV.carry) { toast(L('先去收集一些 ✦ 光之碎片吧', 'Collect some ✦ light fragments first')); return; }
+      if (EV.sending || !(Me.get() || {}).pid) return;
+      EV.sending = true; const n = EV.carry; EV.carry = 0; evBanner();
+      for (let i = 0; i < n; i++) EV.beams.push({ t: -i * .12, x0: CX + rand(-40, 40), y0: H - 80 });
+      Sound.ding(.4);
+      try { EV.data = await apiPost(CONFIG.DATA_ENDPOINT, { action: 'eventGive', uid: Me.uid(), n }, 12000); evBanner(); if (EV.data.done && EV.doneShown !== EV.data.id) setTimeout(evFinale, 900); }
+      catch (e) { console.warn('eventGive:', e); EV.carry += n; evBanner(); }
+      finally { EV.sending = false; }
+    }
+    // 點亮：安靜 2 秒 → 星星爆亮 → EVERYBODY DANCE
+    async function evFinale(replay) {
+      const d = EV.data; if (!d) return; EV.doneShown = d.id;
+      if (sel) back(); EV.going = true; flyTo(LS.x, LS.y, LS.z, 11, 2); evBanner();
+      root.classList.add('ev-dance');
+      if (!replay) { Sound.wxLevel(0, .6); buildCaption([{ text: '……', cls: 'en' }], 0, 'mid'); await sleepMs(2200); hideCaption(); }
+      EV.lit = time; Sound.boom(); if (EV.star) emit(EV.star[0], EV.star[1], 160, ['255,236,190', '255,200,235', '255,255,255', '190,220,255'], { speed: 320, life: 2.2 });
+      await sleepMs(900);
+      EV.dance = time; EV.danceMix = d.mix; Sound.galaxy(d.mix, 18); root.classList.add('ev-dance');
+      buildCaption([{ text: 'EVERYBODY DANCE', cls: 'en' }, L(`${(d.pets || []).length} 隻寵物一起跳舞 ✦`, `${(d.pets || []).length} pets dancing together ✦`, { ja: `${(d.pets || []).length} 匹のペットがいっしょに踊る ✦`, ko: `펫 ${(d.pets || []).length}마리가 함께 춤춰요 ✦`, vi: `${(d.pets || []).length} thú cưng cùng nhảy ✦` })], 1, 'mid');
+      setTimeout(hideCaption, 6000);
+      setTimeout(() => { EV.dance = 0; root.classList.remove('ev-dance'); Sound.wxStart('all', null); Sound.wxLevel(.55, 3); }, 18000);
+    }
+    function drawEvent(dt, a) {
+      const d = EV.data; if (!d || !d.active) return;
+      const pr = clamp(d.progress / Math.max(1, d.goal)), lit = d.done ? 1 : pr, t = time;
+      proj(LS.x, LS.y, LS.z, tmp); if (!tmp.vis) { EV.star = null; return; }
+      const sx = tmp.sx, sy = tmp.sy, r = Math.max(6, LS.R * tmp.s), boost = EV.lit ? clamp(1 - (t - EV.lit) / 3) : 0;
+      EV.star = [sx, sy, r];
+      ctx.save();
+      // 失去光的星星：越多人送光，越亮
+      ctx.globalCompositeOperation = 'lighter';
+      glow(sx, sy, r * (3 + lit * 3 + boost * 6), [255, 214, 150], a * (.08 + lit * .45 + boost * .6));
+      ctx.globalCompositeOperation = 'source-over';
+      const g = ctx.createRadialGradient(sx - r * .3, sy - r * .3, r * .1, sx, sy, r);
+      g.addColorStop(0, rgba([Math.round(110 + 145 * lit), Math.round(110 + 135 * lit), Math.round(130 + 90 * lit)], a));
+      g.addColorStop(1, rgba([Math.round(30 + 200 * lit), Math.round(30 + 150 * lit), Math.round(50 + 60 * lit)], a));
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(sx, sy, r, 0, TAU); ctx.fill();
+      if (lit > .02) { ctx.globalCompositeOperation = 'lighter'; drawStar4(sx, sy, r * (.5 + lit * .9 + boost), rgba([255, 250, 230], a * (.3 + lit * .7))); }
+      // 進度光環
+      ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
+      ctx.strokeStyle = rgba([255, 255, 255], a * .12); ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(sx, sy, r * 1.45, 0, TAU); ctx.stroke();
+      ctx.strokeStyle = rgba([255, 226, 160], a * .9); ctx.lineWidth = 3.5; ctx.beginPath(); ctx.arc(sx, sy, r * 1.45, -Math.PI / 2, -Math.PI / 2 + TAU * lit); ctx.stroke();
+      ctx.globalCompositeOperation = 'source-over'; ctx.textAlign = 'center'; ctx.fillStyle = rgba([255, 240, 210], a); ctx.font = `300 ${Math.round(clamp(r * .32, 11, 18))}px ${bodyFont}`;
+      ctx.fillText(d.done ? '✦ 100%' : `${Math.round(pr * 100)}%`, sx, sy + r * 1.45 + 18);
+      // 真的其他旅人的寵物，繞著星星飛（跳舞時跳起來、轉圈）
+      const pets = (d.pets || []).slice(0, 24), dn = EV.dance ? clamp((t - EV.dance) / 1.2) : 0;
+      pets.forEach((p, i) => {
+        const h = hs(i * 7 + 3), an = h * TAU + t * (.18 + h * .1) * (dn ? 2.2 : 1), rr = (dn ? 1.8 : 2.1) + h * 1.6, yy = LS.y + (hs(i * 5) - .5) * 1.6;
+        proj(LS.x + Math.cos(an) * rr, yy - (dn ? Math.abs(Math.sin(t * 6 + i)) * .45 * dn : 0), LS.z + Math.sin(an) * rr, tmp); if (!tmp.vis) return;
+        const s = clamp((dn ? .85 : .5) * tmp.s, 10, dn ? 140 : 90);
+        drawPet(p.petIdx || 0, tmp.sx, tmp.sy + Math.sin(t * 1.7 + i) * s * .05, s, { alpha: a, rot: dn ? Math.sin(t * 5 + i) * .4 + (i % 3 === 0 ? ((t * 2 + i) % TAU) * dn : 0) : Math.sin(t + i) * .1, closed: (t + i) % 4.3 < .12 });
+        if (s > 22 && !dn) { ctx.fillStyle = rgba([243, 238, 252], a * .7); ctx.font = `300 ${Math.round(clamp(s * .22, 9, 13))}px ${bodyFont}`; ctx.fillText(p.petName || '', tmp.sx, tmp.sy + s * .62); }
+      });
+      if (dn && Math.random() < dt * 10) note(sx + rand(-1, 1) * r * 3, sy + rand(-.5, 1) * r * 2, Math.random() < .5 ? '♪' : '♫', ['#ffe3a8', '#ffc2dc', '#c9b8ff', '#b8f0ff'][(Math.random() * 4) | 0]);
+      if (dn) drawNotes(dt, a);
+      // 光之碎片
+      if (EV.going && !d.done) EV.frags.forEach(f => {
+        proj(f.x, f.y + Math.sin(t * 1.5 + f.ph) * .15, f.z, tmp); f.vis = tmp.vis; if (!tmp.vis) return;
+        f.sx = tmp.sx; f.sy = tmp.sy; f.ss = clamp(.12 * tmp.s, 5, 26); const tw2 = .7 + .3 * Math.sin(t * 4 + f.ph), born = clamp((t - f.born) / .8);
+        ctx.globalCompositeOperation = 'lighter'; glow(f.sx, f.sy, f.ss * 2.4, [255, 230, 170], a * .55 * tw2 * born); drawStar4(f.sx, f.sy, f.ss * tw2, rgba([255, 252, 235], a * born));
+      });
+      // 送進去的光束
+      for (let i = EV.beams.length - 1; i >= 0; i--) {
+        const b = EV.beams[i]; b.t += dt / 1.1; if (b.t >= 1) { EV.beams.splice(i, 1); emit(sx, sy, 10, ['255,236,190'], { speed: 80, life: .7 }); continue; } if (b.t < 0) continue;
+        const e = easeIO(b.t), bx = lerp(b.x0, sx, e) + Math.sin(e * Math.PI) * 40, by = lerp(b.y0, sy, e) - Math.sin(e * Math.PI) * 60;
+        ctx.globalCompositeOperation = 'lighter'; glow(bx, by, 14, [255, 230, 170], a); drawStar4(bx, by, 6, rgba([255, 255, 255], a));
+      }
+      ctx.restore();
+      // 手上帶著的碎片數
+      if (EV.going && EV.carry && !d.done) { ctx.save(); ctx.textAlign = 'center'; ctx.font = `600 15px ${bodyFont}`; ctx.fillStyle = 'rgba(255,236,200,.95)'; ctx.fillText('✦'.repeat(EV.carry), CX, H - 92); ctx.restore(); }
+    }
+
     /* ---------- 互動：滑鼠／觸控 ---------- */
     let pointerX = 0, pointerY = 0;
     const pts = new Map();
@@ -10518,6 +10708,7 @@ function petSVG(i, opt = {}) {
     }
     function tapAt(x, y) {
       if (Fr.D) return;
+      if (evTap(x, y)) return;
       if (letterPos && Math.hypot(x - letterPos[0], y - letterPos[1]) < letterPos[2]) { openMail(); return; }
       if (sel && sel.petX !== undefined && Math.hypot(x - sel.petX, y - sel.petY) < sel.petS * .45) { if (sel.me) petAction('pet'); else petReact(); return; }
       const p = nearest(x, y, 22);
@@ -10560,7 +10751,7 @@ function petSVG(i, opt = {}) {
       lastInteract = time;
     }
     function back() {
-      if (!sel) return;
+      if (!sel) { if (EV.going && !EV.dance) { EV.going = false; flyTo(0, 0, 0, homeD, 2.2); evBanner(); } return; }
       sel = null; root.classList.remove('c-on'); UVS.petPeek = 0; cardTok++; setTimeout(() => { if (!sel) $('uvcModel').textContent = ''; }, 900);
       flyTo(0, 0, 0, homeD, 2.2); Sound.whoosh(1.6); tw(cam, 'ox', 0, 1.8); tw(cam, 'oy', 0, 1.8);
       Sound.wxStart('all', null); Sound.wxLevel(.55, 3);     // 回到整座宇宙的聲音
@@ -10686,6 +10877,7 @@ function petSVG(i, opt = {}) {
       } catch (_) { /* 靜靜地略過 */ }
     }, 60000);
     $('uvMail').addEventListener('click', () => openMail());
+    $('evGo').addEventListener('click', () => evGo());
     $('upMail').addEventListener('click', () => openMail());
     $('uvFriends').addEventListener('click', () => openFriends());
     $('frClose').addEventListener('click', () => $('frDlg').classList.remove('on'));
@@ -10869,6 +11061,7 @@ function petSVG(i, opt = {}) {
         visits();
         Fr.polled = 0; updatePills(); pollInbox();
         clearInterval(Fr.pollT); Fr.pollT = setInterval(() => { if (state === 'universe' && !Fr.D) pollInbox(); }, 15000);
+        evPoll(); clearInterval(EV.t); EV.t = setInterval(evPoll, 5000);
       } catch (e) { if (!(e instanceof Cancel)) throw e; }
     }
     // 回來時告訴你：有幾位旅人經過你的星球
@@ -10914,7 +11107,8 @@ function petSVG(i, opt = {}) {
 
     function reset(keep) {
       token++; sel = null; hover = null; gifts = []; phase = ''; drag = null; pinch = null; pts.clear();
-      if (Fr.D) { const r = Fr.D.res; Fr.D = null; r(); } clearInterval(Fr.pollT); toastQ.length = 0; clearTimeout(toastT); toastBusy = false; toastEl.classList.remove('on'); Fr.queue = []; ['mailDlg', 'frDlg'].forEach(id => $(id).classList.remove('on'));
+      if (Fr.D) { const r = Fr.D.res; Fr.D = null; r(); } clearInterval(Fr.pollT); root.classList.remove('ev-dance', 'ev-on');
+      clearInterval(EV.t); EV.going = false; EV.carry = 0; EV.frags = []; EV.beams = []; EV.dance = 0; EV.data = null; $('uvEvent').hidden = true; toastQ.length = 0; clearTimeout(toastT); toastBusy = false; toastEl.classList.remove('on'); Fr.queue = []; ['mailDlg', 'frDlg'].forEach(id => $(id).classList.remove('on'));
       root.className = 'uv'; finEl.classList.remove('on'); $('uvFinBtns').classList.remove('on');
       UVS.a = 0; UVS.allGlow = 0; UVS.wave = -1; UVS.petPeek = 0;
       if (hand.on) { Hand.stop(); hand.on = false; handB.textContent = L('🖐️ 手勢控制', '🖐️ Hand control'); }
@@ -10927,6 +11121,7 @@ function petSVG(i, opt = {}) {
       window.__uvPet = () => (sel && sel.petX ? [sel.petX, sel.petY] : null);
       window.__uvList = () => planetsW.map(p => [p.name, !!p.me, (p.img || '').length, (planetImg(p) || {}).naturalWidth || 0, Math.round(p.sr), Math.round(p.sx), Math.round(p.sy), p.model || '', +(p.depth || 0).toFixed(2), p === sel]);
       window.__handSim = o => { hand.on = true; Object.assign(Hand.S, o); return [cam.dist, cam.tx, cam.ty, cam.tz, cam.yaw]; };
+      window.__ev = () => ({ frags: EV.frags.filter(f => f.vis && f.sx > 10 && f.sx < W - 10 && f.sy > 200 && f.sy < H - 120).map(f => [f.sx, f.sy]), star: EV.star, carry: EV.carry, data: EV.data && { progress: EV.data.progress, goal: EV.data.goal, done: EV.data.done, online: EV.data.online } });
       window.__uvSel = n => { const p = planetsW.find(q => q.name === n); if (p) select(p); return !!p; };
     }
     return { start, reset, draw, data, refresh() { list = null; } };

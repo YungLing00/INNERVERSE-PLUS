@@ -623,6 +623,8 @@
   .uv-gift.done { background: rgba(255,226,170,.16); border-color: rgba(255,226,170,.6); }
   .uv-gift.shake { animation: giftNo .4s ease; }
   @keyframes giftNo { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+  .uv-tune { margin-top: 12px; font-size: .78rem; letter-spacing: .1em; color: var(--dim); }
+  .uv-tune i { display: inline-block; font-style: normal; animation: pulse2 1.6s ease-in-out infinite; margin-right: .3em; }
   .uv-n { min-height: 1.4em; margin-top: 10px; font-size: .78rem; letter-spacing: .1em; color: rgba(255,226,170,.85); }
   .uv-back { margin-top: 12px; width: 100%; }
   .uv-toast { position: absolute; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 120px); transform: translate(-50%, -8px); max-width: min(520px, calc(100vw - 32px));
@@ -1147,6 +1149,7 @@
     <dl class="uv-info" id="uvcInfo"></dl>
     <p class="uv-sub">人格星圖</p><div class="uv-bars" id="uvcBars"></div>
     <div id="uvcGive"><p class="uv-sub">留下一點星光</p><div class="uv-gifts" id="uvcGifts"></div></div>
+    <p class="uv-tune" id="uvcTune"></p>
     <p class="uv-n" id="uvcStarsN"></p>
     <button class="ghost uv-back" id="uvBack" type="button">回到宇宙</button>
   </aside>
@@ -9658,36 +9661,69 @@ function petSVG(i, opt = {}) {
     /* ---------- 互動：滑鼠／觸控 ---------- */
     let pointerX = 0, pointerY = 0;
     const pts = new Map();
+    // 縮放範圍：可以一路靠到星球表面，也可以退到看見整座銀河
+    const ZMIN = .55, ZMAX = 90;
+    // 平移：把螢幕上的位移換成鏡頭目標點在世界裡的位移（沿著鏡頭的右方與上方）
+    function panBy(dx, dy) {
+      const k = cam.dist / F(), cy = Math.cos(cam.yaw), sy = Math.sin(cam.yaw), cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch);
+      cam.tx += -dx * k * cy + dy * k * (-sy * sp);
+      cam.tz += dx * k * sy + dy * k * (-cy * sp);
+      cam.ty += dy * k * cp;
+      const r = Math.hypot(cam.tx, cam.tz); if (r > 34) { cam.tx *= 34 / r; cam.tz *= 34 / r; }
+      cam.ty = clamp(cam.ty, -12, 12);
+    }
+    const centroid = () => { let x = 0, y = 0; pts.forEach(p => { x += p.x; y += p.y; }); return { x: x / pts.size, y: y / pts.size }; };
+    // 兩指：捏合縮放＋一起移動＝平移；三指以上：只平移
+    function startMulti() {
+      const [p1, p2] = [...pts.values()], c = centroid();
+      pinch = { d: Math.hypot(p1.x - p2.x, p1.y - p2.y), dist: cam.dist, cx: c.x, cy: c.y, n: pts.size }; drag = null;
+    }
     function onDown(e) {
       if (state !== 'universe' || phase === 'finale' || phase === 'enter') return;
       pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
       try { canvas.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ }
-      if (pts.size === 2) { const [p1, p2] = [...pts.values()]; pinch = { d: Math.hypot(p1.x - p2.x, p1.y - p2.y), dist: cam.dist }; drag = null; }
-      else drag = { x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, moved: 0 };
+      if (pts.size >= 2) startMulti();
+      // 滑鼠：右鍵、中鍵或按住 Shift 拖曳＝平移
+      else drag = { x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, moved: 0, pan: e.button === 1 || e.button === 2 || e.shiftKey };
       lastInteract = time;
     }
     function onMove(e) {
       pointerX = e.clientX; pointerY = e.clientY;
       if (state !== 'universe') return;
       if (pts.has(e.pointerId)) pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      if (pinch && pts.size >= 2) { const [p1, p2] = [...pts.values()]; const d = Math.hypot(p1.x - p2.x, p1.y - p2.y); cam.dist = clamp(pinch.dist * pinch.d / Math.max(20, d), 1.8, 70); lastInteract = time; return; }
+      if (pinch && pts.size >= 2) {
+        if (pts.size !== pinch.n) startMulti();
+        const c = centroid();
+        panBy(c.x - pinch.cx, c.y - pinch.cy); pinch.cx = c.x; pinch.cy = c.y;
+        if (pts.size === 2) { const [p1, p2] = [...pts.values()]; const d = Math.hypot(p1.x - p2.x, p1.y - p2.y); cam.dist = clamp(pinch.dist * pinch.d / Math.max(20, d), ZMIN, ZMAX); }
+        cam.vy = 0; cam.vp = 0; lastInteract = time; return;
+      }
       if (drag) {
         const dx = e.clientX - drag.x, dy = e.clientY - drag.y; drag.x = e.clientX; drag.y = e.clientY; drag.moved += Math.abs(dx) + Math.abs(dy);
-        if (drag.moved > 6) { cam.yaw += dx * .006; cam.pitch = clamp(cam.pitch + dy * .005, -1.25, 1.25); cam.vy = dx * .006 / Math.max(.016, 1 / 60) * .35; cam.vp = dy * .005 * 20; lastInteract = time; }
+        if (drag.moved > 6) {
+          if (drag.pan) { panBy(dx, dy); cam.vy = 0; cam.vp = 0; }
+          else { cam.yaw += dx * .006; cam.pitch = clamp(cam.pitch + dy * .005, -1.25, 1.25); cam.vy = dx * .006 / Math.max(.016, 1 / 60) * .35; cam.vp = dy * .005 * 20; }
+          lastInteract = time;
+        }
         return;
       }
       if ((e.pointerType || 'mouse') === 'mouse') hoverAt(e.clientX, e.clientY);
     }
     function onUp(e) {
       pts.delete(e.pointerId);
-      if (pinch && pts.size < 2) { pinch = null; drag = null; return; }
+      if (pinch) { if (pts.size >= 2) startMulti(); else { pinch = null; drag = null; } return; }
       if (drag && drag.moved < 8 && state === 'universe' && phase === 'free') tapAt(e.clientX, e.clientY);
       drag = null;
     }
     function onWheel(e) {
       if (state !== 'universe' || phase === 'finale') return;
-      e.preventDefault(); cam.dist = clamp(cam.dist * Math.exp(e.deltaY * .0012), 1.8, 70); lastInteract = time;
+      e.preventDefault();
+      // 觸控板雙指滑動（沒有按 Ctrl）＝平移；滾輪或觸控板捏合（Ctrl）＝縮放
+      if (!e.ctrlKey && e.deltaMode === 0 && Math.abs(e.deltaX) > Math.abs(e.deltaY) * .5 && Math.abs(e.deltaX) > 1) panBy(-e.deltaX, -e.deltaY);
+      else cam.dist = clamp(cam.dist * Math.exp(e.deltaY * (e.ctrlKey ? .01 : .0012)), ZMIN, ZMAX);
+      lastInteract = time;
     }
+    canvas.addEventListener('contextmenu', e => { if (state === 'universe') e.preventDefault(); });
     function nearest(x, y, maxD) {
       let best = null, bd = 1e9;
       planetsW.forEach(p => { if (!p.vis || p.sr < 1.5) return; const d = Math.hypot(p.sx - x, p.sy - y) - p.sr; if (d < Math.max(maxD, 0) && d < bd) { bd = d; best = p; } });
@@ -9735,6 +9771,8 @@ function petSVG(i, opt = {}) {
     function select(p) {
       sel = p; UVS.petPeek = 0; UVS.react = ''; UVS.reactA = 0; petHover = false;
       flyTo(p.x, p.y, p.z, p.R * 6.2, 1.9); Sound.chime(WX_ORDER.indexOf(p.el) * .4); Sound.whoosh(1.4);
+      // 播放星球主人的五行之音
+      Sound.wxStart(p.el, null); Sound.wxLevel(.85, 2.5);
       // 資訊卡會蓋住畫面的一部分：把星球移到看得到的地方（手機往上、電腦往左）
       if (W <= 600) { tw(cam, 'ox', 0, 1.6); tw(cam, 'oy', -H * .24, 1.6); } else { tw(cam, 'ox', -Math.min(200, W * .16), 1.6); tw(cam, 'oy', 0, 1.6); }
       setTimeout(() => { if (sel === p) tw(UVS, 'petPeek', 1, 1.4); }, 1500);
@@ -9746,6 +9784,7 @@ function petSVG(i, opt = {}) {
       if (!sel) return;
       sel = null; root.classList.remove('c-on'); UVS.petPeek = 0; cardTok++; setTimeout(() => { if (!sel) $('uvcModel').textContent = ''; }, 900);
       flyTo(0, 0, 0, 30, 2.2); Sound.whoosh(1.6); tw(cam, 'ox', 0, 1.8); tw(cam, 'oy', 0, 1.8);
+      Sound.wxStart('all', null); Sound.wxLevel(.55, 3);     // 回到整座宇宙的聲音
       if (visited.size >= 3 && !finaleDone) setTimeout(() => { if (!sel && phase === 'free') finale(); }, 2600);
     }
     function bar(label, v) {
@@ -9790,6 +9829,8 @@ function petSVG(i, opt = {}) {
     }
     function fillCard(p) {
       cardModel(p);
+      { const d0 = WXD[p.el]; const t = $('uvcTune'); t.textContent = ''; const i = document.createElement('i'); i.textContent = '♪';
+        t.append(i, L(`正在播放 ${p.name} 的五行之音：${d0.zh}・${d0.tone}`, `Now playing ${p.name}’s element tone: ${d0.en} · ${d0.toneEn}`, { ja: `${p.name} の五行の音：${d0.zh}・${d0.tone}`, ko: `${p.name}의 오행의 소리: ${tr(d0.en)} · ${tr(d0.toneEn)}`, vi: `Đang phát âm ngũ hành của ${p.name}: ${tr(d0.en)} · ${tr(d0.toneEn)}` })); }
       const d = WXD[p.el], pet = PETS[p.petIdx || 0] || PETS[0], w = WEATHER[p.weather] || WEATHER.sunny;
       card.style.setProperty('--c', `rgb(${d.c.join(',')})`);
       $('uvcTitle').textContent = L(`✦ ${p.name} 的星球`, `✦ ${p.name.toUpperCase()}’S PLANET`, { ja: `✦ ${p.name} の星`, ko: `✦ ${p.name}의 행성`, vi: `✦ Hành tinh của ${p.name}` });
@@ -9891,7 +9932,7 @@ function petSVG(i, opt = {}) {
         await sleep(3.6);
         if (my !== token) return;
         root.classList.add('h-on'); phase = 'free'; lastInteract = time;
-        hintEl.textContent = L('拖曳旋轉宇宙・滾輪或雙指縮放・點一顆星球去看看', 'Drag to turn · scroll or pinch to zoom · tap a planet to visit');
+        hintEl.textContent = L('單指旋轉・雙指縮放與平移・點一顆星球去看看', 'One finger to turn · two fingers to zoom & pan · tap a planet to visit', { ja: '1本指で回転・2本指で拡大と移動・星をタップして訪ねよう', ko: '한 손가락으로 회전 · 두 손가락으로 확대·이동 · 행성을 눌러 방문하기', vi: 'Một ngón để xoay · hai ngón để phóng to và di chuyển · chạm vào một hành tinh để ghé thăm' });
         const me = list.find(p => p.me);
         if (me) setTimeout(() => toast(L('有光圈的那一顆，是你的星球。', 'The one with the halo is your planet.')), 1200);
         visits();

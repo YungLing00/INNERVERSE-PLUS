@@ -26,6 +26,8 @@ await t('planet without name claim rejected', assertFails(set(ref(C, 'planets/ca
 await t('bob cannot write alice planet', assertFails(set(ref(B, 'planets/alice/petName'), 'x')));
 await t('unknown field rejected', assertFails(update(ref(A, 'planets/alice'), { hacker: 1, updatedAt: ts() })));
 await t('bad element rejected', assertFails(update(ref(A, 'planets/alice'), { element: 'lava', updatedAt: ts() })));
+await t('owner writes own lights count', assertSucceeds(update(ref(A, 'planets/alice'), { lights: 12, updatedAt: ts() })));
+await t('negative lights rejected', assertFails(update(ref(A, 'planets/alice'), { lights: -1, updatedAt: ts() })));
 await t('anon can read planets', assertSucceeds(get(ref(B, 'planets'))));
 await t('unauthenticated cannot read', assertFails(get(ref(nobody, 'planets'))));
 await t('non-anonymous provider cannot read', assertFails(get(ref(google('g'), 'planets'))));

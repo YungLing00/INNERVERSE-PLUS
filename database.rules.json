@@ -24,6 +24,7 @@
         },
         "modelTask": { ".validate": "newData.isString() && newData.val().matches(/^([A-Za-z0-9_-]{8,120})?$/)" },
         "img": { ".validate": "newData.isString() && newData.val().length <= 45000 && newData.val().matches(/^(data:image\\/(webp|png|jpeg);base64,[A-Za-z0-9+\\/=]+)?$/)" },
+        "lights": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000" },
         "createdAt": { ".validate": "newData.isNumber() && (data.exists() ? newData.val() == data.val() : newData.val() == now)" },
         "updatedAt": { ".validate": "newData.val() == now" },
         "$other": { ".validate": false }
@@ -73,7 +74,7 @@
           "$otherUid": {
             ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && ((auth.uid == $otherUid && !data.exists() && root.child('inbox').child($otherUid).child('invites').child($uid).exists()) || (auth.uid == $uid && !newData.exists()))",
             ".validate": "newData.hasChildren(['status', 'at'])",
-            "status": { ".validate": "newData.val().matches(/^(accepted|later)$/)" },
+            "status": { ".validate": "newData.val().matches(/^(accepted|mutual|later)$/)" },
             "at": { ".validate": "newData.val() == now" },
             "$any": { ".validate": false }
           }

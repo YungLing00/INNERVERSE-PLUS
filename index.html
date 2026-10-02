@@ -592,6 +592,7 @@
     padding: 10px 12px; border-radius: 14px; background: rgba(10,8,30,.5); border: 1px solid rgba(255,255,255,.14); font-size: .72rem; letter-spacing: .06em; color: var(--dim);
     opacity: 0; transition: opacity .8s ease; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
   .uv.g-on .uv-gest { opacity: 1; }
+  @media (orientation: landscape) and (max-height: 520px) { .uv-gest { top: calc(env(safe-area-inset-top, 0px) + 74px); gap: 2px; padding: 6px 10px; font-size: .64rem; } }
   [data-state="universe"] .rt-cam.on { opacity: 1; visibility: visible; }
   .uv-card {
     position: absolute; right: calc(env(safe-area-inset-right, 0px) + 16px); top: calc(env(safe-area-inset-top, 0px) + 66px);
@@ -1146,7 +1147,7 @@
   <div class="uv-title"><h2>✦ OUR UNIVERSE ✦</h2><p class="uv-demo" id="uvDemo" hidden>示範宇宙：真實旅人還不多，先用示範星球陪你逛逛</p></div>
   <p class="uv-hint" id="uvHint"></p>
   <div class="uv-tools"><button class="pill" id="uvHand" type="button">🖐️ 手勢控制</button><button class="pill" id="uvAll" type="button">✦ 看見整座宇宙</button></div>
-  <div class="uv-gest" id="uvGest"><span>🖐️ 張開手掌移動：旋轉宇宙</span><span>🤏 捏合：選擇星球</span><span>✊ 握拳：回到整個宇宙</span></div>
+  <div class="uv-gest" id="uvGest"><span>🖐️ 張開手掌移動：旋轉宇宙</span><span>🖐️ 手掌靠近／遠離鏡頭：放大／縮小</span><span>✌️ 兩指或三指移動：平移</span><span>🤏 捏合：選擇星球</span><span>✊ 握拳：回到整個宇宙</span></div>
   <aside class="uv-card" id="uvCard" aria-live="polite">
     <button class="uv-x" id="uvcClose" type="button" aria-label="回到宇宙">×</button>
     <h3 id="uvcTitle"></h3><p class="uv-me" id="uvcMe" hidden>這是你的星球</p>
@@ -1202,6 +1203,8 @@
   })();
   // 日文、韓文、越南文：以英文為 key 的對照表 [ja, ko, vi]
   const I18N = {
+    "🖐️ Palm toward / away from the camera: zoom in / out": ["🖐️ 手のひらをカメラに近づける／離す：拡大／縮小", "🖐️ 손바닥을 카메라에 가까이／멀리：확대／축소", "🖐️ Đưa lòng bàn tay lại gần / ra xa camera: phóng to / thu nhỏ"],
+    "✌️ Move two or three fingers: pan": ["✌️ 2本か3本の指を動かす：移動", "✌️ 두세 손가락을 움직이기：이동", "✌️ Di chuyển hai hoặc ba ngón tay: dịch chuyển"],
     "Welcome back": ["おかえりなさい", "다시 왔군요", "Chào mừng trở lại"],
     "The universe found your record": ["宇宙があなたの記録を見つけたよ", "우주가 당신의 기록을 찾았어요", "Vũ trụ đã tìm thấy dữ liệu của bạn"],
     "Jump ahead to your results, or take the test again?": ["結果まで進む？それとも、もう一度テストする？", "결과로 바로 갈까요, 아니면 다시 테스트할까요?", "Đi thẳng đến kết quả, hay làm lại bài trắc nghiệm?"],
@@ -3870,7 +3873,7 @@
     '✦ 進入宇宙': '✦ Enter the universe', '✦ 繼續旅程': '✦ Continue the journey', '繼續旅程 ›': 'Continue the journey ›', '✦ 前往宇宙': '✦ Enter the universe',
     '示範宇宙：真實旅人還不多，先用示範星球陪你逛逛': 'Demo universe: not many real travelers yet, so sample planets are keeping you company',
     '🖐️ 手勢控制': '🖐️ Hand control', '✦ 看見整座宇宙': '✦ See the whole universe',
-    '🖐️ 張開手掌移動：旋轉宇宙': '🖐️ Move an open palm: turn the universe', '🤏 捏合：選擇星球': '🤏 Pinch: choose a planet', '✊ 握拳：回到整個宇宙': '✊ Make a fist: back to the whole universe',
+    '🖐️ 張開手掌移動：旋轉宇宙': '🖐️ Move an open palm: turn the universe', '🖐️ 手掌靠近／遠離鏡頭：放大／縮小': '🖐️ Palm toward / away from the camera: zoom in / out', '✌️ 兩指或三指移動：平移': '✌️ Move two or three fingers: pan', '🤏 捏合：選擇星球': '🤏 Pinch: choose a planet', '✊ 握拳：回到整個宇宙': '✊ Make a fist: back to the whole universe',
     '回到宇宙': 'Back to the universe', '這是你的星球': 'This is your planet', '人格星圖': 'Personality star chart', '留下一點星光': 'Leave a little starlight',
     '繼續探索': 'Keep exploring',
     '接下來，你看過情緒嗎？': 'Next: have you ever seen a feeling?', '✦ 接下來，讓寵物陪你': '✦ Next, let your pet keep you company'
@@ -7220,7 +7223,7 @@ function petSVG(i, opt = {}) {
       };
       PlanetGen.on(modelSub);
       const b = App.user && App.user.birthday;
-      await PlanetGen.start({ key, zodiac: (b && b.zodiac) || '', rising: (App.user && App.user.rising) || '', big5: App.big5 || {}, force });
+      await PlanetGen.start({ key, zodiac: (b && b.zodiac) || '', rising: (App.user && App.user.rising) || '', big5: App.big5 || {}, element: elementOf(b) || '', force });
       modelSub(PlanetGen.state());
     }
 
@@ -8009,9 +8012,12 @@ function petSVG(i, opt = {}) {
       if (!p) { S.lost += dt; if (S.lost > .45) S.present = false; return; }
       S.lost = 0; S.present = true;
       const w = p[0], size = d2(p[0], p[9]) || 1e-3;
-      let sum = 0, ext = 0;
-      [[8, 5], [12, 9], [16, 13], [20, 17]].forEach(([tip, mcp]) => { const o = clamp((d2(p[tip], w) / (d2(p[mcp], w) || 1e-3) - 1.05) / .7); sum += o; if (o > .8) ext++; });
-      const th = clamp((d2(p[4], p[17]) / size - .75) / .6);
+      let sum = 0, ext = 0; const fing = [false, false, false, false, false];
+      [[8, 5], [12, 9], [16, 13], [20, 17]].forEach(([tip, mcp], i) => { const o = clamp((d2(p[tip], w) / (d2(p[mcp], w) || 1e-3) - 1.05) / .7); sum += o; if (o > .8) ext++; fing[i + 1] = o > .7; });
+      const th = clamp((d2(p[4], p[17]) / size - .75) / .6); fing[0] = th > .5;
+      S.fing = fing;
+      S.size = S.size ? S.size + (size - S.size) * .35 : size;          // 手的大小（離鏡頭越近越大），平滑過
+      S.v2 = [1 - (p[8].x + p[12].x) / 2, (p[8].y + p[12].y) / 2];      // 食指＋中指指尖的中點
       S.open += ((sum + th) / 5 - S.open) * .55; S.ext = ext + (th > .5 ? 1 : 0);
       S.palm = [1 - (p[0].x + p[5].x + p[9].x + p[13].x + p[17].x) / 5, (p[0].y + p[5].y + p[9].y + p[13].y + p[17].y) / 5];
       S.pinch = d2(p[4], p[8]) / size; S.tip = [1 - p[8].x, p[8].y];
@@ -8754,7 +8760,7 @@ function petSVG(i, opt = {}) {
       { const m = Me.get(); if (m && (m.img || m.modelTask)) Me.set(Object.assign(m, { modelTask: '', img: '' })); }
       if (blobUrl) { URL.revokeObjectURL(blobUrl); blobUrl = ''; }
       try {
-        const j = await apiPost(`${base()}?action=modelStart`, { trait: o.key, zodiac: o.zodiac || '', rising: o.rising || '', big5: o.big5 || {} }, 40000);
+        const j = await apiPost(`${base()}?action=modelStart`, { trait: o.key, zodiac: o.zodiac || '', rising: o.rising || '', big5: o.big5 || {}, wuxing: { element: o.element || '' } }, 40000);
         if (!j.taskId) throw new Error(L('Tripo 沒有回傳任務編號', 'Tripo returned no task id'));
         set({ taskId: j.taskId, status: 'queued' });
         { const m = Me.get(); if (m) { Me.set(Object.assign(m, { modelTask: j.taskId })); publishMe(); } }
@@ -9587,7 +9593,7 @@ function petSVG(i, opt = {}) {
       const y1 = dy * cp - z1 * sp, z2 = dy * sp + z1 * cp;
       const depth = cam.dist + z2;
       out.depth = depth;
-      if (depth < .25) { out.vis = false; return out; }
+      if (depth < .1) { out.vis = false; return out; }
       const s = F() / depth;
       out.sx = CX + x1 * s + cam.ox; out.sy = CY - y1 * s + cam.oy; out.s = s; out.vis = true;
       return out;
@@ -9697,7 +9703,7 @@ function petSVG(i, opt = {}) {
     let pointerX = 0, pointerY = 0;
     const pts = new Map();
     // 縮放範圍：可以一路靠到星球表面，也可以退到看見整座銀河
-    const ZMIN = .55, ZMAX = 90;
+    const ZMIN = .3, ZMAX = 110;
     // 平移：把螢幕上的位移換成鏡頭目標點在世界裡的位移（沿著鏡頭的右方與上方）
     function panBy(dx, dy) {
       const k = cam.dist / F(), cy = Math.cos(cam.yaw), sy = Math.sin(cam.yaw), cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch);
@@ -9932,13 +9938,24 @@ function petSVG(i, opt = {}) {
       if (!S.present) { hand.palm = null; return; }
       const tip = S.tip || S.palm, tx = tip[0] * W, ty = tip[1] * H;
       hand.x += (tx - hand.x) * Math.min(1, dt * 12); hand.y += (ty - hand.y) * Math.min(1, dt * 12);
-      const openPalm = S.open > .62 && S.ext >= 4, fist = S.open < .22;
-      // 🖐️ 張開手掌移動：旋轉宇宙
+      const openPalm = S.open > .62 && S.ext >= 4, fist = S.open < .22, F2 = S.fing || [];
+      // ✌️ 兩指（食指＋中指）或 🤟 三指（再加無名指）伸直、小指收起：移動＝平移宇宙
+      const panPose = !openPalm && F2[1] && F2[2] && !F2[4] && (S.pinch || 1) > .35;
+      // 🖐️ 張開手掌移動：旋轉宇宙；手掌靠近鏡頭＝放大、遠離＝縮小
       if (openPalm && phase === 'free') {
         const px = S.palm[0], py = S.palm[1];
-        if (hand.palm) { cam.yaw += (px - hand.palm[0]) * 4.2; cam.pitch = clamp(cam.pitch + (py - hand.palm[1]) * 3, -1.25, 1.25); lastInteract = time; }
-        hand.palm = [px, py];
-      } else hand.palm = null;
+        if (hand.palm) {
+          cam.yaw += (px - hand.palm[0]) * 4.2; cam.pitch = clamp(cam.pitch + (py - hand.palm[1]) * 3, -1.25, 1.25);
+          const k = Math.log((S.size || 1) / (hand.size || S.size || 1));
+          if (Math.abs(k) > .004) cam.dist = clamp(cam.dist * Math.exp(-k * 2.4), ZMIN, ZMAX);
+          lastInteract = time;
+        }
+        hand.palm = [px, py]; hand.size = S.size;
+      } else { hand.palm = null; hand.size = 0; }
+      if (panPose && phase === 'free' && S.v2) {
+        if (hand.pan) { panBy((S.v2[0] - hand.pan[0]) * W * 1.6, (S.v2[1] - hand.pan[1]) * H * 1.6); cam.vy = 0; cam.vp = 0; lastInteract = time; }
+        hand.pan = S.v2.slice();
+      } else hand.pan = null;
       // 🤏 捏合：選取游標下的星球
       hover = nearest(hand.x, hand.y, 30);
       const pin = (S.pinch || 1) < .3 && !openPalm;
@@ -10031,6 +10048,7 @@ function petSVG(i, opt = {}) {
       window.__uvPick = () => { const c = planetsW.filter(p => p.vis && !p.me && p !== sel && p.sx > W * .2 && p.sx < W * .8 && p.sy > H * .25 && p.sy < H * .75).sort((a, b) => b.sr - a.sr).slice(0, 6); const p = c[(Math.random() * c.length) | 0]; return p ? [p.sx, p.sy] : null; };
       window.__uvPet = () => (sel && sel.petX ? [sel.petX, sel.petY] : null);
       window.__uvList = () => planetsW.map(p => [p.name, !!p.me, (p.img || '').length, !!planetImg(p), Math.round(p.sr), Math.round(p.sx), Math.round(p.sy), p.model || '']);
+      window.__handSim = o => { hand.on = true; Object.assign(Hand.S, o); return [cam.dist, cam.tx, cam.ty, cam.tz, cam.yaw]; };
       window.__uvSel = n => { const p = planetsW.find(q => q.name === n); if (p) select(p); return !!p; };
     }
     return { start, reset, draw, data, refresh() { list = null; } };

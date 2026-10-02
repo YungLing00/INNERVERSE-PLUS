@@ -25,28 +25,46 @@ const HEADERS = [
   '今日心情','煩惱內容','原始資料JSON','興趣愛好'
 ];
 
-const STYLE = 'single planet, centered, stylized cute fantasy, glossy dreamy glow, smooth clean shape, no text, no face, no base, no stand, game asset';
-const NEGATIVE = 'text, letters, face, eyes, mouth, nose, multiple objects, base, stand, scene, background, character, person';
+// ================================================================
+// Tripo 星球生成指令：夢幻、細緻、像動畫電影裡的童話星球一樣華麗
+// 組成：人格主題（TRAIT）＋星座元素點綴（ZODIAC）＋五行光彩（WUXING）＋高分特質加料＋共同風格（STYLE）
+// ================================================================
+const STYLE = 'a single enchanted miniature planet floating alone, centered, round silhouette, lavish fairytale animated-film style, '
+  + 'magical storybook aesthetic, opulent ornate details, delicate gold filigree accents, tiny sparkling crystals and glowing gems, '
+  + 'soft iridescent pearlescent surface, luminous rim light, dreamy pastel glow, gentle bloom, whimsical and elegant, '
+  + 'highly detailed hand-painted stylized textures, smooth clean sculpted shapes, premium collectible figurine quality, '
+  + 'no text, no face, no characters, no base, no stand, isolated game asset';
+const NEGATIVE = 'text, letters, logo, watermark, face, eyes, mouth, nose, person, character, animal, creature, multiple objects, '
+  + 'base, stand, pedestal, ground plane, scene background, room, dark gloomy, horror, dirty, rusty, noisy texture, low poly, blurry, flat shading, broken mesh';
 
 const TRAIT_PROMPTS = {
-  E_hi:'a radiant golden gas giant planet with luminous glowing bands and a soft sun-like corona, ',
-  E_lo:'a quiet pale silver-blue icy planet with gentle craters and one small orbiting moon, ',
-  A_hi:'a warm rose-pink planet with soft swirling pastel clouds and a faint glowing heart-shaped ocean, ',
-  A_lo:'a bold coral and amber rocky planet with sharp crystalline ridges and glowing lava-line cracks, ',
-  C_hi:'a precisely banded cyan planet with neat concentric rings and orderly glowing orbit lines, ',
-  C_lo:'a lime and mint planet with free-flowing curved cloud streams and a drifting comet moon, ',
-  N_hi:'a misty periwinkle-blue planet with thick atmosphere, swirling storm vortices and soft violet aurora, ',
-  N_lo:'a calm aqua ocean planet, smooth and glassy, with a serene pearly atmosphere, ',
-  O_hi:'an orchid purple and pink nebula-swirled planet with a large tilted crystal ring and a tiny starship moon, ',
-  O_lo:'a warm peach and gold rocky planet with steady glowing continents and soft terrain, ',
-  BAL:'a harmonious planet with five softly glowing colored bands in perfect balance and a delicate ring, '
+  E_hi:'a radiant golden sun-kissed planet wrapped in shimmering ribbons of light, swirling amber and honey cloud bands, a sparkling halo ring of tiny stars, little floating lanterns orbiting like fireflies, ',
+  E_lo:'a serene moonlit planet of pale silver-blue ice and frosted crystal spires, softly glowing snow-dust, one tiny companion moon on a delicate silver orbit, a hush of starlight, ',
+  A_hi:'a tender rose-pink blossom planet covered in pastel petal clouds and blooming flower meadows, a glowing heart-shaped lagoon, garlands of tiny pearls and ribbon-like auroras, ',
+  A_lo:'a bold coral and molten-amber crystal planet with elegant faceted ridges, glowing lava-gold veins like jewelry, sharp gem clusters and a proud flaring ring of embers, ',
+  C_hi:'an exquisitely ordered cyan and pearl planet with perfectly concentric jeweled rings, symmetrical star-map engravings, tiny clockwork orbit arcs and glowing constellation lines, ',
+  C_lo:'a playful mint and lime dream planet with free-flowing candy-swirl cloud streams, bubbly floating islands, a mischievous little comet moon trailing glitter, ',
+  N_hi:'a misty periwinkle planet veiled in soft lavender atmosphere, gentle swirling storm spirals like brushstrokes, shimmering violet aurora curtains, tiny raindrop crystals catching the light, ',
+  N_lo:'a calm aqua ocean planet, glassy and luminous, with pearly mist, soft reflections, gentle wave patterns and a serene halo of floating bubbles, ',
+  O_hi:'an orchid and rose nebula planet swirling with cosmic watercolor clouds, a grand tilted crystal ring, tiny floating islands, a miniature starship moon and scattered wish-stars, ',
+  O_lo:'a warm peach and gold storybook planet with cozy glowing continents, rolling candy-colored hills, soft lantern lights and a gentle golden ring, ',
+  BAL:'a harmonious rainbow-pastel planet with five softly glowing color bands in perfect balance, a delicate double ring of crystal and gold, gentle sparkles weaving between them, '
 };
 
 const ZODIAC = {
-  '牡羊座':'glowing ember-like highlights, ','獅子座':'glowing ember-like highlights, ','射手座':'glowing ember-like highlights, ',
-  '金牛座':'mossy green and stone-like details, ','處女座':'mossy green and stone-like details, ','摩羯座':'mossy green and stone-like details, ',
-  '雙子座':'swirling wind ribbons and floating light dust, ','天秤座':'swirling wind ribbons and floating light dust, ','水瓶座':'swirling wind ribbons and floating light dust, ',
-  '巨蟹座':'shimmering water pools, mist and tiny bubbles, ','天蠍座':'shimmering water pools, mist and tiny bubbles, ','雙魚座':'shimmering water pools, mist and tiny bubbles, '
+  '牡羊座':'tiny ember sparks and flickering phoenix-feather flames, ','獅子座':'a regal golden sun-crown halo and glowing ember jewels, ','射手座':'shooting-star arrows of light streaking around it, ',
+  '金牛座':'lush mossy gardens, tiny blooming flowers and smooth river stones, ','處女座':'delicate wheat-gold vines and crystal dewdrops, ','摩羯座':'majestic crystal mountain peaks dusted with starlight, ',
+  '雙子座':'twin swirling wind ribbons and floating sparkle dust, ','天秤座':'graceful balanced rings and drifting feather-light clouds, ','水瓶座':'flowing streams of stardust water pouring around it, ',
+  '巨蟹座':'moonlit tide pools, pearls and tiny shimmering bubbles, ','天蠍座':'deep jewel-toned waters with glowing bioluminescent swirls, ','雙魚座':'dreamy ocean mist, sea-glass and two softly glowing currents circling, '
+};
+
+// 五行：給星球一層對應的光彩（前端有傳五行時才加）
+const WUXING_PROMPTS = {
+  wood:'touches of jade-green leaves and growing crystal sprouts, ',
+  fire:'warm rose-gold flame light and glowing embers, ',
+  earth:'honey-gold sand ripples and smooth amber stone, ',
+  metal:'polished silver and white-gold engraved ornaments, ',
+  water:'deep sapphire ripples and flowing silver waves, '
 };
 
 const SYSTEM_PROMPT = `你是「INNERVERSE PLUS 內在宇宙」的 AI 人格陪伴者，預設用繁體中文（台灣用語）。
@@ -206,13 +224,19 @@ function callOpenAI_(systemPrompt,userPrompt,jsonMode) {
 function buildPlanetPrompt_(key,body) {
   const sign = str_(body.rising || body.zodiac,10);
   const b = body.big5 || {};
+  const wx = String((body.wuxing && (body.wuxing.element || body.wuxing)) || body.element || '').toLowerCase();
   let extra = '';
-  if (Number(b.O) >= 4.5) extra += 'extra swirling nebula patterns, ';
-  if (Number(b.E) >= 4.5) extra += 'brighter radiant glow, ';
-  if (Number(b.C) >= 4.5) extra += 'precise organized structure, ';
-  if (Number(b.A) >= 4.5) extra += 'soft welcoming shapes and warm light, ';
-  if (Number(b.N) >= 4.5) extra += 'soft drifting storm clouds and emotional aurora, ';
-  return (TRAIT_PROMPTS[key] || TRAIT_PROMPTS.BAL) + (ZODIAC[sign] || '') + extra + STYLE;
+  if (Number(b.O) >= 4.2) extra += 'extra swirling nebula patterns and floating dream islands, ';
+  if (Number(b.E) >= 4.2) extra += 'brighter radiant glow and a sparkling corona, ';
+  if (Number(b.C) >= 4.2) extra += 'precise symmetrical ornament engravings, ';
+  if (Number(b.A) >= 4.2) extra += 'soft welcoming rounded shapes and warm heartlight, ';
+  if (Number(b.N) >= 4.2) extra += 'gentle drifting aurora and soft protective mist, ';
+  const trait = TRAIT_PROMPTS[key] || TRAIT_PROMPTS.BAL;
+  // Tripo 的指令有長度上限：人格主題與共同風格一定保留，超出時只修剪後面的點綴
+  let deco = (ZODIAC[sign] || '') + (WUXING_PROMPTS[wx] || '') + extra;
+  const room = 1000 - trait.length - STYLE.length;
+  if (deco.length > room) { deco = deco.slice(0, Math.max(0, room)); deco = deco.slice(0, deco.lastIndexOf(', ') + 2); }
+  return trait + deco + STYLE;
 }
 
 function modelStart_(body) {

@@ -104,10 +104,11 @@ function doGet(e) {
     if (action === 'visits') return visits_(e);
     if (action === 'modelBin') return modelBin_(e);
     if (action === 'tripoCheck') return tripoCheck_(e);
+    if (action === 'inbox') return inbox_(e);
     return json_({
       ok:true,
       message:'INNERVERSE PLUS API is running',
-      actions:['saveInnerverse','interpret','worry','modelStart','modelStatus','modelGlb','modelBin','tripoCheck','checkName','publish','universe','starlight','visits','lookup'],
+      actions:['saveInnerverse','interpret','worry','modelStart','modelStatus','modelGlb','modelBin','tripoCheck','checkName','publish','universe','starlight','visits','lookup','invite','inbox','respond','friendAct','note'],
       time:new Date().toISOString()
     });
   } catch (err) {
@@ -126,6 +127,10 @@ function doPost(e) {
     if (action === 'publish') return publish_(body);
     if (action === 'starlight') return starlight_(body);
     if (action === 'lookup') return lookup_(body);
+    if (action === 'invite') return invite_(body);
+    if (action === 'respond') return respond_(body);
+    if (action === 'friendAct') return friendAct_(body);
+    if (action === 'note') return note_(body);
     return json_({ok:false,error:'Unknown action: ' + action});
   } catch (err) {
     return json_({ok:false,error:err.message});
@@ -576,7 +581,8 @@ function universe_(e) {
       element: r.element, weather: r.weather, lights: lights[r.pid] || 0,
       big5: { O: Number(r.O) || 3, C: Number(r.C) || 3, E: Number(r.E) || 3, A: Number(r.A) || 3, N: Number(r.N) || 3 }
     }));
-  return json_({ok:true, planets});
+  const friends = rows_(sheet_(FRIEND_SHEET, FRIEND_HEADERS)).slice(-3000).map(f => [f.pidA, f.pidB, Number(f.level) || 1]);
+  return json_({ok:true, planets, friends});
 }
 
 function starlight_(b) {
@@ -726,4 +732,127 @@ function setupDatabase() {
   s.setFrozenRows(3); s.setColumnWidth(1, 200); s.setColumnWidth(2, 160);
   ss.setActiveSheet(s);
   return '完成：' + (t.getLastRow() - 1) + ' 位旅人';
+}
+
+
+/* ================================================================
+ * 💫 Dance Invitation｜共舞邀請 —— INNERVERSE 的交朋友方式
+ * In INNERVERSE, friendship begins with a dance.
+ * 在 INNERVERSE，每一段友情，都從一支舞開始。
+ *
+ * INVITES ：共舞邀請（pending → accepted / mutual / later）。對方不在線也能收到，下次登入時處理
+ * FRIENDS ：友情（每一對只有一列）。一起跳舞、看流星、旅行會讓關係往前走
+ * NOTES   ：留在別人星球上的一句話（只有星球主人看得到）
+ * 身分一律用 uid（只存在後端與本人裝置）換成公開的 pid，不會把 uid 回傳給別人
+ * ================================================================ */
+const INVITE_SHEET = 'INVITES', INVITE_HEADERS = ['id','fromPid','toPid','status','createdAt','decidedAt','notifiedFrom'];
+const FRIEND_SHEET = 'FRIENDS', FRIEND_HEADERS = ['key','pidA','pidB','danceCount','meteor','travel','level','firstDanceAt','lastAt'];
+const NOTE_SHEET = 'NOTES', NOTE_HEADERS = ['id','time','toPid','fromPid','text','read'];
+const FRIEND_LEVELS = ['', 'Friend', 'Close Friend', 'Shared Memory', 'Best Friend', 'Soul Constellation'];
+
+function meByUid_(uid) { uid = str_(uid, 60); return uid ? rows_(sheet_(UNIVERSE_SHEET, UNIVERSE_HEADERS)).find(r => r.uid === uid) : null; }
+function pubByPid_(pid) { return rows_(sheet_(UNIVERSE_SHEET, UNIVERSE_HEADERS)).find(r => r.pid === pid) || null; }
+function pub_(r) { return r ? { pid: r.pid, name: r.name, petIdx: Number(r.petIdx) || 0, petSign: r.petSign, petName: r.petName, planetName: r.planetName, element: r.element, typeKey: r.typeKey } : null; }
+function fkey_(a, b) { return [a, b].sort().join('|'); }
+function friendLevel_(f) {
+  const d = Number(f.danceCount) || 0; let l = 1;
+  if (d >= 3) l = 2;                       // 一起跳 3 次舞 → Close Friend
+  if (l >= 2 && f.meteor) l = 3;           // 一起看流星 → Shared Memory
+  if (l >= 3 && f.travel) l = 4;           // 一起旅行 → Best Friend
+  if (l >= 4 && d >= 10) l = 5;            // 長期互動 → Soul Constellation
+  return l;
+}
+function friendOut_(f) { return f ? { level: Number(f.level) || 1, levelName: FRIEND_LEVELS[Number(f.level) || 1], danceCount: Number(f.danceCount) || 0, meteor: !!f.meteor, travel: !!f.travel, firstDanceAt: f.firstDanceAt } : null; }
+// 建立或更新一段友情：dance 次數＋1，或打上「看流星／旅行」的回憶
+function bumpFriend_(a, b, o) {
+  const sh = sheet_(FRIEND_SHEET, FRIEND_HEADERS), key = fkey_(a, b), now = new Date();
+  const f = rows_(sh).find(r => r.key === key);
+  const v = f ? Object.assign({}, f) : { key, pidA: [a, b].sort()[0], pidB: [a, b].sort()[1], danceCount: 0, meteor: '', travel: '', level: 1, firstDanceAt: now };
+  if (o.dance) v.danceCount = (Number(v.danceCount) || 0) + 1;
+  if (o.meteor) v.meteor = v.meteor || now;
+  if (o.travel) v.travel = v.travel || now;
+  v.lastAt = now; v.level = friendLevel_(v);
+  const row = FRIEND_HEADERS.map(h => v[h] === undefined ? '' : v[h]);
+  if (f) sh.getRange(f._row, 1, 1, row.length).setValues([row]); else sh.appendRow(row);
+  return Object.assign(v, { isNew: !f });
+}
+function findFriend_(a, b) { const key = fkey_(a, b); return rows_(sheet_(FRIEND_SHEET, FRIEND_HEADERS)).find(r => r.key === key) || null; }
+
+// 發出共舞邀請：會先檢查是不是「彼此都邀請了對方」
+function invite_(b) {
+  const lock = LockService.getScriptLock(); lock.waitLock(10000);
+  try {
+    const me = meByUid_(b.uid); if (!me) return json_({ok:false, error:'no_planet'});
+    const to = str_(b.to, 20), target = pubByPid_(to);
+    if (!target || to === me.pid) return json_({ok:false, error:'no_target'});
+    const partner = pub_(target);
+    // 已經是朋友：「找牠玩」＝再一起跳一支舞
+    if (findFriend_(me.pid, to)) { const f = bumpFriend_(me.pid, to, { dance: true }); return json_({ok:true, kind:'again', partner, friend: friendOut_(f)}); }
+    const sh = sheet_(INVITE_SHEET, INVITE_HEADERS), all = rows_(sh), now = new Date();
+    const rev = all.find(r => r.fromPid === to && r.toPid === me.pid && r.status === 'pending');
+    if (rev) {   // A → B 還在等，B 又邀請 A：直接變成 Mutual Invitation，不用任何一方再按接受
+      sh.getRange(rev._row, 4, 1, 2).setValues([['mutual', now]]);
+      const f = bumpFriend_(me.pid, to, { dance: true });
+      return json_({ok:true, kind:'mutual', partner, friend: friendOut_(f)});
+    }
+    if (all.find(r => r.fromPid === me.pid && r.toPid === to && r.status === 'pending')) return json_({ok:true, kind:'pending', partner});
+    sh.appendRow([Utilities.getUuid().slice(0, 12), me.pid, to, 'pending', now, '', '']);
+    return json_({ok:true, kind:'sent', partner});
+  } finally { lock.releaseLock(); }
+}
+
+// 信箱：收到的邀請、寄出邀請的結果、別人留的話、我的朋友
+function inbox_(e) {
+  const me = meByUid_((e.parameter || {}).uid); if (!me) return json_({ok:true, invites:[], outcomes:[], notes:[], friends:[]});
+  const ish = sheet_(INVITE_SHEET, INVITE_HEADERS), inv = rows_(ish), now = new Date();
+  const invites = inv.filter(r => r.toPid === me.pid && r.status === 'pending')
+    .map(r => ({ id: r.id, createdAt: r.createdAt, from: pub_(pubByPid_(r.fromPid)) })).filter(x => x.from);
+  const outcomes = [];
+  inv.filter(r => r.fromPid === me.pid && r.status !== 'pending' && !r.notifiedFrom).forEach(r => {
+    const p = pub_(pubByPid_(r.toPid));
+    if (p) outcomes.push({ id: r.id, status: r.status, partner: p, friend: friendOut_(findFriend_(me.pid, r.toPid)) });
+    ish.getRange(r._row, 7).setValue(now);
+  });
+  const nsh = sheet_(NOTE_SHEET, NOTE_HEADERS), notes = [];
+  rows_(nsh).filter(r => r.toPid === me.pid && !r.read).slice(-20).forEach(r => {
+    notes.push({ id: r.id, time: r.time, text: r.text, from: pub_(pubByPid_(r.fromPid)) });
+    nsh.getRange(r._row, 6).setValue(now);
+  });
+  const friends = rows_(sheet_(FRIEND_SHEET, FRIEND_HEADERS)).filter(f => f.pidA === me.pid || f.pidB === me.pid)
+    .map(f => Object.assign({ partner: pub_(pubByPid_(f.pidA === me.pid ? f.pidB : f.pidA)) }, friendOut_(f))).filter(x => x.partner);
+  return json_({ok:true, invites, outcomes, notes, friends});
+}
+
+// 回覆邀請：接受，或「現在還不想跳舞」（不做拒絕，對方只會看到「也許下一次」）
+function respond_(b) {
+  const lock = LockService.getScriptLock(); lock.waitLock(10000);
+  try {
+    const me = meByUid_(b.uid); if (!me) return json_({ok:false, error:'no_planet'});
+    const sh = sheet_(INVITE_SHEET, INVITE_HEADERS), r = rows_(sh).find(x => x.id === str_(b.id, 20) && x.toPid === me.pid);
+    if (!r) return json_({ok:false, error:'no_invite'});
+    const partner = pub_(pubByPid_(r.fromPid));
+    if (r.status !== 'pending') return json_({ok:true, status: r.status, partner, friend: friendOut_(findFriend_(me.pid, r.fromPid))});
+    const st = b.choice === 'accept' ? 'accepted' : 'later';
+    sh.getRange(r._row, 4, 1, 2).setValues([[st, new Date()]]);
+    const f = st === 'accepted' ? bumpFriend_(me.pid, r.fromPid, { dance: true }) : null;
+    return json_({ok:true, status: st, partner, friend: friendOut_(f)});
+  } finally { lock.releaseLock(); }
+}
+
+// 朋友之間的回憶：一起看流星、一起旅行
+function friendAct_(b) {
+  const me = meByUid_(b.uid); if (!me) return json_({ok:false, error:'no_planet'});
+  const to = str_(b.to, 20); if (!findFriend_(me.pid, to)) return json_({ok:false, error:'not_friends'});
+  const f = bumpFriend_(me.pid, to, { meteor: b.act === 'meteor', travel: b.act === 'travel', dance: b.act === 'dance' });
+  return json_({ok:true, friend: friendOut_(f)});
+}
+
+// 在別人的星球留下一句話（最多 60 字，只有主人看得到）
+function note_(b) {
+  const me = meByUid_(b.uid); if (!me) return json_({ok:false, error:'no_planet'});
+  const to = str_(b.to, 20), text = str_(b.text, 60).replace(/[\u0000-\u001f]/g, ' ').trim();
+  if (!text || !pubByPid_(to) || to === me.pid) return json_({ok:false, error:'bad_note'});
+  const safe = /^[=+\-@]/.test(text) ? "'" + text : text;   // 避免被試算表當成公式
+  sheet_(NOTE_SHEET, NOTE_HEADERS).appendRow([Utilities.getUuid().slice(0, 12), new Date(), to, me.pid, safe, '']);
+  return json_({ok:true});
 }

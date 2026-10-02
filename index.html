@@ -620,6 +620,20 @@
   .uv-gift.done { background: rgba(255,226,170,.16); border-color: rgba(255,226,170,.6); }
   .uv-gift.shake { animation: giftNo .4s ease; }
   @keyframes giftNo { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+  .uf { margin-top: 12px; padding: 12px; border-radius: 16px; background: rgba(255,200,235,.06); border: 1px solid rgba(255,200,235,.22); }
+  .uf-head { font-size: .92rem; letter-spacing: .06em; color: #fff3dc; line-height: 1.6; }
+  .uf-sub { margin-top: .25rem; font-size: .74rem; letter-spacing: .06em; color: var(--dim); line-height: 1.6; }
+  .uf-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .uf-b { flex: 1 1 auto; min-width: 0; padding: .6rem .9rem; font-size: .82rem; }
+  .un-row { display: flex; gap: 8px; }
+  .un-row input { flex: 1; min-width: 0; padding: 10px 12px; border-radius: 12px; font-family: var(--tc); font-size: 16px; color: var(--ink); background: rgba(10,8,30,.5); border: 1px solid rgba(255,255,255,.2); -webkit-user-select: text; user-select: text; }
+  .un-send { font-size: 1.1rem; }
+  .uv-mail { color: #ffd6e8; border-color: rgba(255,200,235,.5); animation: pulse2 1.8s ease-in-out infinite; }
+  .ml-star { font-size: 2rem; text-shadow: none; }
+  .ml-body { margin-top: .9rem; font-size: 1.3rem; letter-spacing: .08em; color: #fff; }
+  .fr-list { list-style: none; display: grid; gap: 8px; margin-top: 1rem; max-height: 46svh; overflow-y: auto; text-align: left; }
+  .fr-item { width: 100%; display: grid; gap: 2px; padding: .7rem 1rem; border-radius: 14px; cursor: pointer; text-align: left; color: var(--ink); font-family: var(--tc); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.16); }
+  .fr-item b { font-weight: 400; letter-spacing: .06em; } .fr-item small { font-size: .72rem; color: var(--dim); letter-spacing: .06em; }
   .up { margin-top: 14px; padding: 12px 12px 10px; border-radius: 16px; background: rgba(255,226,170,.06); border: 1px solid rgba(255,226,170,.22); }
   .up-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: .84rem; letter-spacing: .08em; color: #fff3dc; }
   .up-head span { font-size: .74rem; color: rgba(255,214,150,.9); white-space: nowrap; }
@@ -1160,11 +1174,12 @@
 <section class="uv" id="uv">
   <div class="uv-title"><h2>✦ OUR UNIVERSE ✦</h2><p class="uv-demo" id="uvDemo" hidden>示範宇宙：真實旅人還不多，先用示範星球陪你逛逛</p></div>
   <p class="uv-hint" id="uvHint"></p>
-  <div class="uv-tools"><button class="pill" id="uvHand" type="button">🖐️ 手勢控制</button><button class="pill" id="uvAll" type="button">✦ 看見整座宇宙</button></div>
+  <div class="uv-tools"><button class="pill" id="uvHand" type="button">🖐️ 手勢控制</button><button class="pill" id="uvAll" type="button">✦ 看見整座宇宙</button><button class="pill uv-mail" id="uvMail" type="button" hidden>💌</button><button class="pill" id="uvFriends" type="button" hidden>✦</button></div>
   <div class="uv-gest" id="uvGest"><span>🖐️ 張開手掌移動：旋轉宇宙</span><span>🖐️ 手掌靠近／遠離鏡頭：放大／縮小</span><span>✌️ 兩指或三指移動：平移</span><span>🤏 捏合：選擇星球</span><span>✊ 握拳：回到整個宇宙</span></div>
   <aside class="uv-card" id="uvCard" aria-live="polite">
     <button class="uv-x" id="uvcClose" type="button" aria-label="回到宇宙">×</button>
     <h3 id="uvcTitle"></h3><p class="uv-me" id="uvcMe" hidden>這是你的星球</p>
+    <div class="uf" id="uvcFriend" hidden><p class="uf-head" id="ufHead"></p><p class="uf-sub" id="ufSub"></p><div class="uf-acts" id="ufActs"></div></div>
     <div class="uv-model" id="uvcModel" hidden></div>
     <dl class="uv-info" id="uvcInfo"></dl>
     <p class="uv-sub">人格星圖</p><div class="uv-bars" id="uvcBars"></div>
@@ -1176,6 +1191,7 @@
       <p class="uv-sub" id="upTaskT"></p><ul class="up-tasks" id="upTasks"></ul>
     </div>
     <div id="uvcGive"><p class="uv-sub">留下一點星光</p><div class="uv-gifts" id="uvcGifts"></div></div>
+    <div class="un" id="uvcNote" hidden><p class="uv-sub">留下一句話（只有星球主人看得到）</p><div class="un-row"><input id="unText" type="text" maxlength="60" placeholder="想對牠的主人說些什麼？" autocomplete="off"><button class="mini un-send" id="unSend" type="button" aria-label="送出">✦</button></div></div>
     <p class="uv-tune" id="uvcTune"></p>
     <p class="uv-n" id="uvcStarsN"></p>
     <button class="ghost uv-back" id="uvBack" type="button">回到宇宙</button>
@@ -1187,6 +1203,24 @@
   </div>
 </section>
 
+<div class="back-dlg" id="mailDlg" role="dialog" aria-modal="true" aria-labelledby="mlTitle">
+  <div class="bd-card">
+    <p class="bd-star ml-star" id="mlStar" aria-hidden="true">💌</p>
+    <h3 id="mlTitle"></h3>
+    <p class="ml-body" id="mlBody"></p>
+    <p class="bd-info" id="mlSmall"></p>
+    <div class="bd-acts"><button class="main" id="mlGo" type="button"></button><button class="ghost" id="mlLater" type="button"></button></div>
+  </div>
+</div>
+<div class="back-dlg" id="frDlg" role="dialog" aria-modal="true" aria-labelledby="frTitle">
+  <div class="bd-card">
+    <p class="bd-star" aria-hidden="true">✦</p>
+    <h3 id="frTitle">友情星圖</h3>
+    <p class="bd-sub">在 INNERVERSE，每一段友情，都從一支舞開始。</p>
+    <ul class="fr-list" id="frList"></ul>
+    <div class="bd-acts"><button class="ghost" id="frClose" type="button">回到宇宙</button></div>
+  </div>
+</div>
 <div class="back-dlg" id="worryDlg" role="dialog" aria-modal="true" aria-labelledby="wdTitle">
   <div class="bd-card">
     <p class="bd-star" aria-hidden="true">☾</p>
@@ -1246,6 +1280,11 @@
     "No need to organize it — write whatever comes": ["まとめなくていいよ。思いつくままに書いてね", "정리하지 않아도 돼요. 떠오르는 대로 적어요", "Không cần sắp xếp — nghĩ gì viết nấy"],
     "Give it to my pet": ["ペットにまかせる", "펫에게 맡기기", "Giao cho thú cưng"],
     "No worries — just keep me company": ["悩みはないよ。そばにいてくれるだけでいい", "걱정은 없어요. 곁에만 있어 줘요", "Không có gì lo — chỉ cần ở bên mình thôi"],
+    "Friendship Constellation": ["友情星図", "우정 별자리", "Chòm sao tình bạn"],
+    "In INNERVERSE, friendship begins with a dance.": ["INNERVERSE では、友情はダンスから始まる。", "INNERVERSE에서 모든 우정은 한 곡의 춤으로 시작돼요.", "Ở INNERVERSE, mọi tình bạn đều bắt đầu bằng một điệu nhảy."],
+    "Leave a few words (only the owner can see)": ["ひとこと残す（星の持ち主だけが見られる）", "한마디 남기기(행성 주인만 볼 수 있어요)", "Để lại vài lời (chỉ chủ hành tinh thấy được)"],
+    "Anything you want to tell the owner?": ["持ち主に伝えたいことは？", "주인에게 하고 싶은 말이 있나요?", "Bạn muốn nói gì với chủ nhân?"],
+    "Send": ["送る", "보내기", "Gửi"],
     "Welcome back": ["おかえりなさい", "다시 왔군요", "Chào mừng trở lại"],
     "The universe found your record": ["宇宙があなたの記録を見つけたよ", "우주가 당신의 기록을 찾았어요", "Vũ trụ đã tìm thấy dữ liệu của bạn"],
     "Jump ahead to your results, or take the test again?": ["結果まで進む？それとも、もう一度テストする？", "결과로 바로 갈까요, 아니면 다시 테스트할까요?", "Đi thẳng đến kết quả, hay làm lại bài trắc nghiệm?"],
@@ -3885,6 +3924,7 @@
 
   // 靜態 HTML 的英文：依中文原文對照替換文字節點、placeholder、aria-label
   const HTML_EN = {
+    '友情星圖': 'Friendship Constellation', '在 INNERVERSE，每一段友情，都從一支舞開始。': 'In INNERVERSE, friendship begins with a dance.', '留下一句話（只有星球主人看得到）': 'Leave a few words (only the owner can see)', '想對牠的主人說些什麼？': 'Anything you want to tell the owner?', '送出': 'Send',
     '最近，心裡有什麼煩惱嗎？': 'Has anything been weighing on you lately?', '說出來，讓寵物陪你一起放下。': 'Say it, and let your pet help you set it down.', '不用整理，想到什麼就寫什麼': 'No need to organize it — write whatever comes', '交給寵物': 'Give it to my pet', '沒有煩惱，陪我一下就好': 'No worries — just keep me company',
     '宇宙有查詢到您的資料': 'The universe found your record', '歡迎回來': 'Welcome back', '需要跳轉到後面嗎？還是要重新測驗？': 'Jump ahead to your results, or take the test again?', '跳轉到後面': 'Jump ahead', '重新測驗': 'Retake the test',
     '內在宇宙': 'Your inner universe', '輕觸畫面，進入你的宇宙': 'Tap anywhere to enter your universe', '建議戴上耳機': 'Headphones recommended',
@@ -9675,7 +9715,7 @@ function petSVG(i, opt = {}) {
       if (list) return list;
       let rows = null;
       if (CONFIG.DATA_ENDPOINT) {
-        try { const j = await apiGet({ action: 'universe' }, 9000); if (j && Array.isArray(j.planets)) rows = j.planets; } catch (e) { console.warn('universe:', e); }
+        try { const j = await apiGet({ action: 'universe' }, 9000); if (j && Array.isArray(j.planets)) rows = j.planets; if (j && Array.isArray(j.friends)) Fr.edges = j.friends.map(e => e.slice()); } catch (e) { console.warn('universe:', e); }
       }
       rows = (rows || []).filter(p => p && p.name && p.typeKey);
       // 只顯示真人測試過的星球，不再補示範星球
@@ -9746,6 +9786,7 @@ function petSVG(i, opt = {}) {
       // 星球
       planetsW.forEach(p => { proj(p.x, p.y, p.z, tmp); p.vis = tmp.vis; p.sx = tmp.sx; p.sy = tmp.sy; p.depth = tmp.depth; p.sr = tmp.vis ? p.R * tmp.s : 0; });
       const order = planetsW.filter(p => p.vis && p.sx > -200 && p.sx < W + 200 && p.sy > -200 && p.sy < H + 200).sort((p, q) => q.depth - p.depth);
+      drawEdges(a);
       const aU = a;
       for (const p of order) {
         // 選了某顆星球時，擋在它前面的星球變淡，才看得清楚寵物
@@ -9773,6 +9814,8 @@ function petSVG(i, opt = {}) {
       if (sel && sel.vis && UVS.petPeek > .01) drawSelPet(dt, a);
       // 送出的星光
       drawGifts(dt);
+      drawLetter(a);
+      drawDuet(dt);
       // 手勢游標
       if (hand.on && hand.show > .01) {
         ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = rgba([210, 230, 255], hand.show * .9); ctx.lineWidth = 1.5;
@@ -9840,6 +9883,327 @@ function petSVG(i, opt = {}) {
         ctx.save(); ctx.font = `${Math.round(U * .05 * (1 - e * .4))}px serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(g.icon, x, y); ctx.restore();
         if (Math.random() < .5) emit(x, y, 1, ['255,236,190', '255,255,255'], { speed: 20, life: .7, size: .7 });
       }
+    }
+
+    /* ================================================================
+       💫 Dance Invitation｜共舞邀請 —— INNERVERSE 的交朋友方式
+       In INNERVERSE, friendship begins with a dance.
+       在 INNERVERSE，每一段友情，都從一支舞開始。
+       寵物沒有嘴巴，不會說「我們當朋友吧」——牠們會邀請對方跳舞。
+       ================================================================ */
+    const FR_LV = ['', 'Friend', 'Close Friend', 'Shared Memory', 'Best Friend', 'Soul Constellation'];
+    const frLvName = l => L(['', '朋友', '好朋友', '共同回憶', '最好的朋友', '靈魂星座'][l] || '', FR_LV[l] || '', { ja: ['', 'ともだち', 'なかよし', 'ふたりの思い出', '親友', 'ソウル星座'][l], ko: ['', '친구', '친한 친구', '함께한 추억', '베프', '소울 별자리'][l], vi: ['', 'Bạn bè', 'Bạn thân', 'Kỷ niệm chung', 'Bạn thân nhất', 'Chòm sao tâm hồn'][l] });
+    const Fr = {
+      edges: [],            // 全宇宙的友情線 [pidA, pidB, level]
+      friends: new Map(),   // 我的朋友：pid → { level, danceCount, meteor, travel, partner }
+      sent: new Set(),      // 我已經送出、還在等的邀請
+      queue: [],            // 信箱：邀請、留言、邀請結果
+      busy: false, D: null, R: null, polled: 0, pollT: 0
+    };
+    const myPet = () => { const m = Me.get() || {}; const i = Number.isInteger(m.petIdx) ? m.petIdx : 0; return { idx: i, name: m.petName || (PETS[i] || PETS[0]).en, glyph: (PETS[i] || PETS[0]).glyph, pid: m.pid || '' }; };
+    const petOf = p => { const i = Number(p.petIdx) || 0; return { idx: i, name: p.petName || (PETS[i] || PETS[0]).en, glyph: (PETS[i] || PETS[0]).glyph }; };
+    const canFriend = () => !!(CONFIG.DATA_ENDPOINT && (Me.get() || {}).pid);
+
+    /* ---------- 友情星圖：朋友之間的星線 ---------- */
+    function drawEdges(a) {
+      if (!Fr.edges.length) return;
+      const byPid = new Map(); planetsW.forEach(p => { if (p.pid) byPid.set(p.pid, p); });
+      const mePid = (Me.get() || {}).pid;
+      ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
+      Fr.edges.forEach(([pa, pb, lv]) => {
+        const A = byPid.get(pa), B = byPid.get(pb); if (!A || !B || !A.vis || !B.vis) return;
+        const mine = pa === mePid || pb === mePid, l = Number(lv) || 1, pulse = .75 + .25 * Math.sin(time * 1.6 + l);
+        const al = a * (mine ? .16 + .1 * l : .05 + .02 * l) * pulse;
+        const g = ctx.createLinearGradient(A.sx, A.sy, B.sx, B.sy);
+        g.addColorStop(0, rgba([255, 226, 170], al)); g.addColorStop(.5, rgba([255, 246, 225], al * 1.4)); g.addColorStop(1, rgba([255, 200, 235], al));
+        ctx.strokeStyle = g; ctx.lineWidth = mine ? .8 + l * .5 : .7;
+        ctx.beginPath(); ctx.moveTo(A.sx, A.sy); ctx.lineTo(B.sx, B.sy); ctx.stroke();
+        if (mine) { const mx = (A.sx + B.sx) / 2, my = (A.sy + B.sy) / 2; glow(mx, my, 6 + l * 3, [255, 236, 200], a * .5 * pulse); drawStar4(mx, my, 2.5 + l, rgba([255, 250, 235], a * pulse)); }
+      });
+      ctx.restore();
+    }
+
+    /* ---------- 共舞動畫 ---------- */
+    // mode: 'normal'（接受邀請）、'mutual'（彼此都邀請）、'again'（朋友再一起跳）、'reach'（送出邀請：飛過去伸出小手）
+    function duet(mode, A, B, o = {}) {
+      return new Promise(res => {
+        Fr.D = Object.assign({ mode, A, B, t: 0, res, burst: false, cards: root.classList.contains('c-on') }, o);
+        if (mode !== 'reach') { root.classList.remove('c-on', 'h-on'); Sound.wxStart('all', null); Sound.wxLevel(1, 1.5); Sound.chime(.3); }
+      });
+    }
+    const seg = (t, a, b) => clamp((t - a) / (b - a));
+    function drawDuet(dt) {
+      const D = Fr.D; if (!D) return;
+      D.t += dt; const t = D.t, S = U * .38;
+      if (D.mode === 'reach') return drawReach(dt);
+      // 'mutual' 前面多一段：兩隻同時拿著星星跑出來 → 看見對方 → ……！ → 眼睛發亮，之後接上一般舞步
+      const pre = D.mode === 'mutual' ? 1.2 : 0, T = t - pre;
+      const END = D.mode === 'again' ? 13.2 : 17.4;
+      let ax, bx, ay = 0, by = 0, ar = 0, br = 0, aK = 1, bK = 1, closed = false, hand = 0;
+      if (D.mode === 'mutual' && t < 4.2) {
+        const run = easeOut(seg(t, 0, 2.4)); ax = lerp(-1.25, -.28, run) * U; bx = lerp(1.25, .28, run) * U;
+        ay = -Math.abs(Math.sin(t * 9)) * U * .025 * (1 - run); by = ay;
+      } else {
+        const tt = D.mode === 'mutual' ? T : t;
+        const enter = easeOut(seg(tt, 0, 1.4)), close1 = easeIO(seg(tt, 1.4, 3));
+        ax = (lerp(-1.25, -.4, enter) + .12 * close1) * U; bx = -ax;
+        if (tt > 1.4 && tt < 4.4) ar = Math.sin(tt * 5) * .22;                           // 其中一隻先左右晃
+        if (tt > 3 && tt < 4.4) br = Math.sin(tt * 5) * .22 * seg(tt, 3, 3.4);           // 另一隻跟上
+        if (tt >= 4.4 && tt < 7) {                                                        // 牽手繞圈
+          const th = easeIO(seg(tt, 4.4, 7)) * TAU; ax = Math.cos(Math.PI + th) * .28 * U; ay = Math.sin(Math.PI + th) * .09 * U; bx = -ax; by = -ay; hand = 1;
+        }
+        if (tt >= 7 && tt < 8.6) { const h = Math.abs(Math.sin((tt - 7) * Math.PI * 1.25)); ay = by = -h * .2 * U; aK = bK = 1 + (h - .5) * .12; hand = 1; ax = -.28 * U; bx = .28 * U; }   // 一起跳起來
+        if (tt >= 8.6 && tt < 10) { const q = seg(tt, 8.6, 10); ay = by = -Math.sin(q * Math.PI) * .2 * U; ar = q * TAU; br = -q * TAU; ax = -.28 * U; bx = .28 * U; }        // 空中旋轉
+        if (tt >= 10) { const q = easeIO(seg(tt, 10, 11.2)); ax = lerp(-.28, -.15, q) * U; bx = -ax; ar = .22 * q; br = -.22 * q; closed = q > .8 && tt < 12.6; }           // 額頭碰一下
+      }
+      // 背景變暗，聚光在兩隻寵物身上
+      const veil = clamp(t / .8) * (1 - seg(t, END - 1, END));
+      ctx.save();
+      ctx.fillStyle = `rgba(6,4,20,${(.8 * veil).toFixed(3)})`; ctx.fillRect(0, 0, W, H);
+      ctx.globalCompositeOperation = 'lighter'; glow(CX, CY, U * .7, [170, 140, 255], .25 * veil);
+      ctx.globalCompositeOperation = 'source-over';
+      const cy = CY - U * .02;
+      if (hand) { ctx.strokeStyle = rgba([255, 236, 200], .7 * veil); ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(CX + ax + S * .3, cy + ay + S * .12); ctx.lineTo(CX + bx - S * .3, cy + by + S * .12); ctx.stroke(); }
+      drawPet(D.A.idx, CX + ax, cy + ay, S, { alpha: veil, rot: ar, kx: 2 - aK, ky: aK, closed });
+      drawPet(D.B.idx, CX + bx, cy + by, S, { alpha: veil, rot: br, kx: 2 - bK, ky: bK, closed });
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      // 名字
+      ctx.font = `300 ${Math.round(clamp(U * .032, 12, 16))}px ${bodyFont}`; ctx.fillStyle = rgba([243, 238, 252], .8 * veil * clamp(1 - seg(t, 3, 4)));
+      ctx.fillText(D.A.name, CX + ax, cy + ay + S * .68); ctx.fillText(D.B.name, CX + bx, cy + by + S * .68);
+      if (D.mode === 'mutual' && t < 4.2) {
+        // 手上拿著小星星
+        const st = 1 - seg(t, 3.4, 4.2);
+        ctx.font = `${Math.round(S * .26)}px serif`; ctx.globalAlpha = st * veil;
+        ctx.fillText('⭐', CX + ax + S * .42, cy + ay + S * .1 - Math.sin(t * 6) * 3); ctx.fillText('⭐', CX + bx - S * .42, cy + by + S * .1 - Math.sin(t * 6 + 1) * 3);
+        if (t > 2.4) { ctx.globalAlpha = seg(t, 2.4, 2.7) * veil * (1 - seg(t, 3.9, 4.2)); ctx.font = `600 ${Math.round(S * .2)}px ${bodyFont}`; ctx.fillStyle = '#fff3dc'; ctx.fillText('……！', CX + ax, cy - S * .72); ctx.fillText('……！', CX + bx, cy - S * .72); }
+        if (t > 3.1) { const k = seg(t, 3.1, 3.4) * (1 - seg(t, 4, 4.4)); [[ax, -1], [bx, 1]].forEach(([px]) => { [-.12, .12].forEach(ex => drawStar4(CX + px + ex * S, cy - S * .06, S * .07 * k * (1 + .3 * Math.sin(t * 20)), rgba([255, 250, 225], k))); }); }
+        ctx.globalAlpha = 1;
+      }
+      // 音符
+      if (t > 1.4 && t < END - 2 && Math.random() < dt * 4) { const side = Math.random() < .5 ? ax : bx; note(CX + side + rand(-1, 1) * S * .3, cy - S * .4, Math.random() < .5 ? '♪' : '♫', ['#ffe3a8', '#ffc2dc', '#c9b8ff', '#b8f0ff'][(Math.random() * 4) | 0]); }
+      // Friendship Star 誕生
+      const tt2 = D.mode === 'mutual' ? T : t;
+      if (D.mode !== 'again' && tt2 >= 11.2) {
+        const q = easeOut(seg(tt2, 11.2, 12.6)), sy = cy - S * .62 - q * U * .06, ss = U * .05 * q * (1 + .08 * Math.sin(t * 4));
+        if (!D.burst) { D.burst = true; emit(CX, sy, 70, ['255,236,190', '255,200,235', '255,255,255', '190,220,255'], { speed: 220, life: 1.8 }); Sound.gift(); Sound.ding(1); try { if (navigator.vibrate) navigator.vibrate([20, 30, 60]); } catch (_) { /* ignore */ } }
+        ctx.globalCompositeOperation = 'lighter'; glow(CX, sy, ss * 4, [255, 230, 190], veil * .8);
+        drawStar4(CX, sy, ss, rgba([255, 252, 240], veil)); drawStar4(CX, sy, ss * .5, rgba([255, 255, 255], veil));
+        ctx.globalCompositeOperation = 'source-over';
+      }
+      // 最後才出現文字
+      const capT = D.mode === 'again' ? 8.6 : 12.8, ct = (D.mode === 'mutual' ? T : t) - capT;
+      if (ct > 0) {
+        const ca = clamp(ct / .8) * veil;
+        const [l1, l2] = D.mode === 'mutual' ? ['You found each other.', L('原來，你們都想認識彼此。', 'It turns out you both wanted to meet.', { ja: 'ふたりとも、出会いたいと思っていたんだね。', ko: '알고 보니, 둘 다 서로를 알고 싶었네요.', vi: 'Hóa ra, cả hai đều muốn làm quen với nhau.' })]
+          : D.mode === 'again' ? ['♫ ' + L('又一起跳了一支舞', 'Another dance together', { ja: 'またいっしょに踊ったね', ko: '또 함께 춤을 췄어요', vi: 'Lại cùng nhảy một điệu' }), D.levelText || '']
+            : ['A new friendship was born.', L('你們成為朋友了 ✦', 'You became friends ✦', { ja: 'ふたりは友だちになった ✦', ko: '두 사람은 친구가 되었어요 ✦', vi: 'Hai bạn đã trở thành bạn bè ✦' })];
+        ctx.globalAlpha = ca; ctx.fillStyle = '#fff3dc'; ctx.shadowColor = 'rgba(255,214,150,.8)'; ctx.shadowBlur = 14;
+        ctx.font = `italic 300 ${Math.round(clamp(U * .055, 18, 30))}px ${bodyFont}`; ctx.fillText(l1, CX, CY + U * .3);
+        ctx.shadowBlur = 0; ctx.globalAlpha = clamp((ct - .6) / .8) * veil; ctx.fillStyle = 'rgba(243,238,252,.92)';
+        ctx.font = `300 ${Math.round(clamp(U * .036, 13, 18))}px ${bodyFont}`; ctx.fillText(l2, CX, CY + U * .3 + clamp(U * .065, 24, 38));
+        ctx.globalAlpha = 1;
+      }
+      ctx.restore();
+      if (t >= END) { const r = D.res; Fr.D = null; root.classList.add('h-on'); if (D.cards && sel) root.classList.add('c-on'); Sound.wxLevel(.6, 3); r(); }
+    }
+    // 送出邀請：自己的寵物飛到對方面前，伸出小手，頭上的星星一閃一閃
+    function drawReach() {
+      const D = Fr.D, t = D.t, p = sel; if (!p || p.petX === undefined) { const r = D.res; Fr.D = null; r(); return; }
+      const s = p.petS * .9, tx = p.petX - p.petS * 1.05, ty = p.petY + p.petS * .1;
+      const go = easeOut(seg(t, 0, 1.2)), back = easeIO(seg(t, 3.4, 4.4));
+      const x = lerp(lerp(CX, tx, go), CX - W * .3, back), y = lerp(lerp(H + s, ty, go), H + s, back) + Math.sin(t * 3) * s * .04;
+      drawPet(D.A.idx, x, y, s, { rot: .28 * seg(t, 1.2, 1.6) * (1 - seg(t, 3, 3.4)) + (t > 2.6 && t < 3.4 ? Math.sin(t * 14) * .12 : 0), closed: (t % 2.8) < .1 });
+      const blink = .5 + .5 * Math.sin(t * 9);
+      ctx.save(); ctx.globalCompositeOperation = 'lighter'; glow(x, y - s * .62, s * .25, [255, 236, 190], .6 * blink * (1 - back)); ctx.restore();
+      drawStar4(x, y - s * .62, s * .09 * (.7 + .5 * blink), rgba([255, 250, 225], (1 - back)));
+      if (t >= 4.4) { const r = D.res; Fr.D = null; r(); }
+    }
+
+    /* ---------- 卡片：朋友狀態與按鈕 ---------- */
+    function fillFriend(p) {
+      const box = $('uvcFriend'), acts = $('ufActs'), noteBox = $('uvcNote');
+      acts.textContent = '';
+      if (p.me || p.demo || !p.pid) { box.hidden = true; noteBox.hidden = true; return; }
+      box.hidden = false; noteBox.hidden = !canFriend();
+      const me = myPet(), them = petOf(p), f = Fr.friends.get(p.pid);
+      const btn = (label, fn, cls = 'ghost') => { const b = document.createElement('button'); b.type = 'button'; b.className = cls + ' uf-b'; b.textContent = label; b.addEventListener('click', fn); acts.appendChild(b); return b; };
+      if (!canFriend()) {
+        $('ufHead').textContent = `${them.glyph} ${them.name}`;
+        $('ufSub').textContent = L('完成測驗、有了自己的星球之後，你的寵物也能邀請牠跳舞。', 'Once you have your own planet, your pet can invite this one to dance.', { ja: '自分の星ができたら、あなたのペットもこの子をダンスに誘えるよ。', ko: '내 행성이 생기면, 내 펫도 이 아이를 춤에 초대할 수 있어요.', vi: 'Khi có hành tinh của riêng mình, thú cưng của bạn cũng có thể mời bé này nhảy.' });
+        btn(L('♡ 看看牠', '♡ Say hi', { ja: '♡ 見てみる', ko: '♡ 살펴보기', vi: '♡ Ngắm bé' }), () => petReact()); return;
+      }
+      if (!f) {
+        $('ufHead').textContent = L(`${me.glyph} ${me.name} 想認識 ${them.glyph} ${them.name}`, `${me.glyph} ${me.name} wants to meet ${them.glyph} ${them.name}`, { ja: `${me.glyph} ${me.name} は ${them.glyph} ${them.name} と知り合いたい`, ko: `${me.glyph} ${me.name}이(가) ${them.glyph} ${them.name}을(를) 알고 싶어해요`, vi: `${me.glyph} ${me.name} muốn làm quen ${them.glyph} ${them.name}` });
+        $('ufSub').textContent = L('在 INNERVERSE，每一段友情，都從一支舞開始。', 'In INNERVERSE, friendship begins with a dance.', { ja: 'INNERVERSE では、友情はダンスから始まる。', ko: 'INNERVERSE에서 모든 우정은 한 곡의 춤으로 시작돼요.', vi: 'Ở INNERVERSE, mọi tình bạn đều bắt đầu bằng một điệu nhảy.' });
+        const sent = Fr.sent.has(p.pid);
+        const b = btn(sent ? L('💌 邀請已送出', '💌 Invitation sent', { ja: '💌 招待を送ったよ', ko: '💌 초대를 보냈어요', vi: '💌 Đã gửi lời mời' }) : L('✦ 邀請共舞', '✦ Invite to dance', { ja: '✦ ダンスに誘う', ko: '✦ 함께 춤추자고 초대', vi: '✦ Mời cùng nhảy' }), () => invite(p), 'main');
+        if (sent) b.disabled = true;
+      } else {
+        $('ufHead').textContent = `${them.glyph} ${them.name} · ${frLvName(f.level)}`;
+        $('ufSub').textContent = L(`你們一起跳了 ${f.danceCount} 支舞${f.meteor ? '・一起看過流星' : ''}${f.travel ? '・一起旅行過' : ''}`, `${f.danceCount} dance${f.danceCount > 1 ? 's' : ''} together${f.meteor ? ' · watched meteors' : ''}${f.travel ? ' · traveled together' : ''}`, { ja: `いっしょに踊った回数：${f.danceCount}`, ko: `함께 춘 춤 ${f.danceCount}번`, vi: `Đã cùng nhảy ${f.danceCount} lần` });
+        btn(L('♫ 找牠玩', '♫ Play together', { ja: '♫ いっしょに遊ぶ', ko: '♫ 같이 놀기', vi: '♫ Chơi cùng nhau' }), () => invite(p), 'main');
+        if (f.level >= 2 && !f.meteor) btn(L('☄ 一起看流星', '☄ Watch meteors together', { ja: '☄ いっしょに流れ星を見る', ko: '☄ 함께 유성 보기', vi: '☄ Cùng ngắm sao băng' }), () => friendAct(p, 'meteor'));
+        if (f.level >= 3 && !f.travel) btn(L('♡ 一起旅行', '♡ Travel together', { ja: '♡ いっしょに旅する', ko: '♡ 함께 여행하기', vi: '♡ Cùng đi du lịch' }), () => friendAct(p, 'travel'));
+      }
+      btn(L('♡ 看看牠', '♡ Say hi', { ja: '♡ 見てみる', ko: '♡ 살펴보기', vi: '♡ Ngắm bé' }), () => petReact());
+      btn(L('× 離開', '× Leave', { ja: '× はなれる', ko: '× 떠나기', vi: '× Rời đi' }), () => back());
+    }
+    async function invite(p) {
+      if (Fr.busy || !canFriend()) return; Fr.busy = true;
+      const me = myPet(), them = petOf(p), f = Fr.friends.get(p.pid);
+      try {
+        const req = apiPost(CONFIG.DATA_ENDPOINT, { action: 'invite', uid: Me.uid(), to: p.pid }, 15000);
+        if (!f) await duet('reach', me, them);       // 先飛過去伸出小手
+        const j = await req;
+        if (j.kind === 'sent' || j.kind === 'pending') {
+          Fr.sent.add(p.pid); fillFriend(p);
+          toast(L(`💌 邀請已經送出。牠不在的時候，星星會替你把信放在 ${them.name} 旁邊。`, `💌 Invitation sent. If ${them.name} isn't here, a star will keep the letter beside them.`, { ja: `💌 招待を送ったよ。${them.name} がいないときは、星が手紙を預かってくれる。`, ko: `💌 초대를 보냈어요. ${them.name}이(가) 없으면 별이 편지를 곁에 맡아 둘게요.`, vi: `💌 Đã gửi lời mời. Nếu ${them.name} vắng nhà, ngôi sao sẽ giữ lá thư bên cạnh bé.` }), 5);
+        } else if (j.kind === 'mutual') {
+          await befriend(p, j.friend, 'mutual', me, them, them.name);
+        } else if (j.kind === 'again') {
+          const old = f ? f.level : 1; Fr.friends.set(p.pid, Object.assign({}, j.friend, { partner: p }));
+          await duet('again', me, them, { levelText: j.friend.level > old ? L(`關係升級：${frLvName(j.friend.level)} ✦`, `Now: ${frLvName(j.friend.level)} ✦`) : L(`一起跳了 ${j.friend.danceCount} 支舞`, `${j.friend.danceCount} dances together`) });
+          setEdge(p.pid, j.friend.level); fillFriend(p);
+        }
+      } catch (e) { console.warn('invite:', e); toast(L('星星信差暫時迷路了，等一下再試試。', 'The star courier got a little lost. Try again in a moment.') + ' ' + apiErrText(e), 5); }
+      finally { Fr.busy = false; }
+    }
+    async function befriend(p, friend, mode, A, B, partnerName) {
+      Fr.friends.set(p.pid, Object.assign({ level: 1, danceCount: 1 }, friend || {}, { partner: p }));
+      Fr.sent.delete(p.pid);
+      await duet(mode, A, B);
+      setEdge(p.pid, (friend && friend.level) || 1); fillFriend(p); updatePills();
+      const nm = partnerName || B.name;
+      toast(L(`${nm} 已經加入你的友情星圖 ✦`, `${nm} joined your Friendship Constellation ✦`, { ja: `${nm} があなたの友情星図に加わったよ ✦`, ko: `${nm}이(가) 우정 별자리에 들어왔어요 ✦`, vi: `${nm} đã vào chòm sao tình bạn của bạn ✦` }), 4.5);
+    }
+    function setEdge(pid, level) {
+      const me = (Me.get() || {}).pid; if (!me) return;
+      const e = Fr.edges.find(([a, b]) => (a === me && b === pid) || (a === pid && b === me));
+      if (e) e[2] = level; else Fr.edges.push([me, pid, level]);
+    }
+    async function friendAct(p, act) {
+      if (Fr.busy) return; Fr.busy = true;
+      try {
+        const j = await apiPost(CONFIG.DATA_ENDPOINT, { action: 'friendAct', uid: Me.uid(), to: p.pid, act }, 15000);
+        const old = (Fr.friends.get(p.pid) || {}).level || 1;
+        Fr.friends.set(p.pid, Object.assign({}, j.friend, { partner: p })); setEdge(p.pid, j.friend.level);
+        if (act === 'meteor') { for (let i = 0; i < 26; i++) setTimeout(() => { meteorAt = 0; }, i * 140); Sound.whoosh(3); }
+        else { flyTo(0, 0, 0, homeD * 1.2, 2.4); setTimeout(() => { if (sel === p) flyTo(p.x, p.y, p.z, p.R * 6.2, 2.4); }, 2600); Sound.whoosh(4); }
+        toast((act === 'meteor' ? L('☄ 你們一起看了一場流星雨。', '☄ You watched a meteor shower together.', { ja: '☄ いっしょに流星群を見たね。', ko: '☄ 함께 유성우를 봤어요.', vi: '☄ Hai bạn đã cùng ngắm mưa sao băng.' }) : L('♡ 你們一起去宇宙的另一端旅行了。', '♡ You traveled to the far side of the universe together.', { ja: '♡ いっしょに宇宙の向こうへ旅したよ。', ko: '♡ 함께 우주 저편으로 여행했어요.', vi: '♡ Hai bạn đã cùng du hành đến phía bên kia vũ trụ.' }))
+          + (j.friend.level > old ? ' ' + L(`關係升級：${frLvName(j.friend.level)} ✦`, `Now: ${frLvName(j.friend.level)} ✦`) : ''), 5);
+        fillFriend(p);
+      } catch (e) { console.warn('friendAct:', e); }
+      finally { Fr.busy = false; }
+    }
+
+    /* ---------- 星星信件：收到的邀請、留言、邀請結果 ---------- */
+    async function pollInbox() {
+      if (!canFriend() || state !== 'universe') return;
+      try {
+        const j = await apiGet({ action: 'inbox', uid: Me.uid() }, 12000);
+        (j.friends || []).forEach(f => { if (f.partner) { Fr.friends.set(f.partner.pid, f); setEdge(f.partner.pid, f.level); } });
+        const has = id => Fr.queue.some(q => q.id === id);
+        (j.outcomes || []).forEach(o => { if (!has('o' + o.id)) Fr.queue.push({ id: 'o' + o.id, kind: 'outcome', o }); });
+        (j.invites || []).forEach(v => { if (!has('i' + v.id)) Fr.queue.push({ id: 'i' + v.id, kind: 'invite', v }); });
+        (j.notes || []).forEach(n => { if (!has('n' + n.id)) Fr.queue.push({ id: 'n' + n.id, kind: 'note', n }); });
+        updatePills();
+        // 寄出的邀請有了結果：直接演給寄件人看（不用兩人同時在線）
+        const outs = Fr.queue.filter(q => q.kind === 'outcome');
+        for (const q of outs) { Fr.queue.splice(Fr.queue.indexOf(q), 1); await showOutcome(q.o); }
+        updatePills();
+        if (Fr.queue.length && !Fr.polled) setTimeout(() => toast(L('💌 你的寵物旁邊漂著一封星星信件。', '💌 A little star letter is floating beside your pet.', { ja: '💌 ペットのそばに星の手紙がただよっているよ。', ko: '💌 펫 곁에 작은 별 편지가 떠 있어요.', vi: '💌 Có một lá thư sao nhỏ trôi bên thú cưng của bạn.' }), 5), 2600);
+        Fr.polled = Date.now();
+      } catch (e) { console.warn('inbox:', e); }
+    }
+    async function showOutcome(o) {
+      const me = myPet(), them = petOf(o.partner), p = planetsW.find(x => x.pid === o.partner.pid) || { pid: o.partner.pid };
+      if (o.status === 'later') { Fr.sent.delete(o.partner.pid); toast(L('也許下一次，你們會再遇見 ✦', 'Maybe next time, you two will meet again ✦', { ja: 'きっとまた、どこかで出会えるよ ✦', ko: '다음엔 또 만날지도 몰라요 ✦', vi: 'Có lẽ lần sau, hai bạn sẽ lại gặp nhau ✦' }), 5); return; }
+      toast(o.status === 'mutual' ? L(`✦ ${them.name} 也正想邀請你！`, `✦ ${them.name} wanted to invite you too!`, { ja: `✦ ${them.name} もあなたを誘いたかった！`, ko: `✦ ${them.name}도 당신을 초대하고 싶었대요!`, vi: `✦ ${them.name} cũng muốn mời bạn!` }) : L(`✦ ${them.name} 接受了你的共舞邀請！`, `✦ ${them.name} accepted your dance invitation!`, { ja: `✦ ${them.name} がダンスの招待を受けてくれた！`, ko: `✦ ${them.name}이(가) 춤 초대를 받아 줬어요!`, vi: `✦ ${them.name} đã nhận lời mời nhảy của bạn!` }), 3.2);
+      await sleepMs(1800);
+      await befriend(p, o.friend, o.status === 'mutual' ? 'mutual' : 'normal', me, them, them.name);
+    }
+    const sleepMs = ms => new Promise(r => setTimeout(r, ms));
+    function updatePills() {
+      const n = Fr.queue.length, mb = $('uvMail'), fb = $('uvFriends');
+      mb.hidden = !n; mb.textContent = `💌 ${n}`;
+      fb.hidden = !Fr.friends.size; fb.textContent = L(`✦ 友情星圖 ${Fr.friends.size}`, `✦ Friends ${Fr.friends.size}`, { ja: `✦ 友情星図 ${Fr.friends.size}`, ko: `✦ 우정 별자리 ${Fr.friends.size}`, vi: `✦ Bạn bè ${Fr.friends.size}` });
+    }
+    function openMail() {
+      const q = Fr.queue[0]; if (!q || Fr.D) return;
+      const dlg = $('mailDlg'), go = $('mlGo'), later = $('mlLater');
+      if (q.kind === 'invite') {
+        const v = q.v, them = petOf(v.from), age = Date.now() - new Date(v.createdAt).getTime();
+        $('mlStar').textContent = '💌';
+        $('mlTitle').textContent = age > 8 * 3600e3 ? L('昨天晚上，有一隻小傢伙來找過你。', 'Last night, a little one came looking for you.', { ja: 'ゆうべ、小さな子があなたを訪ねてきたよ。', ko: '어젯밤, 작은 친구가 당신을 찾아왔어요.', vi: 'Tối qua, có một bé nhỏ đã đến tìm bạn.' })
+          : age > 3600e3 ? L('你不在的時候，有一隻小傢伙來找過你。', 'While you were away, a little one came looking for you.', { ja: 'あなたがいない間に、小さな子が訪ねてきたよ。', ko: '당신이 없는 동안, 작은 친구가 찾아왔어요.', vi: 'Khi bạn vắng nhà, có một bé nhỏ đã đến tìm bạn.' })
+            : L('剛剛，有一隻小傢伙來找過你。', 'Just now, a little one came looking for you.', { ja: 'さっき、小さな子が訪ねてきたよ。', ko: '방금, 작은 친구가 찾아왔어요.', vi: 'Vừa nãy, có một bé nhỏ đã đến tìm bạn.' });
+        $('mlBody').textContent = `${them.glyph} ${them.name}`; $('mlSmall').textContent = L(`${v.from.name} 的寵物　「Dance Invitation ✦」`, `${v.from.name}'s pet · “Dance Invitation ✦”`, { ja: `${v.from.name} のペット「Dance Invitation ✦」`, ko: `${v.from.name}의 펫 「Dance Invitation ✦」`, vi: `Thú cưng của ${v.from.name} · “Dance Invitation ✦”` });
+        go.textContent = L('接受邀請', 'Accept the invitation', { ja: '招待を受ける', ko: '초대 받기', vi: 'Nhận lời mời' }); later.hidden = false;
+        later.textContent = L('現在還不想跳舞', 'Not ready to dance yet', { ja: '今はまだ踊りたくない', ko: '아직은 춤추고 싶지 않아요', vi: 'Giờ chưa muốn nhảy' });
+        go.onclick = () => answer(q, 'accept'); later.onclick = () => answer(q, 'later');
+      } else {
+        const n = q.n, who = n.from ? n.from.name : L('一位旅人', 'A traveler');
+        $('mlStar').textContent = '✉️';
+        $('mlTitle').textContent = L(`${who} 在你的星球留了一句話`, `${who} left you a few words`, { ja: `${who} があなたの星にひとこと残したよ`, ko: `${who}이(가) 당신의 행성에 한마디를 남겼어요`, vi: `${who} đã để lại một lời trên hành tinh của bạn` });
+        $('mlBody').textContent = `「${n.text}」`; $('mlSmall').textContent = '';
+        go.textContent = L('收下 ✦', 'Keep it ✦', { ja: '受け取る ✦', ko: '받기 ✦', vi: 'Giữ lại ✦' }); later.hidden = true;
+        go.onclick = () => { Fr.queue.shift(); dlg.classList.remove('on'); updatePills(); Sound.chime(.8); };
+      }
+      dlg.classList.add('on'); Sound.chime(.2);
+    }
+    async function answer(q, choice) {
+      $('mailDlg').classList.remove('on');
+      Fr.queue.shift(); updatePills();
+      const v = q.v, me = myPet(), them = petOf(v.from);
+      if (choice === 'later') {
+        // 不做「拒絕」：對方只會看到「也許下一次，你們會再遇見」
+        toast(L(`沒關係。${them.name} 揮揮手，說下次見 ✦`, `That's okay. ${them.name} waves — see you next time ✦`, { ja: `だいじょうぶ。${them.name} は手をふって、またねって ✦`, ko: `괜찮아요. ${them.name}이(가) 손을 흔들며 다음에 보자고 해요 ✦`, vi: `Không sao đâu. ${them.name} vẫy tay hẹn lần sau ✦` }), 4.5);
+        apiPost(CONFIG.DATA_ENDPOINT, { action: 'respond', uid: Me.uid(), id: v.id, choice: 'later' }, 15000).catch(e => console.warn('respond:', e));
+        return;
+      }
+      try {
+        const j = await apiPost(CONFIG.DATA_ENDPOINT, { action: 'respond', uid: Me.uid(), id: v.id, choice: 'accept' }, 15000);
+        const p = planetsW.find(x => x.pid === v.from.pid) || { pid: v.from.pid };
+        await befriend(p, j.friend, 'normal', them, me, them.name);
+      } catch (e) { console.warn('respond:', e); toast(L('星星信差暫時迷路了，等一下再試試。', 'The star courier got a little lost. Try again in a moment.'), 4); }
+    }
+    // 在別人的星球留下一句話（只有主人看得到）
+    async function sendNote(p) {
+      const ta = $('unText'), text = ta.value.trim().slice(0, 60), b = $('unSend');
+      if (!text || !canFriend() || !p || !p.pid) { ta.focus(); return; }
+      b.disabled = true;
+      try {
+        await apiPost(CONFIG.DATA_ENDPOINT, { action: 'note', uid: Me.uid(), to: p.pid, text }, 12000);
+        ta.value = ''; Sound.chime(1.1);
+        toast(L(`你的話已經放在 ${p.name} 的星球上了 ✦`, `Your words are now on ${p.name}'s planet ✦`, { ja: `あなたのことばを ${p.name} の星に置いたよ ✦`, ko: `당신의 말을 ${p.name}의 행성에 남겼어요 ✦`, vi: `Lời của bạn đã ở trên hành tinh của ${p.name} ✦` }));
+      } catch (e) { console.warn('note:', e); toast(L('星星信差暫時迷路了，等一下再試試。', 'The star courier got a little lost. Try again in a moment.')); }
+      finally { b.disabled = false; }
+    }
+    // 友情星圖清單
+    function openFriends() {
+      const ul = $('frList'); ul.textContent = '';
+      [...Fr.friends.values()].sort((x, y) => (y.level - x.level) || (y.danceCount - x.danceCount)).forEach(f => {
+        const pp = f.partner || {}, them = petOf(pp), li = document.createElement('li'), b = document.createElement('button');
+        b.type = 'button'; b.className = 'fr-item';
+        const t = document.createElement('b'); t.textContent = `${them.glyph} ${them.name}`;
+        const sm = document.createElement('small'); sm.textContent = `${pp.name || ''} · ${frLvName(f.level)} · ♫ ${f.danceCount}`;
+        b.append(t, sm);
+        b.addEventListener('click', () => { $('frDlg').classList.remove('on'); const p = planetsW.find(x => x.pid === pp.pid); if (p) select(p); });
+        li.appendChild(b); ul.appendChild(li);
+      });
+      $('frDlg').classList.add('on');
+    }
+    // 有信的時候，我的寵物旁邊漂著一封小小的星星信件
+    let letterPos = null;
+    function drawLetter(a) {
+      letterPos = null;
+      if (!Fr.queue.length || Fr.D) return;
+      const me = planetsW.find(p => p.me); if (!me || !me.vis || me.sr < 3) return;
+      const s = clamp(me.sr * .55, 14, 46), x = me.sx - me.sr * 1.35, y = me.sy - me.sr * .9 + Math.sin(time * 2) * s * .15;
+      letterPos = [x, y, s * 1.1];
+      ctx.save(); ctx.globalCompositeOperation = 'lighter'; glow(x, y, s * 1.4, [255, 210, 230], a * (.45 + .2 * Math.sin(time * 3))); ctx.restore();
+      ctx.save(); ctx.globalAlpha = a; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `${Math.round(s)}px serif`;
+      ctx.translate(x, y); ctx.rotate(Math.sin(time * 1.5) * .12); ctx.fillText('💌', 0, 0); ctx.restore();
     }
 
     /* ---------- 互動：滑鼠／觸控 ---------- */
@@ -9924,6 +10288,8 @@ function petSVG(i, opt = {}) {
       canvas.style.cursor = hover ? 'pointer' : (state === 'universe' ? 'grab' : '');
     }
     function tapAt(x, y) {
+      if (Fr.D) return;
+      if (letterPos && Math.hypot(x - letterPos[0], y - letterPos[1]) < letterPos[2]) { openMail(); return; }
       if (sel && sel.petX !== undefined && Math.hypot(x - sel.petX, y - sel.petY) < sel.petS * .45) { if (sel.me) petAction('pet'); else petReact(); return; }
       const p = nearest(x, y, 22);
       if (p && p !== sel) select(p);
@@ -10079,6 +10445,12 @@ function petSVG(i, opt = {}) {
       $('upActs').appendChild(b);
     });
 
+    $('uvMail').addEventListener('click', () => openMail());
+    $('uvFriends').addEventListener('click', () => openFriends());
+    $('frClose').addEventListener('click', () => $('frDlg').classList.remove('on'));
+    $('unSend').addEventListener('click', () => sendNote(sel));
+    $('unText').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); sendNote(sel); } });
+
     // 旅人用 Tripo 生成的星球縮圖
     const imgCache = new Map();
     function planetImg(p) {
@@ -10137,7 +10509,7 @@ function petSVG(i, opt = {}) {
       const bars = $('uvcBars'); bars.textContent = '';
       if (p.big5) ['O', 'C', 'E', 'A', 'N'].forEach(k => bars.appendChild(bar(`${k}`, p.big5[k] || 3)));
       $('uvcStarsN').textContent = p.lights ? L(`已經有 ${p.lights} 點星光`, `${p.lights} bits of starlight so far`, { ja: `これまでに ${p.lights} つの星の光`, ko: `지금까지 별빛 ${p.lights}개`, vi: `Đã có ${p.lights} chút ánh sao` }) : '';
-      $('uvcGive').hidden = !!p.me; fillBond();
+      $('uvcGive').hidden = !!p.me; fillBond(); fillFriend(p);
       Array.from($('uvcGifts').children).forEach(b => b.classList.toggle('done', !!(given[p.pid || p.name] || {})[b.dataset.k]));
     }
     function give(k) {
@@ -10167,7 +10539,18 @@ function petSVG(i, opt = {}) {
     backB.addEventListener('click', () => { if (sel) back(); });
     allB.addEventListener('click', () => { if (phase === 'free') { if (sel) back(); finale(); } });
     let toastT = 0;
-    function toast(msg, sec = 3.6) { toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('on'), sec * 1000); }
+    // 提示排隊顯示：同時來的訊息不會互相蓋掉（最多排 3 則，重複的不排）
+    const toastQ = []; let toastBusy = false;
+    function toast(msg, sec = 3.6) {
+      if (toastQ.some(q => q[0] === msg) || (toastBusy && toastEl.textContent === msg)) return;
+      toastQ.push([msg, sec]); if (toastQ.length > 3) toastQ.shift();
+      if (!toastBusy) nextToast();
+    }
+    function nextToast() {
+      const it = toastQ.shift(); if (!it) { toastBusy = false; return; }
+      toastBusy = true; toastEl.textContent = it[0]; toastEl.classList.add('on'); clearTimeout(toastT);
+      toastT = setTimeout(() => { toastEl.classList.remove('on'); toastT = setTimeout(nextToast, 450); }, it[1] * 1000);
+    }
 
     /* ---------- 手勢 ---------- */
     handB.addEventListener('click', async () => {
@@ -10243,6 +10626,8 @@ function petSVG(i, opt = {}) {
           if (ck) setTimeout(() => { if (my === token) toast(ck.streak > 1 ? L(`${nm} 好想你！連續陪伴第 ${ck.streak} 天 ✦ 親密度 +${ck.gain}`, `${nm} missed you! Day ${ck.streak} in a row ✦ +${ck.gain} affection`, { ja: `${nm} はさみしかったよ！${ck.streak} 日連続 ✦ 親密度 +${ck.gain}`, ko: `${nm}이(가) 보고 싶었대요! ${ck.streak}일 연속 ✦ 친밀도 +${ck.gain}`, vi: `${nm} nhớ bạn lắm! Ngày thứ ${ck.streak} liên tiếp ✦ +${ck.gain} thân thiết` }) : L(`${nm} 在等你。點你的星球，和牠一起玩吧 ✦ 親密度 +${ck.gain}`, `${nm} is waiting. Tap your planet to play together ✦ +${ck.gain} affection`, { ja: `${nm} が待ってるよ。自分の星をタップしていっしょに遊ぼう ✦ +${ck.gain}`, ko: `${nm}이(가) 기다려요. 내 행성을 눌러 함께 놀아요 ✦ +${ck.gain}`, vi: `${nm} đang đợi. Chạm vào hành tinh của bạn để chơi cùng ✦ +${ck.gain}` }), 5); }, 5200);
         }
         visits();
+        Fr.polled = 0; updatePills(); pollInbox();
+        clearInterval(Fr.pollT); Fr.pollT = setInterval(() => { if (state === 'universe' && !Fr.D) pollInbox(); }, 45000);
       } catch (e) { if (!(e instanceof Cancel)) throw e; }
     }
     // 回來時告訴你：有幾位旅人經過你的星球
@@ -10288,6 +10673,7 @@ function petSVG(i, opt = {}) {
 
     function reset(keep) {
       token++; sel = null; hover = null; gifts = []; phase = ''; drag = null; pinch = null; pts.clear();
+      if (Fr.D) { const r = Fr.D.res; Fr.D = null; r(); } clearInterval(Fr.pollT); toastQ.length = 0; clearTimeout(toastT); toastBusy = false; toastEl.classList.remove('on'); Fr.queue = []; ['mailDlg', 'frDlg'].forEach(id => $(id).classList.remove('on'));
       root.className = 'uv'; finEl.classList.remove('on'); $('uvFinBtns').classList.remove('on');
       UVS.a = 0; UVS.allGlow = 0; UVS.wave = -1; UVS.petPeek = 0;
       if (hand.on) { Hand.stop(); hand.on = false; handB.textContent = L('🖐️ 手勢控制', '🖐️ Hand control'); }

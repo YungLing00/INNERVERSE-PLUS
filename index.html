@@ -526,12 +526,6 @@
   .lang-menu button[aria-current="true"] { color: #1a1440; background: linear-gradient(135deg, #f3eefc, #d9ccff); }
   .lang-btn:focus-visible, .lang-menu button:focus-visible { outline: 2px solid var(--ice); outline-offset: 2px; }
 
-  /* ===== 首頁：進入宇宙 ===== */
-  .uv-enter { position: fixed; z-index: 4; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 2.6dvh);
-    color: #fff3dc; border-color: rgba(255,226,170,.45); background: rgba(40,28,80,.45); box-shadow: 0 0 22px rgba(255,214,150,.25);
-    opacity: 0; visibility: hidden; transition: opacity 1.2s ease 2.8s; }
-  [data-state="idle"] .uv-enter { opacity: 1; visibility: visible; }
-  [data-state="idle"] .cta { bottom: calc(env(safe-area-inset-bottom, 0px) + 9dvh + 34px); }
 
   /* ===== 五行之音 ===== */
   .wx { position: fixed; inset: 0; z-index: 4; pointer-events: none; opacity: 0; visibility: hidden; transition: opacity 1s ease, visibility 0s 1s; }
@@ -923,7 +917,6 @@
     <button type="button" role="menuitem" data-lang="vi" lang="vi">Tiếng Việt</button>
   </div>
 </div>
-<button class="pill uv-enter" id="goUniverse" type="button">✦ 進入宇宙</button>
 <button class="pill chap-intro" id="chapIntro" type="button" aria-haspopup="dialog">章節選擇</button>
 
 <div class="chapters" id="chapters" role="dialog" aria-modal="true" aria-label="章節選擇">
@@ -5419,7 +5412,6 @@ function petSVG(i, opt = {}) {
     story(n);
   }
   $('chap').addEventListener('click', openChapters);
-  $('goUniverse').addEventListener('click', () => { if (state === 'idle') jumpTo(ACTS.length + 5); });
   $('chapIntro').addEventListener('click', openChapters);
   $('chClose').addEventListener('click', closeChapters);
   chapEl.addEventListener('click', e => { if (e.target === chapEl) closeChapters(); });

@@ -133,6 +133,98 @@
         },
         "$any": { ".validate": false }
       }
+    },
+
+    "rooms": {
+      ".read": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous'",
+      ".indexOn": ["open"],
+      "$room": {
+        ".validate": "$room.matches(/^[A-HJ-NP-Z2-9]{5}$/)",
+        ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && !newData.exists() && (data.child('createdAt').val() < now - 7200000 || (data.child('host').val() == auth.uid && data.child('state').val() == 'end'))",
+        "host": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && (!data.exists() || (root.child('rooms').child($room).child('p').child(auth.uid).exists() || newData.parent().child('p').child(auth.uid).exists()))",
+          ".validate": "newData.val() == auth.uid"
+        },
+        "createdAt": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && !data.exists()",
+          ".validate": "newData.val() == now && newData.parent().child('host').val() == auth.uid"
+        },
+        "mode": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && !data.exists()",
+          ".validate": "newData.val().matches(/^(ball|save)$/) && newData.parent().child('host').val() == auth.uid"
+        },
+        "seed": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && !data.exists()",
+          ".validate": "newData.isNumber() && newData.parent().child('host').val() == auth.uid"
+        },
+        "open": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && (root.child('rooms').child($room).child('p').child(auth.uid).exists() || newData.parent().child('p').child(auth.uid).exists())",
+          ".validate": "newData.val() == newData.parent().child('mode').val()"
+        },
+        "state": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && (root.child('rooms').child($room).child('p').child(auth.uid).exists() || newData.parent().child('p').child(auth.uid).exists())",
+          ".validate": "newData.val().matches(/^(wait|play|end)$/)"
+        },
+        "startAt": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && root.child('rooms').child($room).child('host').val() == auth.uid",
+          ".validate": "newData.isNumber() && newData.val() >= now - 5000 && newData.val() <= now + 15000"
+        },
+        "slots": {
+          "$i": {
+            ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && $i.matches(/^[0-5]$/) && ((!data.exists() && newData.val() == auth.uid) || (!newData.exists() && (data.val() == auth.uid || root.child('rooms').child($room).child('host').val() == auth.uid || !root.child('rooms').child($room).child('p').child(data.val()).exists())))",
+            ".validate": "newData.isString()"
+          }
+        },
+        "p": {
+          "$uid": {
+            ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && auth.uid == $uid",
+            ".validate": "newData.hasChildren(['slot', 'petIdx', 'at']) && newData.parent().parent().child('slots').child(newData.child('slot').val()).val() == $uid",
+            "slot": { ".validate": "newData.val().matches(/^[0-5]$/)" },
+            "petIdx": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() < 12" },
+            "petName": { ".validate": "newData.isString() && newData.val().length <= 20" },
+            "name": { ".validate": "newData.isString() && newData.val().length <= 20" },
+            "b": {
+              "$i": { ".validate": "$i.matches(/^[0-4]$/) && newData.isNumber() && newData.val() >= 1 && newData.val() <= 5" }
+            },
+            "at": { ".validate": "newData.val() == now || newData.val() == data.val()" },
+            "$any": { ".validate": false }
+          }
+        },
+        "s": {
+          "$uid": {
+            ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && auth.uid == $uid && (root.child('rooms').child($room).child('p').child($uid).exists() || !newData.exists())",
+            ".validate": "newData.hasChildren(['x', 'y', 't'])",
+            "x": { ".validate": "newData.isNumber() && newData.val() >= -100 && newData.val() <= 2400" },
+            "y": { ".validate": "newData.isNumber() && newData.val() >= -100 && newData.val() <= 1700" },
+            "vx": { ".validate": "newData.isNumber() && newData.val() >= -2000 && newData.val() <= 2000" },
+            "vy": { ".validate": "newData.isNumber() && newData.val() >= -2000 && newData.val() <= 2000" },
+            "ab": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+            "c": { ".validate": "newData.isString() && newData.val().matches(/^[0-3]{0,3}$/)" },
+            "kn": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+            "kx": { ".validate": "newData.isNumber() && newData.val() >= -2000 && newData.val() <= 2000" },
+            "ky": { ".validate": "newData.isNumber() && newData.val() >= -2000 && newData.val() <= 2000" },
+            "t": { ".validate": "newData.isNumber()" },
+            "$any": { ".validate": false }
+          }
+        },
+        "w": { ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && root.child('rooms').child($room).child('host').val() == auth.uid" },
+        "items": {
+          "$i": {
+            ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && $i.matches(/^[0-9]{1,3}$/) && !data.exists() && root.child('rooms').child($room).child('p').child(auth.uid).exists() && (newData.val() == auth.uid || (root.child('rooms').child($room).child('host').val() == auth.uid && newData.val().matches(/^b[0-5]$/)))",
+            ".validate": "newData.isString()"
+          }
+        },
+        "del": {
+          "$uid": {
+            ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && auth.uid == $uid && root.child('rooms').child($room).child('p').child($uid).exists()",
+            ".validate": "newData.hasChildren(['n', 'tm'])",
+            "n": { ".validate": "newData.isNumber() && newData.val() >= (data.exists() ? data.val() : 0) && newData.val() <= (data.exists() ? data.val() : 0) + 3" },
+            "tm": { ".validate": "newData.val().matches(/^[01]$/)" },
+            "$any": { ".validate": false }
+          }
+        },
+        "$any": { ".validate": false }
+      }
     }
   }
 }

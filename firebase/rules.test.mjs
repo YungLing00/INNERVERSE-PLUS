@@ -75,6 +75,42 @@ await t('mark done', assertSucceeds(set(ref(B, 'events/2026100217/done'), ts()))
 await t('no giving after done', assertFails(give(C, 'carol', 0, 1)));
 await t('bad event id rejected', assertFails(set(ref(A, 'events/hack/parts/alice'), { n: 0, seen: ts() })));
 
+// rooms（3V3 STAR BALL／SAVE THE PLANET）
+const R = 'rooms/ABCDE/';
+const create = (db, uid, extra = {}) => update(ref(db), Object.assign({ [R + 'host']: uid, [R + 'createdAt']: ts(), [R + 'mode']: 'save', [R + 'seed']: 7, [R + 'state']: 'wait', [R + 'open']: 'save',
+  [R + 'slots/0']: uid, [R + 'p/' + uid]: { slot: '0', petIdx: 3, petName: 'Mo', name: 'Alice', at: ts(), b: { 0: 3, 1: 4, 2: 2, 3: 5, 4: 1 } } }, extra));
+await t('alice creates a room', assertSucceeds(create(A, 'alice')));
+await t('bad room code rejected', assertFails(update(ref(B), { 'rooms/abc/host': 'bob' })));
+await t('bob cannot take over an existing room as stranger', assertFails(set(ref(B, R + 'host'), 'bob')));
+await t('bob cannot claim alice slot', assertFails(set(ref(B, R + 'slots/0'), 'bob')));
+await t('bob claims slot 3', assertSucceeds(set(ref(B, R + 'slots/3'), 'bob')));
+await t('bob joins on slot 3', assertSucceeds(set(ref(B, R + 'p/bob'), { slot: '3', petIdx: 1, at: ts() })));
+await t('carol cannot join on bob slot', assertFails(set(ref(C, R + 'p/carol'), { slot: '3', petIdx: 1, at: ts() })));
+await t('carol cannot write bob state', assertFails(set(ref(C, R + 's/bob'), { x: 1, y: 1, t: 1 })));
+await t('bob writes his position', assertSucceeds(set(ref(B, R + 's/bob'), { x: 100, y: 200, vx: 10, vy: -5, ab: 0, c: '012', kn: 1, kx: 300, ky: 0, t: 123 })));
+await t('position out of field rejected', assertFails(set(ref(B, R + 's/bob'), { x: 99999, y: 200, t: 1 })));
+await t('non-member carol cannot write state', assertFails(set(ref(C, R + 's/carol'), { x: 1, y: 1, t: 1 })));
+await t('bob (not host) cannot write world', assertFails(set(ref(B, R + 'w'), { t: 1 })));
+await t('host alice writes world', assertSucceeds(set(ref(A, R + 'w'), { t: 1, b: { x: 800, y: 500, vx: 0, vy: 0 }, sc: { 0: 1, 1: 0 } })));
+await t('host starts the game', assertSucceeds(update(ref(A), { [R + 'state']: 'play', [R + 'startAt']: Date.now() + 3000 })));
+await t('bob cannot set startAt', assertFails(set(ref(B, R + 'startAt'), Date.now())));
+await t('bob claims item 4', assertSucceeds(set(ref(B, R + 'items/4'), 'bob')));
+await t('alice cannot reclaim item 4', assertFails(set(ref(A, R + 'items/4'), 'alice')));
+await t('bob cannot claim for a bot', assertFails(set(ref(B, R + 'items/5'), 'b1')));
+await t('host claims item for a bot', assertSucceeds(set(ref(A, R + 'items/5'), 'b1')));
+await t('bob delivers 3', assertSucceeds(set(ref(B, R + 'del/bob'), { n: 3, tm: '1' })));
+await t('bob cannot deliver 4 at once', assertFails(set(ref(B, R + 'del/bob'), { n: 7, tm: '1' })));
+await t('bob cannot lower his count', assertFails(set(ref(B, R + 'del/bob'), { n: 1, tm: '1' })));
+await t('bob takes over as host', assertSucceeds(set(ref(B, R + 'host'), 'bob')));
+await t('bob cannot make carol host', assertFails(set(ref(B, R + 'host'), 'carol')));
+await t('mode cannot change', assertFails(set(ref(B, R + 'mode'), 'ball')));
+await t('alice leaves (slot + p + s)', assertSucceeds(update(ref(A), { [R + 'slots/0']: null, [R + 'p/alice']: null, [R + 's/alice']: null })));
+await t('carol takes the free slot', assertSucceeds(set(ref(C, R + 'slots/0'), 'carol')));
+await t('carol cannot delete the running room', assertFails(remove(ref(C, 'rooms/ABCDE'))));
+await t('host ends the game', assertSucceeds(set(ref(B, R + 'state'), 'end')));
+await t('host deletes the finished room', assertSucceeds(remove(ref(B, 'rooms/ABCDE'))));
+await t('anon can query open rooms', assertSucceeds(get(ref(C, 'rooms'))));
+
 await env.cleanup();
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

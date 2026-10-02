@@ -7,7 +7,8 @@
  *   TRIPO_API_KEY  (必填)
  *   OPENAI_MODEL   (選填，預設 gpt-4o-mini)
  *   TRIPO_MODEL_VERSION (選填)
- *   TRIPO_TEXTURE_QUALITY (選填，預設 detailed＝高清貼圖；填 standard 可省額度)
+ *   TRIPO_TEXTURE_QUALITY (選填，預設 detailed＝高清貼圖；填 standard 生成較快、較省額度)
+ *   TRIPO_CACHE (選填，預設開啟：相同描述的星球共用同一個任務，秒出；填 off 則每次都重新生成)
  */
 
 const SPREADSHEET_ID = '1E8XBDwI_J3lQfDcPg80kbcaRfkJAUx7N0vH1McnYnhM';
@@ -248,12 +249,27 @@ function modelStart_(body) {
   if (!key) return json_({ok:false,error:'TRIPO_API_KEY 尚未設定'});
   const trait = str_(body.trait,12) || 'BAL';
   const prompt = buildPlanetPrompt_(trait,body);
+  const tq0 = prop_('TRIPO_TEXTURE_QUALITY') || 'detailed';
+  // ⚡ 加速：一模一樣的星球描述以前生成過（或正在生成）→ 直接共用同一個 Tripo 任務，不用重等、也不多花額度
+  const cacheOn = prop_('TRIPO_CACHE') !== 'off';
+  const hash = promptHash_(prompt + '|' + tq0 + '|' + (prop_('TRIPO_MODEL_VERSION') || ''));
+  if (cacheOn) {
+    const csh = sheet_(MODEL_CACHE_SHEET, MODEL_CACHE_HEADERS), hit = rows_(csh).filter(r => r.hash === hash).pop();
+    if (hit) {
+      try {
+        const t = tripoTask_(String(hit.taskId));
+        if (['success', 'queued', 'running'].indexOf(t.status) >= 0) {
+          csh.getRange(hit._row, 5).setValue((Number(hit.hits) || 0) + 1);
+          return json_({ok:true, taskId:String(hit.taskId), prompt, cached:true, status:t.status});
+        }
+      } catch (_) { /* 舊任務查不到就重新生成 */ }
+    }
+  }
   const task = {type:'text_to_model',prompt,negative_prompt:NEGATIVE,texture:true,pbr:true};
   const v = prop_('TRIPO_MODEL_VERSION');
   if (v) task.model_version = v;
   // 高清：預設用 Tripo 的「detailed」貼圖品質，不限制面數
-  const tq = prop_('TRIPO_TEXTURE_QUALITY') || 'detailed';
-  if (tq !== 'standard') task.texture_quality = tq;
+  if (tq0 !== 'standard') task.texture_quality = tq0;   // 想更快：指令碼屬性 TRIPO_TEXTURE_QUALITY 填 standard
 
   const send = t => UrlFetchApp.fetch(TRIPO_BASE + '/task',{
     method:'post',
@@ -276,7 +292,12 @@ function modelStart_(body) {
   if (status < 200 || status >= 300 || data.code !== 0 || !data.data || !data.data.task_id) {
     return json_({ok:false,error:'Tripo 建立任務失敗（HTTP ' + status + '）：' + ((data && data.message) || text.slice(0,300)),detail:text.slice(0,600)});
   }
+  if (cacheOn) sheet_(MODEL_CACHE_SHEET, MODEL_CACHE_HEADERS).appendRow([hash, data.data.task_id, prompt.slice(0, 500), new Date(), 0]);
   return json_({ok:true,taskId:data.data.task_id,prompt});
+}
+const MODEL_CACHE_SHEET = 'MODEL_CACHE', MODEL_CACHE_HEADERS = ['hash','taskId','prompt','createdAt','hits'];
+function promptHash_(p) {
+  return Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, p, Utilities.Charset.UTF_8).map(b => ('0' + (b & 255).toString(16)).slice(-2)).join('');
 }
 
 function tripoTask_(id) {

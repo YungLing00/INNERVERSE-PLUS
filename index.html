@@ -4063,12 +4063,32 @@
   // 連線診斷：網址加上 ?diag=1 會開啟，逐項測試後端與 OpenAI
   if (/[?&]diag=1/.test(location.search)) (fn => document.readyState === 'loading' ? addEventListener('DOMContentLoaded', fn) : fn())(() => {
     const box = document.createElement('div'); box.className = 'diag';
-    box.innerHTML = '<h3>INNERVERSE 連線診斷</h3><p class="d-url"></p><button type="button" id="diagRun">開始測試</button><button type="button" id="diagClose">關閉</button><ol id="diagOut"></ol>';
+    box.innerHTML = '<h3>INNERVERSE 連線診斷</h3><p class="d-url"></p><button type="button" id="diagRun">開始測試</button><button type="button" id="diagGen">試生成一顆星球（會用到 Tripo 額度）</button><button type="button" id="diagClose">關閉</button><ol id="diagOut"></ol>';
     document.body.appendChild(box); box.querySelector('.d-url').textContent = CONFIG.DATA_ENDPOINT || '（沒有設定後端網址）';
     const out = box.querySelector('#diagOut');
     const row = (name, ok, msg) => { const li = document.createElement('li'); li.className = ok ? 'ok' : 'bad'; li.textContent = (ok ? '✅ ' : '❌ ') + name + '：' + msg; out.appendChild(li); };
     const test = async (name, fn) => { const t0 = Date.now(); try { row(name, true, (await fn()) + '（' + ((Date.now() - t0) / 1000).toFixed(1) + ' 秒）'); } catch (e) { row(name, false, String((e && e.message) || e).slice(0, 300) + '（' + ((Date.now() - t0) / 1000).toFixed(1) + ' 秒）'); } };
     box.querySelector('#diagClose').onclick = () => box.remove();
+    // 實際送一個 Tripo 任務，看每一步花多久、卡在哪裡
+    box.querySelector('#diagGen').onclick = async () => {
+      out.textContent = ''; const t0 = Date.now(), sec = () => ((Date.now() - t0) / 1000).toFixed(0) + ' 秒';
+      const li = document.createElement('li'); out.appendChild(li); const say = (ok, m) => { li.className = ok ? 'ok' : 'bad'; li.textContent = (ok ? '⏳ ' : '❌ ') + m; };
+      try {
+        say(true, '建立任務中…');
+        const j = await apiPost(CONFIG.MODEL_ENDPOINT + '?action=modelStart', { trait: 'BAL', zodiac: '雙魚座', big5: { O: 3, C: 3, E: 3, A: 3, N: 3 }, wuxing: { element: 'water' } }, 60000);
+        say(true, `任務建立成功${j.cached ? '（⚡ 共用之前生成過的星球）' : ''}，${sec()}`);
+        for (;;) {
+          await new Promise(r => setTimeout(r, 2500));
+          const u = new URL(CONFIG.MODEL_ENDPOINT); u.searchParams.set('action', 'modelStatus'); u.searchParams.set('id', j.taskId);
+          const st = await (await fetch(u)).json();
+          if (st.ok === false && st.error) throw new Error(st.error);
+          if (st.status === 'success') { li.className = 'ok'; li.textContent = `✅ 生成完成！總共 ${sec()}${st.modelUrl ? '' : '（但沒有模型網址）'}`; break; }
+          if (['failed', 'cancelled', 'banned', 'expired', 'unknown'].includes(st.status)) throw new Error('Tripo ' + st.status + (st.errorMessage ? '：' + st.errorMessage : ''));
+          say(true, `生成中：${st.status} ${Math.round(st.progress || 0)}%（${sec()}）`);
+          if (Date.now() - t0 > 15 * 60 * 1000) throw new Error('超過 15 分鐘還沒完成');
+        }
+      } catch (e) { say(false, String((e && e.message) || e).slice(0, 300) + `（${sec()}）`); }
+    };
     box.querySelector('#diagRun').onclick = async () => {
       out.textContent = '';
       await test('1. 連到後端（GET）', async () => {
@@ -8904,11 +8924,16 @@ function petSVG(i, opt = {}) {
       try {
         let miss = 0;
         while (st && st.taskId && Date.now() - st.t < 15 * 60 * 1000) {
-          await pause(3000);
+          await pause(2500);
           let s;
           try { s = await getJ({ action: 'modelStatus', id: st.taskId }); miss = 0; } catch (e) { if (++miss >= 5) throw e; continue; }
           if (s.ok === false && s.error) throw new Error(s.error);
-          if (s.status === 'success' && s.modelUrl) { set({ status: 'success', progress: 100, url: s.modelUrl, urlT: Date.now() }); snapshot(); return; }
+          if (s.status === 'success' && s.modelUrl) {
+            set({ status: 'success', progress: 100, url: s.modelUrl, urlT: Date.now() }); snapshot();
+            // 已經離開結果頁：提醒一下星球做好了
+            if (state !== 'result') aiNote(L('✦ 你的 3D 星球誕生了！到「我們的宇宙」就能看到它。', '✦ Your 3D planet is ready! Find it in Our Universe.', { ja: '✦ あなたの 3D の星ができたよ！「わたしたちの宇宙」で見られるよ。', ko: '✦ 3D 행성이 완성됐어요! ‘우리의 우주’에서 볼 수 있어요.', vi: '✦ Hành tinh 3D của bạn đã xong! Xem ở Vũ trụ của chúng ta.' }));
+            return;
+          }
           if (['failed', 'cancelled', 'banned', 'expired', 'unknown'].includes(s.status)) throw new Error('Tripo ' + s.status + (s.errorMessage ? '：' + s.errorMessage : ''));
           set({ status: s.status || 'running', progress: Math.max(st.progress || 0, Math.min(99, Math.round(s.progress || 0))) });
         }

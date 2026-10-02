@@ -87,7 +87,7 @@ function doGet(e) {
     return json_({
       ok:true,
       message:'INNERVERSE PLUS API is running',
-      actions:['saveInnerverse','interpret','worry','modelStart','modelStatus','modelGlb','modelBin','tripoCheck','checkName','publish','universe','starlight','visits'],
+      actions:['saveInnerverse','interpret','worry','modelStart','modelStatus','modelGlb','modelBin','tripoCheck','checkName','publish','universe','starlight','visits','lookup'],
       time:new Date().toISOString()
     });
   } catch (err) {
@@ -105,6 +105,7 @@ function doPost(e) {
     if (action === 'saveInnerverse') return saveInnerverse_(body);
     if (action === 'publish') return publish_(body);
     if (action === 'starlight') return starlight_(body);
+    if (action === 'lookup') return lookup_(body);
     return json_({ok:false,error:'Unknown action: ' + action});
   } catch (err) {
     return json_({ok:false,error:err.message});
@@ -346,6 +347,8 @@ function saveInnerverse_(data) {
     ];
 
     sheet.appendRow(row);
+    // 同時更新「旅人總表」：同一個人（名字＋生日）只會有一列
+    try { upsertTraveler_(data, birthday); } catch (e) { console.error('upsertTraveler_: ' + e.message); }
     return json_({ok:true,message:'INNERVERSE data saved successfully',row:sheet.getLastRow()});
   } catch (err) {
     return json_({ok:false,error:err.message});
@@ -556,4 +559,135 @@ function visits_(e) {
   const kinds = {}, from = {};
   got.forEach(r => { kinds[r.kind] = (kinds[r.kind] || 0) + 1; from[r.fromPid || ('anon' + r._row)] = 1; });
   return json_({ok:true, count: got.length, travelers: Object.keys(from).length, kinds});
+}
+
+
+/* ================================================================
+ * 旅人總表：每個人一列，方便搜尋
+ *  - INNERVERSE_DATA：每一次測驗的完整紀錄（歷史）
+ *  - 旅人總表        ：同一個人（名字＋生日）只保留最新一列，並記錄測驗次數
+ *  - 🔍 搜尋         ：在 B1 輸入名字／生日／星座／人格，下面就會列出符合的旅人
+ * 第一次使用：在 Apps Script 編輯器選擇 setupDatabase 執行一次（會把舊資料整理進總表）
+ * ================================================================ */
+const TRAVELER_SHEET = '旅人總表';
+const SEARCH_SHEET = '🔍 搜尋';
+const TRAVELER_COLS = [
+  ['uid','旅人編號'],['name','名字'],['birthday','生日'],['zodiac','星座'],['element','五行'],
+  ['O','O 開放性'],['C','C 盡責性'],['E','E 外向性'],['A','A 親和性'],['N','N 情緒敏感度'],
+  ['trait','人格類型'],['planet','人格星球'],['pet','宇宙寵物'],['petName','寵物名字'],
+  ['hobbies','興趣愛好'],['worry','最近的煩惱'],['lang','語言'],['count','測驗次數'],
+  ['firstAt','第一次來訪'],['updatedAt','最後更新'],['key','搜尋鍵'],['restore','還原資料（程式用）']
+];
+
+function travelerKey_(name, y, m, d) {
+  const n = nameKey_(name);
+  if (!n || !m || !d) return '';
+  const p = v => ('0' + Number(v)).slice(-2);
+  return n + '|' + (y ? Number(y) : '') + '-' + p(m) + '-' + p(d);
+}
+
+function travelerSheet_() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sh = ss.getSheetByName(TRAVELER_SHEET);
+  if (!sh) {
+    sh = ss.insertSheet(TRAVELER_SHEET, 0);
+    sh.getRange(1, 1, 1, TRAVELER_COLS.length).setValues([TRAVELER_COLS.map(c => c[1])])
+      .setFontWeight('bold').setBackground('#211B46').setFontColor('#FFFFFF');
+    sh.setFrozenRows(1); sh.setFrozenColumns(2);
+    sh.setColumnWidth(2, 120); sh.setColumnWidth(16, 260); sh.setColumnWidth(22, 60);
+    sh.hideColumns(21, 2);   // 搜尋鍵、還原資料：程式用，平常不用看
+  }
+  return sh;
+}
+
+function travelerRows_() {
+  const sh = travelerSheet_(), last = sh.getLastRow();
+  if (last < 2) return { sh, rows: [] };
+  const vals = sh.getRange(2, 1, last - 1, TRAVELER_COLS.length).getValues();
+  return { sh, rows: vals.map((r, i) => { const o = { _row: i + 2 }; TRAVELER_COLS.forEach((c, k) => { o[c[0]] = r[k]; }); return o; }) };
+}
+
+function upsertTraveler_(data, birthdayText) {
+  const bd = (data.birthday && typeof data.birthday === 'object') ? data.birthday : {};
+  const y = first_(data.birthYear, bd.year), m = first_(data.birthMonth, bd.month), d = first_(data.birthDay, bd.day);
+  const name = cleanName_(first_(data.name, data.userName));
+  const key = travelerKey_(name, y, m, d);
+  if (!key) return;
+  const b5 = data.big5 || {}, wx = data.wuxing || {}, pet = data.pet || {}, planet = data.planet || {};
+  const lock = LockService.getScriptLock(); lock.waitLock(10000);
+  try {
+    const t = travelerRows_(), mine = t.rows.find(r => r.key === key), now = new Date();
+    const restore = {
+      year: Number(y) || '', month: Number(m), day: Number(d), zodiac: str_(first_(data.zodiac, bd.zodiac), 10),
+      big5: { O: Number(b5.O), C: Number(b5.C), E: Number(b5.E), A: Number(b5.A), N: Number(b5.N) },
+      typeKey: str_(data.typeKey, 8), petIdx: Number(data.petIdx) || 0, petName: str_(obj_(pet, ['name']), 20), lang: str_(data.lang, 4)
+    };
+    const val = {
+      uid: str_(data.uid, 60) || (mine ? mine.uid : ''), name, birthday: birthdayText || [y, m, d].filter(Boolean).join('-'),
+      zodiac: restore.zodiac, element: typeof wx === 'string' ? wx : obj_(wx, ['name', 'element']),
+      O: num_(b5.O), C: num_(b5.C), E: num_(b5.E), A: num_(b5.A), N: num_(b5.N),
+      trait: str_(data.dominantTrait, 40), planet: str_(obj_(planet, ['name']), 30), pet: str_(obj_(pet, ['type']), 30), petName: restore.petName,
+      hobbies: str_(first_(data.hobbies, data.hobby), 300), worry: str_(first_(data.worry, data.worryText), 500), lang: restore.lang,
+      count: (mine ? Number(mine.count) || 1 : 0) + 1, firstAt: mine ? mine.firstAt : now, updatedAt: now, key, restore: JSON.stringify(restore)
+    };
+    const row = TRAVELER_COLS.map(c => val[c[0]]);
+    if (mine) t.sh.getRange(mine._row, 1, 1, row.length).setValues([row]); else t.sh.appendRow(row);
+  } finally { lock.releaseLock(); }
+}
+
+// 前端：輸入名字＋生日後查詢「宇宙裡有沒有這個人」。只回傳還原需要的資料（不回傳煩惱、興趣）
+function lookup_(b) {
+  const bd = b.birthday || {};
+  const key = travelerKey_(b.name, bd.year, bd.month, bd.day);
+  if (!key) return json_({ok:true, found:false});
+  const hit = travelerRows_().rows.filter(r => r.key === key).pop();
+  if (!hit) return json_({ok:true, found:false, nameTaken: isNameTaken_(b.name, str_(b.uid, 60))});
+  let restore = {};
+  try { restore = JSON.parse(hit.restore || '{}'); } catch (_) {}
+  const uni = hit.uid ? rows_(sheet_(UNIVERSE_SHEET, UNIVERSE_HEADERS)).find(r => r.uid === hit.uid) : null;
+  return json_({
+    ok:true, found:true,
+    profile: Object.assign({}, restore, {
+      uid: hit.uid, name: hit.name, count: Number(hit.count) || 1, updatedAt: hit.updatedAt,
+      planetName: hit.planet, petName: (uni && uni.petName) || restore.petName || '',
+      modelTask: (uni && uni.modelTask) || '', weather: (uni && uni.weather) || '', pid: (uni && uni.pid) || ''
+    })
+  });
+}
+function isNameTaken_(name, uid) {
+  const key = nameKey_(name);
+  return !!rows_(sheet_(UNIVERSE_SHEET, UNIVERSE_HEADERS)).find(r => r.nameKey === key && r.uid !== uid);
+}
+
+/** 在 Apps Script 編輯器執行一次：建立「旅人總表」「🔍 搜尋」，並把舊紀錄整理進總表 */
+function setupDatabase() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const t = travelerSheet_();
+  // 1) 舊紀錄 → 旅人總表（同一人只留最新一列，次數累加）
+  const log = ss.getSheetByName(SHEET_NAME);
+  if (log && log.getLastRow() > 1 && t.getLastRow() < 2) {
+    const vals = log.getRange(2, 1, log.getLastRow() - 1, log.getLastColumn()).getValues();
+    const jsonCol = HEADERS.indexOf('原始資料JSON');
+    vals.forEach(r => {
+      let d = {};
+      try { d = JSON.parse(r[jsonCol] || '{}'); } catch (_) {}
+      if (!d.name) d.name = r[1];
+      if (!d.birthYear && !(d.birthday && d.birthday.year)) { d.birthYear = r[3]; d.birthMonth = r[4]; d.birthDay = r[5]; }
+      try { upsertTraveler_(d, String(r[2] || '')); } catch (e) { console.warn(e.message); }
+    });
+  }
+  // 2) 搜尋頁
+  let s = ss.getSheetByName(SEARCH_SHEET);
+  if (!s) s = ss.insertSheet(SEARCH_SHEET, 0);
+  s.clear();
+  s.getRange('A1').setValue('輸入名字、生日、星座或人格：').setFontWeight('bold');
+  s.getRange('B1').setBackground('#FFF4C2').setBorder(true, true, true, true, false, false);
+  s.getRange('C1').setValue('← 在這格輸入，下面會自動列出符合的旅人（不分大小寫，可只打一部分）').setFontColor('#888888');
+  const n = TRAVELER_COLS.length - 2;   // 不顯示搜尋鍵、還原資料
+  s.getRange(3, 1, 1, n).setValues([TRAVELER_COLS.slice(0, n).map(c => c[1])]).setFontWeight('bold').setBackground('#211B46').setFontColor('#FFFFFF');
+  const last = String.fromCharCode(64 + n), q = "'" + TRAVELER_SHEET + "'!";
+  s.getRange('A4').setFormula('=IF(LEN($B$1)=0,"（在 B1 輸入要找的人）",IFERROR(FILTER(' + q + 'A2:' + last + ',ISNUMBER(SEARCH($B$1,' + q + 'B2:B&" "&' + q + 'C2:C&" "&' + q + 'D2:D&" "&' + q + 'K2:K&" "&' + q + 'L2:L&" "&' + q + 'A2:A))),"找不到符合的旅人"))');
+  s.setFrozenRows(3); s.setColumnWidth(1, 200); s.setColumnWidth(2, 160);
+  ss.setActiveSheet(s);
+  return '完成：' + (t.getLastRow() - 1) + ' 位旅人';
 }

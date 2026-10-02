@@ -5655,7 +5655,7 @@ function petSVG(i, opt = {}) {
 
     // 中心的光核（取代原本的實心色球）
     ctx.globalCompositeOperation = 'lighter';
-    const cr = r * (p.id === 'hop' ? .9 : .42);
+    const cr = r * (p.id === 'hop' ? .55 : .42);
     const core = ctx.createRadialGradient(x, y, 0, x, y, cr * 2.2);
     core.addColorStop(0, rgbaOf(rgb, .95 * a * flick, 1, .75)); core.addColorStop(.28, rgbaOf(rgb, .55 * a * flick, 1, .3)); core.addColorStop(1, rgbaOf(rgb, 0));
     ctx.fillStyle = core; ctx.beginPath(); ctx.arc(x, y, cr * 2.2, 0, TAU); ctx.fill();
@@ -5694,8 +5694,8 @@ function petSVG(i, opt = {}) {
      剛亮起時只有核心幾層；被靠近、被理解（clarity 變高）後才一層層展開
      ================================================================ */
   const Mandala = (() => {
-    const N = 512, H = N / 2;
-    const mk = () => { const c = document.createElement('canvas'); c.width = c.height = N; const g = c.getContext('2d'); g.translate(H, H); g.lineCap = 'round'; g.lineJoin = 'round'; return [c, g]; };
+    const N = 640, H = 256, K = N / 512;          // 圖樣以半徑 256 設計，實際用 640px 畫，細節更清楚
+    const mk = () => { const c = document.createElement('canvas'); c.width = c.height = N; const g = c.getContext('2d'); g.translate(N / 2, N / 2); g.scale(K, K); g.lineCap = 'round'; g.lineJoin = 'round'; return [c, g]; };
     const tint = (rgb, w, a) => `rgba(${rgb.map(v => Math.round(v + (255 - v) * w)).join(',')},${a})`;
     const ring = (g, r) => { g.beginPath(); g.arc(0, 0, r, 0, TAU); g.stroke(); };
     function lens(g, r0, r1, w, tip = 0) {      // 一片花瓣（沿 +x 方向），tip>0 時尖端外翻
@@ -5745,44 +5745,63 @@ function petSVG(i, opt = {}) {
     function zigzag(g, n, r0, r1) { g.beginPath(); for (let i = 0; i <= n; i++) { const a = i * TAU / n, r = i % 2 ? r1 : r0; i ? g.lineTo(Math.cos(a) * r, Math.sin(a) * r) : g.moveTo(Math.cos(a) * r, Math.sin(a) * r); } g.stroke(); }
     function dashRing(g, n, r, frac) { for (let i = 0; i < n; i++) { const a = i * TAU / n; g.beginPath(); g.arc(0, 0, r, a, a + TAU / n * frac); g.stroke(); } }
     function flower(g, r) { for (let i = 0; i < 6; i++) { const a = i * TAU / 6; g.beginPath(); g.arc(Math.cos(a) * r, Math.sin(a) * r, r, 0, TAU); g.stroke(); } ring(g, r); ring(g, r * 2); }
-    // 一層：筆觸＋半透明的漸層填色
+    // 一層畫兩遍：
+    //  1) 帶柔光（shadowBlur）的彩色筆觸＋半透明漸層填色
+    //  2) 細細的亮白芯線疊在每條線中間，像發光的金屬細絲
     function layer(rgb, fn, o = {}) {
       const [c, g] = mk();
+      let mul = 1, noFill = false;
+      const gg = new Proxy(g, {
+        get: (t, k) => (typeof t[k] === 'function' ? t[k].bind(t) : t[k]),
+        set: (t, k, v) => { if (k === 'lineWidth') t[k] = v * mul; else if (k === 'fillStyle' && noFill) t[k] = 'rgba(0,0,0,0)'; else t[k] = v; return true; }
+      });
+      g.shadowBlur = 9 * K; g.shadowColor = tint(rgb, .3, .9);
       g.strokeStyle = tint(rgb, o.w ?? .35, o.sa ?? .9);
       const f = g.createRadialGradient(0, 0, o.f0 || 0, 0, 0, o.f1 || H);
       f.addColorStop(0, tint(rgb, .55, o.fa ?? .32)); f.addColorStop(1, tint(rgb, .1, (o.fa ?? .32) * .25));
       g.fillStyle = f; g.lineWidth = o.lw || 1.6;
-      fn(g);
+      fn(gg);
+      g.shadowBlur = 0; mul = .42; noFill = true;
+      g.strokeStyle = tint(rgb, .85, (o.sa ?? .9) * .7); g.fillStyle = 'rgba(0,0,0,0)'; g.lineWidth = (o.lw || 1.6) * mul;
+      fn(gg);
       return { c, sp: o.sp || 0, at: o.at || 0, sc: o.sc || 1 };
     }
+    // 金色細工：每座曼陀羅再加一層很細的暖金色花紋
+    const GOLD = [255, 226, 168];
+    const gold = (fn, o = {}) => layer(GOLD, fn, Object.assign({ w: .25, sa: .75, fa: .12, lw: 1 }, o));
     const DESIGN = {
       sad: rgb => [
         layer(rgb, g => { flower(g, 20); g.lineWidth = 1.8; petals(g, 8, 44, 112, .44, { fill: 1, vein: 1 }); ring(g, 42); }, { sp: .05, at: 0, f1: 120 }),
         layer(rgb, g => { petals(g, 16, 116, 172, .3, { rot: Math.PI / 16, tip: .15 }); ring(g, 114); ring(g, 176); g.lineWidth = 1.2; drops(g, 8, 128, 7, Math.PI / 8); }, { sp: -.03, at: .2, fa: .2 }),
         layer(rgb, g => { g.lineWidth = 1.1; ring(g, 186); ring(g, 194); dashRing(g, 48, 204, .55); drops(g, 24, 220, 6); }, { sp: .018, at: .5, fa: .22 }),
-        layer(rgb, g => { g.lineWidth = 1; chain(g, 32, 238, 1); ticks(g, 96, 228, 233); }, { sp: -.01, at: .78, sa: .6 })
+        layer(rgb, g => { g.lineWidth = 1; chain(g, 32, 238, 1); ticks(g, 96, 228, 233); }, { sp: -.01, at: .78, sa: .6 }),
+        gold(g => { petals(g, 8, 58, 100, .2, { rot: Math.PI / 8 }); ring(g, 108); dots(g, 64, 180, 1.3); petals(g, 32, 196, 214, .35); }, { sp: .03, at: .35 })
       ],
       anx: rgb => [
         layer(rgb, g => { ring(g, 34); star(g, 10, 3, 92); star(g, 10, 4, 92, Math.PI / 10); g.lineWidth = 1.2; spikes(g, 20, 38, 118, 2.4); }, { sp: .16, at: 0, fa: .16, w: .2 }),
         layer(rgb, g => { ring(g, 124); g.lineWidth = 1; ticks(g, 120, 124, 134, 1); g.lineWidth = 1.5; petals(g, 10, 138, 192, .17, { fill: 1, vein: 1, tip: .3 }); }, { sp: -.12, at: .22 }),
         layer(rgb, g => { g.lineWidth = 1.1; star(g, 20, 7, 204); dots(g, 40, 212, 2.2); ring(g, 198); }, { sp: .07, at: .52, fa: .2 }),
-        layer(rgb, g => { g.lineWidth = 1; zigzag(g, 80, 226, 238); ring(g, 244); }, { sp: -.05, at: .8, sa: .65 })
+        layer(rgb, g => { g.lineWidth = 1; zigzag(g, 80, 226, 238); ring(g, 244); }, { sp: -.05, at: .8, sa: .65 }),
+        gold(g => { ring(g, 60); ring(g, 64); star(g, 10, 3, 118, Math.PI / 10); dots(g, 20, 128, 1.8, Math.PI / 20); ticks(g, 60, 214, 220); }, { sp: -.09, at: .3 })
       ],
       ang: rgb => [
         layer(rgb, g => { star(g, 6, 2, 62); star(g, 6, 2, 62, Math.PI / 6); ring(g, 66); g.lineWidth = 1.4; flame(g, 12, 70, 138, .3); }, { sp: .08, at: 0, fa: .42 }),
         layer(rgb, g => { flame(g, 6, 120, 210, .42, Math.PI / 12); }, { sp: -.05, at: .25, fa: .3 }),
         layer(rgb, g => { g.lineWidth = 1.2; spikes(g, 24, 206, 244, 3.4, Math.PI / 24); ticks(g, 48, 206, 226, 1); }, { sp: .035, at: .5, fa: .4 }),
-        layer(rgb, g => { g.lineWidth = 1; ring(g, 248); chain(g, 12, 230, .4); }, { sp: -.02, at: .78, sa: .6 })
+        layer(rgb, g => { g.lineWidth = 1; ring(g, 248); chain(g, 12, 230, .4); }, { sp: -.02, at: .78, sa: .6 }),
+        gold(g => { flame(g, 24, 142, 172, .22); dots(g, 6, 100, 3, Math.PI / 6); ring(g, 116); dots(g, 48, 196, 1.2); }, { sp: .06, at: .35, fa: .2 })
       ],
       lon: rgb => [
         layer(rgb, g => { ring(g, 26); g.lineWidth = 1.2; petals(g, 5, 30, 124, .2, { vein: 1 }); dots(g, 5, 132, 3, Math.PI / 5); }, { sp: .025, at: 0, fa: .18 }),
         layer(rgb, g => { g.lineWidth = .9; ring(g, 160); dots(g, 5, 160, 4.5); }, { sp: -.015, at: .3, sa: .55 }),
-        layer(rgb, g => { g.lineWidth = .9; dashRing(g, 40, 214, .35); dots(g, 1, 238, 3.4, -Math.PI / 2); }, { sp: .008, at: .6, sa: .5 })
+        layer(rgb, g => { g.lineWidth = .9; dashRing(g, 40, 214, .35); dots(g, 1, 238, 3.4, -Math.PI / 2); }, { sp: .008, at: .6, sa: .5 }),
+        gold(g => { ring(g, 88); petals(g, 5, 92, 118, .25, { rot: Math.PI / 5 }); dots(g, 1, 186, 2.4, Math.PI * .3); }, { sp: -.01, at: .4, sa: .55 })
       ],
       hop: rgb => [
         layer(rgb, g => { starFill(g, 12, 34, 92); ring(g, 100); }, { sp: .06, at: 0, fa: .55, w: .6 }),
         layer(rgb, g => { g.lineWidth = 1.2; ticks(g, 24, 108, 176, 1); dots(g, 12, 186, 3.6, Math.PI / 12); }, { sp: -.04, at: .25, w: .6 }),
-        layer(rgb, g => { petals(g, 12, 192, 240, .28, { vein: 1 }); g.lineWidth = 1; chain(g, 36, 246, .5); }, { sp: .02, at: .55, w: .55, sa: .7 })
+        layer(rgb, g => { petals(g, 12, 192, 240, .28, { vein: 1 }); g.lineWidth = 1; chain(g, 36, 246, .5); }, { sp: .02, at: .55, w: .55, sa: .7 }),
+        gold(g => { ticks(g, 48, 102, 150, 1); ring(g, 104); starFill(g, 6, 14, 30, Math.PI / 6); }, { sp: -.07, at: .2, fa: .3 })
       ]
     };
     const SIZE = { sad: 2.5, anx: 2.55, ang: 2.4, lon: 2.9, hop: 0 };
@@ -5802,8 +5821,23 @@ function petSVG(i, opt = {}) {
         ctx.setTransform(DPR, 0, 0, DPR, (p.sx + ox) * DPR, (p.sy + oy) * DPR); ctx.rotate(rot);
         const s = R * sc; ctx.drawImage(l.c, -s, -s, s * 2, s * 2);
       });
+      // 繞著曼陀羅慢慢公轉、會閃爍的小星芒
+      const n = SPARK[p.id] || 4, fs = flareSpr(p.rgb.map(v => Math.round(v + (255 - v) * .6)).join(','));
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.globalCompositeOperation = 'lighter';
+      for (let k = 0; k < n; k++) {
+        const ring = .55 + .42 * hs(k * 7 + 3), dir = k % 2 ? 1 : -1, ang = time * (.12 + .1 * hs(k)) * dir * MOTION + k * TAU / n + p.ph2;
+        const tw2 = Math.pow(.5 + .5 * Math.sin(time * (1.3 + hs(k * 3) * 2) + k * 2.1), 3);
+        const al = a * clamp(unfold * 1.4 - .2) * (.25 + .75 * tw2); if (al < .02) continue;
+        const sz = R * (.07 + .07 * tw2) * (p.id === 'hop' ? .8 : 1);
+        ctx.globalAlpha = Math.min(1, al);
+        ctx.drawImage(fs, p.sx + Math.cos(ang) * R * ring - sz, p.sy + Math.sin(ang) * R * ring - sz, sz * 2, sz * 2);
+      }
       ctx.restore();
     }
+    const SPARK = { sad: 7, anx: 9, ang: 8, lon: 2, hop: 6 };
+    // 首頁閒置時就先把圖樣畫好，進入第一幕時才不會卡一下
+    const idle = window.requestIdleCallback || (f => setTimeout(f, 200));
+    setTimeout(() => planets.forEach((p, i) => setTimeout(() => idle(() => { if (!built[p.id]) built[p.id] = (DESIGN[p.id] || DESIGN.sad)(p.rgb); }), 600 + i * 250)), 1500);
     return { draw };
   })();
 

@@ -7175,7 +7175,7 @@ function petSVG(i, opt = {}) {
       viewer = document.createElement('model-viewer');
       viewer.setAttribute('alt', L('依你的人格生成的 3D 星球', 'A 3D planet generated from your personality'));
       ['auto-rotate', 'camera-controls', 'disable-zoom'].forEach(a => viewer.setAttribute(a, ''));
-      viewer.setAttribute('shadow-intensity', '0'); viewer.setAttribute('exposure', '1.15');
+      viewer.setAttribute('shadow-intensity', '0'); viewer.setAttribute('exposure', '1.15'); viewer.setAttribute('environment-image', 'neutral'); viewer.setAttribute('tone-mapping', 'neutral');
       viewer.setAttribute('interaction-prompt', 'none'); viewer.setAttribute('camera-orbit', '30deg 78deg auto');
       let proxied = false;
       viewer.addEventListener('load', () => { if (my !== token) return; stage.classList.add('has-model'); status.textContent = ''; if (!CONFIG.STATIC_MODELS) PlanetGen.capture(viewer); });
@@ -8729,7 +8729,9 @@ function petSVG(i, opt = {}) {
     const base = () => (CONFIG.MODEL_ENDPOINT || '').replace(/\/$/, '');
     const pause = ms => new Promise(r => setTimeout(r, ms));
     const set = o => { st = Object.assign({}, st, o); save(); emit(); };
-    const loadViewer = () => customElements.get('model-viewer') ? Promise.resolve() : new Promise((res, rej) => {
+    // 3D 檢視器一律用滿解析度渲染（不因為手機效能自動降畫質）
+    const hdScale = () => { try { const MV = customElements.get('model-viewer'); if (MV) MV.minimumRenderScale = 1; } catch (_) { /* ignore */ } };
+    const loadViewer = () => customElements.get('model-viewer') ? Promise.resolve(hdScale()) : new Promise((res, rej) => {
       let s = document.querySelector('script[data-mv]');
       if (!s) { s = document.createElement('script'); s.type = 'module'; s.src = VIEWER; s.dataset.mv = '1'; document.head.appendChild(s); }
       customElements.whenDefined('model-viewer').then(() => { try { customElements.get('model-viewer').minimumRenderScale = 1; } catch (_) { /* ignore */ } res(); });
@@ -8803,7 +8805,7 @@ function petSVG(i, opt = {}) {
       try {
         await loadViewer();
         const v = document.createElement('model-viewer');
-        v.style.cssText = 'position:fixed;right:0;bottom:0;width:180px;height:180px;opacity:.01;pointer-events:none;z-index:-1;background:transparent';
+        v.style.cssText = 'position:fixed;right:0;bottom:0;width:400px;height:400px;opacity:.01;pointer-events:none;z-index:-1;background:transparent';
         v.setAttribute('camera-orbit', '30deg 78deg auto'); v.setAttribute('exposure', '1.15'); v.setAttribute('shadow-intensity', '0'); v.setAttribute('interaction-prompt', 'none');
         document.body.appendChild(v);
         const loaded = src => new Promise((res, rej) => {
@@ -8815,6 +8817,7 @@ function petSVG(i, opt = {}) {
         const data = v.toDataURL('image/png');
         v.remove();
         await keep(data);
+        if (st && st.taskId && !hi.has(st.taskId)) { const d = await shrink(data, HD, 4e6); if (d) { hi.set(st.taskId, d); try { localStorage.setItem('iv_planet_hd', JSON.stringify({ task: st.taskId, img: d })); } catch (_) { /* ignore */ } } }
       } catch (e) { console.warn('tripo snapshot:', e); }
     }
     async function keep(data) {
@@ -8824,10 +8827,31 @@ function petSVG(i, opt = {}) {
       set({ img }); const m = Me.get(); if (m) { Me.set(Object.assign(m, { modelTask: st.taskId, img })); publishMe(); }
       if (typeof Universe !== 'undefined') Universe.refresh();
     }
-    // 結果頁的 3D 星球載入好之後，直接從它拍縮圖
-    function capture(v) { setTimeout(() => { if (v.isConnected && st && st.status === 'success' && !st.img) { try { keep(v.toDataURL('image/png')); } catch (e) { console.warn('capture:', e); } } }, 1500); }
+    // 結果頁的 3D 星球載入好之後，直接從它拍縮圖＋高清圖
+    function capture(v) {
+      setTimeout(() => { if (v.isConnected && st && st.status === 'success' && !st.img) { try { keep(v.toDataURL('image/png')); } catch (e) { console.warn('capture:', e); } } }, 1500);
+      if (st && st.taskId) captureHD(v, st.taskId);
+    }
+    // 高清圖：從畫面上正在顯示的 3D 檢視器拍下 640px 的圖，宇宙裡放大或選取時就不會糊
+    const hi = new Map();
+    try { const h = JSON.parse(localStorage.getItem('iv_planet_hd') || 'null'); if (h && h.task && h.img) hi.set(h.task, h.img); } catch (_) { /* ignore */ }
+    function captureHD(v, taskId) {
+      if (!taskId || hi.has(taskId)) return;
+      setTimeout(async () => {
+        if (!v.isConnected || hi.has(taskId)) return;
+        try {
+          const d = await shrink(v.toDataURL('image/png'), HD, 4e6); if (!d) return;
+          hi.set(taskId, d);
+          if (st && taskId === st.taskId) { try { localStorage.setItem('iv_planet_hd', JSON.stringify({ task: taskId, img: d })); } catch (_) { /* 空間不足就只留在記憶體 */ } }
+        } catch (e) { console.warn('captureHD:', e); }
+      }, 1800);
+    }
     // 縮成小圖，盡量用 webp；確保 base64 不超過試算表儲存格上限
-    function shrink(src) {
+    // 小縮圖（存進試算表，大家都看得到）：盡量大，但 base64 要在儲存格上限內
+    const THUMB = [[192, 'image/webp', .92], [176, 'image/webp', .9], [160, 'image/webp', .88], [144, 'image/webp', .85], [128, 'image/png'], [96, 'image/png']];
+    // 高清圖（只存在這台裝置）：宇宙裡放大、選取星球時用
+    const HD = [[640, 'image/webp', .95], [640, 'image/png']];
+    function shrink(src, sizes = THUMB, limit = 42000) {
       return new Promise(res => {
         const im = new Image();
         im.onload = () => {
@@ -8841,12 +8865,13 @@ function petSVG(i, opt = {}) {
           } catch (_) { x0 = 0; y0 = 0; x1 = W0 - 1; y1 = H0 - 1; }
           if (x1 < 0) return res('');
           const side = Math.max(x1 - x0, y1 - y0) * 1.08 + 2, cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
-          for (const [n, type, q] of [[112, 'image/webp', .82], [96, 'image/webp', .7], [96, 'image/png'], [72, 'image/png'], [56, 'image/png']]) {
+          for (const [n, type, q] of sizes) {
             const c = document.createElement('canvas'); c.width = c.height = n;
             const g = c.getContext('2d');
+            g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
             g.drawImage(f, cx - side / 2, cy - side / 2, side, side, 0, 0, n, n);
             const d = c.toDataURL(type, q);
-            if (d.startsWith('data:' + type) && d.length <= 42000) return res(d);
+            if (d.startsWith('data:' + type) && d.length <= limit) return res(d);
           }
           res('');
         };
@@ -8857,7 +8882,7 @@ function petSVG(i, opt = {}) {
     if (st && st.taskId && st.status !== 'success' && st.status !== 'failed') setTimeout(poll, 1500);
     if (st && st.status === 'success' && !st.img) setTimeout(snapshot, 4000);
     return {
-      start, url, proxyUrl, loadViewer, capture, state: () => st,
+      start, url, proxyUrl, loadViewer, capture, captureHD, hd: t => (t && hi.get(t)) || '', state: () => st,
       // 從「宇宙查到你的資料」還原：直接沿用之前生成好的 3D 星球，不再花額度
       adopt(o, taskId) {
         if (!taskId) return;
@@ -9599,7 +9624,7 @@ function petSVG(i, opt = {}) {
         if (r < 2.2) { ctx.fillStyle = rgba(d.c2, a * .9); ctx.fillRect(p.sx - 1, p.sy - 1, 2, 2); continue; }
         ctx.globalAlpha = a;
         const im = planetImg(p);
-        if (im) { const s2 = r * 2.6; ctx.save(); ctx.translate(p.sx, p.sy); ctx.rotate(Math.sin(t * .25 + p.glowT) * .1); ctx.drawImage(im, -s2 / 2, -s2 / 2, s2, s2); ctx.restore(); }
+        if (im) { const s2 = r * 2.6; ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.translate(p.sx, p.sy); ctx.rotate(Math.sin(t * .25 + p.glowT) * .1); ctx.drawImage(im, -s2 / 2, -s2 / 2, s2, s2); ctx.restore(); }
         else if (p === sel && r > 40) drawBody(ctx, p.sx, p.sy, r, PSTYLE[p.typeKey] || PSTYLE.BAL, t, { spin: .2, ph: p.glowT });
         else ctx.drawImage(planetSpr(p.typeKey), p.sx - r * 2, p.sy - r * 2, r * 4, r * 4);
         ctx.globalAlpha = 1;
@@ -9807,10 +9832,14 @@ function petSVG(i, opt = {}) {
     // 旅人用 Tripo 生成的星球縮圖
     const imgCache = new Map();
     function planetImg(p) {
-      if (!p.img) return null;
-      let im = imgCache.get(p.img);
-      if (!im) { im = new Image(); im.src = p.img; imgCache.set(p.img, im); }
-      return im.complete && im.naturalWidth ? im : null;
+      const task = p.demo ? '' : (p.model || (p.me && (Me.get() || {}).modelTask) || '');
+      const src = PlanetGen.hd(task) || p.img;     // 有高清圖就用高清圖
+      if (!src) return null;
+      let im = imgCache.get(src);
+      if (!im) { im = new Image(); im.decoding = 'async'; im.src = src; imgCache.set(src, im); }
+      if (im.complete && im.naturalWidth) return im;
+      const lo = p.img && imgCache.get(p.img);     // 高清圖還在解碼時先用小圖
+      return lo && lo.complete && lo.naturalWidth ? lo : null;
     }
     // 卡片裡放可以轉動的 3D 星球
     let cardTok = 0;
@@ -9826,8 +9855,8 @@ function petSVG(i, opt = {}) {
           const v = document.createElement('model-viewer'); let tried = false;
           v.setAttribute('alt', L(`${p.name} 生成的 3D 星球`, `${p.name}’s generated 3D planet`));
           ['auto-rotate', 'camera-controls', 'disable-zoom'].forEach(a => v.setAttribute(a, ''));
-          v.setAttribute('shadow-intensity', '0'); v.setAttribute('exposure', '1.15'); v.setAttribute('interaction-prompt', 'none'); v.setAttribute('camera-orbit', '30deg 78deg auto');
-          v.addEventListener('load', () => { if (my === cardTok) box.dataset.s = 'ok'; });
+          v.setAttribute('shadow-intensity', '0'); v.setAttribute('exposure', '1.15'); v.setAttribute('environment-image', 'neutral'); v.setAttribute('tone-mapping', 'neutral'); v.setAttribute('interaction-prompt', 'none'); v.setAttribute('camera-orbit', '30deg 78deg auto');
+          v.addEventListener('load', () => { if (my === cardTok) box.dataset.s = 'ok'; PlanetGen.captureHD(v, task); });
           v.addEventListener('error', async () => {
             if (my !== cardTok) return;
             if (!tried) { tried = true; try { const b = await PlanetGen.proxyUrl(task); if (my === cardTok) { v.src = b; return; } } catch (e) { console.warn('card model:', e); } }

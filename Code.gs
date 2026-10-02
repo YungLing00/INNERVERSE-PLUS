@@ -7,6 +7,8 @@
  *   TRIPO_API_KEY  (必填)
  *   OPENAI_MODEL   (選填，預設 gpt-4o-mini)
  *   TRIPO_MODEL_VERSION (選填)
+ *   TRIPO_TEXTURE_QUALITY (選填，預設 detailed＝高清貼圖；填 standard 可省額度)
+ *   TRIPO_FACE_LIMIT (選填，不建議設定：設了會降低模型面數)
  */
 
 const SPREADSHEET_ID = '1E8XBDwI_J3lQfDcPg80kbcaRfkJAUx7N0vH1McnYnhM';
@@ -221,20 +223,30 @@ function modelStart_(body) {
   const task = {type:'text_to_model',prompt,negative_prompt:NEGATIVE,texture:true,pbr:true};
   const v = prop_('TRIPO_MODEL_VERSION');
   if (v) task.model_version = v;
+  // 高清：預設用 Tripo 的「detailed」貼圖品質、不限制面數（不要設定 TRIPO_FACE_LIMIT 就是不降面數）
+  const tq = prop_('TRIPO_TEXTURE_QUALITY') || 'detailed';
+  if (tq !== 'standard') task.texture_quality = tq;
   const fl = Number(prop_('TRIPO_FACE_LIMIT'));
-  if (fl > 0) task.face_limit = fl;   // 選填：限制面數，模型檔比較小、手機載入比較快
+  if (fl > 0) task.face_limit = fl;
 
-  const r = UrlFetchApp.fetch(TRIPO_BASE + '/task',{
+  const send = t => UrlFetchApp.fetch(TRIPO_BASE + '/task',{
     method:'post',
     contentType:'application/json',
     headers:{Authorization:'Bearer ' + key},
-    payload:JSON.stringify(task),
+    payload:JSON.stringify(t),
     muteHttpExceptions:true
   });
-  const status = r.getResponseCode();
-  const text = r.getContentText();
+  let r = send(task);
+  let status = r.getResponseCode();
+  let text = r.getContentText();
   let data = {};
   try { data = JSON.parse(text); } catch (_) {}
+  // 這個帳號或模型版本不支援高清貼圖參數時，退回一般品質再送一次，至少能生成
+  if ((status < 200 || status >= 300 || data.code !== 0) && task.texture_quality) {
+    delete task.texture_quality;
+    r = send(task); status = r.getResponseCode(); text = r.getContentText(); data = {};
+    try { data = JSON.parse(text); } catch (_) {}
+  }
   if (status < 200 || status >= 300 || data.code !== 0 || !data.data || !data.data.task_id) {
     return json_({ok:false,error:'Tripo 建立任務失敗（HTTP ' + status + '）：' + ((data && data.message) || text.slice(0,300)),detail:text.slice(0,600)});
   }

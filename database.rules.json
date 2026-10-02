@@ -1,0 +1,137 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "planets": {
+      ".read": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous'",
+      ".indexOn": ["updatedAt"],
+      "$uid": {
+        ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && auth.uid == $uid",
+        ".validate": "newData.hasChildren(['name', 'nameKey', 'updatedAt']) && newData.parent().parent().child('names').child(newData.child('nameKey').val()).val() == $uid",
+        "name": { ".validate": "newData.isString() && newData.val().matches(/^[^.#$\\[\\]\\/]{1,20}$/) && !newData.val().beginsWith(' ') && !newData.val().endsWith(' ')" },
+        "nameKey": { ".validate": "newData.val() == newData.parent().child('name').val().toLowerCase()" },
+        "planetName": { ".validate": "newData.isString() && newData.val().length <= 30" },
+        "typeKey": { ".validate": "newData.isString() && newData.val().length <= 8" },
+        "petIdx": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() < 100" },
+        "petSign": { ".validate": "newData.isString() && newData.val().length <= 12" },
+        "petName": { ".validate": "newData.isString() && newData.val().length <= 20" },
+        "element": { ".validate": "newData.val().matches(/^(earth|metal|wood|fire|water)$/)" },
+        "weather": { ".validate": "newData.val().matches(/^(sunny|rain|fog|rainbow|night)$/)" },
+        "lang": { ".validate": "newData.isString() && newData.val().length <= 4" },
+        "big5": {
+          "$k": { ".validate": "$k.matches(/^[OCEAN]$/) && newData.isNumber() && newData.val() >= 1 && newData.val() <= 5" }
+        },
+        "modelTask": { ".validate": "newData.isString() && newData.val().matches(/^([A-Za-z0-9_-]{8,120})?$/)" },
+        "img": { ".validate": "newData.isString() && newData.val().length <= 45000 && newData.val().matches(/^(data:image\\/(webp|png|jpeg);base64,[A-Za-z0-9+\\/=]+)?$/)" },
+        "createdAt": { ".validate": "newData.isNumber() && (data.exists() ? newData.val() == data.val() : newData.val() == now)" },
+        "updatedAt": { ".validate": "newData.val() == now" },
+        "$other": { ".validate": false }
+      }
+    },
+
+    "names": {
+      ".read": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous'",
+      "$nameKey": {
+        ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && (data.exists() ? data.val() == auth.uid : newData.val() == auth.uid)",
+        ".validate": "newData.isString() && newData.val() == auth.uid"
+      }
+    },
+
+    "friends": {
+      ".read": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous'",
+      "$uid": {
+        "$other": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && $uid != $other && ((auth.uid == $uid && (data.exists() || root.child('inbox').child($uid).child('invites').child($other).exists() || root.child('friends').child($other).child($uid).exists())) || (auth.uid == $other && !data.exists() && root.child('inbox').child($other).child('invites').child($uid).exists()))",
+          ".validate": "newData.hasChildren(['level', 'danceCount'])",
+          "level": { ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 5" },
+          "danceCount": { ".validate": "newData.isNumber() && newData.val() >= 0 && (!data.exists() || newData.val() >= data.val())" },
+          "meteor": { ".validate": "newData.isNumber()" },
+          "travel": { ".validate": "newData.isNumber()" },
+          "firstDanceAt": { ".validate": "newData.isNumber()" },
+          "lastAt": { ".validate": "newData.val() == now" },
+          "$any": { ".validate": false }
+        }
+      }
+    },
+
+    "inbox": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+
+        "invites": {
+          "$fromUid": {
+            ".read": "auth != null && auth.uid == $fromUid",
+            ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && ((auth.uid == $fromUid && !data.exists() && $fromUid != $uid && root.child('planets').child($fromUid).exists() && root.child('planets').child($uid).exists()) || (!newData.exists() && (auth.uid == $uid || auth.uid == $fromUid)))",
+            ".validate": "newData.hasChildren(['createdAt'])",
+            "createdAt": { ".validate": "newData.val() == now" },
+            "$any": { ".validate": false }
+          }
+        },
+
+        "outcomes": {
+          "$otherUid": {
+            ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && ((auth.uid == $otherUid && !data.exists() && root.child('inbox').child($otherUid).child('invites').child($uid).exists()) || (auth.uid == $uid && !newData.exists()))",
+            ".validate": "newData.hasChildren(['status', 'at'])",
+            "status": { ".validate": "newData.val().matches(/^(accepted|later)$/)" },
+            "at": { ".validate": "newData.val() == now" },
+            "$any": { ".validate": false }
+          }
+        },
+
+        "notes": {
+          "$noteId": {
+            ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && ((!data.exists() && auth.uid != $uid && root.child('planets').child(auth.uid).exists() && root.child('planets').child($uid).exists()) || (auth.uid == $uid && !newData.exists()))",
+            ".validate": "newData.hasChildren(['from', 'text', 'time'])",
+            "from": { ".validate": "newData.val() == auth.uid" },
+            "text": { ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 60" },
+            "time": { ".validate": "newData.val() == now" },
+            "$any": { ".validate": false }
+          }
+        },
+
+        "starlight": {
+          "$id": {
+            ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && ((!data.exists() && root.child('planets').child($uid).exists()) || (auth.uid == $uid && !newData.exists()))",
+            ".validate": "newData.hasChildren(['kind', 'time'])",
+            "kind": { ".validate": "newData.val().matches(/^(star|leaf|drop|light|heart)$/)" },
+            "from": { ".validate": "newData.val() == auth.uid" },
+            "time": { ".validate": "newData.val() == now" },
+            "$any": { ".validate": false }
+          }
+        }
+      }
+    },
+
+    "events": {
+      ".read": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous'",
+      "$eventId": {
+        ".validate": "$eventId.matches(/^A?[0-9]{8,10}$/)",
+        "progress": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && root.child('planets').child(auth.uid).exists() && !data.parent().child('done').exists()",
+          ".validate": "newData.isNumber() && newData.val() - (data.exists() ? data.val() : 0) == newData.parent().child('parts').child(auth.uid).child('n').val() - (data.parent().child('parts').child(auth.uid).child('n').exists() ? data.parent().child('parts').child(auth.uid).child('n').val() : 0)"
+        },
+        "done": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && !data.exists() && root.child('planets').child(auth.uid).exists()",
+          ".validate": "newData.isNumber() && newData.val() == now"
+        },
+        "parts": {
+          "$uid": {
+            ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && auth.uid == $uid && root.child('planets').child($uid).exists()",
+            ".validate": "newData.hasChildren(['n', 'seen'])",
+            "n": { ".validate": "newData.isNumber() && newData.val() >= (data.exists() ? data.val() : 0) && newData.val() <= (data.exists() ? data.val() : 0) + 5 && (newData.val() == (data.exists() ? data.val() : 0) || !data.parent().child('last').exists() || now - data.parent().child('last').val() > 2000)" },
+            "last": { ".validate": "newData.isNumber() && (newData.val() == data.val() || newData.val() == now)" },
+            "seen": { ".validate": "newData.val() == now" },
+            "petIdx": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() < 100" },
+            "petName": { ".validate": "newData.isString() && newData.val().length <= 20" },
+            "b": {
+              "$i": { ".validate": "$i.matches(/^[0-4]$/) && newData.isNumber() && newData.val() >= 1 && newData.val() <= 5" }
+            },
+            "$any": { ".validate": false }
+          }
+        },
+        "$any": { ".validate": false }
+      }
+    }
+  }
+}

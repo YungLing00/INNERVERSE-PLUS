@@ -4804,8 +4804,7 @@ function petSVG(i, opt = {}) {
   const P = {
     starSpeed: .02, starAlpha: 1, nebula: .55, orb: 1,
     chaos: 1, soft: 0, dust: 0, lines: 0, orbit: 0, breath: 1,
-    self: 0, tilt: 1.25, cam: 1, galaxy: 0, glow: 0, extra: 0, beacon: 0, fade: 0,
-    mandala: 0, mfrag: 1     // 曼陀羅：顯示程度、碎裂程度（1＝散開，0＝完整拼合）
+    self: 0, tilt: 1.25, cam: 1, galaxy: 0, glow: 0, extra: 0, beacon: 0, fade: 0
   };
   const DEF = Object.assign({}, P);
 
@@ -5185,7 +5184,7 @@ function petSVG(i, opt = {}) {
 
   async function act1() {            // 第一幕｜迷失 Lost
     setState('act1');
-    tw(P, 'orb', 0, 2.5); P.mfrag = 1; tw(P, 'mandala', .5, 6);
+    tw(P, 'orb', 0, 2.5);
     tw(P, 'nebula', .08, 3);
     tw(P, 'starAlpha', .35, 3);
     tw(P, 'starSpeed', .05, 4);
@@ -5199,7 +5198,7 @@ function petSVG(i, opt = {}) {
 
   async function act2() {            // 第二幕｜情緒出現 Feel
     setState('act2');
-    Sound.mood('feel'); tw(P, 'mfrag', .75, 8); tw(P, 'mandala', .5, 6);
+    Sound.mood('feel');
     tw(P, 'chaos', .55, 6);
     tw(P, 'starAlpha', .7, 6);
     tw(P, 'starSpeed', .03, 4);
@@ -5217,7 +5216,7 @@ function petSVG(i, opt = {}) {
 
   async function act3() {            // 第三幕｜靠近 Listen
     setState('act3');
-    tw(P, 'chaos', .4, 3); tw(P, 'mfrag', .7, 3);
+    tw(P, 'chaos', .4, 3);
     promptEl.className = 'prompt on';
     touchedCount = 0; current = null; quoteAt = time;
     planets.forEach(p => { p.touched = false; p.hold = 0; p.clarity = .3; });
@@ -5232,7 +5231,6 @@ function petSVG(i, opt = {}) {
     setState('act4');
     Sound.mood('release');
     tw(P, 'self', 1, 5); tw(P, 'orbit', 1, 7); tw(P, 'chaos', 0, 7); tw(P, 'soft', 1, 6);
-    tw(P, 'mfrag', 0, 14, easeIO); tw(P, 'mandala', .75, 12);   // 散開的曼陀羅慢慢拼回來
     tw(P, 'lines', 1, 9); tw(P, 'nebula', .4, 12); tw(P, 'starAlpha', .9, 8); tw(P, 'starSpeed', .03, 4);
     planets.forEach(p => tw(p, 'clarity', .8, 3));
     await sleep(1.5);
@@ -5272,7 +5270,7 @@ function petSVG(i, opt = {}) {
 
   async function act6() {            // 第六幕｜重生 Rebirth
     setState('act6');
-    Sound.mood('rebirth'); tw(P, 'mandala', 1, 8); P.mfrag = 0;
+    Sound.mood('rebirth');
     tw(P, 'galaxy', 1, 10); tw(P, 'cam', .62, 12); tw(P, 'tilt', .95, 12);
     tw(P, 'glow', 1, 8); tw(P, 'nebula', .8, 12); tw(P, 'dust', .35, 6);
     tw(P, 'starSpeed', -.05, 6);
@@ -5323,11 +5321,11 @@ function petSVG(i, opt = {}) {
   // 每一幕開始時，世界應有的樣子（＝前面幾幕跑完後的參數）
   const ACT_START = [
     { P: {}, light: 0, clarity: 0 },
-    { P: { orb: 0, nebula: .08, starAlpha: .35, starSpeed: .05, dust: 1, mandala: .5, mfrag: 1 }, light: .07, clarity: 0 },
-    { P: { orb: 0, chaos: .55, nebula: .18, starAlpha: .7, starSpeed: .03, dust: 1, mandala: .5, mfrag: .75 }, light: 1, clarity: 0 },
-    { P: { orb: 0, chaos: .4, nebula: .18, starAlpha: .7, starSpeed: .03, dust: 1, mandala: .5, mfrag: .7 }, light: 1, clarity: .3 },
-    { P: { orb: 0, self: 1, orbit: 1, chaos: 0, soft: 1, lines: 1, nebula: .4, starAlpha: .9, starSpeed: .03, dust: 1, mandala: .75, mfrag: 0 }, light: 1, clarity: .8 },
-    { P: { orb: 0, self: 1, orbit: 1, chaos: 0, soft: 1, lines: 1, nebula: .4, starAlpha: .9, starSpeed: .03, dust: 1, extra: 1, mandala: .8, mfrag: 0 }, light: 1, clarity: .8 }
+    { P: { orb: 0, nebula: .08, starAlpha: .35, starSpeed: .05, dust: 1 }, light: .07, clarity: 0 },
+    { P: { orb: 0, chaos: .55, nebula: .18, starAlpha: .7, starSpeed: .03, dust: 1 }, light: 1, clarity: 0 },
+    { P: { orb: 0, chaos: .4, nebula: .18, starAlpha: .7, starSpeed: .03, dust: 1 }, light: 1, clarity: .3 },
+    { P: { orb: 0, self: 1, orbit: 1, chaos: 0, soft: 1, lines: 1, nebula: .4, starAlpha: .9, starSpeed: .03, dust: 1 }, light: 1, clarity: .8 },
+    { P: { orb: 0, self: 1, orbit: 1, chaos: 0, soft: 1, lines: 1, nebula: .4, starAlpha: .9, starSpeed: .03, dust: 1, extra: 1 }, light: 1, clarity: .8 }
   ];
   const chapEl = $('chapters'), chList = $('chList');
   let paused = false;
@@ -5646,55 +5644,30 @@ function petSVG(i, opt = {}) {
     // 光暈
     ctx.globalCompositeOperation = 'lighter';
     const hr = r * (2.6 + (1 - c) * .9 + gl * .8) * (p.id === 'lon' ? .8 : 1) * (p.id === 'hop' ? 1.8 : 1);
-    const ha = a * flick * halo * (.3 + .22 * c + .35 * gl) * (p.id === 'lon' ? .7 : 1);
+    const ha = a * flick * halo * (.2 + .14 * c + .3 * gl) * (p.id === 'lon' ? .7 : 1) * (p.id === 'anx' ? .6 : 1);
     const g = ctx.createRadialGradient(x, y, r * .2, x, y, hr);
     g.addColorStop(0, rgbaOf(rgb, ha)); g.addColorStop(.4, rgbaOf(rgb, ha * .35)); g.addColorStop(1, rgbaOf(rgb, 0));
     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, hr, 0, TAU); ctx.fill();
 
-    // 星球自己的曼陀羅：越清楚、越被靠近，花紋越完整
-    Mandala.drawPlanetM(p, r, a * flick * (.28 + .5 * c + .25 * gl) * (state === 'act1' ? .5 : 1));
+    // 情緒本身就是一座曼陀羅：剛亮起時只有核心幾層，被靠近、被理解（clarity）後一層層展開
+    const unfold = clamp(a) * (.45 + .55 * c);
+    Mandala.draw(p, r, a * flick, unfold);
 
-    // 星體：不清晰時邊緣柔糊，被靠近後逐漸清楚
-    ctx.globalCompositeOperation = 'source-over';
-    const br = r * (1 + (1 - c) * .35);
-    const bg = ctx.createRadialGradient(x - r * .32, y - r * .32, r * .08, x, y, br);
-    bg.addColorStop(0, rgbaOf(rgb, .92 * a * flick * (.55 + .45 * c), 1, .45));
-    bg.addColorStop(.55, rgbaOf(rgb, .78 * a * flick * (.4 + .6 * c), .9, .05));
-    bg.addColorStop(1, rgbaOf(rgb, a * flick * lerp(0, .8, c), .35));
-    ctx.fillStyle = bg; ctx.beginPath(); ctx.arc(x, y, br, 0, TAU); ctx.fill();
-    if (c > .5) {
-      ctx.lineWidth = 1; ctx.strokeStyle = rgbaOf(rgb, (c - .5) * .7 * a, 1, .4);
-      ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.stroke();
-    }
-
+    // 中心的光核（取代原本的實心色球）
     ctx.globalCompositeOperation = 'lighter';
-    if (p.id === 'sad') {            // 悲傷：水波與落下的水滴
-      ctx.lineWidth = 1.2;
-      for (let k = 0; k < 3; k++) {
-        const ph = (time * .28 + k / 3) % 1;
-        ctx.strokeStyle = rgbaOf(rgb, (1 - ph) * .35 * a);
-        ctx.beginPath(); ctx.arc(x, y, r * (1 + ph * 2.2), 0, TAU); ctx.stroke();
-      }
+    const cr = r * (p.id === 'hop' ? .9 : .42);
+    const core = ctx.createRadialGradient(x, y, 0, x, y, cr * 2.2);
+    core.addColorStop(0, rgbaOf(rgb, .95 * a * flick, 1, .75)); core.addColorStop(.28, rgbaOf(rgb, .55 * a * flick, 1, .3)); core.addColorStop(1, rgbaOf(rgb, 0));
+    ctx.fillStyle = core; ctx.beginPath(); ctx.arc(x, y, cr * 2.2, 0, TAU); ctx.fill();
+
+    if (p.id === 'sad') {            // 悲傷：從花瓣尖端落下的水滴
       for (let k = 0; k < 4; k++) {
         const ph = (time * .3 + k * .27 + p.ph1) % 1;
-        ctx.fillStyle = rgbaOf(rgb, (1 - ph) * .5 * a * (.4 + .6 * c), 1, .3);
-        ctx.beginPath(); ctx.arc(x + (k - 1.5) * r * .35, y + r * .8 + ph * r * 2.4, Math.max(1, r * .07), 0, TAU); ctx.fill();
+        ctx.fillStyle = rgbaOf(rgb, (1 - ph) * .55 * a * (.4 + .6 * c), 1, .4);
+        ctx.beginPath(); ctx.arc(x + (k - 1.5) * r * .45, y + r * 1.6 + ph * r * 2.2, Math.max(1, r * .06), 0, TAU); ctx.fill();
       }
-    } else if (p.id === 'anx') {     // 焦慮：顫抖的重影
-      ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
-      for (let k = 0; k < 2; k++) {
-        const jx = Math.sin(time * (29 + k * 13) + k) * r * .12 * MOTION, jy = Math.cos(time * (31 + k * 11)) * r * .12 * MOTION;
-        ctx.strokeStyle = rgbaOf(rgb, .4 * a * (.5 + .5 * c), 1, .3);
-        ctx.beginPath(); ctx.arc(x + jx, y + jy, r * (1.15 + k * .12), 0, TAU); ctx.stroke();
-      }
-      ctx.setLineDash([]);
-    } else if (p.id === 'lon') {     // 孤單：和其他星體保持距離的一圈空白
-      ctx.lineWidth = 1; ctx.setLineDash([2, 7]);
-      ctx.strokeStyle = rgbaOf(rgb, .24 * a, 1, .3);
-      ctx.beginPath(); ctx.arc(x, y, r * 2.7, 0, TAU); ctx.stroke();
-      ctx.setLineDash([]);
     } else if (p.id === 'hop' && flick > .85) {
-      const L = r * 4 * (flick - .8) * 5;
+      const L = r * 6 * (flick - .8) * 5;
       ctx.lineWidth = 1; ctx.strokeStyle = rgbaOf(rgb, .6 * a, 1, .5);
       ctx.beginPath(); ctx.moveTo(x - L, y); ctx.lineTo(x + L, y); ctx.moveTo(x, y - L); ctx.lineTo(x, y + L); ctx.stroke();
     }
@@ -5711,95 +5684,127 @@ function petSVG(i, opt = {}) {
   }
 
   /* ================================================================
-     曼陀羅：開場六幕的神聖幾何
-     - 中央的大曼陀羅：迷失時碎成幾片各自漂流，釋放時慢慢拼回，呼吸時跟著漲縮，重生時完整綻放
-     - 每顆情緒星球外圍也有自己的曼陀羅（對稱數不同），不再只是一顆色球
-     圖樣先畫在離屏畫布上，每一格只旋轉、縮放，手機也跑得動
+     情緒曼陀羅：五種情緒各自是一座曼陀羅，不再只是一顆色球
+       悲傷｜八瓣水蓮：垂墜的花瓣、水滴、漣漪
+       焦慮｜十芒星盤：尖銳的星形、密集刻度、微微顫動
+       憤怒｜六焰之輪：火焰形花瓣、放射光芒、跟著心跳脈動
+       孤單｜五瓣細線：大量留白、斷續的外圈、離得很遠的小點
+       希望｜十二芒星：小小的、卻一直發光
+     每一層先畫在離屏畫布上（只畫一次），之後每一格只旋轉、縮放
+     剛亮起時只有核心幾層；被靠近、被理解（clarity 變高）後才一層層展開
      ================================================================ */
   const Mandala = (() => {
-    const mk = n => { const c = document.createElement('canvas'); c.width = c.height = n; const g = c.getContext('2d'); g.translate(n / 2, n / 2); g.lineCap = 'round'; g.lineJoin = 'round'; return [c, g]; };
+    const N = 512, H = N / 2;
+    const mk = () => { const c = document.createElement('canvas'); c.width = c.height = N; const g = c.getContext('2d'); g.translate(H, H); g.lineCap = 'round'; g.lineJoin = 'round'; return [c, g]; };
+    const tint = (rgb, w, a) => `rgba(${rgb.map(v => Math.round(v + (255 - v) * w)).join(',')},${a})`;
     const ring = (g, r) => { g.beginPath(); g.arc(0, 0, r, 0, TAU); g.stroke(); };
-    function petals(g, n, r0, r1, w, rot = 0, vein = false) {
+    function lens(g, r0, r1, w, tip = 0) {      // 一片花瓣（沿 +x 方向），tip>0 時尖端外翻
+      const m = (r0 + r1) / 2, h = (r1 - r0) * w;
+      g.beginPath(); g.moveTo(r0, 0);
+      g.bezierCurveTo(m - h * .3, h, m + h * (.5 + tip), h * (.85 - tip), r1, 0);
+      g.bezierCurveTo(m + h * (.5 + tip), -h * (.85 - tip), m - h * .3, -h, r0, 0);
+    }
+    function petals(g, n, r0, r1, w, o = {}) {
       for (let i = 0; i < n; i++) {
-        g.save(); g.rotate(rot + i * TAU / n);
-        const m = (r0 + r1) / 2, h = (r1 - r0) * w;
-        g.beginPath(); g.moveTo(r0, 0); g.bezierCurveTo(m - h * .2, h, m + h * .4, h * .9, r1, 0); g.bezierCurveTo(m + h * .4, -h * .9, m - h * .2, -h, r0, 0); g.stroke();
-        if (vein) { g.beginPath(); g.moveTo(r0 + (r1 - r0) * .15, 0); g.lineTo(r1 - (r1 - r0) * .12, 0); g.stroke(); g.beginPath(); g.moveTo(r0 + (r1 - r0) * .3, 0); g.bezierCurveTo(m, h * .45, m + h * .3, h * .4, r1 - (r1 - r0) * .15, 0); g.bezierCurveTo(m + h * .3, -h * .4, m, -h * .45, r0 + (r1 - r0) * .3, 0); g.stroke(); }
+        g.save(); g.rotate((o.rot || 0) + i * TAU / n);
+        lens(g, r0, r1, w, o.tip || 0);
+        if (o.fill) g.fill();
+        g.stroke();
+        if (o.vein) {
+          g.beginPath(); g.moveTo(r0 + (r1 - r0) * .12, 0); g.lineTo(r1 - (r1 - r0) * .1, 0); g.stroke();
+          lens(g, r0 + (r1 - r0) * .22, r1 - (r1 - r0) * .14, w * .5, o.tip || 0); g.stroke();
+        }
         g.restore();
       }
     }
-    function dots(g, n, r, size, rot = 0) { for (let i = 0; i < n; i++) { const a = rot + i * TAU / n; g.beginPath(); g.arc(Math.cos(a) * r, Math.sin(a) * r, size, 0, TAU); g.fill(); } }
-    function ticks(g, n, r0, r1) { g.beginPath(); for (let i = 0; i < n; i++) { const a = i * TAU / n, c = Math.cos(a), s2 = Math.sin(a); g.moveTo(c * r0, s2 * r0); g.lineTo(c * r1, s2 * r1); } g.stroke(); }
-    function chain(g, n, r, rot = 0) { const cr = r * Math.sin(Math.PI / n); for (let i = 0; i < n; i++) { const a = rot + i * TAU / n; g.beginPath(); g.arc(Math.cos(a) * r, Math.sin(a) * r, cr, 0, TAU); g.stroke(); } }
-    function starPoly(g, n, k, r, rot = 0) { g.beginPath(); for (let i = 0; i <= n; i++) { const a = rot + (i * k % n) * TAU / n; i ? g.lineTo(Math.cos(a) * r, Math.sin(a) * r) : g.moveTo(Math.cos(a) * r, Math.sin(a) * r); } g.stroke(); }
+    function flame(g, n, r0, r1, w, rot = 0) {   // 火焰：不對稱、尖端彎曲
+      for (let i = 0; i < n; i++) {
+        g.save(); g.rotate(rot + i * TAU / n);
+        const L = r1 - r0, h = L * w;
+        g.beginPath(); g.moveTo(r0, -h * .55);
+        g.bezierCurveTo(r0 + L * .35, -h * 1.1, r0 + L * .7, -h * .2, r1, h * .25);
+        g.bezierCurveTo(r0 + L * .75, h * .15, r0 + L * .45, h * .9, r0, h * .55);
+        g.closePath(); g.fill(); g.stroke();
+        g.beginPath(); g.moveTo(r0 + L * .12, 0); g.bezierCurveTo(r0 + L * .45, -h * .35, r0 + L * .65, 0, r1 - L * .12, h * .18); g.stroke();
+        g.restore();
+      }
+    }
+    function drops(g, n, r, s, rot = 0, out = 1) {   // 水滴
+      for (let i = 0; i < n; i++) {
+        g.save(); g.rotate(rot + i * TAU / n); g.translate(r, 0); g.scale(out, 1);
+        g.beginPath(); g.moveTo(s * 1.8, 0); g.bezierCurveTo(s * .6, s * .9, -s, s, -s, 0); g.bezierCurveTo(-s, -s, s * .6, -s * .9, s * 1.8, 0);
+        g.fill(); g.stroke(); g.restore();
+      }
+    }
+    function dots(g, n, r, s, rot = 0) { for (let i = 0; i < n; i++) { const a = rot + i * TAU / n; g.beginPath(); g.arc(Math.cos(a) * r, Math.sin(a) * r, s, 0, TAU); g.fill(); } }
+    function ticks(g, n, r0, r1, alt) { g.beginPath(); for (let i = 0; i < n; i++) { const a = i * TAU / n, e = alt && i % 2 ? r0 + (r1 - r0) * .5 : r1; g.moveTo(Math.cos(a) * r0, Math.sin(a) * r0); g.lineTo(Math.cos(a) * e, Math.sin(a) * e); } g.stroke(); }
+    function chain(g, n, r, k = 1) { const cr = r * Math.sin(Math.PI / n) * k; for (let i = 0; i < n; i++) { const a = i * TAU / n; g.beginPath(); g.arc(Math.cos(a) * r, Math.sin(a) * r, cr, 0, TAU); g.stroke(); } }
+    function star(g, n, k, r, rot = 0) { g.beginPath(); for (let i = 0; i <= n; i++) { const a = rot + (i * k % n) * TAU / n; i ? g.lineTo(Math.cos(a) * r, Math.sin(a) * r) : g.moveTo(Math.cos(a) * r, Math.sin(a) * r); } g.stroke(); }
+    function spikes(g, n, r0, r1, w, rot = 0) { g.beginPath(); for (let i = 0; i < n; i++) { const a = rot + i * TAU / n, d = w / r0; g.moveTo(Math.cos(a - d) * r0, Math.sin(a - d) * r0); g.lineTo(Math.cos(a) * r1, Math.sin(a) * r1); g.lineTo(Math.cos(a + d) * r0, Math.sin(a + d) * r0); } g.fill(); g.stroke(); }
+    function starFill(g, n, r0, r1, rot = 0) { g.beginPath(); for (let i = 0; i < n * 2; i++) { const a = rot + i * Math.PI / n, r = i % 2 ? r0 : r1; i ? g.lineTo(Math.cos(a) * r, Math.sin(a) * r) : g.moveTo(Math.cos(a) * r, Math.sin(a) * r); } g.closePath(); g.fill(); g.stroke(); }
+    function zigzag(g, n, r0, r1) { g.beginPath(); for (let i = 0; i <= n; i++) { const a = i * TAU / n, r = i % 2 ? r1 : r0; i ? g.lineTo(Math.cos(a) * r, Math.sin(a) * r) : g.moveTo(Math.cos(a) * r, Math.sin(a) * r); } g.stroke(); }
+    function dashRing(g, n, r, frac) { for (let i = 0; i < n; i++) { const a = i * TAU / n; g.beginPath(); g.arc(0, 0, r, a, a + TAU / n * frac); g.stroke(); } }
     function flower(g, r) { for (let i = 0; i < 6; i++) { const a = i * TAU / 6; g.beginPath(); g.arc(Math.cos(a) * r, Math.sin(a) * r, r, 0, TAU); g.stroke(); } ring(g, r); ring(g, r * 2); }
-    function scallop(g, n, r, d) { g.beginPath(); for (let i = 0; i < n; i++) { const a0 = i * TAU / n, a1 = (i + 1) * TAU / n, am = (a0 + a1) / 2; g.moveTo(Math.cos(a0) * r, Math.sin(a0) * r); g.quadraticCurveTo(Math.cos(am) * (r + d), Math.sin(am) * (r + d), Math.cos(a1) * r, Math.sin(a1) * r); } g.stroke(); }
-    // 筆刷顏色：中央用五種情緒色的環狀漸層，星球用自己的顏色
-    function paint(g, rgbs, a) {
-      const cols = rgbs.map(c => `rgba(${c.map(v => Math.round(v + (255 - v) * .38)).join(',')},${a})`);
-      let st = cols[0];
-      if (cols.length > 1 && g.createConicGradient) { st = g.createConicGradient(0, 0, 0); cols.concat(cols[0]).forEach((c, i, arr) => st.addColorStop(i / (arr.length - 1), c)); }
-      g.strokeStyle = st; g.fillStyle = st;
+    // 一層：筆觸＋半透明的漸層填色
+    function layer(rgb, fn, o = {}) {
+      const [c, g] = mk();
+      g.strokeStyle = tint(rgb, o.w ?? .35, o.sa ?? .9);
+      const f = g.createRadialGradient(0, 0, o.f0 || 0, 0, 0, o.f1 || H);
+      f.addColorStop(0, tint(rgb, .55, o.fa ?? .32)); f.addColorStop(1, tint(rgb, .1, (o.fa ?? .32) * .25));
+      g.fillStyle = f; g.lineWidth = o.lw || 1.6;
+      fn(g);
+      return { c, sp: o.sp || 0, at: o.at || 0, sc: o.sc || 1 };
     }
-
-    // 中央曼陀羅：四層，各自反向旋轉
-    let center = null;
-    function buildCenter() {
-      const N = 1024, R = 500, rgbs = planets.map(p => p.rgb), out = [];
-      { const [c, g] = mk(N); paint(g, rgbs, .9); g.lineWidth = 1.7; flower(g, 58); petals(g, 12, 118, 236, .34, 0, true); ring(g, 116); g.lineWidth = 1.1; dots(g, 24, 250, 3.2); out.push({ c, sp: .045, a: 1 }); }
-      { const [c, g] = mk(N); paint(g, rgbs, .85); g.lineWidth = 1.5; ring(g, 268); petals(g, 16, 270, 362, .3, Math.PI / 16, true); ring(g, 366); g.lineWidth = 1.1; scallop(g, 32, 372, 16); dots(g, 32, 396, 2.4, Math.PI / 32); out.push({ c, sp: -.03, a: .95 }); }
-      { const [c, g] = mk(N); paint(g, rgbs, .55); g.lineWidth = 1.1; starPoly(g, 12, 5, 262); starPoly(g, 8, 3, 180, Math.PI / 8); chain(g, 24, 418); g.lineWidth = .9; ticks(g, 96, 438, 448); ring(g, 452); out.push({ c, sp: .018, a: .8 }); }
-      { const [c, g] = mk(N); paint(g, rgbs, .8); g.lineWidth = 1.3; petals(g, 36, 456, R, .5, 0); g.lineWidth = 1; dots(g, 72, 464, 1.8, Math.PI / 72); ring(g, R - 2); out.push({ c, sp: -.012, a: .7 }); }
-      return out;
-    }
-    // 情緒星球的小曼陀羅：對稱數各不相同
-    const SYM = { sad: 8, anx: 10, ang: 6, lon: 5, hop: 12 };
-    const small = {};
-    function buildPlanet(p) {
-      const N = 256, n = SYM[p.id] || 8, out = [];
-      { const [c, g] = mk(N); paint(g, [p.rgb], .95); g.lineWidth = 1.5; ring(g, 46); petals(g, n, 48, 92, p.id === 'ang' ? .22 : .38, 0, true); g.lineWidth = 1.1; dots(g, n, 98, 2.4, Math.PI / n); out.push({ c, sp: .16 }); }
-      { const [c, g] = mk(N); paint(g, [p.rgb], .75); g.lineWidth = 1.1; ring(g, 104); ticks(g, n * 6, 104, 110); scallop(g, n * 2, 112, 7); if (p.id === 'hop' || p.id === 'anx') starPoly(g, n, n === 10 ? 3 : 5, 86, Math.PI / n); g.lineWidth = .9; chain(g, n * 3, 120); out.push({ c, sp: -.1 }); }
-      return out;
-    }
-
-    let vis = 0;
-    const MSTATES = new Set(['idle', 'act1', 'act2', 'act3', 'act4', 'act5', 'act6', 'end']);
-    function drawCenter(dt) {
-      vis += ((MSTATES.has(state) ? 1 : 0) - vis) * Math.min(1, dt * 1.2);
-      const A = (state === 'idle' ? Math.max(P.mandala, .2) : P.mandala) * vis * (1 - P.fade);
-      if (A < .01) return;
-      if (!center) center = buildCenter();
-      const f = state === 'idle' ? 0 : P.mfrag, R = U * .5 * Math.pow(P.cam, .55) * (1 + (P.breath - 1) * 1.6);
-      ctx.save(); ctx.globalCompositeOperation = 'lighter';
-      // 中心的柔光
-      const g = ctx.createRadialGradient(CX, CY, 0, CX, CY, R * .9);
-      g.addColorStop(0, `rgba(255,236,210,${(A * (.08 + .12 * P.glow)).toFixed(3)})`); g.addColorStop(1, 'rgba(180,150,255,0)');
-      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(CX, CY, R * .9, 0, TAU); ctx.fill();
-      center.forEach((L, i) => {
-        // 碎裂時：每一層各自偏移、縮放、轉向，看起來像散落的碎片；f→0 時精準疊回同一個中心
-        const ox = f * U * .07 * Math.sin(time * .19 + i * 2.1), oy = f * U * .06 * Math.cos(time * .15 + i * 1.7);
-        const sc = 1 + f * (i - 1.5) * .1 + .012 * Math.sin(time * .6 + i);
-        const rot = time * L.sp * MOTION + f * (i + 1) * .7 * Math.sin(time * .11 + i);
-        const al = A * L.a * (1 - f * .5) * (.82 + .18 * Math.sin(time * .5 + i * 1.3));
-        if (al < .005) return;
-        ctx.globalAlpha = Math.min(1, al);
-        ctx.setTransform(DPR, 0, 0, DPR, (CX + ox) * DPR, (CY + oy) * DPR); ctx.rotate(rot);
-        const s2 = R * sc; ctx.drawImage(L.c, -s2, -s2, s2 * 2, s2 * 2);
-      });
-      ctx.restore();
-    }
-    function drawPlanetM(p, r, a) {
+    const DESIGN = {
+      sad: rgb => [
+        layer(rgb, g => { flower(g, 20); g.lineWidth = 1.8; petals(g, 8, 44, 112, .44, { fill: 1, vein: 1 }); ring(g, 42); }, { sp: .05, at: 0, f1: 120 }),
+        layer(rgb, g => { petals(g, 16, 116, 172, .3, { rot: Math.PI / 16, tip: .15 }); ring(g, 114); ring(g, 176); g.lineWidth = 1.2; drops(g, 8, 128, 7, Math.PI / 8); }, { sp: -.03, at: .2, fa: .2 }),
+        layer(rgb, g => { g.lineWidth = 1.1; ring(g, 186); ring(g, 194); dashRing(g, 48, 204, .55); drops(g, 24, 220, 6); }, { sp: .018, at: .5, fa: .22 }),
+        layer(rgb, g => { g.lineWidth = 1; chain(g, 32, 238, 1); ticks(g, 96, 228, 233); }, { sp: -.01, at: .78, sa: .6 })
+      ],
+      anx: rgb => [
+        layer(rgb, g => { ring(g, 34); star(g, 10, 3, 92); star(g, 10, 4, 92, Math.PI / 10); g.lineWidth = 1.2; spikes(g, 20, 38, 118, 2.4); }, { sp: .16, at: 0, fa: .16, w: .2 }),
+        layer(rgb, g => { ring(g, 124); g.lineWidth = 1; ticks(g, 120, 124, 134, 1); g.lineWidth = 1.5; petals(g, 10, 138, 192, .17, { fill: 1, vein: 1, tip: .3 }); }, { sp: -.12, at: .22 }),
+        layer(rgb, g => { g.lineWidth = 1.1; star(g, 20, 7, 204); dots(g, 40, 212, 2.2); ring(g, 198); }, { sp: .07, at: .52, fa: .2 }),
+        layer(rgb, g => { g.lineWidth = 1; zigzag(g, 80, 226, 238); ring(g, 244); }, { sp: -.05, at: .8, sa: .65 })
+      ],
+      ang: rgb => [
+        layer(rgb, g => { star(g, 6, 2, 62); star(g, 6, 2, 62, Math.PI / 6); ring(g, 66); g.lineWidth = 1.4; flame(g, 12, 70, 138, .3); }, { sp: .08, at: 0, fa: .42 }),
+        layer(rgb, g => { flame(g, 6, 120, 210, .42, Math.PI / 12); }, { sp: -.05, at: .25, fa: .3 }),
+        layer(rgb, g => { g.lineWidth = 1.2; spikes(g, 24, 206, 244, 3.4, Math.PI / 24); ticks(g, 48, 206, 226, 1); }, { sp: .035, at: .5, fa: .4 }),
+        layer(rgb, g => { g.lineWidth = 1; ring(g, 248); chain(g, 12, 230, .4); }, { sp: -.02, at: .78, sa: .6 })
+      ],
+      lon: rgb => [
+        layer(rgb, g => { ring(g, 26); g.lineWidth = 1.2; petals(g, 5, 30, 124, .2, { vein: 1 }); dots(g, 5, 132, 3, Math.PI / 5); }, { sp: .025, at: 0, fa: .18 }),
+        layer(rgb, g => { g.lineWidth = .9; ring(g, 160); dots(g, 5, 160, 4.5); }, { sp: -.015, at: .3, sa: .55 }),
+        layer(rgb, g => { g.lineWidth = .9; dashRing(g, 40, 214, .35); dots(g, 1, 238, 3.4, -Math.PI / 2); }, { sp: .008, at: .6, sa: .5 })
+      ],
+      hop: rgb => [
+        layer(rgb, g => { starFill(g, 12, 34, 92); ring(g, 100); }, { sp: .06, at: 0, fa: .55, w: .6 }),
+        layer(rgb, g => { g.lineWidth = 1.2; ticks(g, 24, 108, 176, 1); dots(g, 12, 186, 3.6, Math.PI / 12); }, { sp: -.04, at: .25, w: .6 }),
+        layer(rgb, g => { petals(g, 12, 192, 240, .28, { vein: 1 }); g.lineWidth = 1; chain(g, 36, 246, .5); }, { sp: .02, at: .55, w: .55, sa: .7 })
+      ]
+    };
+    const SIZE = { sad: 2.5, anx: 2.55, ang: 2.4, lon: 2.9, hop: 0 };
+    const built = {};
+    function draw(p, r, a, unfold) {
       if (a < .01) return;
-      const L2 = small[p.id] || (small[p.id] = buildPlanet(p)), R = r * 2.35;
+      const L = built[p.id] || (built[p.id] = (DESIGN[p.id] || DESIGN.sad)(p.rgb));
+      const R = p.id === 'hop' ? Math.max(r * 6, U * .05) : r * SIZE[p.id];
       ctx.save(); ctx.globalCompositeOperation = 'lighter';
-      L2.forEach((L, i) => {
-        ctx.globalAlpha = Math.min(1, a * (i ? .7 : 1));
-        ctx.setTransform(DPR, 0, 0, DPR, p.sx * DPR, p.sy * DPR); ctx.rotate(time * L.sp * MOTION + p.ph1);
-        ctx.drawImage(L.c, -R, -R, R * 2, R * 2);
+      L.forEach((l, i) => {
+        const v = clamp((unfold - l.at) / .3); if (v <= .01) return;
+        let rot = time * l.sp * MOTION + p.ph1 * (i + 1), ox = 0, oy = 0, sc = l.sc * (.72 + .28 * easeIO(v));
+        if (p.id === 'anx') { rot += Math.sin(time * 23 + i * 2) * .015 * MOTION; ox = Math.sin(time * 37 + i) * R * .006 * MOTION; oy = Math.cos(time * 41 + i) * R * .006 * MOTION; }
+        if (p.id === 'lon') { sc *= 1 + .05 * i * (1 + Math.sin(time * .3 + i)); }
+        if (p.id === 'sad') { oy = Math.sin(time * .6 + i * .8) * R * .012; }
+        ctx.globalAlpha = Math.min(1, a * v * (i ? .85 : 1));
+        ctx.setTransform(DPR, 0, 0, DPR, (p.sx + ox) * DPR, (p.sy + oy) * DPR); ctx.rotate(rot);
+        const s = R * sc; ctx.drawImage(l.c, -s, -s, s * 2, s * 2);
       });
       ctx.restore();
     }
-    return { drawCenter, drawPlanetM };
+    return { draw };
   })();
 
   function drawSelf() {
@@ -9946,7 +9951,6 @@ function petSVG(i, opt = {}) {
     if (state === 'universe') Universe.draw(dt);
     drawDust(dt);
     drawGalaxy();
-    Mandala.drawCenter(dt);
     drawLinks();
     for (const p of planets) drawPlanet(p);
     drawSelf();

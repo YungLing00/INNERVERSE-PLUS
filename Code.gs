@@ -850,6 +850,13 @@ function invite_(b) {
 function inbox_(e) {
   const me = meByUid_((e.parameter || {}).uid); if (!me) return json_({ok:true, invites:[], outcomes:[], notes:[], friends:[]});
   const ish = sheet_(INVITE_SHEET, INVITE_HEADERS), inv = rows_(ish), now = new Date();
+  // peek：只看有幾封，不標記已讀（在其他畫面提醒用）
+  if ((e.parameter || {}).peek) {
+    return json_({ok:true, peek:true,
+      invites: inv.filter(r => r.toPid === me.pid && r.status === 'pending').length,
+      outcomes: inv.filter(r => r.fromPid === me.pid && r.status !== 'pending' && !r.notifiedFrom).length,
+      notes: rows_(sheet_(NOTE_SHEET, NOTE_HEADERS)).filter(r => r.toPid === me.pid && !r.read).length});
+  }
   const invites = inv.filter(r => r.toPid === me.pid && r.status === 'pending')
     .map(r => ({ id: r.id, createdAt: r.createdAt, from: pub_(pubByPid_(r.fromPid)) })).filter(x => x.from);
   const outcomes = [];

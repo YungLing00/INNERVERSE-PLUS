@@ -651,6 +651,7 @@
   .up-bar { margin-top: 8px; height: 7px; border-radius: 99px; background: rgba(255,255,255,.1); overflow: hidden; }
   .up-bar i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #ffd6e8, #ffe3a8); box-shadow: 0 0 10px rgba(255,214,170,.8); transition: width 1s ease; }
   .up-next { margin-top: 6px; font-size: .7rem; letter-spacing: .06em; color: var(--dim); }
+  .up-mail { width: 100%; margin-top: 10px; animation: pulse2 1.8s ease-in-out infinite; }
   .up-acts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
   .up-act { display: grid; justify-items: center; gap: 2px; padding: 8px 2px; border-radius: 14px; cursor: pointer; color: var(--ink); font-family: var(--tc); font-size: .7rem; letter-spacing: .04em;
     background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.16); transition: transform .2s ease, background .3s ease, box-shadow .3s ease; }
@@ -1199,6 +1200,7 @@
       <div class="up-head"><b id="upLv"></b><span id="upStreak"></span></div>
       <div class="track up-bar"><i id="upBar"></i></div>
       <p class="up-next" id="upNext"></p>
+      <button class="main up-mail" id="upMail" type="button" hidden></button>
       <div class="up-acts" id="upActs"></div>
       <p class="uv-sub" id="upTaskT"></p><ul class="up-tasks" id="upTasks"></ul>
     </div>
@@ -10047,7 +10049,10 @@ function petSVG(i, opt = {}) {
       ctx.fillStyle = rgba([255, 236, 190], a); ctx.shadowColor = 'rgba(255,214,150,.9)'; ctx.shadowBlur = 10; ctx.fillText('YOU', p.sx, ty);
       ctx.restore();
       // 我的寵物在旁邊漂浮
-      if (r > 6 && p !== sel) drawPet(p.petIdx || 0, p.sx + r * 1.25, p.sy - r * .55 + Math.sin(t * 1.6) * r * .08, r * 1.15, { alpha: a, closed: (t % 4.4) < .12 });
+      // 有新信時，寵物跳一跳、頭上冒出「！」提醒你
+      const al2 = Fr.alertT ? clamp(1 - (t - Fr.alertT) / 6) : 0, hop = al2 ? Math.abs(Math.sin(t * 7)) * r * .35 * al2 : 0;
+      if (r > 6 && p !== sel) drawPet(p.petIdx || 0, p.sx + r * 1.25, p.sy - r * .55 + Math.sin(t * 1.6) * r * .08 - hop, r * 1.15, { alpha: a, closed: (t % 4.4) < .12 });
+      if (Fr.queue.length && r > 4) { ctx.save(); ctx.font = `700 ${Math.round(clamp(r * .7, 12, 26))}px ${bodyFont}`; ctx.textAlign = 'center'; ctx.fillStyle = rgba([255, 226, 150], a * (.6 + .4 * Math.sin(t * 6))); ctx.fillText('!', p.sx + r * 1.25, p.sy - r * 1.45 - hop); ctx.restore(); }
     }
     function drawSelPet(dt, a) {
       const p = sel, r = p.sr, t = time, k = easeOut(UVS.petPeek);
@@ -10076,6 +10081,7 @@ function petSVG(i, opt = {}) {
         if (Math.random() < dt * 8) emit(x, y + s * .4, 1, ['255,236,190', '255,200,235'], { speed: 60, life: .8, size: .7 });
       } else if (ra > 0 && UVS.react === 'love') { const e2 = Math.sin(Math.min(1, rt / 1.2) * Math.PI); ky = 1 - e2 * .14; kx = 1 + e2 * .12; closed = e2 > .3; }
       else if (ra > 0 && UVS.react === 'sing') { const bp = rt * 3; y -= Math.abs(Math.sin(bp * Math.PI)) * r * .1; rot += Math.sin(bp * Math.PI / 2) * .12; ky = 1 + Math.abs(Math.sin(bp * Math.PI)) * .06; }
+      if (p.me && Fr.alertT) { const al2 = clamp(1 - (t - Fr.alertT) / 6); y -= Math.abs(Math.sin(t * 7)) * r * .25 * al2; }
       p.petX = x; p.petY = y; p.petS = s;
       drawPet(p.petIdx || 0, x, y + Math.sin(t * 1.7) * r * .05, s, { alpha: al, rot, closed, kx, ky });
       if (p.me) drawAcc(x, y + Math.sin(t * 1.7) * r * .05, s, Bond.level(), t);
@@ -10108,7 +10114,7 @@ function petSVG(i, opt = {}) {
       friends: new Map(),   // 我的朋友：pid → { level, danceCount, meteor, travel, partner }
       sent: new Set(),      // 我已經送出、還在等的邀請
       queue: [],            // 信箱：邀請、留言、邀請結果
-      busy: false, D: null, R: null, polled: 0, pollT: 0
+      busy: false, D: null, R: null, polled: 0, pollT: 0, alertT: 0, seen: new Set()
     };
     const myPet = () => { const m = Me.get() || {}; const i = Number.isInteger(m.petIdx) ? m.petIdx : 0; return { idx: i, name: m.petName || (PETS[i] || PETS[0]).en, glyph: (PETS[i] || PETS[0]).glyph, pid: m.pid || '' }; };
     const petOf = p => { const i = Number(p.petIdx) || 0; return { idx: i, name: p.petName || (PETS[i] || PETS[0]).en, glyph: (PETS[i] || PETS[0]).glyph }; };
@@ -10312,16 +10318,17 @@ function petSVG(i, opt = {}) {
       try {
         const j = await apiGet({ action: 'inbox', uid: Me.uid() }, 12000);
         (j.friends || []).forEach(f => { if (f.partner) { Fr.friends.set(f.partner.pid, f); setEdge(f.partner.pid, f.level); } });
-        const has = id => Fr.queue.some(q => q.id === id);
+        const has = id => Fr.queue.some(q => q.id === id) || Fr.seen.has(id);
+        let newInv = 0, newNote = 0;
         (j.outcomes || []).forEach(o => { if (!has('o' + o.id)) Fr.queue.push({ id: 'o' + o.id, kind: 'outcome', o }); });
-        (j.invites || []).forEach(v => { if (!has('i' + v.id)) Fr.queue.push({ id: 'i' + v.id, kind: 'invite', v }); });
-        (j.notes || []).forEach(n => { if (!has('n' + n.id)) Fr.queue.push({ id: 'n' + n.id, kind: 'note', n }); });
+        (j.invites || []).forEach(v => { if (!has('i' + v.id)) { Fr.queue.push({ id: 'i' + v.id, kind: 'invite', v }); newInv++; } });
+        (j.notes || []).forEach(n => { if (!has('n' + n.id)) { Fr.queue.push({ id: 'n' + n.id, kind: 'note', n }); newNote++; } });
+        if (newInv || newNote) mailAlert(newInv, newNote);
         updatePills();
         // 寄出的邀請有了結果：直接演給寄件人看（不用兩人同時在線）
         const outs = Fr.queue.filter(q => q.kind === 'outcome');
         for (const q of outs) { Fr.queue.splice(Fr.queue.indexOf(q), 1); await showOutcome(q.o); }
         updatePills();
-        if (Fr.queue.length && !Fr.polled) setTimeout(() => toast(L('💌 你的寵物旁邊漂著一封星星信件。', '💌 A little star letter is floating beside your pet.', { ja: '💌 ペットのそばに星の手紙がただよっているよ。', ko: '💌 펫 곁에 작은 별 편지가 떠 있어요.', vi: '💌 Có một lá thư sao nhỏ trôi bên thú cưng của bạn.' }), 5), 2600);
         Fr.polled = Date.now();
       } catch (e) { console.warn('inbox:', e); }
     }
@@ -10333,13 +10340,23 @@ function petSVG(i, opt = {}) {
       await befriend(p, o.friend, o.status === 'mutual' ? 'mutual' : 'normal', me, them, them.name);
     }
     const sleepMs = ms => new Promise(r => setTimeout(r, ms));
+    // 新信件一到：寵物跳起來提醒、信件馬上漂到牠旁邊
+    function mailAlert(inv, notes) {
+      Fr.alertT = time; Sound.chime(.2); setTimeout(() => Sound.chime(.6), 220);
+      const nm = myPet().name, parts = [];
+      if (inv) parts.push(L(`${inv} 份共舞邀請`, `${inv} dance invitation${inv > 1 ? 's' : ''}`, { ja: `ダンスの招待 ${inv} 通`, ko: `춤 초대 ${inv}개`, vi: `${inv} lời mời nhảy` }));
+      if (notes) parts.push(L(`${notes} 句留言`, `${notes} message${notes > 1 ? 's' : ''}`, { ja: `メッセージ ${notes} 通`, ko: `메시지 ${notes}개`, vi: `${notes} lời nhắn` }));
+      toast(L(`💌 ${nm} 收到了 ${parts.join('、')}！點牠旁邊的星星信件打開`, `💌 ${nm} received ${parts.join(' and ')}! Tap the star letter beside it`, { ja: `💌 ${nm} に ${parts.join('と')} が届いたよ！そばの星の手紙をタップしてね`, ko: `💌 ${nm}에게 ${parts.join(', ')}이(가) 도착했어요! 곁의 별 편지를 눌러 보세요`, vi: `💌 ${nm} nhận được ${parts.join(' và ')}! Chạm vào lá thư sao bên cạnh` }), 5.5);
+      if (sel && sel.me) fillBond();
+    }
     function updatePills() {
       const n = Fr.queue.length, mb = $('uvMail'), fb = $('uvFriends');
       mb.hidden = !n; mb.textContent = `💌 ${n}`;
+      if (sel && sel.me) { const mb2 = $('upMail'); mb2.hidden = !n; mb2.textContent = L(`💌 打開信件（${n}）`, `💌 Open letters (${n})`, { ja: `💌 手紙をひらく（${n}）`, ko: `💌 편지 열기(${n})`, vi: `💌 Mở thư (${n})` }); }
       fb.hidden = !Fr.friends.size; fb.textContent = L(`✦ 友情星圖 ${Fr.friends.size}`, `✦ Friends ${Fr.friends.size}`, { ja: `✦ 友情星図 ${Fr.friends.size}`, ko: `✦ 우정 별자리 ${Fr.friends.size}`, vi: `✦ Bạn bè ${Fr.friends.size}` });
     }
     function openMail() {
-      const q = Fr.queue[0]; if (!q || Fr.D) return;
+      const q = Fr.queue[0]; if (!q || Fr.D) return; Fr.seen.add(q.id);
       const dlg = $('mailDlg'), go = $('mlGo'), later = $('mlLater');
       if (q.kind === 'invite') {
         const v = q.v, them = petOf(v.from), age = Date.now() - new Date(v.createdAt).getTime();
@@ -10409,7 +10426,9 @@ function petSVG(i, opt = {}) {
       letterPos = null;
       if (!Fr.queue.length || Fr.D) return;
       const me = planetsW.find(p => p.me); if (!me || !me.vis || me.sr < 3) return;
-      const s = clamp(me.sr * .55, 14, 46), x = me.sx - me.sr * 1.35, y = me.sy - me.sr * .9 + Math.sin(time * 2) * s * .15;
+      // 漂在我的寵物旁邊（選取中就跟著放大的寵物）
+      const px = me === sel && me.petX !== undefined ? me.petX : me.sx + me.sr * 1.25, py = me === sel && me.petY !== undefined ? me.petY : me.sy - me.sr * .55, ps = me === sel && me.petS ? me.petS : me.sr * 1.15;
+      const s = clamp(ps * .42, 16, 52), x = px + ps * .62, y = py - ps * .48 + Math.sin(time * 2) * s * .15;
       letterPos = [x, y, s * 1.1];
       ctx.save(); ctx.globalCompositeOperation = 'lighter'; glow(x, y, s * 1.4, [255, 210, 230], a * (.45 + .2 * Math.sin(time * 3))); ctx.restore();
       ctx.save(); ctx.globalAlpha = a; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `${Math.round(s)}px serif`;
@@ -10644,6 +10663,7 @@ function petSVG(i, opt = {}) {
       const nx = Bond.toNext();
       $('upNext').textContent = nx > 0 ? L(`再 ${nx} 點親密度 → 解鎖 ${accName(lv + 1)}`, `${nx} more → unlock ${accName(lv + 1)}`, { ja: `あと ${nx} で ${accName(lv + 1)} を解放`, ko: `${nx} 더 모으면 ${accName(lv + 1)} 해금`, vi: `Thêm ${nx} nữa → mở khóa ${accName(lv + 1)}` }) : L('所有配件都解鎖了 ✦', 'All accessories unlocked ✦', { ja: 'アクセサリーをぜんぶ解放 ✦', ko: '모든 장식을 해금했어요 ✦', vi: 'Đã mở khóa mọi phụ kiện ✦' });
       const T = { pet: L('摸摸寵物', 'Pat your pet', { ja: 'ペットをなでる', ko: '펫 쓰다듬기', vi: 'Vuốt ve thú cưng' }), dance: L('一起跳一支舞', 'Dance together', { ja: 'いっしょにダンス', ko: '함께 춤추기', vi: 'Cùng nhảy một điệu' }), gift: L('送星光給別的旅人', 'Leave starlight for another traveler', { ja: 'ほかの旅人に星の光を贈る', ko: '다른 여행자에게 별빛 남기기', vi: 'Để lại ánh sao cho lữ khách khác' }) };
+      const mb = $('upMail'); mb.hidden = !Fr.queue.length; mb.textContent = L(`💌 打開信件（${Fr.queue.length}）`, `💌 Open letters (${Fr.queue.length})`, { ja: `💌 手紙をひらく（${Fr.queue.length}）`, ko: `💌 편지 열기(${Fr.queue.length})`, vi: `💌 Mở thư (${Fr.queue.length})` });
       $('upTaskT').textContent = L('今日小任務（全部完成 +15）', "Today's little tasks (all done: +15)", { ja: '今日のミッション（ぜんぶで +15）', ko: '오늘의 작은 미션(모두 완료 +15)', vi: 'Nhiệm vụ nhỏ hôm nay (xong hết +15)' });
       const ul = $('upTasks'); ul.textContent = '';
       Bond.tasks().forEach(([k, ok]) => { const li = document.createElement('li'); li.className = ok ? 'ok' : ''; li.textContent = `${ok ? '✓' : '○'} ${T[k]}`; ul.appendChild(li); });
@@ -10655,7 +10675,18 @@ function petSVG(i, opt = {}) {
       $('upActs').appendChild(b);
     });
 
+    // 不在宇宙裡的時候：每分鐘偷看一下信箱（不標記已讀），有新信就提醒
+    let peekN = -1;
+    setInterval(async () => {
+      if (state === 'universe' || !canFriend() || document.hidden) return;
+      try {
+        const j = await apiGet({ action: 'inbox', uid: Me.uid(), peek: 1 }, 10000), n = (j.invites || 0) + (j.notes || 0) + (j.outcomes || 0);
+        if (n > 0 && n !== peekN) aiNote(L(`💌 ${myPet().name} 收到了 ${n} 封星星信件！到「章節選擇 → 我們的宇宙」打開它`, `💌 ${myPet().name} has ${n} star letter${n > 1 ? 's' : ''}! Open them in Chapters → Our Universe`, { ja: `💌 ${myPet().name} に星の手紙が ${n} 通！「章節 → わたしたちの宇宙」でひらこう`, ko: `💌 ${myPet().name}에게 별 편지 ${n}통! ‘챕터 → 우리의 우주’에서 열어 보세요`, vi: `💌 ${myPet().name} có ${n} lá thư sao! Mở ở Chương → Vũ trụ của chúng ta` }));
+        peekN = n;
+      } catch (_) { /* 靜靜地略過 */ }
+    }, 60000);
     $('uvMail').addEventListener('click', () => openMail());
+    $('upMail').addEventListener('click', () => openMail());
     $('uvFriends').addEventListener('click', () => openFriends());
     $('frClose').addEventListener('click', () => $('frDlg').classList.remove('on'));
     $('unSend').addEventListener('click', () => sendNote(sel));
@@ -10837,7 +10868,7 @@ function petSVG(i, opt = {}) {
         }
         visits();
         Fr.polled = 0; updatePills(); pollInbox();
-        clearInterval(Fr.pollT); Fr.pollT = setInterval(() => { if (state === 'universe' && !Fr.D) pollInbox(); }, 45000);
+        clearInterval(Fr.pollT); Fr.pollT = setInterval(() => { if (state === 'universe' && !Fr.D) pollInbox(); }, 15000);
       } catch (e) { if (!(e instanceof Cancel)) throw e; }
     }
     // 回來時告訴你：有幾位旅人經過你的星球

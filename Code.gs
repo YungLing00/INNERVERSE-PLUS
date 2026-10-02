@@ -659,7 +659,7 @@ function upsertTraveler_(data, birthdayText) {
     const restore = {
       year: Number(y) || '', month: Number(m), day: Number(d), zodiac: str_(first_(data.zodiac, bd.zodiac), 10),
       big5: { O: Number(b5.O), C: Number(b5.C), E: Number(b5.E), A: Number(b5.A), N: Number(b5.N) },
-      typeKey: str_(data.typeKey, 8), petIdx: Number(data.petIdx) || 0, petName: str_(obj_(pet, ['name']), 20), lang: str_(data.lang, 4)
+      typeKey: str_(data.typeKey, 8), petIdx: data.petIdx === undefined || data.petIdx === '' ? '' : Number(data.petIdx), petName: str_(obj_(pet, ['name']), 20), lang: str_(data.lang, 4)
     };
     const val = {
       uid: str_(data.uid, 60) || (mine ? mine.uid : ''), name, birthday: birthdayText || [y, m, d].filter(Boolean).join('-'),
@@ -679,8 +679,15 @@ function lookup_(b) {
   const bd = b.birthday || {};
   const key = travelerKey_(b.name, bd.year, bd.month, bd.day);
   if (!key) return json_({ok:true, found:false});
-  const hit = travelerRows_().rows.filter(r => r.key === key).pop();
+  let hit = travelerRows_().rows.filter(r => r.key === key).pop();
+  // 旅人總表還沒有：到原始測驗紀錄（INNERVERSE_DATA）找，找到就順便整理進總表
+  if (!hit) hit = legacyTraveler_(b.name, bd, key);
   if (!hit) return json_({ok:true, found:false, nameTaken: isNameTaken_(b.name, str_(b.uid, 60))});
+  // 名字＋生日都對得上＝本人：沒有記錄旅人編號的話，認領宇宙裡同名的那顆星球
+  if (!hit.uid) {
+    const u = rows_(sheet_(UNIVERSE_SHEET, UNIVERSE_HEADERS)).find(r => r.nameKey === nameKey_(b.name));
+    if (u) { hit.uid = u.uid; travelerSheet_().getRange(hit._row, 1).setValue(u.uid); }
+  }
   let restore = {};
   try { restore = JSON.parse(hit.restore || '{}'); } catch (_) {}
   const uni = hit.uid ? rows_(sheet_(UNIVERSE_SHEET, UNIVERSE_HEADERS)).find(r => r.uid === hit.uid) : null;
@@ -689,9 +696,29 @@ function lookup_(b) {
     profile: Object.assign({}, restore, {
       uid: hit.uid, name: hit.name, count: Number(hit.count) || 1, updatedAt: hit.updatedAt,
       planetName: hit.planet, petName: (uni && uni.petName) || restore.petName || '',
+      petIdx: uni && uni.petIdx !== '' ? Number(uni.petIdx) : restore.petIdx, typeKey: (uni && uni.typeKey) || restore.typeKey || '',
       modelTask: (uni && uni.modelTask) || '', weather: (uni && uni.weather) || '', pid: (uni && uni.pid) || ''
     })
   });
+}
+function legacyTraveler_(name, bd, key) {
+  const log = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAME);
+  if (!log || log.getLastRow() < 2) return null;
+  const vals = log.getRange(2, 1, log.getLastRow() - 1, Math.max(HEADERS.length, log.getLastColumn())).getValues();
+  const jsonCol = HEADERS.indexOf('原始資料JSON'), nk = nameKey_(name);
+  for (let i = vals.length - 1; i >= 0; i--) {
+    const r = vals[i];
+    if (nameKey_(r[1]) !== nk || Number(r[4]) !== Number(bd.month) || Number(r[5]) !== Number(bd.day)) continue;
+    if (bd.year && r[3] && Number(r[3]) !== Number(bd.year)) continue;
+    let d = {}; try { d = JSON.parse(r[jsonCol] || '{}'); } catch (_) {}
+    if (!d.name) d.name = r[1];
+    d.birthYear = d.birthYear || r[3] || bd.year; d.birthMonth = d.birthMonth || r[4]; d.birthDay = d.birthDay || r[5];
+    try { upsertTraveler_(d, String(r[2] || '')); } catch (e) { console.warn('legacy upsert: ' + e.message); }
+    // 舊紀錄的年份可能不同（例如當時沒填年份），用實際寫入的 key 再找一次
+    const rows = travelerRows_().rows;
+    return rows.filter(x => x.key === key).pop() || rows.filter(x => x.key === travelerKey_(d.name, d.birthYear, d.birthMonth, d.birthDay)).pop() || null;
+  }
+  return null;
 }
 function isNameTaken_(name, uid) {
   const key = nameKey_(name);

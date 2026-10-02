@@ -4076,7 +4076,8 @@
         let j; try { j = JSON.parse(txt); } catch (e) { throw new Error('回來的不是 JSON（多半是 Google 登入頁 → 部署的「誰可以存取」要選「所有人」）：' + txt.slice(0, 80)); }
         if (!j.ok) throw new Error(j.error || '後端回報錯誤');
         const acts = (j.actions || []).join(', ');
-        if (!/worry/.test(acts) || !/visits/.test(acts)) throw new Error('後端是舊版 Code.gs（沒有 worry / visits）。請貼上新版並「管理部署 → 編輯 → 新版本」：' + acts);
+        const miss = ['worry', 'visits', 'lookup', 'invite', 'inbox'].filter(a => !(j.actions || []).includes(a));
+        if (miss.length) throw new Error('後端是舊版 Code.gs（缺少：' + miss.join('、') + '）。請貼上新版並「管理部署 → 編輯 → 新版本」');
         return '後端正常，版本是新的';
       });
       await test('2. 寵物回應（worry → OpenAI）', async () => {
@@ -6300,7 +6301,7 @@ function petSVG(i, opt = {}) {
           if (tk !== token) return;
           if (go === 'jump') { Voice.stop(); show('none'); Traveler.restore(hit.profile, { name: data.name, raw: data.raw.bday, bday: b }); return; }
           Traveler.adoptUid(hit.profile);      // 重新測驗：還是同一個人，沿用原本的旅人編號
-        } else if (data.nameTaken || hit.nameTaken) {
+        } else if (!hit.offline && (data.nameTaken || hit.nameTaken)) {
           step = 0; editing = false; render();
           err.textContent = L('這個名字已經有人用了，換一個吧（可以加上數字或符號）。', 'That name is already taken — try another (you can add a number or symbol).', { ja: 'この名前はもう使われています。別の名前にしてね（数字や記号を足してもOK）。', ko: '이미 사용 중인 이름이에요. 다른 이름으로 해 주세요(숫자나 기호를 붙여도 돼요).', vi: 'Tên này đã có người dùng rồi — hãy thử tên khác (có thể thêm số hoặc ký hiệu).' });
           return;
@@ -9079,7 +9080,7 @@ function petSVG(i, opt = {}) {
         try {
           const j = await apiPost(CONFIG.DATA_ENDPOINT, { action: 'lookup', name, birthday: { year: b.year || '', month: b.month, day: b.day }, uid: Me.uid() }, 9000);
           res = j && j.found ? { found: true, profile: j.profile } : { found: false, nameTaken: !!(j && j.nameTaken) };
-        } catch (e) { console.warn('lookup:', e); }
+        } catch (e) { console.warn('lookup:', e); res = { found: false, offline: true }; }   // 查不到（舊版後端或連線問題）時，不擋人
       }
       if (!res.found && mine) res = { found: true, profile: mine };
       if (res.found && !okB5(res.profile.big5)) return { found: false, nameTaken: false };   // 上次沒做完測驗，就重新來
@@ -9107,7 +9108,7 @@ function petSVG(i, opt = {}) {
       adoptUid(p);
       const b = d.bday;
       App.user = { name: d.name, birthday: { raw: d.raw, year: b.year, month: b.month, day: b.day, zodiac: b.zodiac }, hobbies: '', worry: '', locale: CONFIG.LANG };
-      App.petIdx = Number.isInteger(+p.petIdx) && PETS[+p.petIdx] ? +p.petIdx : Math.max(0, PETS.findIndex(x => x.zh === b.zodiac));
+      App.petIdx = p.petIdx !== '' && p.petIdx != null && Number.isInteger(+p.petIdx) && PETS[+p.petIdx] ? +p.petIdx : Math.max(0, PETS.findIndex(x => x.zh === b.zodiac));
       App.petName = p.petName || PETS[App.petIdx].en;
       App.big5 = { O: +p.big5.O, C: +p.big5.C, E: +p.big5.E, A: +p.big5.A, N: +p.big5.N };
       const old = Me.get() || {};

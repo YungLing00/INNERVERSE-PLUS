@@ -9263,7 +9263,7 @@ function petSVG(i, opt = {}) {
         }
         if (await val(`inbox/${uid}/invites/${to}`)) {   // 對方也正在邀請我：直接變成朋友
           const nf = bump(null, { dance: true }), row = friendRow(nf), op = `inbox/${to}/outcomes/${uid}`;
-          await updateWithOutcome({ [`friends/${uid}/${to}`]: row, [`friends/${to}/${uid}`]: row, [op]: { status: 'accepted', at: ts() }, [`inbox/${uid}/invites/${to}`]: null }, op);
+          await updateWithOutcome({ [`friends/${uid}/${to}`]: row, [`friends/${to}/${uid}`]: row, [op]: { status: 'mutual', at: ts() }, [`inbox/${uid}/invites/${to}`]: null }, op);
           return { ok: true, kind: 'mutual', partner, friend: friendOut(nf) };
         }
         if (await val(`inbox/${to}/invites/${uid}`)) return { ok: true, kind: 'pending', partner };
@@ -9329,7 +9329,7 @@ function petSVG(i, opt = {}) {
         const all = (await val(`inbox/${uid}/starlight`)) || {}, since = Number(q.since) || 0, kinds = {}, from = {};
         const list = Object.keys(all).map(k => Object.assign({ k }, all[k]));
         list.filter(r => (r.time || 0) > since).forEach(r => { kinds[r.kind] = (kinds[r.kind] || 0) + 1; from[r.from || r.k] = 1; });
-        // 星光總數放到自己的星球上給別人看（規則還沒開放這個欄位時就靜靜略過）
+        // 星光總數放到自己的星球上給別人看
         D.set(D.ref(db, `planets/${uid}/lights`), list.length).catch(() => {});
         const got = list.filter(r => (r.time || 0) > since).length;
         return { ok: true, count: got, travelers: Object.keys(from).length, kinds };

@@ -203,6 +203,8 @@
     white-space: pre-line; text-wrap: balance;
     text-shadow: 0 0 18px rgba(5,4,15,.95);
   }
+  .qnote { margin: .6rem auto 0; max-width: 30em; padding: .45rem .8rem; border-radius: 12px; font-size: .76rem; line-height: 1.7; letter-spacing: .06em; color: rgba(255,232,190,.9); background: rgba(255,226,170,.07); border: 1px solid rgba(255,226,170,.2); }
+  .qnote:empty { display: none; }
   .qhint { margin-top: .7rem; font-size: .88rem; letter-spacing: .12em; color: var(--dim); line-height: 1.7; }
 
   .mic-wrap { grid-area: mic; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; position: relative; }
@@ -847,7 +849,8 @@
     .scr.sum .qbox, .scr.res .qbox, .scr.care .qbox { text-align: center; }
     .scr.sum .q, .scr.res .q, .scr.care .q { text-align: center; }
     .qhint { margin-top: .4rem; font-size: .8rem; }
-    .field textarea { min-height: 64px; max-height: 26svh; padding: 10px 14px; }
+    .qnote { margin: .35rem 0 0; max-width: none; padding: .25rem .6rem; font-size: .66rem; line-height: 1.5; }
+    .field textarea { min-height: 44px; max-height: 26svh; padding: 8px 14px; }
     .err { min-height: 1.2em; margin-top: .2rem; }
     .acts { justify-content: flex-start; }
     .scr.sum .acts, .scr.res .acts, .scr.care .acts { justify-content: center; }
@@ -883,6 +886,7 @@
   .back-dlg.on .bd-card { transform: none; }
   .bd-star { font-size: 1.6rem; color: #ffe3a8; text-shadow: 0 0 20px rgba(255,220,150,.9); animation: pulse2 2.4s ease-in-out infinite; }
   .bd-card h3 { margin-top: .4rem; font-weight: 400; font-size: 1.25rem; letter-spacing: .12em; color: #fff3dc; }
+  .bd-sub { margin-top: .35rem; font-size: .86rem; letter-spacing: .14em; color: rgba(255,232,190,.85); }
   .bd-info { margin-top: .7rem; font-size: .82rem; letter-spacing: .06em; line-height: 1.8; color: var(--dim); }
   .bd-q { margin-top: .9rem; font-weight: 300; font-size: 1rem; line-height: 1.7; letter-spacing: .06em; }
   .bd-acts { margin-top: 1.2rem; display: flex; flex-direction: column; gap: 10px; align-items: center; }
@@ -957,6 +961,7 @@
     <div class="qbox" id="qBox">
       <h2 class="q" id="qText"></h2>
       <p class="qhint" id="qHint"></p>
+      <p class="qnote" id="qNote"></p>
     </div>
     <div class="mic-wrap">
       <button class="mic" id="mic" type="button" aria-label="開始語音輸入">
@@ -1163,7 +1168,8 @@
 <div class="back-dlg" id="backDlg" role="dialog" aria-modal="true" aria-labelledby="bdTitle">
   <div class="bd-card">
     <p class="bd-star" aria-hidden="true">✦</p>
-    <h3 id="bdTitle">宇宙有查詢到您的資料</h3>
+    <h3 id="bdTitle">歡迎回來</h3>
+    <p class="bd-sub">宇宙有查詢到您的資料</p>
     <p class="bd-info" id="bdInfo"></p>
     <p class="bd-q">需要跳轉到後面嗎？還是要重新測驗？</p>
     <div class="bd-acts"><button class="main" id="bdJump" type="button">跳轉到後面</button><button class="ghost" id="bdRetake" type="button">重新測驗</button></div>
@@ -1196,6 +1202,7 @@
   })();
   // 日文、韓文、越南文：以英文為 key 的對照表 [ja, ko, vi]
   const I18N = {
+    "Welcome back": ["おかえりなさい", "다시 왔군요", "Chào mừng trở lại"],
     "The universe found your record": ["宇宙があなたの記録を見つけたよ", "우주가 당신의 기록을 찾았어요", "Vũ trụ đã tìm thấy dữ liệu của bạn"],
     "Jump ahead to your results, or take the test again?": ["結果まで進む？それとも、もう一度テストする？", "결과로 바로 갈까요, 아니면 다시 테스트할까요?", "Đi thẳng đến kết quả, hay làm lại bài trắc nghiệm?"],
     "Jump ahead": ["結果へ進む", "결과로 가기", "Đi tiếp"],
@@ -3834,7 +3841,7 @@
 
   // 靜態 HTML 的英文：依中文原文對照替換文字節點、placeholder、aria-label
   const HTML_EN = {
-    '宇宙有查詢到您的資料': 'The universe found your record', '需要跳轉到後面嗎？還是要重新測驗？': 'Jump ahead to your results, or take the test again?', '跳轉到後面': 'Jump ahead', '重新測驗': 'Retake the test',
+    '宇宙有查詢到您的資料': 'The universe found your record', '歡迎回來': 'Welcome back', '需要跳轉到後面嗎？還是要重新測驗？': 'Jump ahead to your results, or take the test again?', '跳轉到後面': 'Jump ahead', '重新測驗': 'Retake the test',
     '內在宇宙': 'Your inner universe', '輕觸畫面，進入你的宇宙': 'Tap anywhere to enter your universe', '建議戴上耳機': 'Headphones recommended',
     '進入內在宇宙': 'Enter your inner universe', '章節選擇': 'Chapters', '選擇想要前往的章節': 'Choose where you’d like to go', '繼續觀看': 'Keep watching',
     '離開': 'Leave', '章節': 'Chapters', '聲音：開': 'Sound: On',
@@ -6131,6 +6138,8 @@ function petSVG(i, opt = {}) {
       const s = STEPS[step];
       qText.textContent = s.q();
       qHint.textContent = s.hint;
+      // 名字＋生日就是之後回來的鑰匙：在這兩題先說清楚
+      $('qNote').textContent = (s.key === 'name' || s.key === 'bday') ? L('✦ 暱稱和生日，會是宇宙認出你的方式。之後想回來看自己的星球，填一樣的暱稱和生日就可以。', '✦ Your nickname and birthday are how the universe recognizes you. To come back to your planet later, just enter the same nickname and birthday.', { ja: '✦ ニックネームと誕生日が、宇宙があなたを見つける手がかりになります。またあなたの星に戻りたいときは、同じニックネームと誕生日を入れてね。', ko: '✦ 닉네임과 생일로 우주가 당신을 알아봐요. 나중에 내 행성을 다시 보고 싶다면 같은 닉네임과 생일을 입력하면 돼요.', vi: '✦ Biệt danh và ngày sinh là cách vũ trụ nhận ra bạn. Muốn quay lại xem hành tinh của mình, chỉ cần nhập đúng biệt danh và ngày sinh ấy.' }) : '';
       ans.value = data.raw[s.key];
       err.textContent = '';
       micState.textContent = IDLE_TEXT;
@@ -8885,6 +8894,7 @@ function petSVG(i, opt = {}) {
     }
     function ask(p) {
       const pet = PETS[p.petIdx] || PETS[0];
+      $('bdTitle').textContent = L(`歡迎回來，${p.name}`, `Welcome back, ${p.name}`, { ja: `おかえりなさい、${p.name}`, ko: `다시 왔군요, ${p.name}`, vi: `Chào mừng trở lại, ${p.name}` });
       $('bdInfo').textContent = [
         p.planetName ? L(`人格星球：${p.planetName}`, `Planet: ${p.planetName}`, { ja: `性格の星：${p.planetName}`, ko: `성격 행성: ${p.planetName}`, vi: `Hành tinh: ${p.planetName}` }) : '',
         L(`宇宙寵物：${p.petName || pet.en}`, `Cosmic pet: ${p.petName || pet.en}`, { ja: `宇宙ペット：${p.petName || pet.en}`, ko: `우주 펫: ${p.petName || pet.en}`, vi: `Thú cưng vũ trụ: ${p.petName || pet.en}` }),

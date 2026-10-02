@@ -4027,6 +4027,19 @@
     // 煩惱「接住」的回應：填後端 /worry 網址，例如 'https://xxx.workers.dev/worry'（留空＝使用內建示範句）
     WORRY_ENDPOINT: 'https://script.google.com/macros/s/AKfycbxgLq3Smhs8y1OUwGP_iEwS3hHRa0bDWdnHIQJPi7VoeGb1VOjW2Ov2vdNfZZmOqnB0/exec?action=worry',
     MODEL_ENDPOINT: 'https://script.google.com/macros/s/AKfycbxgLq3Smhs8y1OUwGP_iEwS3hHRa0bDWdnHIQJPi7VoeGb1VOjW2Ov2vdNfZZmOqnB0/exec',
+    // 多人宇宙（星球、名字、友情、星星信件、點亮宇宙）改用 Firebase Realtime Database＋匿名登入。
+    // 這段設定本來就會公開在網頁上；保護資料的是資料庫規則。留空＝改回走 Apps Script（DATA_ENDPOINT）
+    FIREBASE: {
+      apiKey: 'AIzaSyBt6tPMzWf5wEbE6_tUP_v7A2V_NYdGmb8',
+      authDomain: 'innerverse-plus.firebaseapp.com',
+      databaseURL: 'https://innerverse-plus-default-rtdb.asia-southeast1.firebasedatabase.app',
+      projectId: 'innerverse-plus',
+      storageBucket: 'innerverse-plus.firebasestorage.app',
+      messagingSenderId: '480219579281',
+      appId: '1:480219579281:web:ab0eadd96882e3db651030'
+    },
+    // 點亮宇宙：hourly＝每小時整點開始 20 分鐘（台灣時間）／always＝一直開著（測試用）／off＝關閉
+    EVENT_MODE: 'hourly',
     // 想先預先生成好 .glb 放在網站裡、省錢又快？填資料夾，例如 'models/'，檔名為 O_hi.glb、E_lo.glb、BAL.glb …
     STATIC_MODELS: '',
     LANG: { zh: 'zh-TW', en: 'en-US', ja: 'ja-JP', ko: 'ko-KR', vi: 'vi-VN' }[LANG]          // 語音辨識語言
@@ -4069,6 +4082,7 @@
   }
 
   async function apiPost(url, payload, ms = 45000) {
+    if (FB && url === CONFIG.DATA_ENDPOINT && payload && FB.has(payload.action)) return FB.call(payload, ms);   // 多人宇宙走 Firebase
     const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), ms);
     try {
       const r = await fetch(url, {
@@ -9075,7 +9089,295 @@ function petSVG(i, opt = {}) {
       }, extra));
     }
   };
+  /* ================================================================
+     Firebase：多人宇宙的資料（取代 Apps Script 的 publish／universe／invite／inbox／event…）
+     玩家用匿名登入，Firebase 給的 uid 就是公開的 pid。資料結構跟著 firebase/database.rules.json 走：
+       names/{名字小寫} = uid、planets/{uid}、friends/{uid}/{對方}、inbox/{uid}/…、events/{活動id}
+     回傳的格式和原本 Apps Script 一樣，畫面那邊的程式不用改
+     ================================================================ */
+  var FB = (() => {   // var：上面的 apiPost 也會用到，要在這段跑完之前就能安全檢查
+    const SDK = 'https://www.gstatic.com/firebasejs/12.19.0/';
+    const ACTIONS = ['checkName', 'publish', 'universe', 'invite', 'friendAct', 'inbox', 'respond', 'note', 'event', 'eventGive', 'starlight', 'visits'];
+    const WEATHERS = ['sunny', 'rain', 'fog', 'rainbow', 'night'], ELEMENTS = ['earth', 'metal', 'wood', 'fire', 'water'], GIFTS = ['star', 'leaf', 'drop', 'light', 'heart'];
+    const LEVELS = ['', 'Friend', 'Close Friend', 'Shared Memory', 'Best Friend', 'Soul Constellation'];
+    let boot = null, db = null, uid = '', D = null, offset = 0, pubQ = Promise.resolve();
+    const str = (v, n) => (v === undefined || v === null ? '' : String(v)).slice(0, n);
+    // 名字：去掉前後空白、連續空白變一個；. # $ [ ] / 不能當資料庫的鑰匙，拿掉
+    const cleanName = n => String(n || '').replace(/[.#$[\]/]/g, '').trim().replace(/\s+/g, ' ').slice(0, 20).trim();
+    const now = () => Date.now() + offset;
+    const ts = () => D.serverTimestamp();
+    const val = async p => (await D.get(D.ref(db, p))).val();
+    const fail = code => { const e = new Error(code); e.code = code; throw e; };
+
+    function start() {
+      return boot || (boot = (async () => {
+        const [A, U, Db] = await Promise.all(['app', 'auth', 'database'].map(n => import(SDK + 'firebase-' + n + '.js')));
+        const app = A.initializeApp(CONFIG.FIREBASE), auth = U.getAuth(app);
+        D = Db; db = Db.getDatabase(app);
+        await auth.authStateReady();
+        uid = (auth.currentUser || (await U.signInAnonymously(auth)).user).uid;
+        Db.onValue(Db.ref(db, '.info/serverTimeOffset'), s => { offset = s.val() || 0; });
+        // 以前在 Apps Script 發佈過的星球，pid 換成 Firebase 的 uid：重新發佈一次
+        const me = Me.get(); if (me && me.name && me.pid !== uid) setTimeout(publishMe, 0);
+      })().catch(e => { boot = null; throw e; }));
+    }
+
+    const planetCache = new Map();
+    async function planet(id) {
+      if (!id) return null;
+      const hit = planetCache.get(id); if (hit && Date.now() - hit.t < 60e3) return hit.p;
+      const p = await val('planets/' + id); planetCache.set(id, { p, t: Date.now() }); return p;
+    }
+    const pub = (id, p) => p ? { pid: id, name: p.name, petIdx: Number(p.petIdx) || 0, petSign: p.petSign || '', petName: p.petName || '', planetName: p.planetName || '', element: p.element || '', typeKey: p.typeKey || '' } : null;
+
+    /* ---------- 友情：雙方各存一份（規則只讓自己改自己那份），讀的時候合起來 ---------- */
+    function friendLevel(f) {
+      const d = Number(f.danceCount) || 0; let l = 1;
+      if (d >= 3) l = 2;
+      if (l >= 2 && f.meteor) l = 3;
+      if (l >= 3 && f.travel) l = 4;
+      if (l >= 4 && d >= 10) l = 5;
+      return l;
+    }
+    function mergeF(a, b) {
+      if (!a && !b) return null; a = a || {}; b = b || {};
+      const f = { danceCount: Math.max(+a.danceCount || 0, +b.danceCount || 0) };
+      ['meteor', 'travel'].forEach(k => { const v = a[k] || b[k]; if (v) f[k] = Number(v) || 1; });
+      const first = [a.firstDanceAt, b.firstDanceAt].filter(Number).sort((x, y) => x - y)[0]; if (first) f.firstDanceAt = first;
+      f.level = Math.max(+a.level || 1, +b.level || 1, friendLevel(f));
+      return f;
+    }
+    const friendOut = f => f ? { level: f.level || 1, levelName: LEVELS[f.level || 1], danceCount: f.danceCount || 0, meteor: !!f.meteor, travel: !!f.travel, firstDanceAt: f.firstDanceAt || 0 } : null;
+    async function friendOf(other) {
+      const [a, b] = await Promise.all([val(`friends/${uid}/${other}`), val(`friends/${other}/${uid}`)]);
+      return mergeF(a, b);
+    }
+    // 存進資料庫的那份：lastAt 一定要用伺服器時間
+    const friendRow = f => Object.assign({ level: f.level, danceCount: f.danceCount, lastAt: ts() }, f.meteor ? { meteor: f.meteor } : {}, f.travel ? { travel: f.travel } : {}, f.firstDanceAt ? { firstDanceAt: f.firstDanceAt } : {});
+    function bump(f, o) {
+      f = Object.assign({ danceCount: 0 }, f || {});
+      if (o.dance) f.danceCount++;
+      if (o.meteor && !f.meteor) f.meteor = now();
+      if (o.travel && !f.travel) f.travel = now();
+      if (!f.firstDanceAt) f.firstDanceAt = now();
+      f.level = Math.max(f.level || 1, friendLevel(f));
+      return f;
+    }
+    // 寄邀請結果給對方；對方信箱裡還有上一封沒看的結果時，規則不讓覆蓋，就只做其他部分
+    async function updateWithOutcome(u, outcomePath) {
+      try { await D.update(D.ref(db), u); }
+      catch (e) { if (!outcomePath) throw e; const v = Object.assign({}, u); delete v[outcomePath]; await D.update(D.ref(db), v); }
+    }
+
+    /* ---------- 點亮宇宙：時間窗口在前端算（台灣時間，沒有日光節約） ---------- */
+    function eventWindow() {
+      const mode = CONFIG.EVENT_MODE || 'hourly', t = now(), tw = new Date(t + 8 * 3600e3);
+      const p2 = v => ('0' + v).slice(-2), day = tw.getUTCFullYear() + p2(tw.getUTCMonth() + 1) + p2(tw.getUTCDate());
+      if (mode === 'off') return { active: false, off: true };
+      if (mode === 'always') return { active: true, id: 'A' + day, endsAt: t + 3600e3 };
+      const min = tw.getUTCMinutes(), start = t - (min * 60 + tw.getUTCSeconds()) * 1000 - tw.getUTCMilliseconds();
+      return min < 20 ? { active: true, id: day + p2(tw.getUTCHours()), endsAt: start + 20 * 60e3 } : { active: false, nextAt: start + 3600e3 };
+    }
+    const evGoal = n => Math.min(1500, 25 + 15 * Math.max(0, n - 1));
+    function evOut(w, ev) {
+      ev = ev || {}; const t = now(), raw = ev.parts || {};
+      const parts = Object.keys(raw).map(k => Object.assign({ pid: k }, raw[k], { b: Object.values(raw[k].b || {}).map(Number) }));
+      const mix = [0, 0, 0, 0, 0]; parts.forEach(p => { for (let i = 0; i < 5; i++) mix[i] += p.b[i] || 3; });
+      const goal = evGoal(parts.length), done = !!ev.done;
+      return { ok: true, active: true, id: w.id, endsAt: w.endsAt, progress: done ? goal : Math.min(Number(ev.progress) || 0, goal), goal, done, doneAt: ev.done || 0,
+        online: parts.filter(p => t - (p.seen || 0) < 25000).length, joined: parts.length,
+        pets: parts.sort((a, b) => (b.seen || 0) - (a.seen || 0)).slice(0, 60).map(p => ({ pid: p.pid, petIdx: Number(p.petIdx) || 0, petName: p.petName || '', n: p.n || 0 })),
+        mix: mix.map(v => parts.length ? Math.round(v / parts.length * 10) / 10 : 3), mine: raw[uid] ? raw[uid].n || 0 : 0 };
+    }
+    // 自己在活動裡的那一格：寵物和 Big Five 跟著星球走
+    function myPart(me) {
+      const b = me.big5 || {}, o = {};
+      o.petIdx = Math.max(0, Math.min(99, Math.floor(Number(me.petIdx) || 0))); o.petName = str(me.petName, 20);
+      o.b = {}; ['O', 'C', 'E', 'A', 'N'].forEach((k, i) => { const v = Number(b[k]); o.b[i] = v >= 1 && v <= 5 ? Math.round(v * 10) / 10 : 3; });
+      return o;
+    }
+
+    const run = {
+      async checkName(q) {
+        const name = cleanName(q.name); if (!name) return { ok: true, available: false };
+        const owner = await val('names/' + name.toLowerCase());
+        return { ok: true, available: !owner || owner === uid };
+      },
+
+      // 同一台裝置一次只發佈一個（一開始自動補發佈和畫面上的發佈可能同時發生）
+      publish(b) { const p = pubQ.then(() => run.publishNow(b)); pubQ = p.catch(() => {}); return p; },
+      async publishNow(b) {
+        const name = cleanName(b.name); if (!name) fail('missing name');
+        const key = name.toLowerCase(), old = await val('planets/' + uid), owner = await val('names/' + key);
+        if (owner && owner !== uid) fail('name_taken');
+        const P = `planets/${uid}/`, u = { ['names/' + key]: uid };
+        if (old && old.nameKey && old.nameKey !== key) u['names/' + old.nameKey] = null;   // 改名：舊名字還給大家
+        Object.assign(u, {
+          [P + 'name']: name, [P + 'nameKey']: key, [P + 'planetName']: str(b.planetName, 30), [P + 'typeKey']: str(b.typeKey, 8) || 'BAL',
+          [P + 'petIdx']: Math.max(0, Math.min(99, Math.floor(Number(b.petIdx) || 0))), [P + 'petSign']: str(b.petSign, 12), [P + 'petName']: str(b.petName, 20),
+          [P + 'element']: ELEMENTS.includes(b.element) ? b.element : 'wood', [P + 'weather']: WEATHERS.includes(b.weather) ? b.weather : 'sunny',
+          [P + 'lang']: str(b.lang, 4), [P + 'updatedAt']: ts()
+        });
+        const big5 = b.big5 || {};
+        if (['O', 'C', 'E', 'A', 'N'].every(k => +big5[k] >= 1 && +big5[k] <= 5)) u[P + 'big5'] = { O: +big5.O, C: +big5.C, E: +big5.E, A: +big5.A, N: +big5.N };
+        // 3D 星球：格式不對就沿用上一次的
+        if (/^[A-Za-z0-9_-]{8,120}$/.test(String(b.modelTask || ''))) u[P + 'modelTask'] = String(b.modelTask);
+        if (String(b.img || '').length <= 45000 && /^data:image\/(webp|png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(String(b.img || ''))) u[P + 'img'] = String(b.img);
+        if (!old) u[P + 'createdAt'] = ts();
+        await D.update(D.ref(db), u);
+        planetCache.delete(uid);
+        return { ok: true, pid: uid };
+      },
+
+      async universe() {
+        const [ps, fr] = await Promise.all([
+          D.get(D.query(D.ref(db, 'planets'), D.orderByChild('updatedAt'), D.limitToLast(600))),
+          val('friends')
+        ]);
+        const rows = []; ps.forEach(s => { rows.push([s.key, s.val()]); });
+        let imgs = 0;
+        const planets = rows.reverse().map(([id, p]) => {
+          const b = p.big5 || {};
+          return { model: p.modelTask || '', img: p.img && imgs++ < 80 ? p.img : '',   // 縮圖只放最近 80 顆
+            pid: id, name: p.name, planetName: p.planetName || '', typeKey: p.typeKey || '', petIdx: Number(p.petIdx) || 0, petSign: p.petSign || '', petName: p.petName || '',
+            element: p.element || '', weather: p.weather || 'sunny', lights: Number(p.lights) || 0,
+            big5: { O: +b.O || 3, C: +b.C || 3, E: +b.E || 3, A: +b.A || 3, N: +b.N || 3 } };
+        });
+        const edges = new Map();
+        Object.keys(fr || {}).forEach(a => Object.keys(fr[a] || {}).forEach(b => {
+          const k = [a, b].sort().join('|'), l = Number(fr[a][b].level) || 1, e = edges.get(k);
+          if (!e) edges.set(k, [a, b, l]); else e[2] = Math.max(e[2], l);
+        }));
+        return { ok: true, planets, friends: [...edges.values()].slice(-3000) };
+      },
+
+      async invite(b) {
+        const to = str(b.to, 128), [mine, target] = await Promise.all([planet(uid), planet(to)]);
+        if (!mine) fail('no_planet');
+        if (!target || to === uid) fail('no_target');
+        const partner = pub(to, target), f = await friendOf(to);
+        if (f) {   // 已經是朋友：「找牠玩」＝再一起跳一支舞
+          const nf = bump(f, { dance: true });
+          await D.set(D.ref(db, `friends/${uid}/${to}`), friendRow(nf));
+          return { ok: true, kind: 'again', partner, friend: friendOut(nf) };
+        }
+        if (await val(`inbox/${uid}/invites/${to}`)) {   // 對方也正在邀請我：直接變成朋友
+          const nf = bump(null, { dance: true }), row = friendRow(nf), op = `inbox/${to}/outcomes/${uid}`;
+          await updateWithOutcome({ [`friends/${uid}/${to}`]: row, [`friends/${to}/${uid}`]: row, [op]: { status: 'accepted', at: ts() }, [`inbox/${uid}/invites/${to}`]: null }, op);
+          return { ok: true, kind: 'mutual', partner, friend: friendOut(nf) };
+        }
+        if (await val(`inbox/${to}/invites/${uid}`)) return { ok: true, kind: 'pending', partner };
+        await D.set(D.ref(db, `inbox/${to}/invites/${uid}`), { createdAt: ts() });
+        return { ok: true, kind: 'sent', partner };
+      },
+
+      async respond(b) {
+        const from = str(b.id, 128), inv = await val(`inbox/${uid}/invites/${from}`), partner = pub(from, await planet(from));
+        if (!inv) { const f = await friendOf(from); if (f) return { ok: true, status: 'accepted', partner, friend: friendOut(f) }; fail('no_invite'); }
+        const op = `inbox/${from}/outcomes/${uid}`, u = { [`inbox/${uid}/invites/${from}`]: null };
+        if (b.choice !== 'accept') { u[op] = { status: 'later', at: ts() }; await updateWithOutcome(u, op); return { ok: true, status: 'later', partner, friend: null }; }
+        const nf = bump(await friendOf(from), { dance: true }), row = friendRow(nf);
+        Object.assign(u, { [`friends/${uid}/${from}`]: row, [`friends/${from}/${uid}`]: row, [op]: { status: 'accepted', at: ts() } });
+        await updateWithOutcome(u, op);
+        return { ok: true, status: 'accepted', partner, friend: friendOut(nf) };
+      },
+
+      async friendAct(b) {
+        const to = str(b.to, 128), f = await friendOf(to); if (!f) fail('not_friends');
+        const nf = bump(f, { meteor: b.act === 'meteor', travel: b.act === 'travel', dance: b.act === 'dance' });
+        await D.set(D.ref(db, `friends/${uid}/${to}`), friendRow(nf));
+        return { ok: true, friend: friendOut(nf) };
+      },
+
+      async inbox(q) {
+        const [inv, outs, notes] = await Promise.all(['invites', 'outcomes', 'notes'].map(k => val(`inbox/${uid}/${k}`)));
+        const cnt = o => Object.keys(o || {}).length;
+        if (q.peek) return { ok: true, peek: true, invites: cnt(inv), outcomes: cnt(outs), notes: cnt(notes) };
+        const mineF = (await val('friends/' + uid)) || {};
+        const ids = new Set([...Object.keys(inv || {}), ...Object.keys(outs || {}), ...Object.keys(mineF), ...Object.values(notes || {}).map(n => n.from)]);
+        const P = new Map(await Promise.all([...ids].filter(Boolean).map(async id => [id, pub(id, await planet(id))])));
+        const invites = Object.keys(inv || {}).map(id => ({ id, createdAt: inv[id].createdAt, from: P.get(id) })).filter(x => x.from);
+        const done = {}, outcomes = [];
+        for (const id of Object.keys(outs || {})) {
+          if (P.get(id)) outcomes.push({ id: id + '_' + outs[id].at, status: outs[id].status, partner: P.get(id), friend: friendOut(await friendOf(id)) });
+          done[`inbox/${uid}/outcomes/${id}`] = null;   // 看過就收起來
+        }
+        const nl = Object.keys(notes || {}).map(id => Object.assign({ id }, notes[id])).sort((a, b) => (a.time || 0) - (b.time || 0));
+        nl.forEach(n => { done[`inbox/${uid}/notes/${n.id}`] = null; });
+        const friends = await Promise.all(Object.keys(mineF).filter(id => P.get(id)).map(async id => Object.assign({ partner: P.get(id) }, friendOut(mergeF(mineF[id], await val(`friends/${id}/${uid}`))))));
+        if (Object.keys(done).length) D.update(D.ref(db), done).catch(e => console.warn('inbox clear:', e));
+        return { ok: true, invites, outcomes, friends,
+          notes: nl.slice(-20).map(n => ({ id: n.id, time: n.time, text: n.text, from: P.get(n.from) || null })) };
+      },
+
+      async note(b) {
+        const to = str(b.to, 128), text = str(b.text, 60).replace(/[\u0000-\u001f]/g, ' ').trim();
+        if (!text || to === uid || !(await planet(to))) fail('bad_note');
+        if (!(await planet(uid))) fail('no_planet');
+        await D.push(D.ref(db, `inbox/${to}/notes`), { from: uid, text, time: ts() });
+        return { ok: true };
+      },
+
+      async starlight(b) {
+        const to = str(b.to, 128); if (!to) fail('missing target');
+        await D.push(D.ref(db, `inbox/${to}/starlight`), { kind: GIFTS.includes(b.kind) ? b.kind : 'star', from: uid, time: ts() });
+        return { ok: true };
+      },
+
+      // 「昨晚，有 3 位旅人經過你的星球」：只有自己讀得到自己的星光
+      async visits(q) {
+        const all = (await val(`inbox/${uid}/starlight`)) || {}, since = Number(q.since) || 0, kinds = {}, from = {};
+        const list = Object.keys(all).map(k => Object.assign({ k }, all[k]));
+        list.filter(r => (r.time || 0) > since).forEach(r => { kinds[r.kind] = (kinds[r.kind] || 0) + 1; from[r.from || r.k] = 1; });
+        // 星光總數放到自己的星球上給別人看（規則還沒開放這個欄位時就靜靜略過）
+        D.set(D.ref(db, `planets/${uid}/lights`), list.length).catch(() => {});
+        const got = list.filter(r => (r.time || 0) > since).length;
+        return { ok: true, count: got, travelers: Object.keys(from).length, kinds };
+      },
+
+      async event(q) {
+        const w = eventWindow(); if (!w.active) return { ok: true, active: false, nextAt: w.nextAt || 0, off: !!w.off };
+        const me = Me.get();
+        if (q.join && me && me.pid === uid) {   // 在宇宙裡＝出席（顯示在大家的畫面上）
+          const p = myPart(me), u = { [`parts/${uid}/seen`]: ts(), [`parts/${uid}/n`]: D.increment(0), [`parts/${uid}/petIdx`]: p.petIdx, [`parts/${uid}/petName`]: p.petName, [`parts/${uid}/b`]: p.b };
+          await D.update(D.ref(db, 'events/' + w.id), u).catch(e => console.warn('event join:', e));
+        }
+        return evOut(w, await val('events/' + w.id));
+      },
+
+      // 送進光之碎片：每次最多 5 顆、每 2 秒最多一次（規則也會檢查）
+      async eventGive(b) {
+        const w = eventWindow(); if (!w.active) fail('no_event');
+        const me = Me.get(); if (!me || me.pid !== uid) fail('no_planet');
+        const n = Math.max(0, Math.min(5, Math.floor(Number(b.n) || 0))), path = 'events/' + w.id;
+        let ev = await val(path);
+        if (n && !(ev && ev.done)) {
+          const p = myPart(me);
+          await D.update(D.ref(db, path), { progress: D.increment(n), [`parts/${uid}/n`]: D.increment(n), [`parts/${uid}/last`]: ts(), [`parts/${uid}/seen`]: ts(), [`parts/${uid}/petIdx`]: p.petIdx, [`parts/${uid}/petName`]: p.petName, [`parts/${uid}/b`]: p.b });
+          ev = await val(path);
+          if (ev && !ev.done && (Number(ev.progress) || 0) >= evGoal(Object.keys(ev.parts || {}).length)) {
+            try { await D.set(D.ref(db, path + '/done'), ts()); } catch (e) { console.warn('event done:', e); }
+            ev = await val(path);
+          }
+        }
+        return evOut(w, ev);
+      }
+    };
+
+    return {
+      on: () => !!(CONFIG.FIREBASE && CONFIG.FIREBASE.databaseURL),
+      has(action) { return this.on() && ACTIONS.includes(action); },
+      async call(q, ms = 12000) {
+        let tm;
+        const timeout = new Promise((_, rej) => { tm = setTimeout(() => rej(new Error('timeout')), ms + 8000); });   // 第一次要載入 SDK、登入，多給一點時間
+        try { return await Promise.race([start().then(() => run[q.action](q)), timeout]); }
+        finally { clearTimeout(tm); }
+      }
+    };
+  })();
+
   async function apiGet(params, ms = 12000) {
+    if (FB && FB.has(params.action)) return FB.call(params, ms);
     const u = new URL(CONFIG.DATA_ENDPOINT);
     Object.keys(params).forEach(k => u.searchParams.set(k, params[k]));
     const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), ms);

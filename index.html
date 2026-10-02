@@ -873,6 +873,18 @@
   .diag h3 { margin: 0 0 6px; font-size: 16px; } .diag .d-url { font-size: 11px; opacity: .6; }
   .diag button { margin: 8px 8px 8px 0; padding: 8px 16px; border-radius: 10px; border: 1px solid #aab; background: #2a2160; color: #fff; font-size: 14px; }
   .diag li { margin: 8px 0; } .diag li.bad { color: #ffb4b4; } .diag li.ok { color: #b8ffd0; }
+  .back-dlg { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 20px; background: rgba(6,4,20,.55); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    opacity: 0; visibility: hidden; transition: opacity .6s ease, visibility 0s .6s; }
+  .back-dlg.on { opacity: 1; visibility: visible; transition: opacity .6s ease, visibility 0s; }
+  .bd-card { width: min(420px, 100%); padding: 1.8rem 1.4rem 1.4rem; border-radius: 24px; text-align: center; background: linear-gradient(160deg, rgba(40,28,92,.92), rgba(14,10,40,.94));
+    border: 1px solid rgba(255,226,170,.35); box-shadow: 0 0 50px rgba(170,140,255,.35); transform: translateY(14px) scale(.97); transition: transform .7s cubic-bezier(.2,1.2,.4,1); }
+  .back-dlg.on .bd-card { transform: none; }
+  .bd-star { font-size: 1.6rem; color: #ffe3a8; text-shadow: 0 0 20px rgba(255,220,150,.9); animation: pulse2 2.4s ease-in-out infinite; }
+  .bd-card h3 { margin-top: .4rem; font-weight: 400; font-size: 1.25rem; letter-spacing: .12em; color: #fff3dc; }
+  .bd-info { margin-top: .7rem; font-size: .82rem; letter-spacing: .06em; line-height: 1.8; color: var(--dim); }
+  .bd-q { margin-top: .9rem; font-weight: 300; font-size: 1rem; line-height: 1.7; letter-spacing: .06em; }
+  .bd-acts { margin-top: 1.2rem; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+  .bd-acts .main, .bd-acts .ghost { width: min(280px, 100%); }
 </style>
 </head>
 <body data-state="idle">
@@ -1145,6 +1157,16 @@
   </div>
 </section>
 
+<div class="back-dlg" id="backDlg" role="dialog" aria-modal="true" aria-labelledby="bdTitle">
+  <div class="bd-card">
+    <p class="bd-star" aria-hidden="true">✦</p>
+    <h3 id="bdTitle">宇宙有查詢到您的資料</h3>
+    <p class="bd-info" id="bdInfo"></p>
+    <p class="bd-q">需要跳轉到後面嗎？還是要重新測驗？</p>
+    <div class="bd-acts"><button class="main" id="bdJump" type="button">跳轉到後面</button><button class="ghost" id="bdRetake" type="button">重新測驗</button></div>
+  </div>
+</div>
+
 <script>
 (() => {
   'use strict';
@@ -1171,6 +1193,10 @@
   })();
   // 日文、韓文、越南文：以英文為 key 的對照表 [ja, ko, vi]
   const I18N = {
+    "The universe found your record": ["宇宙があなたの記録を見つけたよ", "우주가 당신의 기록을 찾았어요", "Vũ trụ đã tìm thấy dữ liệu của bạn"],
+    "Jump ahead to your results, or take the test again?": ["結果まで進む？それとも、もう一度テストする？", "결과로 바로 갈까요, 아니면 다시 테스트할까요?", "Đi thẳng đến kết quả, hay làm lại bài trắc nghiệm?"],
+    "Jump ahead": ["結果へ進む", "결과로 가기", "Đi tiếp"],
+    "Retake the test": ["もう一度テストする", "다시 테스트하기", "Làm lại bài trắc nghiệm"],
     "Next: have you ever seen a feeling?": ["次は、感情を見たことある？", "다음: 감정을 본 적 있나요?", "Tiếp theo: bạn đã từng nhìn thấy cảm xúc chưa?"],
     "✦ Next, let your pet keep you company": ["✦ 次は、ペットといっしょに", "✦ 이제 펫이 곁에 있어 줄게요", "✦ Tiếp theo, để thú cưng ở bên bạn"],
     "(Reason: timed out waiting for the server)": [
@@ -3805,6 +3831,7 @@
 
   // 靜態 HTML 的英文：依中文原文對照替換文字節點、placeholder、aria-label
   const HTML_EN = {
+    '宇宙有查詢到您的資料': 'The universe found your record', '需要跳轉到後面嗎？還是要重新測驗？': 'Jump ahead to your results, or take the test again?', '跳轉到後面': 'Jump ahead', '重新測驗': 'Retake the test',
     '內在宇宙': 'Your inner universe', '輕觸畫面，進入你的宇宙': 'Tap anywhere to enter your universe', '建議戴上耳機': 'Headphones recommended',
     '進入內在宇宙': 'Enter your inner universe', '章節選擇': 'Chapters', '選擇想要前往的章節': 'Choose where you’d like to go', '繼續觀看': 'Keep watching',
     '離開': 'Leave', '章節': 'Chapters', '聲音：開': 'Sound: On',
@@ -4271,6 +4298,7 @@ function petSVG(i, opt = {}) {
       const AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) return false;
       ac = new AC();
+      ac.onstatechange = () => { if (ac.state !== 'running') setTimeout(ensureOn, 300); };
       // 壓縮器把所有聲音黏在一起，也避免突然太大聲
       const comp = ac.createDynamicsCompressor();
       comp.threshold.value = -20; comp.knee.value = 24; comp.ratio.value = 3; comp.attack.value = .02; comp.release.value = .4;
@@ -4630,6 +4658,16 @@ function petSVG(i, opt = {}) {
 
     function stopBreathLoop() { clearInterval(breathTimer); breathTimer = 0; }
 
+    // iOS 在使用麥克風／相機、來電、切換 App 之後，常把聲音暫停（suspended / interrupted）
+    // 畫面還在前景時就自動接回來；需要手勢才能恢復的，就在下一次觸碰時接回
+    let duckTimer = 0, userPaused = false;
+    function ensureOn() {
+      if (!ac || userPaused || document.hidden) return;
+      if (ac.state !== 'running') ac.resume().catch(() => { /* 等下一次觸碰 */ });
+    }
+    ['pointerdown', 'touchend', 'keydown'].forEach(ev => addEventListener(ev, ensureOn, { passive: true, capture: true }));
+    setInterval(ensureOn, 2000);
+
     return {
       start() {
         if (!ac && !init()) return;
@@ -4645,13 +4683,20 @@ function petSVG(i, opt = {}) {
         ramp(droneGain.gain, 0, .8); ramp(padGain.gain, 0, .8); ramp(noiseGain.gain, 0, .8); ramp(airGain.gain, 0, .8);
       },
       setMuted(m) { muted = m; if (ac) ramp(master.gain, target(), .4); },
-      duck(on) { if (!ac) return; ducked = on; ramp(master.gain, target(), .5); },
-      pause() { if (ac) ac.suspend(); },
-      resume() { if (ac) ac.resume(); },
+      duck(on) {
+        if (!ac) return; ducked = on; ramp(master.gain, target(), .5);
+        // 保險：壓低音量最多 25 秒，避免麥克風沒有回報結束時一直很小聲
+        clearTimeout(duckTimer); if (on) duckTimer = setTimeout(() => { ducked = false; if (ac) ramp(master.gain, target(), 1.5); }, 25000);
+      },
+      pause() { if (ac) { userPaused = true; ac.suspend(); } },
+      resume() { userPaused = false; ensureOn(); },
+      ensureOn,
       mood(name) {
         if (!ac) return;
         if (wxMode) { clearTimeout(wxTimer); wxTimer = 0; wxCb = null; wxEl = null; wxMode = false; if (wxLayers) ['water', 'wind', 'fire'].forEach(k => ramp(wxLayers[k].gain, 0, 2)); }
         stopBreathLoop(); oct = 1;
+        // 'end' 會把總音量淡出；之後換到任何其他心情都要把音量帶回來，否則會一直沒聲音
+        if (name !== 'end') { if (name !== 'talk' && name !== 'origin') base = LEVEL; ensureOn(); ramp(master.gain, target(), 2.5); }
         useMood(name);
         if (name === 'lost') {
           ramp(droneGain.gain, .38, 4);
@@ -4759,7 +4804,8 @@ function petSVG(i, opt = {}) {
   const P = {
     starSpeed: .02, starAlpha: 1, nebula: .55, orb: 1,
     chaos: 1, soft: 0, dust: 0, lines: 0, orbit: 0, breath: 1,
-    self: 0, tilt: 1.25, cam: 1, galaxy: 0, glow: 0, extra: 0, beacon: 0, fade: 0
+    self: 0, tilt: 1.25, cam: 1, galaxy: 0, glow: 0, extra: 0, beacon: 0, fade: 0,
+    mandala: 0, mfrag: 1     // 曼陀羅：顯示程度、碎裂程度（1＝散開，0＝完整拼合）
   };
   const DEF = Object.assign({}, P);
 
@@ -5139,7 +5185,7 @@ function petSVG(i, opt = {}) {
 
   async function act1() {            // 第一幕｜迷失 Lost
     setState('act1');
-    tw(P, 'orb', 0, 2.5);
+    tw(P, 'orb', 0, 2.5); P.mfrag = 1; tw(P, 'mandala', .5, 6);
     tw(P, 'nebula', .08, 3);
     tw(P, 'starAlpha', .35, 3);
     tw(P, 'starSpeed', .05, 4);
@@ -5153,7 +5199,7 @@ function petSVG(i, opt = {}) {
 
   async function act2() {            // 第二幕｜情緒出現 Feel
     setState('act2');
-    Sound.mood('feel');
+    Sound.mood('feel'); tw(P, 'mfrag', .75, 8); tw(P, 'mandala', .5, 6);
     tw(P, 'chaos', .55, 6);
     tw(P, 'starAlpha', .7, 6);
     tw(P, 'starSpeed', .03, 4);
@@ -5171,7 +5217,7 @@ function petSVG(i, opt = {}) {
 
   async function act3() {            // 第三幕｜靠近 Listen
     setState('act3');
-    tw(P, 'chaos', .4, 3);
+    tw(P, 'chaos', .4, 3); tw(P, 'mfrag', .7, 3);
     promptEl.className = 'prompt on';
     touchedCount = 0; current = null; quoteAt = time;
     planets.forEach(p => { p.touched = false; p.hold = 0; p.clarity = .3; });
@@ -5186,6 +5232,7 @@ function petSVG(i, opt = {}) {
     setState('act4');
     Sound.mood('release');
     tw(P, 'self', 1, 5); tw(P, 'orbit', 1, 7); tw(P, 'chaos', 0, 7); tw(P, 'soft', 1, 6);
+    tw(P, 'mfrag', 0, 14, easeIO); tw(P, 'mandala', .75, 12);   // 散開的曼陀羅慢慢拼回來
     tw(P, 'lines', 1, 9); tw(P, 'nebula', .4, 12); tw(P, 'starAlpha', .9, 8); tw(P, 'starSpeed', .03, 4);
     planets.forEach(p => tw(p, 'clarity', .8, 3));
     await sleep(1.5);
@@ -5225,7 +5272,7 @@ function petSVG(i, opt = {}) {
 
   async function act6() {            // 第六幕｜重生 Rebirth
     setState('act6');
-    Sound.mood('rebirth');
+    Sound.mood('rebirth'); tw(P, 'mandala', 1, 8); P.mfrag = 0;
     tw(P, 'galaxy', 1, 10); tw(P, 'cam', .62, 12); tw(P, 'tilt', .95, 12);
     tw(P, 'glow', 1, 8); tw(P, 'nebula', .8, 12); tw(P, 'dust', .35, 6);
     tw(P, 'starSpeed', -.05, 6);
@@ -5276,11 +5323,11 @@ function petSVG(i, opt = {}) {
   // 每一幕開始時，世界應有的樣子（＝前面幾幕跑完後的參數）
   const ACT_START = [
     { P: {}, light: 0, clarity: 0 },
-    { P: { orb: 0, nebula: .08, starAlpha: .35, starSpeed: .05, dust: 1 }, light: .07, clarity: 0 },
-    { P: { orb: 0, chaos: .55, nebula: .18, starAlpha: .7, starSpeed: .03, dust: 1 }, light: 1, clarity: 0 },
-    { P: { orb: 0, chaos: .4, nebula: .18, starAlpha: .7, starSpeed: .03, dust: 1 }, light: 1, clarity: .3 },
-    { P: { orb: 0, self: 1, orbit: 1, chaos: 0, soft: 1, lines: 1, nebula: .4, starAlpha: .9, starSpeed: .03, dust: 1 }, light: 1, clarity: .8 },
-    { P: { orb: 0, self: 1, orbit: 1, chaos: 0, soft: 1, lines: 1, nebula: .4, starAlpha: .9, starSpeed: .03, dust: 1, extra: 1 }, light: 1, clarity: .8 }
+    { P: { orb: 0, nebula: .08, starAlpha: .35, starSpeed: .05, dust: 1, mandala: .5, mfrag: 1 }, light: .07, clarity: 0 },
+    { P: { orb: 0, chaos: .55, nebula: .18, starAlpha: .7, starSpeed: .03, dust: 1, mandala: .5, mfrag: .75 }, light: 1, clarity: 0 },
+    { P: { orb: 0, chaos: .4, nebula: .18, starAlpha: .7, starSpeed: .03, dust: 1, mandala: .5, mfrag: .7 }, light: 1, clarity: .3 },
+    { P: { orb: 0, self: 1, orbit: 1, chaos: 0, soft: 1, lines: 1, nebula: .4, starAlpha: .9, starSpeed: .03, dust: 1, mandala: .75, mfrag: 0 }, light: 1, clarity: .8 },
+    { P: { orb: 0, self: 1, orbit: 1, chaos: 0, soft: 1, lines: 1, nebula: .4, starAlpha: .9, starSpeed: .03, dust: 1, extra: 1, mandala: .8, mfrag: 0 }, light: 1, clarity: .8 }
   ];
   const chapEl = $('chapters'), chList = $('chList');
   let paused = false;
@@ -5604,6 +5651,9 @@ function petSVG(i, opt = {}) {
     g.addColorStop(0, rgbaOf(rgb, ha)); g.addColorStop(.4, rgbaOf(rgb, ha * .35)); g.addColorStop(1, rgbaOf(rgb, 0));
     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, hr, 0, TAU); ctx.fill();
 
+    // 星球自己的曼陀羅：越清楚、越被靠近，花紋越完整
+    Mandala.drawPlanetM(p, r, a * flick * (.28 + .5 * c + .25 * gl) * (state === 'act1' ? .5 : 1));
+
     // 星體：不清晰時邊緣柔糊，被靠近後逐漸清楚
     ctx.globalCompositeOperation = 'source-over';
     const br = r * (1 + (1 - c) * .35);
@@ -5659,6 +5709,98 @@ function petSVG(i, opt = {}) {
     }
     ctx.restore();
   }
+
+  /* ================================================================
+     曼陀羅：開場六幕的神聖幾何
+     - 中央的大曼陀羅：迷失時碎成幾片各自漂流，釋放時慢慢拼回，呼吸時跟著漲縮，重生時完整綻放
+     - 每顆情緒星球外圍也有自己的曼陀羅（對稱數不同），不再只是一顆色球
+     圖樣先畫在離屏畫布上，每一格只旋轉、縮放，手機也跑得動
+     ================================================================ */
+  const Mandala = (() => {
+    const mk = n => { const c = document.createElement('canvas'); c.width = c.height = n; const g = c.getContext('2d'); g.translate(n / 2, n / 2); g.lineCap = 'round'; g.lineJoin = 'round'; return [c, g]; };
+    const ring = (g, r) => { g.beginPath(); g.arc(0, 0, r, 0, TAU); g.stroke(); };
+    function petals(g, n, r0, r1, w, rot = 0, vein = false) {
+      for (let i = 0; i < n; i++) {
+        g.save(); g.rotate(rot + i * TAU / n);
+        const m = (r0 + r1) / 2, h = (r1 - r0) * w;
+        g.beginPath(); g.moveTo(r0, 0); g.bezierCurveTo(m - h * .2, h, m + h * .4, h * .9, r1, 0); g.bezierCurveTo(m + h * .4, -h * .9, m - h * .2, -h, r0, 0); g.stroke();
+        if (vein) { g.beginPath(); g.moveTo(r0 + (r1 - r0) * .15, 0); g.lineTo(r1 - (r1 - r0) * .12, 0); g.stroke(); g.beginPath(); g.moveTo(r0 + (r1 - r0) * .3, 0); g.bezierCurveTo(m, h * .45, m + h * .3, h * .4, r1 - (r1 - r0) * .15, 0); g.bezierCurveTo(m + h * .3, -h * .4, m, -h * .45, r0 + (r1 - r0) * .3, 0); g.stroke(); }
+        g.restore();
+      }
+    }
+    function dots(g, n, r, size, rot = 0) { for (let i = 0; i < n; i++) { const a = rot + i * TAU / n; g.beginPath(); g.arc(Math.cos(a) * r, Math.sin(a) * r, size, 0, TAU); g.fill(); } }
+    function ticks(g, n, r0, r1) { g.beginPath(); for (let i = 0; i < n; i++) { const a = i * TAU / n, c = Math.cos(a), s2 = Math.sin(a); g.moveTo(c * r0, s2 * r0); g.lineTo(c * r1, s2 * r1); } g.stroke(); }
+    function chain(g, n, r, rot = 0) { const cr = r * Math.sin(Math.PI / n); for (let i = 0; i < n; i++) { const a = rot + i * TAU / n; g.beginPath(); g.arc(Math.cos(a) * r, Math.sin(a) * r, cr, 0, TAU); g.stroke(); } }
+    function starPoly(g, n, k, r, rot = 0) { g.beginPath(); for (let i = 0; i <= n; i++) { const a = rot + (i * k % n) * TAU / n; i ? g.lineTo(Math.cos(a) * r, Math.sin(a) * r) : g.moveTo(Math.cos(a) * r, Math.sin(a) * r); } g.stroke(); }
+    function flower(g, r) { for (let i = 0; i < 6; i++) { const a = i * TAU / 6; g.beginPath(); g.arc(Math.cos(a) * r, Math.sin(a) * r, r, 0, TAU); g.stroke(); } ring(g, r); ring(g, r * 2); }
+    function scallop(g, n, r, d) { g.beginPath(); for (let i = 0; i < n; i++) { const a0 = i * TAU / n, a1 = (i + 1) * TAU / n, am = (a0 + a1) / 2; g.moveTo(Math.cos(a0) * r, Math.sin(a0) * r); g.quadraticCurveTo(Math.cos(am) * (r + d), Math.sin(am) * (r + d), Math.cos(a1) * r, Math.sin(a1) * r); } g.stroke(); }
+    // 筆刷顏色：中央用五種情緒色的環狀漸層，星球用自己的顏色
+    function paint(g, rgbs, a) {
+      const cols = rgbs.map(c => `rgba(${c.map(v => Math.round(v + (255 - v) * .38)).join(',')},${a})`);
+      let st = cols[0];
+      if (cols.length > 1 && g.createConicGradient) { st = g.createConicGradient(0, 0, 0); cols.concat(cols[0]).forEach((c, i, arr) => st.addColorStop(i / (arr.length - 1), c)); }
+      g.strokeStyle = st; g.fillStyle = st;
+    }
+
+    // 中央曼陀羅：四層，各自反向旋轉
+    let center = null;
+    function buildCenter() {
+      const N = 1024, R = 500, rgbs = planets.map(p => p.rgb), out = [];
+      { const [c, g] = mk(N); paint(g, rgbs, .9); g.lineWidth = 1.7; flower(g, 58); petals(g, 12, 118, 236, .34, 0, true); ring(g, 116); g.lineWidth = 1.1; dots(g, 24, 250, 3.2); out.push({ c, sp: .045, a: 1 }); }
+      { const [c, g] = mk(N); paint(g, rgbs, .85); g.lineWidth = 1.5; ring(g, 268); petals(g, 16, 270, 362, .3, Math.PI / 16, true); ring(g, 366); g.lineWidth = 1.1; scallop(g, 32, 372, 16); dots(g, 32, 396, 2.4, Math.PI / 32); out.push({ c, sp: -.03, a: .95 }); }
+      { const [c, g] = mk(N); paint(g, rgbs, .55); g.lineWidth = 1.1; starPoly(g, 12, 5, 262); starPoly(g, 8, 3, 180, Math.PI / 8); chain(g, 24, 418); g.lineWidth = .9; ticks(g, 96, 438, 448); ring(g, 452); out.push({ c, sp: .018, a: .8 }); }
+      { const [c, g] = mk(N); paint(g, rgbs, .8); g.lineWidth = 1.3; petals(g, 36, 456, R, .5, 0); g.lineWidth = 1; dots(g, 72, 464, 1.8, Math.PI / 72); ring(g, R - 2); out.push({ c, sp: -.012, a: .7 }); }
+      return out;
+    }
+    // 情緒星球的小曼陀羅：對稱數各不相同
+    const SYM = { sad: 8, anx: 10, ang: 6, lon: 5, hop: 12 };
+    const small = {};
+    function buildPlanet(p) {
+      const N = 256, n = SYM[p.id] || 8, out = [];
+      { const [c, g] = mk(N); paint(g, [p.rgb], .95); g.lineWidth = 1.5; ring(g, 46); petals(g, n, 48, 92, p.id === 'ang' ? .22 : .38, 0, true); g.lineWidth = 1.1; dots(g, n, 98, 2.4, Math.PI / n); out.push({ c, sp: .16 }); }
+      { const [c, g] = mk(N); paint(g, [p.rgb], .75); g.lineWidth = 1.1; ring(g, 104); ticks(g, n * 6, 104, 110); scallop(g, n * 2, 112, 7); if (p.id === 'hop' || p.id === 'anx') starPoly(g, n, n === 10 ? 3 : 5, 86, Math.PI / n); g.lineWidth = .9; chain(g, n * 3, 120); out.push({ c, sp: -.1 }); }
+      return out;
+    }
+
+    let vis = 0;
+    const MSTATES = new Set(['idle', 'act1', 'act2', 'act3', 'act4', 'act5', 'act6', 'end']);
+    function drawCenter(dt) {
+      vis += ((MSTATES.has(state) ? 1 : 0) - vis) * Math.min(1, dt * 1.2);
+      const A = (state === 'idle' ? Math.max(P.mandala, .2) : P.mandala) * vis * (1 - P.fade);
+      if (A < .01) return;
+      if (!center) center = buildCenter();
+      const f = state === 'idle' ? 0 : P.mfrag, R = U * .5 * Math.pow(P.cam, .55) * (1 + (P.breath - 1) * 1.6);
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      // 中心的柔光
+      const g = ctx.createRadialGradient(CX, CY, 0, CX, CY, R * .9);
+      g.addColorStop(0, `rgba(255,236,210,${(A * (.08 + .12 * P.glow)).toFixed(3)})`); g.addColorStop(1, 'rgba(180,150,255,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(CX, CY, R * .9, 0, TAU); ctx.fill();
+      center.forEach((L, i) => {
+        // 碎裂時：每一層各自偏移、縮放、轉向，看起來像散落的碎片；f→0 時精準疊回同一個中心
+        const ox = f * U * .07 * Math.sin(time * .19 + i * 2.1), oy = f * U * .06 * Math.cos(time * .15 + i * 1.7);
+        const sc = 1 + f * (i - 1.5) * .1 + .012 * Math.sin(time * .6 + i);
+        const rot = time * L.sp * MOTION + f * (i + 1) * .7 * Math.sin(time * .11 + i);
+        const al = A * L.a * (1 - f * .5) * (.82 + .18 * Math.sin(time * .5 + i * 1.3));
+        if (al < .005) return;
+        ctx.globalAlpha = Math.min(1, al);
+        ctx.setTransform(DPR, 0, 0, DPR, (CX + ox) * DPR, (CY + oy) * DPR); ctx.rotate(rot);
+        const s2 = R * sc; ctx.drawImage(L.c, -s2, -s2, s2 * 2, s2 * 2);
+      });
+      ctx.restore();
+    }
+    function drawPlanetM(p, r, a) {
+      if (a < .01) return;
+      const L2 = small[p.id] || (small[p.id] = buildPlanet(p)), R = r * 2.35;
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      L2.forEach((L, i) => {
+        ctx.globalAlpha = Math.min(1, a * (i ? .7 : 1));
+        ctx.setTransform(DPR, 0, 0, DPR, p.sx * DPR, p.sy * DPR); ctx.rotate(time * L.sp * MOTION + p.ph1);
+        ctx.drawImage(L.c, -R, -R, R * 2, R * 2);
+      });
+      ctx.restore();
+    }
+    return { drawCenter, drawPlanetM };
+  })();
 
   function drawSelf() {
     const s = P.self; if (s <= .004) return;
@@ -6003,12 +6145,27 @@ function petSVG(i, opt = {}) {
         const free = await nameFree(n);
         checking = false; bNext.disabled = false;
         if (tk !== token) return;
-        if (!free) { err.textContent = L('這個名字已經有人用了，換一個吧（可以加上數字或符號）。', 'That name is already taken — try another (you can add a number or symbol).'); return; }
-        data.raw.name = text; data.name = n;
+        // 名字被用過時先不擋：可能就是本人回來了，等生日一起比對
+        data.raw.name = text; data.name = n; data.nameTaken = !free;
       } else if (s.key === 'bday') {
         const b = parseBirthday(text);
         if (!b) { err.textContent = L('我還沒辨識出這個生日。可以輸入 20030906、2003/09/06、2003年9月6日，或直接用說的。', 'I couldn’t read that birthday yet. Try 20030906, 2003/09/06 or Sep 6, 2003 — or just say it.'); return; }
         data.raw.bday = text; data.bday = b;
+        // 名字＋生日都對得上：宇宙裡已經有這位旅人
+        checking = true; bNext.disabled = true; const tk = token;
+        const hit = await Traveler.lookup(data.name, b);
+        checking = false; bNext.disabled = false;
+        if (tk !== token) return;
+        if (hit.found) {
+          const go = await Traveler.ask(hit.profile);
+          if (tk !== token) return;
+          if (go === 'jump') { Voice.stop(); show('none'); Traveler.restore(hit.profile, { name: data.name, raw: data.raw.bday, bday: b }); return; }
+          Traveler.adoptUid(hit.profile);      // 重新測驗：還是同一個人，沿用原本的旅人編號
+        } else if (data.nameTaken || hit.nameTaken) {
+          step = 0; editing = false; render();
+          err.textContent = L('這個名字已經有人用了，換一個吧（可以加上數字或符號）。', 'That name is already taken — try another (you can add a number or symbol).', { ja: 'この名前はもう使われています。別の名前にしてね（数字や記号を足してもOK）。', ko: '이미 사용 중인 이름이에요. 다른 이름으로 해 주세요(숫자나 기호를 붙여도 돼요).', vi: 'Tên này đã có người dùng rồi — hãy thử tên khác (có thể thêm số hoặc ký hiệu).' });
+          return;
+        }
       } else {
         data.raw[s.key] = text;
       }
@@ -7047,14 +7204,16 @@ function petSVG(i, opt = {}) {
       }
     }
 
-    function start(score) {
+    function start(score, opt = {}) {
       const my = ++token, name = (App.user && App.user.name) || L('你', 'friend'), type = pickType(score);
       cur = { name, type, score };
       App.type = type;
+      Traveler.remember();
 
       // Big Five 已完成、人格類型也已判定，這時才把完整資料寫入 Google Sheet。
       // 這樣生日／興趣／煩惱／寵物／Big Five／人格星球會一起保存，不會太早寫入空分數。
-      {
+      // 從「宇宙查到你的資料」跳回來的，不再重複寫一筆。
+      if (!opt.restored) {
         const u = App.user || {};
         const b = u.birthday || {};
         const pet = PETS[App.petIdx];
@@ -7074,7 +7233,8 @@ function petSVG(i, opt = {}) {
           hobbies: u.hobbies || '',
           worry: u.worry || '',
           wuxing: (() => { const el = elementOf(b), d = el && WXD[el]; return d ? { name: d.zh, element: el, tone: d.tone, emotion: d.emo, color: d.color } : {}; })(),
-          lang: LANG
+          lang: LANG,
+          uid: Me.uid(), petIdx: App.petIdx, typeKey: type.key
         });
       }
 
@@ -7105,7 +7265,7 @@ function petSVG(i, opt = {}) {
       const sm = document.createElement('small'); sm.textContent = L(`${pet.en} ${pet.name}　·　${pet.zh}`, `${pet.name}  ·  ${zName(pet.zh)}`, { ja: `${pet.name}・${zName(pet.zh)}`, ko: `${pet.name} · ${zName(pet.zh)}`, vi: `${pet.name} · ${zName(pet.zh)}` }); petNm.appendChild(sm);
       status.textContent = '';
       Gem.start(type.key);
-      Sound.mood('end');
+      Sound.mood('talk');
       Sound.chime();
       runModel(type.key, my);
       runAI(my);
@@ -8647,10 +8807,82 @@ function petSVG(i, opt = {}) {
     if (st && st.status === 'success' && !st.img) setTimeout(snapshot, 4000);
     return {
       start, url, proxyUrl, loadViewer, capture, state: () => st,
+      // 從「宇宙查到你的資料」還原：直接沿用之前生成好的 3D 星球，不再花額度
+      adopt(o, taskId) {
+        if (!taskId) return;
+        if (st && st.taskId === taskId) { st.sig = sigOf(o); save(); return; }
+        st = { sig: sigOf(o), key: o.key, status: 'success', progress: 100, taskId, url: '', urlT: 0, img: '', err: '', t: Date.now() }; save();
+      },
       async glb(taskId) { if (st && taskId === st.taskId && st.status === 'success') return url(); const j = await getJ({ action: 'modelGlb', id: taskId }); if (!j.modelUrl) throw new Error(j.error || 'no model'); return j.modelUrl; },
       on(f) { subs.add(f); }, off(f) { subs.delete(f); },
       async check() { return getJ({ action: 'tripoCheck' }); }
     };
+  })();
+
+  /* ================================================================
+     回訪的旅人：名字＋生日對得上，就問要不要直接跳到後面
+     ================================================================ */
+  const Traveler = (() => {
+    const dlg = $('backDlg');
+    const pad2 = v => ('0' + v).slice(-2);
+    const keyOf = (name, b) => `${String(name || '').trim().replace(/\s+/g, ' ').toLowerCase()}|${b.year || ''}-${pad2(b.month)}-${pad2(b.day)}`;
+    const okB5 = v => v && ['O', 'C', 'E', 'A', 'N'].every(k => Number.isFinite(+v[k]) && +v[k] >= 1 && +v[k] <= 5);
+    function local(key) { try { const p = JSON.parse(localStorage.getItem('iv_profile') || 'null'); return p && p.key === key ? p.profile : null; } catch (_) { return null; } }
+    async function lookup(name, b) {
+      const key = keyOf(name, b), mine = local(key);
+      let res = { found: false };
+      if (CONFIG.DATA_ENDPOINT) {
+        try {
+          const j = await apiPost(CONFIG.DATA_ENDPOINT, { action: 'lookup', name, birthday: { year: b.year || '', month: b.month, day: b.day }, uid: Me.uid() }, 9000);
+          res = j && j.found ? { found: true, profile: j.profile } : { found: false, nameTaken: !!(j && j.nameTaken) };
+        } catch (e) { console.warn('lookup:', e); }
+      }
+      if (!res.found && mine) res = { found: true, profile: mine };
+      if (res.found && !okB5(res.profile.big5)) return { found: false, nameTaken: false };   // 上次沒做完測驗，就重新來
+      return res;
+    }
+    function ask(p) {
+      const pet = PETS[p.petIdx] || PETS[0];
+      $('bdInfo').textContent = [
+        p.planetName ? L(`人格星球：${p.planetName}`, `Planet: ${p.planetName}`, { ja: `性格の星：${p.planetName}`, ko: `성격 행성: ${p.planetName}`, vi: `Hành tinh: ${p.planetName}` }) : '',
+        L(`宇宙寵物：${p.petName || pet.en}`, `Cosmic pet: ${p.petName || pet.en}`, { ja: `宇宙ペット：${p.petName || pet.en}`, ko: `우주 펫: ${p.petName || pet.en}`, vi: `Thú cưng vũ trụ: ${p.petName || pet.en}` }),
+        p.count > 1 ? L(`來過 ${p.count} 次`, `${p.count} visits`, { ja: `${p.count} 回目の訪問`, ko: `${p.count}번 방문`, vi: `Đã ghé ${p.count} lần` }) : ''
+      ].filter(Boolean).join('　·　');
+      dlg.classList.add('on'); Sound.chime(.4);
+      return new Promise(res => {
+        const done = v => { dlg.classList.remove('on'); $('bdJump').onclick = $('bdRetake').onclick = null; res(v); };
+        $('bdJump').onclick = () => done('jump'); $('bdRetake').onclick = () => done('retake');
+        setTimeout(() => $('bdJump').focus(), 50);
+      });
+    }
+    function adoptUid(p) {
+      if (p && p.uid && /^u[a-z0-9]{6,60}$/i.test(p.uid)) { try { localStorage.setItem('iv_uid', p.uid); } catch (_) { /* ignore */ } }
+    }
+    function restore(p, d) {
+      adoptUid(p);
+      const b = d.bday;
+      App.user = { name: d.name, birthday: { raw: d.raw, year: b.year, month: b.month, day: b.day, zodiac: b.zodiac }, hobbies: '', worry: '', locale: CONFIG.LANG };
+      App.petIdx = Number.isInteger(+p.petIdx) && PETS[+p.petIdx] ? +p.petIdx : Math.max(0, PETS.findIndex(x => x.zh === b.zodiac));
+      App.petName = p.petName || PETS[App.petIdx].en;
+      App.big5 = { O: +p.big5.O, C: +p.big5.C, E: +p.big5.E, A: +p.big5.A, N: +p.big5.N };
+      const old = Me.get() || {};
+      Me.set(Object.assign(old, { uid: Me.uid(), name: d.name, pid: p.pid || old.pid, modelTask: p.modelTask || old.modelTask || '', weather: p.weather || old.weather || 'sunny' }));
+      if (p.modelTask) PlanetGen.adopt({ key: p.typeKey, zodiac: b.zodiac, big5: App.big5 }, p.modelTask);
+      Result.start(App.big5, { restored: true });
+    }
+    // 做完測驗就在這台裝置記一份（沒有網路時也能認出你）
+    function remember() {
+      const u = App.user, b = u && u.birthday;
+      if (!u || !b || !b.month || !App.big5) return;
+      const st = PlanetGen.state();
+      try {
+        localStorage.setItem('iv_profile', JSON.stringify({ key: keyOf(u.name, b), profile: {
+          uid: Me.uid(), name: u.name, big5: App.big5, typeKey: App.type && App.type.key, planetName: App.type && App.type.planet,
+          petIdx: App.petIdx, petName: App.petName, modelTask: (st && st.status === 'success' && st.taskId) || '', count: 1
+        } }));
+      } catch (_) { /* ignore */ }
+    }
+    return { lookup, ask, restore, adoptUid, remember };
   })();
 
   /* ================================================================
@@ -9714,6 +9946,7 @@ function petSVG(i, opt = {}) {
     if (state === 'universe') Universe.draw(dt);
     drawDust(dt);
     drawGalaxy();
+    Mandala.drawCenter(dt);
     drawLinks();
     for (const p of planets) drawPlanet(p);
     drawSelf();

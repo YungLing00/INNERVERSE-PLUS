@@ -8,7 +8,6 @@
  *   OPENAI_MODEL   (選填，預設 gpt-4o-mini)
  *   TRIPO_MODEL_VERSION (選填)
  *   TRIPO_TEXTURE_QUALITY (選填，預設 detailed＝高清貼圖；填 standard 可省額度)
- *   TRIPO_FACE_LIMIT (選填，不建議設定：設了會降低模型面數)
  */
 
 const SPREADSHEET_ID = '1E8XBDwI_J3lQfDcPg80kbcaRfkJAUx7N0vH1McnYnhM';
@@ -252,11 +251,9 @@ function modelStart_(body) {
   const task = {type:'text_to_model',prompt,negative_prompt:NEGATIVE,texture:true,pbr:true};
   const v = prop_('TRIPO_MODEL_VERSION');
   if (v) task.model_version = v;
-  // 高清：預設用 Tripo 的「detailed」貼圖品質、不限制面數（不要設定 TRIPO_FACE_LIMIT 就是不降面數）
+  // 高清：預設用 Tripo 的「detailed」貼圖品質，不限制面數
   const tq = prop_('TRIPO_TEXTURE_QUALITY') || 'detailed';
   if (tq !== 'standard') task.texture_quality = tq;
-  const fl = Number(prop_('TRIPO_FACE_LIMIT'));
-  if (fl > 0) task.face_limit = fl;
 
   const send = t => UrlFetchApp.fetch(TRIPO_BASE + '/task',{
     method:'post',
@@ -338,7 +335,7 @@ function modelBin_(e) {
     const r = UrlFetchApp.fetch(url,{muteHttpExceptions:true});
     if (r.getResponseCode() !== 200) return json_({ok:false,error:'下載模型失敗 HTTP ' + r.getResponseCode()});
     const bytes = r.getContent();
-    if (bytes.length > 30 * 1024 * 1024) return json_({ok:false,error:'模型太大（' + Math.round(bytes.length / 1048576) + 'MB），可設定 TRIPO_FACE_LIMIT'});
+    if (bytes.length > 30 * 1024 * 1024) return json_({ok:false,error:'模型太大（' + Math.round(bytes.length / 1048576) + 'MB），瀏覽器會改用直接下載'});
     return json_({ok:true,size:bytes.length,b64:Utilities.base64Encode(bytes)});
   } catch (err) {
     return json_({ok:false,error:err.message});

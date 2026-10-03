@@ -109,7 +109,7 @@ function doGet(e) {
     return json_({
       ok:true,
       message:'INNERVERSE PLUS API is running',
-      actions:['saveInnerverse','interpret','worry','modelStart','modelStatus','modelGlb','modelBin','tripoCheck','checkName','publish','universe','starlight','visits','lookup','invite','inbox','respond','friendAct','note','event','eventGive'],
+      actions:['saveInnerverse','interpret','worry','modelStart','modelStatus','modelGlb','modelBin','tripoCheck','checkName','publish','universe','starlight','visits','lookup','invite','inbox','respond','friendAct','note','ack','event','eventGive'],
       time:new Date().toISOString()
     });
   } catch (err) {
@@ -132,6 +132,7 @@ function doPost(e) {
     if (action === 'respond') return respond_(body);
     if (action === 'friendAct') return friendAct_(body);
     if (action === 'note') return note_(body);
+    if (action === 'ack') return ack_(body);
     if (action === 'eventGive') return eventGive_(body);
     return json_({ok:false,error:'Unknown action: ' + action});
   } catch (err) {
@@ -849,9 +850,10 @@ function invite_(b) {
 }
 
 // 信箱：收到的邀請、寄出邀請的結果、別人留的話、我的朋友
+// 讀信箱不會把信標成已讀：要等用戶真的打開、收下（ack）才算，避免信還沒看到就消失
 function inbox_(e) {
   const me = meByUid_((e.parameter || {}).uid); if (!me) return json_({ok:true, invites:[], outcomes:[], notes:[], friends:[]});
-  const ish = sheet_(INVITE_SHEET, INVITE_HEADERS), inv = rows_(ish), now = new Date();
+  const ish = sheet_(INVITE_SHEET, INVITE_HEADERS), inv = rows_(ish);
   // peek：只看有幾封，不標記已讀（在其他畫面提醒用）
   if ((e.parameter || {}).peek) {
     return json_({ok:true, peek:true,
@@ -865,16 +867,24 @@ function inbox_(e) {
   inv.filter(r => r.fromPid === me.pid && r.status !== 'pending' && !r.notifiedFrom).forEach(r => {
     const p = pub_(pubByPid_(r.toPid));
     if (p) outcomes.push({ id: r.id, status: r.status, partner: p, friend: friendOut_(findFriend_(me.pid, r.toPid)) });
-    ish.getRange(r._row, 7).setValue(now);
   });
   const nsh = sheet_(NOTE_SHEET, NOTE_HEADERS), notes = [];
   rows_(nsh).filter(r => r.toPid === me.pid && !r.read).slice(-20).forEach(r => {
     notes.push({ id: r.id, time: r.time, text: r.text, from: pub_(pubByPid_(r.fromPid)) });
-    nsh.getRange(r._row, 6).setValue(now);
   });
   const friends = rows_(sheet_(FRIEND_SHEET, FRIEND_HEADERS)).filter(f => f.pidA === me.pid || f.pidB === me.pid)
     .map(f => Object.assign({ partner: pub_(pubByPid_(f.pidA === me.pid ? f.pidB : f.pidA)) }, friendOut_(f))).filter(x => x.partner);
   return json_({ok:true, invites, outcomes, notes, friends});
+}
+
+// 用戶打開、收下信件之後才標成已讀：notes＝留言 id、outcomes＝寄出邀請的結果 id
+function ack_(b) {
+  const me = meByUid_(b.uid); if (!me) return json_({ok:false, error:'no_planet'});
+  const ids = v => (Array.isArray(v) ? v : []).slice(0, 50).map(x => str_(x, 20)).filter(Boolean);
+  const nIds = ids(b.notes), oIds = ids(b.outcomes), now = new Date();
+  if (nIds.length) { const sh = sheet_(NOTE_SHEET, NOTE_HEADERS); rows_(sh).forEach(r => { if (r.toPid === me.pid && !r.read && nIds.includes(r.id)) sh.getRange(r._row, 6).setValue(now); }); }
+  if (oIds.length) { const sh = sheet_(INVITE_SHEET, INVITE_HEADERS); rows_(sh).forEach(r => { if (r.fromPid === me.pid && !r.notifiedFrom && oIds.includes(r.id)) sh.getRange(r._row, 7).setValue(now); }); }
+  return json_({ok:true});
 }
 
 // 回覆邀請：接受，或「現在還不想跳舞」（不做拒絕，對方只會看到「也許下一次」）

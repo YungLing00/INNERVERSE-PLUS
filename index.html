@@ -743,6 +743,15 @@
   .ar-code { margin-top: .9rem; font-family: var(--latin); letter-spacing: .2em; color: #ffe3a8; font-size: .9rem; }
   .ar-wn { margin-top: .3rem; font-size: .72rem; color: var(--dim); letter-spacing: .04em; }
   .gm-modes { display: grid; gap: 10px; margin-top: 1rem; }
+  .gm-card { max-height: calc(100dvh - 24px); overflow-y: auto; }
+  @media (min-width: 720px) { .gm-card { width: min(720px, 100%); } .gm-modes { grid-template-columns: 1fr 1fr; } }
+  .gm-mode b { font-size: .9rem; }
+  .ar-emo { position: absolute; left: calc(env(safe-area-inset-left, 0px) + 12px); bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); display: flex; gap: 6px; }
+  .ar-emo button { width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(255,255,255,.2); background: rgba(10,8,30,.55); font-size: 1.25rem; cursor: pointer; transition: transform .15s ease; }
+  .ar-emo button:active { transform: scale(1.25); }
+  .ar[data-s="wait"] .ar-emo { display: none; }
+  .ar[data-m="dance"] .ar-ab, .ar[data-m="dance"] .ar-abn { display: none; }
+  .ar[data-m="dance"] .ar-emo { flex-direction: column; bottom: auto; top: calc(env(safe-area-inset-top, 0px) + 64px); }
   .gm-mode { display: grid; gap: 3px; padding: .8rem 1rem; border-radius: 16px; cursor: pointer; text-align: left; color: var(--ink); font-family: var(--tc);
     background: rgba(255,255,255,.06); border: 1px solid rgba(255,226,170,.3); transition: transform .2s ease, background .3s ease, box-shadow .3s ease; }
   .gm-mode:hover, .gm-mode:focus-visible { transform: translateY(-2px); background: rgba(255,226,170,.1); box-shadow: 0 0 18px rgba(255,214,170,.3); outline: none; }
@@ -1294,6 +1303,7 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
   <button class="ar-x" id="arX" type="button" aria-label="離開">×</button>
   <button class="ar-ab" id="arAb" type="button"></button><span class="ar-abn" id="arAbN"></span>
   <p class="ar-msg" id="arMsg" role="status"></p>
+  <div class="ar-emo" id="arEmo" aria-label="表情"></div>
   <div class="ar-wait" id="arWait">
     <h3 id="arWT"></h3><p class="ar-ws" id="arWS"></p>
     <div class="ar-teams" id="arTeams"></div>
@@ -1306,7 +1316,7 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
   <div class="bd-card gm-card">
     <p class="bd-star" aria-hidden="true">🎮</p>
     <h3 id="gmTitle"></h3><p class="bd-sub" id="gmSub"></p>
-    <div class="gm-modes"><button class="gm-mode" id="gmBall" type="button"></button><button class="gm-mode" id="gmSave" type="button"></button></div>
+    <div class="gm-modes" id="gmModes"></div>
     <label class="gm-priv"><input type="checkbox" id="gmPriv"> <span id="gmPrivL"></span></label>
     <div class="un-row gm-join"><input id="gmCode" type="text" maxlength="5" autocomplete="off" autocapitalize="characters"><button class="ghost" id="gmJoin" type="button"></button></div>
     <p class="gm-msg" id="gmMsg" role="status"></p>
@@ -10328,7 +10338,19 @@ function petSVG(i, opt = {}) {
      ================================================================ */
   const Arena = (() => {
     const root = $('ar'), cv = $('arCv'), g = cv.getContext('2d'), dlg = $('gmDlg');
-    const MODES = { ball: { W: 1600, H: 1000, dur: 120, view: 1000 }, save: { W: 2200, H: 1500, dur: 120, view: 900 } };
+    const MODES = { ball: { W: 1600, H: 1000, dur: 120, view: 1000 }, save: { W: 2200, H: 1500, dur: 120, view: 900 }, catch: { W: 1600, H: 1000, dur: 90, view: 1000 }, paint: { W: 1600, H: 1000, dur: 90, view: 1000 }, dance: { W: 1600, H: 1000, dur: 75, view: 1000 } };
+    // 大廳裡的五種玩法
+    const MODE_INFO = {
+      ball: { t: '⭐ 3V3 STAR BALL', n: () => L('星球球', 'Star Ball', { ja: 'スターボール', ko: '스타볼', vi: 'Bóng sao' }), d: () => L('三隻對三隻，把巨大的發光星星球推進對方的星門。進球不會喊 GOAL，星門會直接炸成幾百朵花和星星。', 'Three vs three: push a giant glowing star into the other gate. A goal bursts into hundreds of flowers and stars.') },
+      catch: { t: '🌠 3V3 STAR CATCH', n: () => L('流星接接樂', 'Star Catch', { ja: '流れ星キャッチ', ko: '별똥별 받기', vi: 'Bắt sao băng' }), d: () => L('流星雨從天上掉下來！⭐ 1 分、💫 2 分、🌟 3 分，看哪一隊接得多。小心黑黑的 🌑，碰到會頭暈。', 'Stars are falling! ⭐ 1, 💫 2, 🌟 3 points — which team catches more? Dodge the dark 🌑 or you\'ll get dizzy.') },
+      paint: { t: '🎨 3V3 PAINT THE GALAXY', n: () => L('星空塗鴉', 'Paint the Galaxy', { ja: '星空おえかき', ko: '은하 칠하기', vi: 'Tô màu dải ngân hà' }), d: () => L('寵物走過的地方都會塗上隊伍的顏色，撿到 🎨 顏料炸彈會「啪」一大片。時間到，顏色比較多的那一隊把星空畫得最漂亮。', 'Everywhere your pet walks turns your team\'s color; 🎨 paint bombs splash a huge patch. Cover the most sky before time runs out.') },
+      dance: { t: '💃 3V3 STAR DANCE BATTLE', n: () => L('星光舞蹈對決', 'Star Dance Battle', { ja: 'スターダンスバトル', ko: '별빛 댄스 배틀', vi: 'Đấu nhảy ánh sao' }), d: () => L('跟著節奏，在音符落到線上時按下 ← ↓ ↑ →。按得越準寵物跳得越帥，連擊 10 下進入 FEVER！', 'Hit ← ↓ ↑ → as the notes reach the line. The better your timing, the cooler your pet dances — 10 in a row starts FEVER!') },
+      save: { t: '🪐 3V3 SAVE THE PLANET', n: () => L('搶救小星球', 'Save the Planet', { ja: '小さな星をすくえ', ko: '작은 행성 구하기', vi: 'Cứu hành tinh nhỏ' }), d: () => L('兩隊比賽收集星露、星塵、種子和光球，躲開星雲風、小黑洞和流星雨，最後一起讓灰色的小星球長出生命。', 'Race to gather star dew, stardust, seeds and light orbs, dodge wind, black holes and meteors, and bring a grey planet back to life together.') }
+    };
+    const STARS = [{ e: '⭐', v: 1, c: '255,236,160' }, { e: '🌟', v: 3, c: '255,214,110' }, { e: '💫', v: 2, c: '200,220,255' }, { e: '🌑', v: 0, c: '150,120,220' }];
+    const GX = 40, GY = 25, CELL = 40;   // 星空塗鴉的格子
+    const LANES = [{ a: '←', f: 523.25, c: '255,150,190', k: ['ArrowLeft', 'd'] }, { a: '↓', f: 587.33, c: '150,210,255', k: ['ArrowDown', 'f'] }, { a: '↑', f: 659.25, c: '170,255,190', k: ['ArrowUp', 'j'] }, { a: '→', f: 783.99, c: '255,220,140', k: ['ArrowRight', 'k'] }];
+    const EMOS = ['😆', '💖', '👏', '✨'];
     const PR = 34, BR = 46, GOAL = 190, SPEED = 330, PLR = 120, AUTO = 30, CD = 4;
     const CODE_CH = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     const TEAM = [{ c: [255, 196, 120], n: () => L('晨光隊', 'Team Dawn') }, { c: [140, 196, 255], n: () => L('夜光隊', 'Team Night') }];
@@ -10351,7 +10373,10 @@ function petSVG(i, opt = {}) {
     let rt = null, code = '', R = '', mode = 'ball', M = MODES.ball, seed = 1, on = false, raf = 0, lastT = 0, time = 0;
     let room = { host: '', state: '', startAt: 0, createdAt: 0, slots: {}, p: {}, open: '' };
     let offs = [], disc = [], mySlot = -1, myPet = 0, sentAt = 0, sentKey = '', ended = false, endT = 0, joining = false, priv = false;
-    const me = { x: 0, y: 0, vx: 0, vy: 0, f: 1, ab: 0, abT: -9, c: '', kn: 0, kx: 0, ky: 0, stun: 0, kickAt: 0, ghost: null, del: 0 };
+    const me = { x: 0, y: 0, vx: 0, vy: 0, f: 1, ab: 0, abT: -9, c: '', kn: 0, kx: 0, ky: 0, stun: 0, kickAt: 0, ghost: null, del: 0, delSent: 0, em: 0, emT: -9, emI: 0, dn: 0, hitT: -9, mv: 0 };
+    // 玩起來更熱鬧的特效：畫面震動、慢動作、跳出來的字、衝擊波
+    let shakeA = 0, slowT = 0, flashA = 0, pops = [], rings = [], trail = [];
+    let grid = new Uint8Array(GX * GY), myPaint = [], paintSent = 0, notes = [], beat = .6, combo = 0, bestCombo = 0, lastBeat = -1, darkHit = new Set(), delBusy = false, laneFx = [0, 0, 0, 0];
     const others = new Map();     // uid → 其他玩家（畫面上平滑地跟著他們的位置）
     let bots = {};                // slot → 星靈（房主模擬，其他人從 w 讀）
     const ball = { x: 800, y: 500, vx: 0, vy: 0, rot: 0, lock: 0 };
@@ -10367,6 +10392,7 @@ function petSVG(i, opt = {}) {
       const d = Math.min(devicePixelRatio || 1, 2); cw = innerWidth; ch = innerHeight;
       cv.width = Math.max(1, cw * d); cv.height = Math.max(1, ch * d); g.setTransform(d, 0, 0, d, 0, 0);
       S = Math.max(Math.min(cw / M.W, ch / M.H), Math.min(cw, ch) / M.view);
+      if (mode === 'dance') S = Math.min(cw / 1260, ch / 820);   // 舞台：六隻寵物都要看得到
       stars = Array.from({ length: 140 }, () => ({ x: Math.random(), y: Math.random(), s: rand(.4, 1.6), p: rand(0, TAU), z: rand(.2, .7) }));
     }
     window.addEventListener('resize', () => { if (on) size(); });
@@ -10396,15 +10422,37 @@ function petSVG(i, opt = {}) {
     const botPet = i => Math.floor(rng(seed * 7 + i * 131)() * 12);
     function spawnOf(slot) {
       const tm = teamOf(slot), k = slot % 3;
-      if (mode === 'ball') return [tm ? M.W - 260 - (k === 2 ? 0 : 160) : 260 + (k === 2 ? 0 : 160), M.H / 2 + [-220, 220, 0][k]];
+      if (mode === 'dance') return [M.W / 2 + (tm ? 1 : -1) * (190 + k * 175), M.H * .5 + [40, -70, 150][k]];
+      if (mode !== 'save') return [tm ? M.W - 260 - (k === 2 ? 0 : 160) : 260 + (k === 2 ? 0 : 160), M.H / 2 + [-220, 220, 0][k]];
       return [tm ? M.W - 420 : 420, M.H / 2 + [-200, 200, 0][k]];
     }
 
     /* ---------- 搶救小星球：物資和危險都由種子決定，大家算出來的一樣，不用另外同步 ---------- */
     function genWorld() {
-      items = []; haz = []; claimed = {}; dels = {}; hazSeen = new Set();
-      if (mode !== 'save') return;
+      items = []; haz = []; claimed = {}; dels = {}; hazSeen = new Set(); grid = new Uint8Array(GX * GY); myPaint = []; notes = []; combo = 0; bestCombo = 0; lastBeat = -1; darkHit = new Set();
       const r = rng(seed);
+      if (mode === 'catch') {   // 流星：什麼時候、從哪裡掉下來，大家用同一顆種子算出來
+        for (let i = 0, t = 1.2; t < M.dur - 2 && i < 900; i++) {
+          const roll = r(), k = roll < .09 ? 1 : roll < .2 ? 2 : roll < .29 ? 3 : 0, x0 = 90 + r() * (M.W - 180);
+          items.push({ i, k, x0, x1: clamp(x0 + (r() - .5) * 760, 70, M.W - 70), at: t, f: k === 2 ? 2.7 : 4.2 + r() * 2.6, ph: r() * TAU });
+          t += Math.max(.16, .5 - t / M.dur * .28) * (.6 + r() * .8);
+        }
+        return;
+      }
+      if (mode === 'paint') {   // 顏料炸彈
+        for (let i = 0; i < 30; i++) items.push({ i, x: 140 + r() * (M.W - 280), y: 140 + r() * (M.H - 280), at: 4 + i * 2.7, ph: r() * TAU });
+        return;
+      }
+      if (mode === 'dance') {   // 音符譜：越後面越密
+        beat = 60 / (96 + Math.floor(r() * 4) * 8);
+        for (let b = 4; b * beat < M.dur - 1.5; b++) {
+          const t = b * beat, d = t / M.dur;
+          if (r() < .5 + d * .4) notes.push({ t, l: Math.floor(r() * 4), hit: 0 });
+          if (d > .35 && r() < .3 * d) notes.push({ t: t + beat / 2, l: Math.floor(r() * 4), hit: 0 });
+        }
+        return;
+      }
+      if (mode !== 'save') return;
       for (let i = 0; i < 110; i++) {
         let x, y; do { x = 80 + r() * (M.W - 160); y = 80 + r() * (M.H - 160); } while (Math.hypot(x - M.W / 2, y - M.H / 2) < 330);
         items.push({ i, k: Math.floor(r() * 4), x, y, at: i < 28 ? 0 : (i - 28) * 1.65 + 2, ph: r() * TAU });
@@ -10420,6 +10468,40 @@ function petSVG(i, opt = {}) {
     }
     const teamTot = tm => Object.values(dels).reduce((s, d) => s + (d && +d.tm === tm ? +d.n || 0 : 0), 0) + (+((W0.bd || {})[tm]) || 0);
     const life = () => clamp((teamTot(0) + teamTot(1)) / Math.round(M.dur * .75));   // 兩分鐘的比賽：一起帶回 90 份就完全恢復
+    const cellCount = tm => { let n = 0; for (let k = 0; k < grid.length; k++) if (grid[k] === tm + 1) n++; return n; };
+    const score = tm => mode === 'paint' ? cellCount(tm) : mode === 'ball' ? +((W0.sc || {})[tm]) || 0 : teamTot(tm);
+    const pct = tm => Math.round(cellCount(tm) / (GX * GY) * 100);
+    const starPos = (it, t) => { const p = (t - it.at) / it.f; return p < 0 || p > 1 ? null : [lerp(it.x0, it.x1, p) + Math.sin(t * 2.2 + it.ph) * 36, lerp(-60, M.H + 60, p)]; };
+    const teamOfClaim = v => /^b[0-5]$/.test(v) ? teamOf(+v[1]) : room.p[v] ? teamOf(+room.p[v].slot) : -1;
+
+    /* ---------- 特效小工具 ---------- */
+    const shake = a => { shakeA = Math.max(shakeA, a); };
+    function pop(x, y, t, c = '255,243,220', big = 1) { if (pops.length < 60) pops.push({ x, y, t, c, big, age: 0 }); }
+    function ring(x, y, c = '255,240,200', max = 160, life = .6) { if (rings.length < 40) rings.push({ x, y, c, max, life, age: 0 }); }
+    // 星空塗鴉：在 (x, y) 半徑 rad 內塗上隊伍顏色，回傳新塗了幾格
+    function paintAt(x, y, rad, tm, mine) {
+      const c0 = Math.max(0, Math.floor((x - rad) / CELL)), c1 = Math.min(GX - 1, Math.floor((x + rad) / CELL)), y0 = Math.max(0, Math.floor((y - rad) / CELL)), y1 = Math.min(GY - 1, Math.floor((y + rad) / CELL));
+      let n = 0;
+      for (let cy = y0; cy <= y1; cy++) for (let cx = c0; cx <= c1; cx++) {
+        const px = (cx + .5) * CELL - x, py = (cy + .5) * CELL - y; if (px * px + py * py > rad * rad) continue;
+        const k = cy * GX + cx; if (grid[k] !== tm + 1) { grid[k] = tm + 1; n++; if (mine) myPaint.push([k, tm + 1, time]); }
+      }
+      return n;
+    }
+    function splat(x, y, tm, mine) {
+      paintAt(x, y, 175, tm, mine); shake(5); ring(x, y, TEAM[tm].c.join(','), 260, .7); Sound.boom();
+      burst(x, y, 70, { cols: [TEAM[tm].c.join(','), '255,255,255', '255,200,235'], speed: 520, life: 1.1, size: 1.6 });
+      burst(x, y, 14, { emo: ['🎨', '💥', '✨'], speed: 300, life: 1.2, size: 1.2 });
+    }
+    // 分數一次最多 +3（資料庫規則），累積的分數慢慢送出去
+    function pushDel() {
+      if (delBusy || me.del <= me.delSent || !rt || !code) return;
+      const n = Math.min(me.del, me.delSent + 3); delBusy = true;
+      rt.D.set(rt.D.ref(rt.db, R + 'del/' + rt.uid), { n, tm: String(teamOf(mySlot)) })
+        .then(() => { me.delSent = n; })
+        .catch(async e => { console.warn('del:', e); try { me.delSent = +((await rt.D.get(rt.D.ref(rt.db, R + 'del/' + rt.uid + '/n'))).val()) || 0; } catch (_) { /* ignore */ } })
+        .finally(() => { delBusy = false; });
+    }
 
     /* ---------- 進房、配對 ---------- */
     async function need() {
@@ -10485,7 +10567,9 @@ function petSVG(i, opt = {}) {
       const { D, db } = rt; code = c; R = 'rooms/' + c + '/';
       const r = (await D.get(D.ref(db, 'rooms/' + c))).val();
       if (!r || !r.mode) throw Object.assign(new Error('no_room'), { code: 'no_room' });
-      mode = r.mode; M = MODES[mode]; if (DBG_DUR) M = Object.assign({}, M, { dur: DBG_DUR }); seed = r.seed || 1; ended = false; endT = 0; W0 = {}; gSeen = -1; hostW = null; bots = {}; others.clear(); fx = []; me.del = 0; me.c = ''; me.kn = 0;
+      mode = r.mode; M = MODES[mode]; if (DBG_DUR) M = Object.assign({}, M, { dur: DBG_DUR }); seed = r.seed || 1; ended = false; endT = 0; W0 = {}; gSeen = -1; hostW = null; bots = {}; others.clear(); fx = []; me.c = ''; me.kn = 0;
+      const d0 = (r.del || {})[rt.uid]; me.del = me.delSent = d0 ? +d0.n || 0 : 0; me.dn = 0; me.hitT = -9; me.emT = -9;
+      pops = []; rings = []; trail = []; shakeA = slowT = flashA = 0;
       room = { host: r.host || '', state: r.state || 'wait', startAt: r.startAt || 0, createdAt: r.createdAt || 0, slots: r.slots || {}, p: r.p || {}, open: r.open || '' };
       priv = !r.open;
       genWorld(); size();
@@ -10509,11 +10593,19 @@ function petSVG(i, opt = {}) {
       sub('del', v => { dels = v || {}; });
       const sref = D.ref(db, R + 's');
       offs.push(D.onChildAdded(sref, s => onS(s.key, s.val())), D.onChildChanged(sref, s => onS(s.key, s.val())), D.onChildRemoved(sref, s => others.delete(s.key)));
-      offs.push(D.onChildAdded(D.ref(db, R + 'items'), s => { claimed[s.key] = s.val(); }));
+      offs.push(D.onChildAdded(D.ref(db, R + 'items'), s => { const fresh = !claimed[s.key]; claimed[s.key] = s.val(); if (fresh && s.val() !== rt.uid) remoteClaim(+s.key, s.val()); }));
       send(true);
     }
     // 被清出房間（例如斷線太久，位置被別人拿走）
     function checkMe() { if (on && code && rt && room.slots[mySlot] !== rt.uid && !joining) { say(L('連線中斷，已經離開房間', 'Disconnected from the room'), 3); setTimeout(() => close(), 1500); } }
+
+    // 別人接到流星／撿到顏料炸彈：在我的畫面上也演出來
+    function remoteClaim(i, who) {
+      const it = items[i], tm = teamOfClaim(who); if (!it || tm < 0) return;
+      const t = gt();
+      if (mode === 'catch') { const p = starPos(it, t); if (p) { burst(p[0], p[1], 14, { cols: [STARS[it.k].c, TEAM[tm].c.join(',')], speed: 220, life: .7 }); pop(p[0], p[1] - 30, '+' + STARS[it.k].v, TEAM[tm].c.join(','), .8); } }
+      if (mode === 'paint' && t - it.at < 120) splat(it.x, it.y, tm, false);
+    }
 
     /* ---------- 收到別人的位置 ---------- */
     function onS(uid, v) {
@@ -10526,6 +10618,10 @@ function petSVG(i, opt = {}) {
         if (Math.hypot(ball.x - v.x, ball.y - v.y) < (PR + BR) * 3 && !(hostW.fz > rt.now())) { ball.vx = v.kx || 0; ball.vy = v.ky || 0; }
       }
       o.kn = v.kn || 0;
+      if (v.em !== undefined && o.em !== undefined && v.em !== o.em) { o.emT = time; o.emI = v.em % 10; }
+      o.em = v.em;
+      if ((v.dn || 0) > (o.dn || 0) && o.dn !== undefined) { o.hitT = time; o.mv = (v.dn || 0) % 4; }
+      o.dn = v.dn || 0;
       Object.assign(o, { x: v.x, y: v.y, vx: v.vx || 0, vy: v.vy || 0, c: v.c || '', t: v.t || 0, at: time });
       if (Math.abs(o.vx) > 20) o.f = o.vx > 0 ? 1 : -1;
     }
@@ -10533,6 +10629,10 @@ function petSVG(i, opt = {}) {
       W0 = w;
       if (w.g && w.g.n !== gSeen) { const first = gSeen === -1; gSeen = w.g.n; if (!first && w.g.n > 0) goalFx(w.g.tm); }
       if (isHost()) return;
+      if (mode === 'paint' && typeof w.pg === 'string' && w.pg.length === GX * GY) {   // 房主的畫布為準，再補上自己剛剛塗的
+        for (let k = 0; k < grid.length; k++) grid[k] = w.pg.charCodeAt(k) - 48;
+        myPaint = myPaint.filter(q => time - q[2] < 1.2); for (const [k, v] of myPaint) grid[k] = v;
+      }
       if (w.b && performance.now() > ball.lock) {
         const lag = clamp((rt.now() - (w.t || 0)) / 1000, 0, .3), bx = w.b.x + w.b.vx * lag, by = w.b.y + w.b.vy * lag;
         if (Math.hypot(bx - ball.x, by - ball.y) > 220) { ball.x = bx; ball.y = by; } else { ball.x += (bx - ball.x) * .5; ball.y += (by - ball.y) * .5; }
@@ -10542,7 +10642,7 @@ function petSVG(i, opt = {}) {
       for (const k of Object.keys(bots)) if (!nb[k]) delete bots[k];
       for (const k of Object.keys(nb)) {
         const v = nb[k], b = bots[k] || (bots[k] = { dx: v.x, dy: v.y, abT: -9, ab: v.ab || 0, f: 1 });
-        if ((v.ab || 0) > b.ab) b.abT = time;
+        if ((v.ab || 0) > b.ab) { b.abT = time; b.hitT = time; b.mv = (v.ab || 0) % 4; }
         Object.assign(b, { x: v.x, y: v.y, vx: v.vx || 0, vy: v.vy || 0, c: v.c || '', ab: v.ab || 0, t: w.t || 0 });
         if (Math.abs(b.vx) > 20) b.f = b.vx > 0 ? 1 : -1;
       }
@@ -10579,8 +10679,20 @@ function petSVG(i, opt = {}) {
       for (let i = 0; i < 6; i++) {
         if (humans.has(i)) { delete bots[i]; continue; }
         if (!bots[i]) { const sp = spawnOf(i); bots[i] = { x: sp[0], y: sp[1], dx: sp[0], dy: sp[1], vx: 0, vy: 0, ab: 0, abT: -9, c: '', f: teamOf(i) ? -1 : 1, stun: 0, think: 0 }; }
-        if (room.state === 'play' && playing()) botStep(bots[i], i, dt);
+        if (room.state === 'play' && playing() && mode !== 'dance') botStep(bots[i], i, dt);
         else { const b = bots[i]; b.vx *= .9; b.vy *= .9; b.dx = b.x; b.dy = b.y; }
+      }
+      // 舞蹈對決：星靈跟著譜跳，大約七成會跳對
+      if (mode === 'dance' && playing()) {
+        const t = gt();
+        for (const n of notes) {
+          if (n.bot || n.t > t) continue; n.bot = 1; if (t - n.t > .5) continue;
+          for (const k of Object.keys(bots)) {
+            if (Math.random() > .72) continue;
+            const b = bots[k], q = Math.random() < .4 ? 3 : Math.random() < .7 ? 2 : 1;
+            hostW.bd[teamOf(k)] = (hostW.bd[teamOf(k)] || 0) + q; b.ab++; b.abT = b.hitT = time; b.mv = n.l;
+          }
+        }
       }
       if (mode === 'ball' && playing()) {
         if (hostW.fz && now > hostW.fz) { hostW.fz = 0; ball.x = M.W / 2; ball.y = M.H / 2; ball.vx = ball.vy = 0; }
@@ -10592,6 +10704,8 @@ function petSVG(i, opt = {}) {
         for (const k of Object.keys(bots)) { const b = bots[k]; bo[k] = { x: r1(b.x), y: r1(b.y), vx: r1(b.vx), vy: r1(b.vy), ab: b.ab, c: b.c || '' }; }
         const w = { t: rt.ts(), sc: hostW.sc, g: hostW.g, fz: hostW.fz, bd: hostW.bd, bots: bo };
         if (mode === 'ball') w.b = { x: r1(ball.x), y: r1(ball.y), vx: r1(ball.vx), vy: r1(ball.vy) };
+        if (mode === 'paint' && time - paintSent > .5) { paintSent = time; w.pg = String.fromCharCode(...Array.from(grid, v => 48 + v)); }
+        else if (mode === 'paint' && W0.pg) w.pg = W0.pg;
         rt.D.set(rt.D.ref(rt.db, R + 'w'), w).catch(e => console.warn('w:', e));
       }
     }
@@ -10618,6 +10732,40 @@ function petSVG(i, opt = {}) {
         else if (!behind) { const side = (b.y < ball.y ? -1 : 1); tx = bx - uy * side * 90; ty = by + ux * side * 90; }   // 繞到球的後面
         else if (Math.hypot(b.x - bx, b.y - by) > 40) { tx = bx; ty = by; }
         else { tx = ball.x + ux * 120; ty = ball.y + uy * 120; if (Math.random() < dt * .5 && time - b.abT > CD && ab.k !== 'blink') { b.abT = time; b.ab++; } }
+      } else if (mode === 'catch') {   // 追最近、不是黑星的流星（往前預測一點）
+        const t = gt(); let best = null, bd = 1e9;
+        for (const it of items) {
+          if (it.k === 3 || claimed[it.i] || t < it.at || t > it.at + it.f) continue;
+          const p = starPos(it, Math.min(it.at + it.f, t + .45)); if (!p) continue;
+          const d = Math.hypot(p[0] - b.x, p[1] - b.y) - (it.k === 1 ? 160 : 0); if (d < bd) { bd = d; best = [it, p]; }
+        }
+        if (best) { tx = best[1][0]; ty = best[1][1]; }
+        else { tx = M.W * (.2 + .3 * (i % 3) + (tm ? .1 : 0)); ty = M.H * (.45 + .1 * (i % 2)); }
+        for (const it of items) {
+          if (claimed[it.i] || t < it.at || t > it.at + it.f) continue;
+          const p = starPos(it, t); if (!p || Math.hypot(p[0] - b.x, p[1] - b.y) > PR + 34) continue;
+          if (it.k === 3) { if (!b.dark || b.dark !== it.i) { b.dark = it.i; b.stun = .9; } continue; }
+          claimed[it.i] = 'b' + i; hostW.bd[tm] = (hostW.bd[tm] || 0) + STARS[it.k].v; hostSent = 0;
+          burst(p[0], p[1], 12, { cols: [STARS[it.k].c], speed: 200, life: .6 });
+          rt.D.set(rt.D.ref(rt.db, R + 'items/' + it.i), 'b' + i).catch(() => {});
+        }
+      } else if (mode === 'paint') {   // 去還沒塗成自己顏色的地方；附近有顏料炸彈就去撿
+        b.think -= dt; const t = gt();
+        if (!b.goal || b.think <= 0 || Math.hypot(b.goal[0] - b.x, b.goal[1] - b.y) < 50) {
+          b.think = rand(1.2, 2.4); let best = null, bd = -1e9;
+          for (let n = 0; n < 8; n++) {
+            const cx = Math.floor(Math.random() * GX), cy = Math.floor(Math.random() * GY), x = (cx + .5) * CELL, y = (cy + .5) * CELL, v = grid[cy * GX + cx];
+            const sc = (v === tm + 1 ? -400 : v ? 250 : 120) - Math.hypot(x - b.x, y - b.y) * .4; if (sc > bd) { bd = sc; best = [x, y]; }
+          }
+          for (const it of items) if (!claimed[it.i] && t >= it.at && Math.hypot(it.x - b.x, it.y - b.y) < 420) { best = [it.x, it.y, it]; break; }
+          b.goal = best;
+        }
+        if (b.goal) { tx = b.goal[0]; ty = b.goal[1]; }
+        for (const it of items) {
+          if (claimed[it.i] || t < it.at || Math.hypot(it.x - b.x, it.y - b.y) > PR + 28) continue;
+          claimed[it.i] = 'b' + i; splat(it.x, it.y, tm, false); hostSent = 0;
+          rt.D.set(rt.D.ref(rt.db, R + 'items/' + it.i), 'b' + i).catch(() => {});
+        }
       } else {
         b.think -= dt;
         if (b.c.length >= 3 || (b.c && b.think < -8)) { tx = M.W / 2; ty = M.H / 2; }
@@ -10639,6 +10787,8 @@ function petSVG(i, opt = {}) {
       const k = 1 - Math.exp(-7 * dt);
       b.vx += (dx / d * want - b.vx) * k; b.vy += (dy / d * want - b.vy) * k;
       if (mode === 'save') hazardsOn(b, dt, ab, time - b.abT < ab.dur, true);
+      // 星靈之間保持一點距離，不要疊在一起
+      for (const k2 of Object.keys(bots)) { const o = bots[k2]; if (o === b) continue; const ex = b.x - o.x, ey = b.y - o.y, ed = Math.hypot(ex, ey) || .01; if (ed < PR * 2.2) { b.vx += ex / ed * 900 * dt; b.vy += ey / ed * 900 * dt; } }
       b.x = clamp(b.x + b.vx * dt, PR, M.W - PR); b.y = clamp(b.y + b.vy * dt, PR, M.H - PR); b.dx = b.x; b.dy = b.y;
       if (Math.abs(b.vx) > 20) b.f = b.vx > 0 ? 1 : -1;
     }
@@ -10678,6 +10828,7 @@ function petSVG(i, opt = {}) {
       burst(gx, M.H / 2, 90, { emo: ['🌸', '🌼', '✿', '⭐', '✨', '🌷'], speed: 520, life: 2.2, size: 1.3, dir: tm ? 0 : Math.PI, spread: 1.3 });
       burst(gx, M.H / 2, 120, { cols: ['255,236,190', '255,200,235', '255,255,255', '190,220,255'], speed: 620, life: 1.6 });
       say(`🌸 BOOM！ ${TEAM[tm].n()} ${L('進球了 ✦', 'scores ✦')}`, 2.4, true);
+      shake(14); slowT = .9; flashA = .55; ring(gx, M.H / 2, TEAM[tm].c.join(','), 520, 1); ring(gx, M.H / 2, '255,255,255', 300, .7);
     }
 
     /* ---------- 搶救小星球：撿、送、危險 ---------- */
@@ -10702,7 +10853,7 @@ function petSVG(i, opt = {}) {
           if (Math.hypot(s.x - p.x, s.y - p.y) < 74 && !(act && ab.k === 'float')) {
             p.stun = 1; const dx = p.x - s.x, dy = p.y - s.y, d = Math.hypot(dx, dy) || 1; p.vx = dx / d * 420; p.vy = dy / d * 420;
             if (p.c) p.c = p.c.slice(1);
-            if (!isBot) { say(L('🌠 被流星打到了！', '🌠 Hit by a meteor!'), 1.8); Sound.note(110, { dur: .6, gain: .1 }); }
+            if (!isBot) { say(L('🌠 被流星打到了！', '🌠 Hit by a meteor!'), 1.8); Sound.note(110, { dur: .6, gain: .1 }); shake(8); ring(s.x, s.y, '255,140,110', 140, .5); }
           }
         }
       }
@@ -10722,8 +10873,8 @@ function petSVG(i, opt = {}) {
     }
     function tryDeliver() {
       if (!me.c || Math.hypot(me.x - M.W / 2, me.y - M.H / 2) > PLR + PR + 16) return;
-      const n = me.c.length; me.del += n; deliverFx(me.x, me.y, me.c); me.c = '';
-      rt.D.set(rt.D.ref(rt.db, R + 'del/' + rt.uid), { n: me.del, tm: String(teamOf(mySlot)) }).catch(e => { console.warn('del:', e); });
+      const n = me.c.length; me.del += n; deliverFx(me.x, me.y, me.c); me.c = ''; pushDel();
+      pop(me.x, me.y - 70, '+' + n + ' 🪐', TEAM[teamOf(mySlot)].c.join(','), 1.2); ring(M.W / 2, M.H / 2, '200,255,210', PLR * 2.2);
       Sound.ding(.3); send(true);
     }
     function deliverFx(x, y, c) {
@@ -10741,6 +10892,7 @@ function petSVG(i, opt = {}) {
       return [x, y];
     }
     function stepMe(dt) {
+      if (mode === 'dance') { const sp = spawnOf(mySlot); me.x = sp[0]; me.y = sp[1]; me.vx = me.vy = 0; me.f = teamOf(mySlot) ? -1 : 1; return; }
       const ab = abilOf(myPet), act = time - me.abT < ab.dur, [ix, iy] = ended ? [0, 0] : myInput();
       let sp = SPEED * (act && ab.k === 'dash' ? 2.3 : act && ab.k === 'float' ? 1.3 : 1);
       if (me.stun > 0) { me.stun -= dt; sp = 0; }
@@ -10764,20 +10916,76 @@ function petSVG(i, opt = {}) {
         if (!isHost()) { me.kn++; me.kx = r1(clamp(ball.vx, -2000, 2000)); me.ky = r1(clamp(ball.vy, -2000, 2000)); ball.lock = performance.now() + 280; send(true); }
       }
       if (mode === 'save') { tryPick(); tryDeliver(); }
+      if (mode === 'catch') tryCatch();
+      if (mode === 'paint') tryBomb();
+    }
+    // 流星接接樂
+    function tryCatch() {
+      const t = gt(), tm = teamOf(mySlot);
+      for (const it of items) {
+        if (claimed[it.i] || t < it.at || t > it.at + it.f) continue;
+        const p = starPos(it, t); if (!p || Math.hypot(p[0] - me.x, p[1] - me.y) > PR + 34) continue;
+        if (it.k === 3) {
+          if (darkHit.has(it.i)) continue; darkHit.add(it.i);
+          me.stun = 1.1; shake(7); pop(me.x, me.y - 80, '@_@ 💫', '200,170,255', 1.2); burst(p[0], p[1], 24, { cols: ['150,120,220', '80,60,140'], speed: 260 });
+          Sound.note(98, { dur: .7, gain: .12, type: 'triangle' }); combo = 0; continue;
+        }
+        const v = STARS[it.k].v; claimed[it.i] = rt.uid; me.del += v; combo++; bestCombo = Math.max(bestCombo, combo);
+        burst(p[0], p[1], 18 + v * 8, { cols: [STARS[it.k].c, '255,255,255', TEAM[tm].c.join(',')], speed: 260 + v * 60, life: .8 });
+        pop(p[0], p[1] - 40, (v === 3 ? '🌟 +3' : v === 2 ? '💫 +2' : '+1') + (combo >= 3 ? `  ×${combo}` : ''), STARS[it.k].c, v === 3 ? 1.5 : 1);
+        ring(p[0], p[1], STARS[it.k].c, 90 + v * 40, .45); if (v === 3) shake(3);
+        Sound.chime(Math.min(1.4, .2 + combo * .08));
+        rt.D.set(rt.D.ref(rt.db, R + 'items/' + it.i), rt.uid).catch(() => { if (me.del - v >= me.delSent) me.del -= v; });
+        pushDel();
+      }
+    }
+    // 星空塗鴉：顏料炸彈
+    function tryBomb() {
+      const t = gt();
+      for (const it of items) {
+        if (claimed[it.i] || t < it.at || Math.hypot(it.x - me.x, it.y - me.y) > PR + 28) continue;
+        claimed[it.i] = rt.uid; splat(it.x, it.y, teamOf(mySlot), true); pop(it.x, it.y - 60, 'SPLASH! 🎨', TEAM[teamOf(mySlot)].c.join(','), 1.5);
+        rt.D.set(rt.D.ref(rt.db, R + 'items/' + it.i), rt.uid).catch(() => {});
+      }
+    }
+    // 星光舞蹈對決：按下某一條音軌
+    function hitLane(l) {
+      if (!on || ended || mode !== 'dance' || !playing()) return;
+      laneFx[l] = 1;
+      const t = gt(); let best = null, bd = .36;
+      for (const n of notes) { if (n.l !== l || n.hit) continue; const d = Math.abs(n.t - t); if (d < bd) { bd = d; best = n; } }
+      if (!best) return;
+      if (bd > .2) { best.hit = -1; combo = 0; pop(me.x, me.y - 120, 'MISS', '200,190,230', .8); return; }
+      const q = bd < .07 ? 3 : bd < .13 ? 2 : 1; best.hit = q; combo++; bestCombo = Math.max(bestCombo, combo);
+      const fever = combo >= 10, pts = Math.min(3, q + (fever ? 1 : 0)); me.del += pts; pushDel();
+      me.dn++; me.hitT = time; me.mv = l; send(true);
+      const c = LANES[l].c;
+      pop(me.x, me.y - 130, (q === 3 ? 'PERFECT ✦' : q === 2 ? 'GREAT' : 'GOOD') + (combo >= 5 ? `  ${combo} COMBO` : ''), q === 3 ? '255,226,150' : c, q === 3 ? 1.4 : 1.1);
+      burst(me.x, me.y - 40, 8 + q * 5, { emo: ['♪', '♫', '✦'], speed: 200 + q * 40, life: 1, dir: -Math.PI / 2, spread: 1.1 });
+      if (q === 3) ring(me.x, me.y, c, 150, .5);
+      if (combo === 10) { say('FEVER 🔥', 1.4, true); shake(4); burst(me.x, me.y, 60, { emo: ['🔥', '⭐', '💖', '✨'], speed: 420, life: 1.4 }); }
+      Sound.note(LANES[l].f * (q === 3 ? 2 : 1), { type: 'triangle', dur: .5, gain: .07 + q * .015, pan: (l - 1.5) * .3 });
     }
     function useAbility() {
-      if (!on || ended || time - me.abT < CD || me.stun > 0) return;
+      if (!on || ended || time - me.abT < CD || me.stun > 0 || mode === 'dance') return;
       const ab = abilOf(myPet); me.abT = time; me.ab++;
       if (ab.k === 'blink') {
         let [dx, dy] = myInput(); if (!dx && !dy) { dx = me.vx; dy = me.vy; } if (!dx && !dy) dx = me.f;
         const l = Math.hypot(dx, dy) || 1; me.ghost = { x: me.x, y: me.y, t: time };
         me.x = clamp(me.x + dx / l * 180, PR, M.W - PR); me.y = clamp(me.y + dy / l * 180, PR, M.H - PR);
       }
-      Sound.chime(1.2); burst(me.x, me.y, 18, { cols: ['255,240,200', '255,200,235'], speed: 180, life: .7 }); send(true);
+      Sound.chime(1.2); burst(me.x, me.y, 18, { cols: ['255,240,200', '255,200,235'], speed: 180, life: .7 }); ring(me.x, me.y, '255,236,190', 120, .45); send(true);
+      if (mode === 'paint' && ab.k === 'blink') paintAt(me.x, me.y, 120, teamOf(mySlot), true);
+    }
+    // 表情：按一下，自己和大家的畫面上，寵物頭上都會冒出來
+    function emote(i) {
+      if (!on || !rt || !code) return;
+      me.em++; me.emI = i; me.emT = time; send(true);
+      burst(me.x, me.y - 60, 8, { emo: [EMOS[i]], speed: 160, life: 1.1, dir: -Math.PI / 2, spread: 1.2 }); Sound.chime(.6 + i * .2);
     }
     function send(force) {
       if (!rt || !code || !on) return;
-      const now = performance.now(), v = { x: r1(me.x), y: r1(me.y), vx: r1(me.vx), vy: r1(me.vy), ab: me.ab, c: me.c, kn: me.kn, kx: me.kx, ky: me.ky };
+      const now = performance.now(), v = { x: r1(me.x), y: r1(me.y), vx: r1(me.vx), vy: r1(me.vy), ab: me.ab, c: me.c, kn: me.kn, kx: me.kx, ky: me.ky, em: me.em * 10 + me.emI, dn: me.dn };
       const key = JSON.stringify(v);
       if (!force && (now - sentAt < 100 || (key === sentKey && now - sentAt < 1000))) return;
       sentAt = now; sentKey = key; v.t = rt.now();
@@ -10805,8 +11013,29 @@ function petSVG(i, opt = {}) {
         const ahead = clamp((now - (o.t || now)) / 1000, 0, .25), tx = o.x + o.vx * ahead, ty = o.y + o.vy * ahead, k = 1 - Math.exp(-12 * dt);
         if (Math.hypot(tx - o.dx, ty - o.dy) > 300) { o.dx = tx; o.dy = ty; } else { o.dx += (tx - o.dx) * k; o.dy += (ty - o.dy) * k; }
       }
-      send(false);
+      send(false); pushDel();
       const T = gt();
+      if (playing()) {
+        if (mode === 'paint') {   // 每隻寵物走過的地方都塗上顏色
+          const ab = abilOf(myPet), act = time - me.abT < ab.dur, n = paintAt(me.x, me.y, act && ab.k === 'steady' ? 90 : act && ab.k === 'float' ? 70 : 48, teamOf(mySlot), true);
+          if (n && Math.random() < .35) burst(me.x, me.y + PR * .6, 3, { cols: [TEAM[teamOf(mySlot)].c.join(',')], speed: 120, life: .5 });
+          for (const s2 of slotList()) {
+            if (s2.me) continue;
+            const o = s2.uid ? others.get(s2.uid) : bots[s2.slot]; if (!o || o.dx === undefined) continue;
+            paintAt(o.dx, o.dy, 48, teamOf(s2.slot), false);
+          }
+        }
+        if (mode === 'dance') {
+          for (const n of notes) if (!n.hit && T - n.t > .2) { n.hit = -1; if (combo) { combo = 0; laneFx[n.l] = -1; } }
+          const b = Math.floor(T / beat);
+          if (b !== lastBeat && b >= 0) {   // 節拍：低音鼓＋每四拍一個和弦
+            lastBeat = b; Sound.note(b % 2 ? 82.41 : 65.41, { type: 'sine', dur: .28, gain: .14 });
+            if (b % 4 === 0) [261.63, 329.63, 392].forEach((f, j) => Sound.note(f * (b % 8 ? 1 : 1.122), { type: 'triangle', dur: beat * 3.5, gain: .025, delay: j * .01 }));
+          }
+        }
+      }
+      for (let l = 0; l < 4; l++) laneFx[l] *= Math.pow(.02, dt);
+      shakeA *= Math.pow(.01, dt); flashA *= Math.pow(.05, dt); slowT = Math.max(0, slowT - dt);
       if (room.state === 'play' && T < 0 && T > -4) { const s = Math.ceil(-T); if (s !== lastSec) { lastSec = s; say(String(s), .9, true); Sound.note(523.25, { dur: .3, gain: .08 }); } }
       if (room.state === 'play' && T >= 0 && lastSec > 0) { lastSec = 0; say('START ✦', 1.2, true); Sound.ding(); ui(); }
       if (mode === 'save' && room.state === 'play' && T >= 0) {
@@ -10832,7 +11061,8 @@ function petSVG(i, opt = {}) {
         Sound.boom(); burst(M.W / 2, M.H / 2, 180, { emo: ['🌸', '🌳', '🌈', '✨', '🌷', '🍃', '🦋'], speed: 520, life: 2.6, size: 1.2 });
         say('BOOM ✨', 2, true); await sleepMs(2200); if (!on) return;
       }
-      Sound.galaxy(avg, 14);
+      Sound.galaxy(avg, 14); shake(6); flashA = .35;
+      for (let k = 0; k < 5; k++) setTimeout(() => { if (on) burst(rand(M.W * .2, M.W * .8), rand(M.H * .2, M.H * .6), 50, { emo: ['🎉', '🎊', '✨', '⭐', '💖', '🌸'], speed: 480, life: 2.4, size: 1.2, g: 220 }); }, k * 500);
       say(L('ENDING DANCE｜兩隊一起跳舞 ✦', 'ENDING DANCE · both teams dance together ✦'), 4, true);
       await sleepMs(9000); if (!on) return;
       $('arEnd').classList.add('on'); endText();
@@ -10844,6 +11074,18 @@ function petSVG(i, opt = {}) {
         const sc = W0.sc || {}, a = +sc[0] || 0, b = +sc[1] || 0;
         $('arEndT').textContent = `⭐ ${t0} ${a} : ${b} ${t1}`;
         $('arEndS').textContent = a + b ? L(`這場一共炸開了 ${a + b} 次花和星星。`, `${a + b} goals blossomed into flowers and stars.`) : L('這場沒有進球，但大家一起追著星星跑了好久。', 'No goals this time, but everyone chased the star together.');
+      } else if (mode === 'catch') {
+        const a = teamTot(0), b = teamTot(1);
+        $('arEndT').textContent = `🌠 ${t0} ${a} : ${b} ${t1}`;
+        $('arEndS').textContent = L(`大家一共接住了 ${a + b} 分的流星，你最多連續接到 ${bestCombo} 顆 ✦`, `Together you caught ${a + b} points of falling stars. Your best streak: ${bestCombo} ✦`);
+      } else if (mode === 'paint') {
+        const a = pct(0), b = pct(1);
+        $('arEndT').textContent = `🎨 ${t0} ${a}% : ${b}% ${t1}`;
+        $('arEndS').textContent = L(`兩隊一起把 ${a + b}% 的星空塗上了顏色，這片天空現在是全宇宙最繽紛的地方。`, `Together you painted ${a + b}% of the sky — the most colorful corner of the universe.`);
+      } else if (mode === 'dance') {
+        const a = teamTot(0), b = teamTot(1);
+        $('arEndT').textContent = `💃 ${t0} ${a} : ${b} ${t1}`;
+        $('arEndS').textContent = L(`你最長連擊 ${bestCombo} 下。舞台上的燈，是大家一起點亮的。`, `Your longest combo: ${bestCombo}. Everyone lit up the stage together.`);
       } else {
         const a = teamTot(0), b = teamTot(1), pct = Math.round(life() * 100);
         $('arEndT').textContent = L(`🪐 小星球恢復了 ${pct}% 的生命`, `🪐 The little planet is ${pct}% alive again`);
@@ -10854,8 +11096,9 @@ function petSVG(i, opt = {}) {
     /* ---------- 畫面 ---------- */
     function draw(dt) {
       g.clearRect(0, 0, cw, ch);
+      dt *= slowT > 0 ? .35 : 1;   // 進球時的慢動作（只影響畫面，不影響比賽）
       // 鏡頭：跟著自己的寵物；整個場地放得下就置中
-      const fx0 = ended ? M.W / 2 : me.x, fy0 = ended ? M.H / 2 : me.y;   // 結束跳舞時看中間
+      const fx0 = ended || mode === 'dance' ? M.W / 2 : me.x, fy0 = ended || mode === 'dance' ? M.H / 2 : me.y;   // 結束跳舞時看中間
       const vw = cw / S, vh = ch / S, tx = M.W <= vw ? M.W / 2 : clamp(fx0, vw / 2, M.W - vw / 2), ty = M.H <= vh ? M.H / 2 : clamp(fy0, vh / 2, M.H - vh / 2);
       const k = camX ? 1 - Math.exp(-6 * dt) : 1; camX += (tx - camX) * k; camY += (ty - camY) * k;
       const bg = g.createLinearGradient(0, 0, 0, ch); bg.addColorStop(0, '#0b0826'); bg.addColorStop(1, '#05040f'); g.fillStyle = bg; g.fillRect(0, 0, cw, ch);
@@ -10864,15 +11107,17 @@ function petSVG(i, opt = {}) {
         g.globalAlpha = .35 + .35 * Math.sin(time * 1.5 + s.p); g.fillStyle = '#fff'; g.beginPath(); g.arc(x, y, s.s, 0, TAU); g.fill();
       }
       g.globalAlpha = 1;
-      if (mode === 'ball') drawPitch(); else drawSpace();
+      g.save(); if (shakeA > .3) g.translate(rand(-1, 1) * shakeA, rand(-1, 1) * shakeA);
+      if (mode === 'ball') drawPitch(); else if (mode === 'save') drawSpace(); else if (mode === 'catch') drawSky(); else if (mode === 'paint') drawPaint(); else drawStage();
       // 寵物
       const list = [];
       const T = ended ? time - endT : 0;
       slotList().forEach((s, idx) => {
         let o;
-        if (s.me) o = { x: me.x, y: me.y, vx: me.vx, vy: me.vy, f: me.f, abT: me.abT, c: me.c, ghost: me.ghost, stun: me.stun };
-        else if (s.uid) { const q = others.get(s.uid); if (!q || q.dx === undefined) return; o = { x: q.dx, y: q.dy, vx: q.vx, vy: q.vy, f: q.f, abT: q.abT, c: q.c, ghost: q.ghost }; }
-        else { if (room.state === 'wait' || !bots[s.slot]) return; const b = bots[s.slot]; o = { x: b.dx, y: b.dy, vx: b.vx, vy: b.vy, f: b.f, abT: b.abT, c: b.c, stun: b.stun }; }
+        if (s.me) o = { x: me.x, y: me.y, vx: me.vx, vy: me.vy, f: me.f, abT: me.abT, c: me.c, ghost: me.ghost, stun: me.stun, hitT: me.hitT, mv: me.mv, emT: me.emT, emI: me.emI };
+        else if (s.uid) { const q = others.get(s.uid); if (!q || q.dx === undefined) return; o = { x: q.dx, y: q.dy, vx: q.vx, vy: q.vy, f: q.f, abT: q.abT, c: q.c, ghost: q.ghost, hitT: q.hitT, mv: q.mv, emT: q.emT, emI: q.emI }; }
+        else { if (room.state === 'wait' || !bots[s.slot]) return; const b = bots[s.slot]; o = { x: b.dx, y: b.dy, vx: b.vx, vy: b.vy, f: b.f, abT: b.abT, c: b.c, stun: b.stun, hitT: b.hitT, mv: b.mv }; }
+        if (mode === 'dance' && !ended) { const sp = spawnOf(s.slot); o = Object.assign(o, { x: sp[0], y: sp[1], vx: 0, vy: 0, f: teamOf(s.slot) ? -1 : 1 }); }
         if (ended && T > 1.8 + (mode === 'save' ? 2.2 : 0)) {   // 跳舞：大家排成一圈
           const cx = M.W / 2, cy = M.H / 2, rr = mode === 'save' ? PLR + 110 : 200, a = idx / 6 * TAU + time * .5, u = clamp((T - 2) / 2.4);
           o = Object.assign({}, o, { x: lerp(o.x, cx + Math.cos(a) * rr, easeIO(u)), y: lerp(o.y, cy + Math.sin(a) * rr * .75, easeIO(u)), dance: u });
@@ -10881,7 +11126,7 @@ function petSVG(i, opt = {}) {
       });
       if (mode === 'ball' && !ended) list.push({ isBall: true, y: ball.y });
       list.sort((a, b) => a.y - b.y);
-      for (const o of list) o.isBall ? drawBall() : drawPetAt(o);
+      for (const o of list) o.isBall ? drawBall(dt) : drawPetAt(o, dt);
       // 粒子
       for (let i = fx.length - 1; i >= 0; i--) {
         const p = fx[i]; p.age += dt; if (p.age > p.life) { fx.splice(i, 1); continue; }
@@ -10892,6 +11137,10 @@ function petSVG(i, opt = {}) {
         else { g.fillStyle = `rgba(${p.c},1)`; g.beginPath(); g.arc(x, y, (2 + 2 * a) * p.s * Math.max(.6, S), 0, TAU); g.fill(); }
       }
       g.globalAlpha = 1;
+      drawFx(dt);
+      g.restore();
+      if (flashA > .02) { g.fillStyle = `rgba(255,250,235,${flashA})`; g.fillRect(0, 0, cw, ch); }
+      if (mode === 'dance') drawLanes();
       // 搖桿
       if (input.stick) {
         const s = input.stick; g.strokeStyle = 'rgba(255,255,255,.25)'; g.lineWidth = 2; g.beginPath(); g.arc(s.x0, s.y0, 52, 0, TAU); g.stroke();
@@ -10920,8 +11169,18 @@ function petSVG(i, opt = {}) {
       }
       g.restore();
     }
-    function drawBall() {
-      const [x, y] = toS(ball.x, ball.y), r = BR * S;
+    function drawBall(dt) {
+      const [x, y] = toS(ball.x, ball.y), r = BR * S, sp = Math.hypot(ball.vx, ball.vy);
+      // 被踢到（速度突然變快）：衝擊波
+      if (sp - (drawBall.sp || 0) > 260 && playing()) { ring(ball.x, ball.y, '255,236,170', 150, .4); if (sp > 900) shake(2.5); burst(ball.x, ball.y, 10, { cols: ['255,236,190', '255,255,255'], speed: 240, life: .5 }); }
+      drawBall.sp = sp;
+      // 彗星尾巴
+      trail.push([ball.x, ball.y]); if (trail.length > 16) trail.shift();
+      if (sp > 120) {
+        g.save(); g.globalCompositeOperation = 'lighter';
+        trail.forEach(([tx, ty], j) => { const [px, py] = toS(tx, ty), u = j / trail.length; glowAt(px, py, r * (.3 + .9 * u), '255,214,140', .22 * u * Math.min(1, sp / 700)); });
+        g.restore();
+      }
       g.save(); g.globalCompositeOperation = 'lighter';
       glowAt(x, y, r * 3.2, '255,226,150', .35 + .1 * Math.sin(time * 4)); glowAt(x, y, r * 1.5, '255,250,230', .5);
       g.globalCompositeOperation = 'source-over'; g.translate(x, y); g.rotate(ball.rot);
@@ -10929,6 +11188,124 @@ function petSVG(i, opt = {}) {
       g.fillStyle = gr; g.beginPath();
       for (let i = 0; i < 10; i++) { const a = i / 10 * TAU - Math.PI / 2, rr = i % 2 ? r * .52 : r; g.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
       g.closePath(); g.fill(); g.restore();
+    }
+    /* ---------- 新玩法的場地 ---------- */
+    // 流星接接樂：夜空、地平線、掉下來的星星（落點有預告圈）
+    function drawSky() {
+      const [x0, y0] = toS(0, 0), w = M.W * S, h = M.H * S, T = gt();
+      g.save();
+      const gr = g.createLinearGradient(0, y0, 0, y0 + h); gr.addColorStop(0, 'rgba(60,40,140,.12)'); gr.addColorStop(1, 'rgba(255,170,200,.12)');
+      g.fillStyle = gr; g.strokeStyle = 'rgba(210,200,255,.3)'; g.lineWidth = 2;
+      g.beginPath(); g.roundRect ? g.roundRect(x0, y0, w, h, 40 * S) : g.rect(x0, y0, w, h); g.fill(); g.stroke();
+      // 遠方的小山丘
+      g.fillStyle = 'rgba(120,90,200,.18)'; g.beginPath(); g.moveTo(x0, y0 + h);
+      for (let k = 0; k <= 16; k++) g.lineTo(x0 + w * k / 16, y0 + h - (40 + 30 * Math.sin(k * 1.7) + 20 * Math.sin(k * .6)) * S);
+      g.lineTo(x0 + w, y0 + h); g.fill(); g.restore();
+      if (room.state !== 'play' || T < 0) return;
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      for (const it of items) {
+        if (claimed[it.i] || T < it.at - .1 || T > it.at + it.f) continue;
+        const p = starPos(it, T); if (!p) continue;
+        const [x, y] = toS(p[0], p[1]), st = STARS[it.k], sz = (it.k === 1 ? 40 : it.k === 3 ? 34 : 30) * S + 8;
+        // 尾巴
+        const [px, py] = toS(...(starPos(it, Math.max(it.at, T - .25)) || p));
+        g.save(); g.globalCompositeOperation = 'lighter'; g.strokeStyle = `rgba(${st.c},.45)`; g.lineWidth = sz * .35; g.lineCap = 'round';
+        g.beginPath(); g.moveTo(px, py); g.lineTo(x, y); g.stroke(); glowAt(x, y, sz * 1.4, st.c, it.k === 3 ? .25 : .5); g.restore();
+        g.save(); g.translate(x, y); g.rotate(Math.sin(T * 3 + it.ph) * .3); g.font = `${Math.round(sz)}px serif`; g.fillText(st.e, 0, 0); g.restore();
+      }
+    }
+    // 星空塗鴉：格子畫布
+    function drawPaint() {
+      const [x0, y0] = toS(0, 0), w = M.W * S, h = M.H * S, cs = CELL * S;
+      g.save(); g.fillStyle = 'rgba(255,255,255,.03)'; g.fillRect(x0, y0, w, h);
+      const cols = TEAM.map(t => t.c);
+      for (let k = 0; k < grid.length; k++) {
+        const v = grid[k]; if (!v) continue;
+        const cx = k % GX, cy = (k / GX) | 0, c = cols[v - 1], wob = .82 + .1 * Math.sin(time * 2 + k);
+        g.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${.58 + .1 * Math.sin(time * 1.5 + k * .7)})`;
+        g.beginPath(); g.arc(x0 + (cx + .5) * cs, y0 + (cy + .5) * cs, cs * .62 * wob, 0, TAU); g.fill();
+      }
+      g.strokeStyle = 'rgba(210,200,255,.3)'; g.lineWidth = 2; g.beginPath(); g.roundRect ? g.roundRect(x0, y0, w, h, 30 * S) : g.rect(x0, y0, w, h); g.stroke();
+      g.restore();
+      const T = gt(); if (room.state !== 'play' || T < 0) return;
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      for (const it of items) {
+        if (claimed[it.i] || T < it.at) continue;
+        const [x, y] = toS(it.x, it.y + Math.sin(time * 3 + it.ph) * 8), u = clamp((T - it.at) / .5), sz = (34 * S + 10) * (u < 1 ? easeOut(u) * 1.3 : 1 + .08 * Math.sin(time * 6));
+        g.save(); g.globalCompositeOperation = 'lighter'; glowAt(x, y, sz * 1.5, '255,200,235', .45); g.restore();
+        g.font = `${Math.round(sz)}px serif`; g.fillText('🎨', x, y);
+      }
+    }
+    // 星光舞蹈對決：舞台、燈光、跟著節拍亮的地板
+    function drawStage() {
+      const [x0, y0] = toS(0, 0), w = M.W * S, h = M.H * S, T = gt(), bp = T > 0 ? (T / beat) % 1 : 0, pulse = Math.pow(1 - bp, 3), fever = combo >= 10;
+      g.save();
+      const fl = toS(0, M.H * .32)[1], tiles = 10;
+      for (let k = 0; k < tiles; k++) for (let j = 0; j < 4; j++) {
+        const lit = room.state === 'play' && T > 0 && ((k + j + Math.floor(T / beat)) % 3 === 0);
+        const hue = (k * 36 + j * 50 + (fever ? time * 120 : 0)) % 360;
+        g.fillStyle = lit ? `hsla(${hue},80%,70%,${.12 + .22 * pulse})` : 'rgba(255,255,255,.03)';
+        g.fillRect(x0 + w * k / tiles + 2, fl + (h - (fl - y0)) * j / 4 + 2, w / tiles - 4, (h - (fl - y0)) / 4 - 4);
+      }
+      // 掃來掃去的聚光燈
+      g.globalCompositeOperation = 'lighter';
+      for (let k = 0; k < 4; k++) {
+        const a = Math.sin(time * .9 + k * 1.7) * .5, bx = x0 + w * (.15 + k * .23), hue = (k * 90 + time * (fever ? 140 : 30)) % 360;
+        const gr = g.createLinearGradient(bx, y0, bx + Math.sin(a) * h, y0 + h); gr.addColorStop(0, `hsla(${hue},90%,75%,${.16 + .1 * pulse})`); gr.addColorStop(1, `hsla(${hue},90%,75%,0)`);
+        g.fillStyle = gr; g.beginPath(); g.moveTo(bx - 8, y0); g.lineTo(bx + 8, y0); g.lineTo(bx + Math.sin(a) * h + 140 * S, y0 + h); g.lineTo(bx + Math.sin(a) * h - 140 * S, y0 + h); g.fill();
+      }
+      g.globalCompositeOperation = 'source-over';
+      // 中間的分數牆（手機上方已經有分數，就不畫了）
+      if (cw < 600) { g.restore(); return; }
+      g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = `${Math.round(clamp(60 * S, 28, 64))}px ${bodyFont}`;
+      g.fillStyle = `rgba(${TEAM[0].c},.9)`; g.fillText(String(teamTot(0)), x0 + w * .3, y0 + h * .12);
+      g.fillStyle = `rgba(${TEAM[1].c},.9)`; g.fillText(String(teamTot(1)), x0 + w * .7, y0 + h * .12);
+      g.font = `${Math.round(clamp(28 * S, 16, 30))}px serif`; g.fillText(fever ? '🔥 VS 🔥' : '♪ VS ♪', x0 + w / 2, y0 + h * .12);
+      g.restore();
+    }
+    // 舞蹈對決的四條音軌（畫在螢幕上，不跟著鏡頭）
+    function laneBox() { const lw = Math.min(110, (cw - 32) / 4), x0 = cw / 2 - lw * 2, hitY = ch - Math.max(110, ch * .17), top = ch * .3; return { lw, x0, hitY, top }; }
+    function drawLanes() {
+      const { lw, x0, hitY, top } = laneBox(), T = gt(), lead = 1.7, fever = combo >= 10;
+      g.save();
+      for (let l = 0; l < 4; l++) {
+        const x = x0 + l * lw, c = LANES[l].c, f = laneFx[l];
+        const gr = g.createLinearGradient(0, top, 0, hitY + 40); gr.addColorStop(0, `rgba(${c},0)`); gr.addColorStop(1, `rgba(${c},${.1 + Math.max(0, f) * .3})`);
+        g.fillStyle = gr; g.fillRect(x + 4, top, lw - 8, hitY + 40 - top);
+        if (f < -.05) { g.fillStyle = `rgba(255,90,120,${-f * .25})`; g.fillRect(x + 4, top, lw - 8, hitY + 40 - top); }
+        // 判定圈
+        g.strokeStyle = `rgba(${c},${.55 + Math.max(0, f) * .45})`; g.lineWidth = 3 + Math.max(0, f) * 4;
+        g.beginPath(); g.arc(x + lw / 2, hitY, lw * .36 * (1 + Math.max(0, f) * .15), 0, TAU); g.stroke();
+        g.fillStyle = `rgba(${c},.85)`; g.font = `600 ${Math.round(lw * .32)}px ${bodyFont}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(LANES[l].a, x + lw / 2, hitY);
+      }
+      if (room.state === 'play') for (const n of notes) {
+        const d = n.t - T; if (d > lead || d < -.25 || n.hit > 0) continue;
+        const x = x0 + n.l * lw + lw / 2, y = lerp(hitY, top, d / lead), c = LANES[n.l].c, rr = lw * .3;
+        g.globalAlpha = n.hit < 0 ? .3 : clamp((lead - d) / .3);
+        g.save(); g.globalCompositeOperation = 'lighter'; glowAt(x, y, rr * 2, fever ? `${(time * 200 + n.l * 60) % 255 | 0},200,255` : c, .5); g.restore();
+        g.fillStyle = `rgba(${c},.95)`; g.beginPath(); g.arc(x, y, rr, 0, TAU); g.fill();
+        g.fillStyle = '#1a1238'; g.font = `700 ${Math.round(rr * 1.1)}px ${bodyFont}`; g.fillText(LANES[n.l].a, x, y + 1);
+        g.globalAlpha = 1;
+      }
+      if (combo >= 3) { g.fillStyle = fever ? `hsl(${(time * 200) % 360},90%,75%)` : '#fff3dc'; g.font = `${Math.round(clamp(cw * .06, 22, 40))}px ${bodyFont}`; g.textAlign = 'center'; g.fillText(`${combo} COMBO${fever ? ' 🔥' : ''}`, cw / 2, top - 24); }
+      g.restore();
+    }
+    // 跳出來的字、衝擊波
+    function drawFx(dt) {
+      for (let i = rings.length - 1; i >= 0; i--) {
+        const r = rings[i]; r.age += dt; if (r.age > r.life) { rings.splice(i, 1); continue; }
+        const u = r.age / r.life, [x, y] = toS(r.x, r.y);
+        g.strokeStyle = `rgba(${r.c},${(1 - u) * .8})`; g.lineWidth = (1 - u) * 8 + 1; g.beginPath(); g.arc(x, y, r.max * S * easeOut(u), 0, TAU); g.stroke();
+      }
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      for (let i = pops.length - 1; i >= 0; i--) {
+        const p = pops[i]; p.age += dt; if (p.age > 1.3) { pops.splice(i, 1); continue; }
+        const u = p.age / 1.3, [x, y] = toS(p.x, p.y - u * 90), sc = p.age < .15 ? .5 + p.age / .15 * .8 : 1.3 - Math.min(.3, (p.age - .15) * 2);
+        g.globalAlpha = 1 - Math.pow(u, 3);
+        g.font = `700 ${Math.round(clamp(20 * S + 8, 14, 26) * p.big * sc)}px ${bodyFont}`;
+        g.lineWidth = 4; g.strokeStyle = 'rgba(10,8,30,.75)'; g.strokeText(p.t, x, y); g.fillStyle = `rgb(${p.c})`; g.fillText(p.t, x, y);
+      }
+      g.globalAlpha = 1;
     }
     function drawSpace() {
       const [x0, y0] = toS(0, 0);
@@ -10986,10 +11363,27 @@ function petSVG(i, opt = {}) {
       g.fillStyle = 'rgba(255,245,225,.9)'; g.font = `300 ${Math.round(clamp(r * .22, 11, 18))}px ${bodyFont}`;
       g.fillText(`${Math.round(life() * 100)}%`, px, py + r + 22 * S + 8);
     }
-    function drawPetAt(o) {
-      const [x, y] = toS(o.x, o.y), s = PR * S * 2.5, pet = o.petIdx | 0, ab = abilOf(pet), act = time - (o.abT || -9) < ab.dur;
+    function drawPetAt(o, dt) {
+      const [x, y] = toS(o.x, o.y), s = PR * S * 2.5 * (mode === 'dance' ? 1.35 : 1), pet = o.petIdx | 0, ab = abilOf(pet), act = mode !== 'dance' && time - (o.abT || -9) < ab.dur;
       const tc = TEAM[teamOf(o.slot)].c.join(','), moving = Math.hypot(o.vx || 0, o.vy || 0) > 30;
-      const hop = o.dance ? Math.abs(Math.sin(time * 6 + o.slot)) * 18 * S * o.dance : moving ? Math.abs(Math.sin(time * 12 + o.slot)) * 6 * S : Math.sin(time * 2 + o.slot) * 2 * S;
+      let hop = o.dance ? Math.abs(Math.sin(time * 6 + o.slot)) * 18 * S * o.dance : moving ? Math.abs(Math.sin(time * 12 + o.slot)) * 6 * S : Math.sin(time * 2 + o.slot) * 2 * S;
+      // 擠壓、伸展：跑起來 Q 彈 Q 彈
+      let sx = 1, sy = 1, rot = 0;
+      if (moving) { const q = Math.sin(time * 24 + o.slot) * .07; sx = 1 - q; sy = 1 + q; }
+      // 走路揚起的星塵
+      if (moving && dt && Math.random() < dt * 14 && fx.length < 600) fx.push({ x: o.x + rand(-10, 10), y: o.y + PR * .8, vx: -(o.vx || 0) * .15 + rand(-30, 30), vy: rand(-40, -10), age: 0, life: .5, s: .7, e: '', c: tc, g: 0 });
+      // 舞蹈對決：按對節拍就做一個動作（轉圈、蹲、跳、扭）
+      if (mode === 'dance' && room.state === 'play') {
+        const T = gt(); if (T > 0) hop += Math.abs(Math.sin(T / beat * Math.PI)) * 7 * S;
+        const u = (time - (o.hitT || -9)) / .45;
+        if (u >= 0 && u < 1) {
+          const k = Math.sin(u * Math.PI);
+          if (o.mv === 0) rot = u * TAU;
+          else if (o.mv === 1) { sy = 1 - .32 * k; sx = 1 + .28 * k; }
+          else if (o.mv === 2) hop += k * 70 * S;
+          else rot = k * .55 * (o.f || 1);
+        }
+      }
       if (o.ghost && time - o.ghost.t < 1) { const [gx, gy] = toS(o.ghost.x, o.ghost.y); g.save(); g.globalAlpha = .4 * (1 - (time - o.ghost.t)); drawImg(pet, gx, gy, s, o.f); g.restore(); }
       // 隊伍光環
       g.save(); g.globalCompositeOperation = 'lighter'; glowAt(x, y + PR * S * .7, PR * S * 1.6, tc, o.me ? .5 : .3); g.restore();
@@ -11002,8 +11396,20 @@ function petSVG(i, opt = {}) {
         g.restore();
       }
       g.save(); if (o.stun > 0) g.globalAlpha = .6 + .4 * Math.sin(time * 30);
-      drawImg(pet, x, y - hop - (act && ab.k === 'float' ? 14 * S : 0), s, o.f, o.dance ? Math.sin(time * 6 + o.slot) * .25 : moving ? Math.sin(time * 12) * .06 : 0);
+      drawImg(pet, x, y - hop - (act && ab.k === 'float' ? 14 * S : 0), s, o.f, rot || (o.dance ? Math.sin(time * 6 + o.slot) * .25 : moving ? Math.sin(time * 12) * .06 : 0), sx, sy);
       g.restore();
+      // 頭暈：星星繞著頭轉
+      if (o.stun > 0) { g.font = `${Math.round(14 * S + 6)}px serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; for (let j = 0; j < 3; j++) { const a = time * 5 + j * TAU / 3; g.fillText('💫', x + Math.cos(a) * s * .4, y - s * .55 - hop + Math.sin(a) * s * .12); } }
+      // 表情泡泡
+      const eu = time - (o.emT || -9);
+      if (eu >= 0 && eu < 2.2) {
+        const sc = eu < .2 ? eu / .2 * 1.3 : eu < .35 ? 1.3 - (eu - .2) / .15 * .3 : 1, by = y - s * .95 - hop - eu * 12 * S;
+        g.save(); g.globalAlpha = eu > 1.8 ? (2.2 - eu) / .4 : 1;
+        g.fillStyle = 'rgba(255,250,240,.92)'; g.beginPath(); g.arc(x, by, s * .3 * sc, 0, TAU); g.fill();
+        g.beginPath(); g.moveTo(x - s * .06, by + s * .26 * sc); g.lineTo(x, by + s * .38 * sc); g.lineTo(x + s * .08, by + s * .25 * sc); g.fill();
+        g.font = `${Math.round(s * .36 * sc)}px serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(EMOS[o.emI | 0] || '✨', x, by + 1);
+        g.restore();
+      }
       if (ab.k === 'float' && act) { g.strokeStyle = 'rgba(200,235,255,.6)'; g.lineWidth = 1.5; g.beginPath(); g.arc(x, y - 14 * S, s * .58, 0, TAU); g.stroke(); }
       // 手上的物資繞著寵物轉
       if (o.c) { g.font = `${Math.round(16 * S + 6)}px serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; [...o.c].forEach((k, j) => { const a = time * 2.4 + j * TAU / o.c.length; g.fillText(ITEMS[+k].e, x + Math.cos(a) * s * .62, y - s * .1 + Math.sin(a) * s * .3); }); }
@@ -11012,9 +11418,9 @@ function petSVG(i, opt = {}) {
       g.fillStyle = o.me ? '#fff3dc' : `rgba(${tc},.95)`;
       g.fillText((o.me ? '▼ ' : '') + (o.bot ? '✦ ' + o.petName : o.petName), x, y - s * .55 - hop);
     }
-    function drawImg(i, x, y, s, f = 1, rot = 0) {
-      const im = PET_IMG[i]; if (!imgOK(im)) { g.fillStyle = PETS[i].c; g.beginPath(); g.arc(x, y, s * .35, 0, TAU); g.fill(); return; }
-      g.save(); g.translate(x, y); if (rot) g.rotate(rot); g.scale(f < 0 ? -1 : 1, 1); g.drawImage(im, -s / 2, -s / 2, s, s); g.restore();
+    function drawImg(i, x, y, s, f = 1, rot = 0, sx = 1, sy = 1) {
+      const im = PET_IMG[i]; if (!imgOK(im)) { g.fillStyle = PETS[i].c; g.beginPath(); g.ellipse(x, y, s * .35 * sx, s * .35 * sy, 0, 0, TAU); g.fill(); return; }
+      g.save(); g.translate(x, y + s * .5 * (1 - sy)); if (rot) g.rotate(rot); g.scale((f < 0 ? -1 : 1) * sx, sy); g.drawImage(im, -s / 2, -s / 2, s, s); g.restore();
     }
 
     /* ---------- 介面 ---------- */
@@ -11022,12 +11428,15 @@ function petSVG(i, opt = {}) {
       const T = gt(), left = ended || room.state === 'end' ? 0 : room.state === 'play' ? Math.max(0, Math.ceil(M.dur - Math.max(0, T))) : M.dur, mm = Math.floor(left / 60) + ':' + ('0' + (left % 60)).slice(-2);
       let mid;
       if (mode === 'ball') { const sc = W0.sc || {}; mid = `${+sc[0] || 0} : ${+sc[1] || 0}`; }
-      else mid = `✦${teamTot(0)} · ✦${teamTot(1)}`;
+      else if (mode === 'paint') mid = `${pct(0)}% : ${pct(1)}%`;
+      else if (mode === 'save') mid = `✦${teamTot(0)} · ✦${teamTot(1)}`;
+      else mid = `${teamTot(0)} : ${teamTot(1)}`;
       const txt = `${TEAM[0].n()}|${mid}|${TEAM[1].n()}|${mm}`;
       if (hud.last !== txt) {
         hud.last = txt;
         $('arA').textContent = TEAM[0].n(); $('arB').textContent = TEAM[1].n(); $('arSc').textContent = mid; $('arTm').textContent = '⏱ ' + mm;
         $('arLife').textContent = mode === 'save' ? L(`星球生命 ${Math.round(life() * 100)}%`, `Planet life ${Math.round(life() * 100)}%`) : '';
+        $('arLife').hidden = mode !== 'save';
       }
       const cdLeft = Math.max(0, CD - (time - me.abT)), b = $('arAb');
       b.style.setProperty('--cd', (cdLeft / CD * 360).toFixed(0) + 'deg'); b.classList.toggle('cd', cdLeft > 0);
@@ -11039,7 +11448,7 @@ function petSVG(i, opt = {}) {
       root.dataset.s = ended ? 'end' : room.state || 'wait'; root.dataset.m = mode;
       $('arWait').classList.toggle('on', wait);
       if (wait) {
-        $('arWT').textContent = mode === 'ball' ? '⭐ 3V3 STAR BALL｜星球球' : '🪐 3V3 SAVE THE PLANET｜搶救小星球';
+        $('arWT').textContent = `${MODE_INFO[mode].t}｜${MODE_INFO[mode].n()}`;
         $('arWS').textContent = howTo();
         $('arCode').textContent = L(`房間代碼 ${code}`, `Room code ${code}`) + (priv ? L('（私人）', ' (private)') : '');
         const box = $('arTeams'); box.textContent = '';
@@ -11061,10 +11470,13 @@ function petSVG(i, opt = {}) {
     }
     function howTo() {
       const ab = abilOf(myPet);
-      return (mode === 'ball'
-        ? L('拖曳畫面（或用方向鍵）移動寵物，把發光的星星球推進對面的星門。', 'Drag (or use arrow keys) to move your pet and push the glowing star ball into the other team\'s gate.')
-        : L('去宇宙各處撿 💧星露 ✨星塵 🌱種子 ☀️光球（一次最多 3 個），帶回中央的灰色小星球。小心星雲風、小黑洞和流星雨！', 'Collect 💧 star dew, ✨ stardust, 🌱 seeds and ☀️ light orbs (3 at a time) and bring them to the grey planet in the middle. Watch out for nebula wind, black holes and meteors!'))
-        + ' ' + L(`你的星座能力是 ${ab.icon} ${ab.n()}：${ab.d()}（空白鍵或右下角按鈕）。`, `Your sign's power is ${ab.icon} ${ab.n()}: ${ab.d()} (Space or the button).`);
+      if (mode === 'dance') return L('音符落到下面的圈圈時，點那一條音軌（或按 ← ↓ ↑ → / D F J K）。越準分數越高，連擊 10 下進入 FEVER，每一下多 1 分！左下角可以送表情給大家。', 'Tap a lane (or press ← ↓ ↑ → / D F J K) when its note reaches the circle. Better timing scores more; a 10-hit combo starts FEVER for +1 each hit! Send emotes from the bottom left.');
+      return ({
+        ball: L('拖曳畫面（或用方向鍵）移動寵物，把發光的星星球推進對面的星門。', 'Drag (or use arrow keys) to move your pet and push the glowing star ball into the other team\'s gate.'),
+        catch: L('拖曳畫面（或用方向鍵）移動寵物，接住掉下來的流星：⭐ 1 分、💫 2 分、🌟 3 分。連續接會有連擊，碰到 🌑 會頭暈一下。', 'Drag (or use arrow keys) to catch falling stars: ⭐ 1, 💫 2, 🌟 3 points. Catch in a row for combos; touching a 🌑 makes you dizzy.'),
+        paint: L('拖曳畫面（或用方向鍵）到處跑，走過的地方都會變成你們隊的顏色，也可以蓋掉對方的。撿到 🎨 會炸開一大片！', 'Drag (or use arrow keys) to run around — everywhere you go turns your team\'s color, even over the other team\'s. Grab 🎨 for a huge splash!'),
+        save: L('去宇宙各處撿 💧星露 ✨星塵 🌱種子 ☀️光球（一次最多 3 個），帶回中央的灰色小星球。小心星雲風、小黑洞和流星雨！', 'Collect 💧 star dew, ✨ stardust, 🌱 seeds and ☀️ light orbs (3 at a time) and bring them to the grey planet in the middle. Watch out for nebula wind, black holes and meteors!')
+      }[mode]) + ' ' + L(`你的星座能力是 ${ab.icon} ${ab.n()}：${ab.d()}（空白鍵或右下角按鈕）。`, `Your sign's power is ${ab.icon} ${ab.n()}: ${ab.d()} (Space or the button).`);
     }
     async function moveTo(slot) {
       if (joining) return; joining = true;
@@ -11081,6 +11493,7 @@ function petSVG(i, opt = {}) {
     /* ---------- 輸入 ---------- */
     cv.addEventListener('pointerdown', e => {
       if (!on || ended) return; e.preventDefault();
+      if (mode === 'dance') { const { lw, x0, top } = laneBox(), l = Math.floor((e.clientX - x0) / lw); if (e.clientY > top - 40 && l >= 0 && l < 4) hitLane(l); return; }
       cv.setPointerCapture && cv.setPointerCapture(e.pointerId);
       input.stick = { id: e.pointerId, x0: e.clientX, y0: e.clientY }; input.x = input.y = 0;
     });
@@ -11095,6 +11508,8 @@ function petSVG(i, opt = {}) {
       if (!on) return;
       if (e.key === ' ' || e.key === 'Shift') { e.preventDefault(); useAbility(); return; }
       const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+      if (/^[1-4]$/.test(k) && !e.repeat) { emote(+k - 1); return; }
+      if (mode === 'dance') { const l = LANES.findIndex(q => q.k.includes(k)); if (l >= 0) { e.preventDefault(); e.stopImmediatePropagation(); if (!e.repeat) hitLane(l); } return; }
       if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'w', 'a', 's', 'd'].includes(k)) { input.keys.add(k); e.preventDefault(); e.stopImmediatePropagation(); }
     }, true);
     window.addEventListener('keyup', e => { const k = e.key.length === 1 ? e.key.toLowerCase() : e.key; input.keys.delete(k); });
@@ -11113,10 +11528,12 @@ function petSVG(i, opt = {}) {
       const msg = $('gmMsg'); msg.textContent = '';
       $('gmTitle').textContent = L('一起玩', 'Play together');
       $('gmSub').textContent = L('六隻寵物、兩隊、一場遊戲。人不夠的時候，星靈 ✦ 會來補位。', 'Six pets, two teams, one game. Star Sprites ✦ fill in when there aren\'t enough travelers.');
-      $('gmBall').innerHTML = ''; $('gmSave').innerHTML = '';
-      [['gmBall', '⭐ 3V3 STAR BALL', L('星球球', 'Star Ball'), L('三隻對三隻，把巨大的發光星星球推進對方的星門。進球不會喊 GOAL，星門會直接炸成幾百朵花和星星。', 'Three vs three: push a giant glowing star into the other gate. A goal bursts into hundreds of flowers and stars.')],
-        ['gmSave', '🪐 3V3 SAVE THE PLANET', L('搶救小星球', 'Save the Planet'), L('兩隊比賽收集星露、星塵、種子和光球，躲開星雲風、小黑洞和流星雨，最後一起讓灰色的小星球長出生命。', 'Race to gather star dew, stardust, seeds and light orbs, dodge wind, black holes and meteors, and bring a grey planet back to life together.')]]
-        .forEach(([id, t, s, d]) => { const b = $(id); const x = document.createElement('b'); x.textContent = t; const y = document.createElement('span'); y.textContent = s; const z = document.createElement('small'); z.textContent = d; b.append(x, y, z); });
+      const box = $('gmModes'); box.textContent = '';
+      Object.keys(MODE_INFO).forEach(m => {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'gm-mode'; b.dataset.m = m;
+        const x = document.createElement('b'); x.textContent = MODE_INFO[m].t; const y = document.createElement('span'); y.textContent = MODE_INFO[m].n(); const z = document.createElement('small'); z.textContent = MODE_INFO[m].d();
+        b.append(x, y, z); b.addEventListener('click', () => play(m, $('gmPriv').checked)); box.appendChild(b);
+      });
       $('gmPrivL').textContent = L('建立私人房間（只有拿到代碼的朋友能加入）', 'Private room (only friends with the code can join)');
       $('gmCode').placeholder = L('朋友給的房間代碼', 'Room code from a friend'); $('gmJoin').textContent = L('加入', 'Join'); $('gmClose').textContent = L('回到宇宙', 'Back to the universe');
       dlg.classList.add('on');
@@ -11165,8 +11582,7 @@ function petSVG(i, opt = {}) {
       }
       code = ''; R = ''; others.clear(); bots = {}; hostW = null; ended = false; joining = false; input.keys.clear(); input.stick = null;
     }
-    $('gmBall').addEventListener('click', () => play('ball', $('gmPriv').checked));
-    $('gmSave').addEventListener('click', () => play('save', $('gmPriv').checked));
+    EMOS.forEach((em, i) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = em; b.setAttribute('aria-label', em); b.addEventListener('pointerdown', e => { e.preventDefault(); emote(i); }); $('arEmo').appendChild(b); });
     $('gmJoin').addEventListener('click', () => join($('gmCode').value));
     $('gmCode').addEventListener('keydown', e => { if (e.key === 'Enter') join($('gmCode').value); });
     $('gmClose').addEventListener('click', () => dlg.classList.remove('on'));
@@ -11178,6 +11594,11 @@ function petSVG(i, opt = {}) {
         items: items.filter(it => !claimed[it.i] && gt() >= it.at).slice(0, 40).map(it => [it.i, r1(it.x), r1(it.y)]) });
       window.__arIn = (x, y) => { input.x = x; input.y = y; };
       window.__arAb = () => useAbility();
+      window.__arLane = l => hitLane(l);
+      window.__arNotes = () => { const t = gt(); return notes.filter(n => !n.hit && n.t - t > -.1 && n.t - t < .6).map(n => [n.l, +(n.t - t).toFixed(3)]); };
+      window.__arStars = () => { const t = gt(); return items.filter(it => !claimed[it.i] && it.k !== 3 && t >= it.at && t <= it.at + it.f).map(it => starPos(it, t)).filter(Boolean).map(p => p.map(r1)); };
+      window.__arFx = () => ({ pops: pops.length, rings: rings.length, fx: fx.length, shake: +shakeA.toFixed(2), combo, best: bestCombo, del: me.del, sent: me.delSent, pct: [pct(0), pct(1)], tot: [teamTot(0), teamTot(1)] });
+      window.__arEmo = i => emote(i);
       window.__arTp = (x, y) => { me.x = x; me.y = y; };   // 測試：直接移到某個位置
     }
     return { openLobby, join, close, get on() { return on; } };

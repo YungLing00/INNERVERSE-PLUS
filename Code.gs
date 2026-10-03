@@ -34,8 +34,10 @@ const STYLE = 'a single enchanted miniature planet floating alone, centered, rou
   + 'soft iridescent pearlescent surface, luminous rim light, dreamy pastel glow, gentle bloom, whimsical and elegant, '
   + 'highly detailed hand-painted stylized textures, smooth clean sculpted shapes, premium collectible figurine quality, '
   + 'no text, no face, no characters, no base, no stand, isolated game asset';
-const NEGATIVE = 'text, letters, logo, watermark, face, eyes, mouth, nose, person, character, animal, creature, multiple objects, '
-  + 'base, stand, pedestal, ground plane, scene background, room, dark gloomy, horror, dirty, rusty, noisy texture, low poly, blurry, flat shading, broken mesh';
+// Tripo 的 negative_prompt 最多 255 個字元，超過整個任務會被拒絕（之前星球生不出來的原因）
+const NEGATIVE = 'text, logo, watermark, face, eyes, person, character, animal, multiple objects, base, stand, pedestal, '
+  + 'ground plane, background scene, gloomy, horror, dirty, rusty, noisy texture, low poly, blurry, flat shading, broken mesh';
+const TRIPO_PROMPT_MAX = 1000, TRIPO_NEG_MAX = 255;
 
 const TRAIT_PROMPTS = {
   E_hi:'a radiant golden sun-kissed planet wrapped in shimmering ribbons of light, swirling amber and honey cloud bands, a sparkling halo ring of tiny stars, little floating lanterns orbiting like fireflies, ',
@@ -268,7 +270,8 @@ function modelStart_(body) {
       } catch (_) { /* 舊任務查不到就重新生成 */ }
     }
   }
-  const task = {type:'text_to_model',prompt,negative_prompt:NEGATIVE,texture:true,pbr:true};
+  const neg = NEGATIVE.length > TRIPO_NEG_MAX ? NEGATIVE.slice(0, NEGATIVE.lastIndexOf(', ', TRIPO_NEG_MAX)) : NEGATIVE;
+  const task = {type:'text_to_model',prompt:prompt.slice(0, TRIPO_PROMPT_MAX),negative_prompt:neg,texture:true,pbr:true};
   const v = prop_('TRIPO_MODEL_VERSION');
   if (v) task.model_version = v;
   // 高清：預設用 Tripo 的「detailed」貼圖品質，不限制面數
@@ -281,17 +284,14 @@ function modelStart_(body) {
     payload:JSON.stringify(t),
     muteHttpExceptions:true
   });
-  let r = send(task);
-  let status = r.getResponseCode();
-  let text = r.getContentText();
-  let data = {};
-  try { data = JSON.parse(text); } catch (_) {}
-  // 這個帳號或模型版本不支援高清貼圖參數時，退回一般品質再送一次，至少能生成
-  if ((status < 200 || status >= 300 || data.code !== 0) && task.texture_quality) {
-    delete task.texture_quality;
-    r = send(task); status = r.getResponseCode(); text = r.getContentText(); data = {};
-    try { data = JSON.parse(text); } catch (_) {}
-  }
+  let status = 0, text = '', data = {};
+  const tryOnce = t => { const r = send(t); status = r.getResponseCode(); text = r.getContentText(); data = {}; try { data = JSON.parse(text); } catch (_) {} return status >= 200 && status < 300 && data.code === 0; };
+  // 送不成功時一步一步退回比較保守的設定，至少讓星球生得出來：
+  // ① 完整設定 → ② 拿掉高清貼圖參數 → ③ 再拿掉 negative_prompt 和 PBR
+  // 額度不足（HTTP 403 / code 2010）或金鑰錯誤（401）就不用重試了
+  const fatal = () => status === 401 || status === 403 || data.code === 2010 || data.code === 1002;
+  if (!tryOnce(task) && !fatal() && task.texture_quality) { delete task.texture_quality; tryOnce(task); }
+  if ((status < 200 || status >= 300 || data.code !== 0) && !fatal()) { delete task.negative_prompt; delete task.pbr; tryOnce(task); }
   if (status < 200 || status >= 300 || data.code !== 0 || !data.data || !data.data.task_id) {
     return json_({ok:false,error:'Tripo 建立任務失敗（HTTP ' + status + '）：' + ((data && data.message) || text.slice(0,300)),detail:text.slice(0,600)});
   }

@@ -6354,6 +6354,16 @@ function petSVG(i, opt = {}) {
   /* ---------- 解讀：有設定 endpoint 就呼叫後端，否則用示範回應 ---------- */
   const wait = ms => new Promise(r => setTimeout(r, ms));
 
+  // 「沒有」「無」「目前沒有」「應該沒什麼煩惱吧」「還好」「nothing」⋯⋯都當作這次沒有煩惱
+  // （只看整句話：「沒有人懂我」「無聊」這種有內容的不算）
+  function isNoWorry(t) {
+    const s = String(t || '').toLowerCase().replace(/[\s。．.!！?？~～,，、…「」『』"'`’\-—_:;；：()（）*＊/／]+/g, '');
+    if (!s) return true;
+    if (s.length > 24) return false;
+    return /^(我|i)?(目前|現在|现在|最近|暫時|暂时|好像|應該|应该|其實|其实|真的|完全|都|也|還|还|今天|這次|这次|好像也|基本上)*(沒有|没有|沒|没|無|无|木有|冇)(什麼|什么|甚麼|啥|特別|特别|任何|太多|多大|多少)?(的)?(煩惱|烦恼|困擾|困扰|問題|问题|心事|事情|事|壓力|压力|想說的|要說的)?(耶|喔|哦|啊|欸|吧|呢|啦|嗎|吗|了|的|捏|唷|哇|ㄟ|ㄛ|誒|餒)*$/.test(s)
+      || /^(還好|还好|還行|还行|沒事|没事|不用|不需要|一切都好|一切安好|都很好|很好|很開心|很开心|開心|开心|無憂|无忧|無煩惱|无烦恼|ok|okay|fine|good|x|no|nope|none|nothing|nah|na|n\/a|nil|notreally|nothingreally|nothingmuch|noworries|noworry|imfine|imok|allgood|idonthaveany|idonthaveanyworries|ない|なし|特にない|特になし|とくにない|大丈夫|ないです|없어|없어요|없음|딱히없어|괜찮아|괜찮아요|không|khôngcó|khôngcógì|chẳngcógì)(啦|喔|哦|啊|吧|呢|了|的|耶)*$/.test(s);
+  }
+
   function mockReply(p) {
     const worry = p.worry ? firstPhrase(p.worry, 24) : '';
     const hobby = p.hobbies ? firstPhrase(p.hobbies, 16) : '';
@@ -6518,7 +6528,7 @@ function petSVG(i, opt = {}) {
     const bdayText = b => L(`${b.year ? b.year + ' 年 ' : ''}${b.month} 月 ${b.day} 日，${b.zodiac}`, `${MON[b.month - 1]} ${b.day}${b.year ? ', ' + b.year : ''} · ${zName(b.zodiac)}`, { ja: `${b.year ? b.year + '年' : ''}${b.month}月${b.day}日・${zName(b.zodiac)}`, ko: `${b.year ? b.year + '년 ' : ''}${b.month}월 ${b.day}일 · ${zName(b.zodiac)}`, vi: `${b.day}/${b.month}${b.year ? '/' + b.year : ''} · ${zName(b.zodiac)}` });
 
     function showSummary() {
-      const vals = [data.name, bdayText(data.bday), data.raw.hobby || L('（略過）', '(skipped)'), data.raw.worry || L('（略過）', '(skipped)')];
+      const vals = [data.name, bdayText(data.bday), data.raw.hobby || L('（略過）', '(skipped)'), isNoWorry(data.raw.worry) ? L('沒有煩惱 ✦', 'No worries ✦', { ja: '悩みなし ✦', ko: '걱정 없음 ✦', vi: 'Không có nỗi lo ✦' }) : data.raw.worry];
       sumList.textContent = '';
       vals.forEach((v, i) => {
         const row = document.createElement('div'); row.className = 'row';
@@ -6540,11 +6550,12 @@ function petSVG(i, opt = {}) {
         name: data.name,
         birthday: { raw: data.raw.bday, year: b.year, month: b.month, day: b.day, zodiac: b.zodiac },
         hobbies: data.raw.hobby,
-        worry: data.raw.worry,
+        worry: isNoWorry(data.raw.worry) ? '' : data.raw.worry,   // 「沒有」「無」之類＝這次沒有煩惱
         interpretationBasis: {
           birthdayRaw: data.raw.bday,
           hobbiesRaw: data.raw.hobby,
-          worryRaw: data.raw.worry
+          worryRaw: data.raw.worry,
+          noWorry: isNoWorry(data.raw.worry)
         },
         locale: CONFIG.LANG
       };
@@ -7605,7 +7616,7 @@ function petSVG(i, opt = {}) {
       runAI(my);
       {
         const wq = String((App.user && App.user.worry) || '').trim();
-        const noW = !wq || /^(沒有|沒|無|沒事|沒什麼|不用|不需要|沒煩惱|沒有煩惱|沒啥|no|nope|none|nothing|nah|not really|no worries|ない|なし|特にない|特になし|大丈夫|없어|없어요|없음|딱히 없어|không|không có|chẳng có gì)[。！!，,.\s]*$/i.test(wq);
+        const noW = isNoWorry(wq);
         Me.build({ weather: noW ? 'sunny' : (score.N >= 3.8 ? 'fog' : 'rain') }); publishMe(); Universe.refresh();
       }
     }
@@ -8777,7 +8788,7 @@ function petSVG(i, opt = {}) {
     const later = (sec, fn) => { sleep(sec).then(fn).catch(() => {}); };
     const say = async (lines, hold = 1.2, cls = '', stagger = .8) => { buildCaption(lines, stagger, cls); await sleep(1 + stagger * (lines.length - 1) + hold); hideCaption(); await sleep(.5); };
     const worryText = () => ((App.user && App.user.worry) || '').trim();
-    const hasWorry = () => { const w = worryText(); return w.length > 0 && !/^(沒有|沒|無|沒事|沒什麼|不用|不需要|沒煩惱|沒有煩惱|沒啥|no|nope|none|nothing|nah|not really|no worries|ない|なし|特にない|特になし|大丈夫|없어|없어요|없음|딱히 없어|không|không có|chẳng có gì)[。！!，,.\s]*$/i.test(w); };
+    const hasWorry = () => !isNoWorry(worryText());
     const petName = () => App.petName || PETS[App.petIdx].en;
     const vib = p => { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) { /* ignore */ } };
     const u2s = (ux, uy) => [CX + ux * U, CY + uy * U * rtYS];
@@ -9089,7 +9100,7 @@ function petSVG(i, opt = {}) {
       setState('ritual'); Object.assign(P, { fade: 0, nebula: .6, starAlpha: .95, starSpeed: .02, dust: .3, orb: 0 });
       const dlg = $('worryDlg'), ta = $('wdText');
       ta.value = ''; dlg.classList.add('on'); setTimeout(() => ta.focus(), 300);
-      const go = w => { dlg.classList.remove('on'); App.user.worry = w; start(); };
+      const go = w => { dlg.classList.remove('on'); App.user.worry = isNoWorry(w) ? '' : w; start(); };
       $('wdGo').onclick = () => { const w = ta.value.trim(); if (!w) { ta.focus(); return; } go(w.slice(0, 500)); };
       $('wdSkip').onclick = () => go('');
     }

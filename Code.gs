@@ -607,7 +607,35 @@ function universe_(e) {
       big5: { O: Number(r.O) || 3, C: Number(r.C) || 3, E: Number(r.E) || 3, A: Number(r.A) || 3, N: Number(r.N) || 3 }
     }));
   const friends = rows_(sheet_(FRIEND_SHEET, FRIEND_HEADERS)).slice(-3000).map(f => [f.pidA, f.pidB, Number(f.level) || 1]);
-  return json_({ok:true, planets, friends});
+  return json_({ok:true, planets: planets.concat(testers_(planets)), friends});
+}
+
+// 所有測驗過的人都要在宇宙裡：「旅人總表」和最早的 INNERVERSE_DATA 裡、還沒有星球的旅人也一起列出來
+// 只給公開資料（名字、寵物、五行、人格分數、星球名稱），不給生日、煩惱、興趣
+function testers_(planets) {
+  const seen = new Set(planets.map(p => String(p.name || '').trim().toLowerCase())), out = [];
+  const WX = { '木': 'wood', '火': 'fire', '土': 'earth', '金': 'metal', '水': 'water' };
+  const elOf = v => { v = String(v || ''); if (/^(wood|fire|earth|metal|water)$/.test(v)) return v; for (const k in WX) if (v.indexOf(k) >= 0) return WX[k]; return 'wood'; };
+  const n5 = v => { const x = Number(v); return x >= 1 && x <= 5 ? Math.round(x * 100) / 100 : 3; };
+  const push = (name, o) => {
+    name = String(name || '').trim(); const k = name.toLowerCase(); if (!name || seen.has(k) || out.length >= 900) return; seen.add(k);
+    out.push(Object.assign({ model: '', img: '', pid: 'T' + promptHash_(k).slice(0, 12), name, lights: 0, weather: 'sunny', tester: true }, o, { typeKey: o.typeKey || 'BAL' }));
+  };
+  try {
+    travelerRows_().rows.slice().reverse().forEach(r => {
+      let rs = {}; try { rs = JSON.parse(r.restore || '{}'); } catch (_) { rs = {}; }
+      const b = rs.big5 || {};
+      push(r.name, { planetName: str_(r.planet, 30), typeKey: str_(rs.typeKey || '', 8), petIdx: rs.petIdx === '' || rs.petIdx == null ? '' : Number(rs.petIdx), petSign: str_(r.zodiac, 10), zodiac: str_(r.zodiac, 10), petName: str_(r.petName, 20), element: elOf(r.element),
+        big5: { O: n5(b.O || r.O), C: n5(b.C || r.C), E: n5(b.E || r.E), A: n5(b.A || r.A), N: n5(b.N || r.N) } });
+    });
+  } catch (err) { console.error('testers 旅人總表: ' + err.message); }
+  try {
+    rows_(sheet_(SHEET_NAME, HEADERS)).slice().reverse().forEach(r => {
+      push(r['使用者名稱'], { planetName: str_(r['星球名稱'], 30), typeKey: '', petIdx: '', petSign: str_(r['星座'], 10), zodiac: str_(r['星座'], 10), petName: str_(r['寵物名稱'], 20), element: elOf(r['五行']),
+        big5: { O: n5(r['O_開放性']), C: n5(r['C_盡責性']), E: n5(r['E_外向性']), A: n5(r['A_親和性']), N: n5(r['N_神經質']) } });
+    });
+  } catch (err) { console.error('testers INNERVERSE_DATA: ' + err.message); }
+  return out;
 }
 
 function starlight_(b) {

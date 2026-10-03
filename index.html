@@ -106,6 +106,15 @@
     pointer-events: none; opacity: 1; transition: opacity 1s ease;
   }
   [data-state="idle"] .ctl, [data-state="end"] .ctl { opacity: 0; visibility: hidden; }
+  /* 加速／跳過：敘事比較長的地方才出現 */
+  .ff-bar { position: fixed; z-index: 6; right: calc(env(safe-area-inset-right, 0px) + 14px); bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); display: none; gap: 8px; align-items: center; }
+  [data-state^="act"] .ff-bar, [data-state="end"] .ff-bar, [data-state="origin"] .ff-bar, [data-state="wuxing"] .ff-bar, [data-state="feel"] .ff-bar, [data-state="ritual"] .ff-bar { display: flex; }
+  .ff-skip { display: none; }
+  [data-state^="act"] .ff-skip, [data-state="end"] .ff-skip { display: inline-flex; }
+  .ff-bar .pill { min-height: 38px; padding: .45rem .9rem; font-size: .74rem; letter-spacing: .1em; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: none; }
+  .ff-bar .ff-hold.on { color: #1a1238; font-weight: 500; background: linear-gradient(135deg, #ffe3a8, #ffd6e8); box-shadow: 0 0 22px rgba(255,214,170,.6); }
+  body.ff .caption .ln { transition-duration: .35s !important; transition-delay: 0s !important; }
+  body.ff::after { content: '⏩ ×4'; position: fixed; z-index: 6; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 64px); transform: translateX(-50%); padding: .2rem .7rem; border-radius: 99px; font: 600 .78rem var(--latin), sans-serif; letter-spacing: .14em; color: #1a1238; background: rgba(255,226,170,.85); pointer-events: none; }
   .pill {
     pointer-events: auto; min-height: 40px; padding: .55rem 1.1rem;
     font-family: var(--tc); font-size: .8rem; font-weight: 300; letter-spacing: .18em;
@@ -214,6 +223,10 @@
     white-space: pre-line; text-wrap: balance;
     text-shadow: 0 0 18px rgba(5,4,15,.95);
   }
+  .q-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: .7rem; }
+  .q-chips:empty { display: none; }
+  .q-chip { padding: .45rem .9rem; border-radius: 999px; border: 1px solid rgba(255,226,170,.45); background: rgba(255,226,170,.08); color: #fff3dc; font-family: var(--tc); font-size: .78rem; letter-spacing: .06em; cursor: pointer; transition: background .2s ease, transform .2s ease; }
+  .q-chip:hover, .q-chip:focus-visible { background: rgba(255,226,170,.2); transform: translateY(-1px); outline: none; }
   .qnote { margin: .6rem auto 0; max-width: 30em; padding: .45rem .8rem; border-radius: 12px; font-size: .76rem; line-height: 1.7; letter-spacing: .06em; color: rgba(255,232,190,.9); background: rgba(255,226,170,.07); border: 1px solid rgba(255,226,170,.2); }
   .qnote:empty { display: none; }
   .qhint { margin-top: .7rem; font-size: .88rem; letter-spacing: .12em; color: var(--dim); line-height: 1.7; }
@@ -1061,6 +1074,10 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
     <button class="pill" id="snd" type="button" aria-pressed="true">聲音：開</button>
   </div>
 </div>
+<div class="ff-bar" id="ffBar">
+  <button class="pill ff-hold" id="ffHold" type="button" aria-label="長按加速">⏩ <span id="ffHoldT">長按加速</span></button>
+  <button class="pill ff-skip" id="ffSkip" type="button">跳過開場 ⏭</button>
+</div>
 
 <div class="prompt" id="prompt">
   <span class="pe">Touch a feeling.</span>
@@ -1083,6 +1100,7 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
       <h2 class="q" id="qText"></h2>
       <p class="qhint" id="qHint"></p>
       <p class="qnote" id="qNote"></p>
+      <div class="q-chips" id="qChips"></div>
     </div>
     <div class="mic-wrap">
       <button class="mic" id="mic" type="button" aria-label="開始語音輸入">
@@ -1388,6 +1406,8 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
   })();
   // 日文、韓文、越南文：以英文為 key 的對照表 [ja, ko, vi]
   const I18N = {
+    "Hold to speed up": ["長押しで早送り", "길게 눌러 빨리 감기", "Nhấn giữ để tua nhanh"],
+    "Skip intro ⏭": ["オープニングをスキップ ⏭", "오프닝 건너뛰기 ⏭", "Bỏ qua phần mở đầu ⏭"],
     "🖐️ Palm toward / away from the camera: zoom in / out": ["🖐️ 手のひらをカメラに近づける／離す：拡大／縮小", "🖐️ 손바닥을 카메라에 가까이／멀리：확대／축소", "🖐️ Đưa lòng bàn tay lại gần / ra xa camera: phóng to / thu nhỏ"],
     "✌️ Move two or three fingers: pan": ["✌️ 2本か3本の指を動かす：移動", "✌️ 두세 손가락을 움직이기：이동", "✌️ Di chuyển hai hoặc ba ngón tay: dịch chuyển"],
     "Have You Seen a Feeling?": ["感情を見たことある？", "감정을 본 적 있나요?", "Bạn đã từng nhìn thấy cảm xúc chưa?"],
@@ -4045,6 +4065,7 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
 
   // 靜態 HTML 的英文：依中文原文對照替換文字節點、placeholder、aria-label
   const HTML_EN = {
+    '長按加速': 'Hold to speed up', '跳過開場 ⏭': 'Skip intro ⏭',
     '🎮 一起玩': '🎮 Play together', '現在開始': 'Start now', '邀請朋友': 'Invite friends', '離開': 'Leave', '再玩一次': 'Play again', '回到宇宙': 'Back to the universe',
     '友情星圖': 'Friendship Constellation', '在 INNERVERSE，每一段友情，都從一支舞開始。': 'In INNERVERSE, friendship begins with a dance.', '留下一句話（只有星球主人看得到）': 'Leave a few words (only the owner can see)', '想對牠的主人說些什麼？': 'Anything you want to tell the owner?', '送出': 'Send',
     '最近，心裡有什麼煩惱嗎？': 'Has anything been weighing on you lately?', '說出來，讓寵物陪你一起放下。': 'Say it, and let your pet help you set it down.', '不用整理，想到什麼就寫什麼': 'No need to organize it — write whatever comes', '交給寵物': 'Give it to my pet', '沒有煩惱，陪我一下就好': 'No worries — just keep me company',
@@ -4131,6 +4152,8 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
     },
     // 點亮宇宙：hourly＝每小時整點開始 20 分鐘（台灣時間）／always＝一直開著（測試用）／off＝關閉
     EVENT_MODE: 'hourly',
+    // 開場（第 I～VI 幕）的基本速度：1＝原速（約 3 分鐘）、1.5＝約 2 分鐘、2＝約 1.5 分鐘。觀眾也可以長按「⏩」再快 4 倍，或直接「跳過開場」
+    INTRO_SPEED: 1,
     // 想先預先生成好 .glb 放在網站裡、省錢又快？填資料夾，例如 'models/'，檔名為 O_hi.glb、E_lo.glb、BAL.glb …
     STATIC_MODELS: '',
     LANG: { zh: 'zh-TW', en: 'en-US', ja: 'ja-JP', ko: 'ko-KR', vi: 'vi-VN' }[LANG]          // 語音辨識語言
@@ -6354,14 +6377,37 @@ function petSVG(i, opt = {}) {
   /* ---------- 解讀：有設定 endpoint 就呼叫後端，否則用示範回應 ---------- */
   const wait = ms => new Promise(r => setTimeout(r, ms));
 
+  // 「沒有」「無」「目前沒有」「應該沒什麼煩惱吧」「還好」「nothing」⋯⋯都當作這次沒有煩惱
+  // （只看整句話：「沒有人懂我」「無聊」這種有內容的不算）
+  function isNoWorry(t) {
+    const s = String(t || '').toLowerCase().replace(/[\s。．.!！?？~～,，、…「」『』"'`’\-—_:;；：()（）*＊/／]+/g, '');
+    if (!s) return true;
+    if (s.length > 24) return false;
+    return /^(我|i)?(目前|現在|现在|最近|暫時|暂时|好像|應該|应该|其實|其实|真的|完全|都|也|還|还|今天|這次|这次|好像也|基本上)*(沒有|没有|沒|没|無|无|木有|冇)(什麼|什么|甚麼|啥|特別|特别|任何|太多|多大|多少)?(的)?(煩惱|烦恼|困擾|困扰|問題|问题|心事|事情|事|壓力|压力|想說的|要說的)?(耶|喔|哦|啊|欸|吧|呢|啦|嗎|吗|了|的|捏|唷|哇|ㄟ|ㄛ|誒|餒)*$/.test(s)
+      || /^(還好|还好|還行|还行|沒事|没事|不用|不需要|一切都好|一切安好|都很好|很好|很開心|很开心|開心|开心|無憂|无忧|無煩惱|无烦恼|沒問題|没问题|ok|okay|fine|good|x|no|nope|none|nothing|nah|na|n\/a|nil|notreally|nothingreally|nothingmuch|nothingspecial|noworries|noworry|noproblem|noproblems|noissue|noissues|imfine|imok|imgood|allgood|allfine|everythingsfine|everythingisfine|idonthaveany|idonthaveanyworries|ない|なし|特にない|特になし|とくにない|大丈夫|ないです|없어|없어요|없음|딱히없어|괜찮아|괜찮아요|không|khôngcó|khôngcógì|chẳngcógì)(啦|喔|哦|啊|吧|呢|了|的|耶)*$/.test(s);
+  }
+
+  // 這次是帶著煩惱來的，還是只想被聽見／只是來逛逛？（不是每個人都帶著問題來）
+  function worryIntent(t) {
+    const s = String(t || '').toLowerCase().replace(/[\s。．.!！?？~～,，、…「」『』"'`’\-—_:;；：()（）*＊]+/g, '');
+    // 只看很短的回答：長一點的句子多半已經在說具體的事了（「我想聊聊我跟男友吵架⋯」），那就認真當成煩惱
+    const short = s.length <= (/[\u3000-\u9fff\uac00-\ud7af]/.test(s) ? 14 : 40);
+    if (short && /(想|要)(找人|有人)?(聊聊|聊天|說說話|講講話|說說|聊一下)|想被(聽|聆聽|聽見)|有人(聽我|陪我|聽)|陪我(聊|說|一下)|聽我說|justwant(to)?(talk|chat|someonetolisten|tobeheard)|wanttotalk|someonetotalk|listentome|needsomeonetolisten|話を聞いて|話したい|聞いてほしい|들어줘|얘기하고싶|이야기하고싶|muốnnóichuyện|lắngnghe|cầnngườinghe/.test(s)) return 'listen';
+    if (short && /(只是|隨便|随便|先|想)?(看看|逛逛|探索|玩玩|來玩|来玩|體驗|体验)|好奇|justlooking|justbrowsing|justexploring|explor|lookaround|curious|checkingitout|tryingitout|見てるだけ|見に来た|둘러보|구경|khámphá|xemthử|tòmò/.test(s)) return 'explore';
+    return isNoWorry(t) ? 'none' : 'worry';
+  }
+  const noProblem = t => worryIntent(t) !== 'worry';
+
   function mockReply(p) {
-    const worry = p.worry ? firstPhrase(p.worry, 24) : '';
+    const worry = p.worry && !noProblem(p.worry) ? firstPhrase(p.worry, 24) : '';
     const hobby = p.hobbies ? firstPhrase(p.hobbies, 16) : '';
     const z = p.birthday && p.birthday.zodiac;
     const out = [L(`${p.name}，謝謝你把這些說給我聽。`, `${p.name}, thank you for telling me all this.`, { ja: `${p.name}、話してくれてありがとう。`, ko: `${p.name}, 이야기해 줘서 고마워요.`, vi: `${p.name}, cảm ơn bạn đã kể cho mình nghe.` })];
     out.push(worry
       ? L(`你提到最近心裡有「${worry}」。它不是你的缺點，只是你宇宙裡一顆正在發出聲音的星球。你不需要馬上解決它，先讓它被聽見，就已經是很大的一步。`,
           `You mentioned “${worry}” has been on your mind. It isn’t a flaw — it’s just a planet in your universe trying to be heard. You don’t have to fix it right away; letting it be heard is already a big step.`, { ja: `最近「${worry}」が心にあるって話してくれたね。それはあなたの欠点じゃなく、あなたの宇宙で声をあげている星のひとつ。すぐに解決しなくていい。聞いてもらえただけで、もう大きな一歩だよ。`, ko: `요즘 마음에 “${worry}”가 있다고 했죠. 그건 당신의 결점이 아니라, 당신의 우주에서 소리를 내고 있는 행성 하나예요. 바로 해결하지 않아도 돼요. 들려주는 것만으로도 큰 한 걸음이에요.`, vi: `Bạn kể rằng dạo này “${worry}” cứ ở trong lòng. Đó không phải khuyết điểm của bạn — chỉ là một hành tinh trong vũ trụ của bạn đang muốn được lắng nghe. Không cần giải quyết ngay; để nó được lắng nghe đã là một bước lớn rồi.` })
+      : p.intent === 'listen' ? L('你不一定要帶著問題來。只是想有人聽你說說話，也是很好的理由。我在這裡，慢慢說，不用急著找答案。', 'You don’t need to bring a problem. Wanting someone to listen is a good enough reason. I’m here — take your time, no need to find answers.', { ja: '悩みがなくても来ていいんだよ。ただ話を聞いてほしい、それだけで十分な理由。ここにいるから、ゆっくりでいいよ。', ko: '꼭 고민이 있어야 오는 건 아니에요. 그냥 누가 들어 줬으면 하는 마음도 충분한 이유예요. 여기 있을게요, 천천히 해요.', vi: 'Bạn không cần mang theo vấn đề nào cả. Chỉ muốn có người lắng nghe cũng là lý do đủ rồi. Mình ở đây, cứ từ từ nhé.' })
+      : p.intent === 'explore' ? L('歡迎你來逛逛！這座宇宙有情緒星球、五行之音、寵物和其他旅人的星球，想去哪裡都可以，沒有一定要完成的事。', 'Welcome — feel free to wander! There are feeling-planets, the Five Tones, your pet and other travelers’ planets. Go wherever you like; there’s nothing you have to finish.', { ja: 'ようこそ、ゆっくり見ていってね！気持ちの星、五行の音、ペット、ほかの旅人の星。どこへ行ってもいいし、やらなきゃいけないことはないよ。', ko: '어서 와요, 마음껏 둘러보세요! 감정 행성, 오행의 소리, 펫, 다른 여행자들의 행성이 있어요. 꼭 해야 할 건 없어요.', vi: 'Chào mừng bạn ghé chơi! Có những hành tinh cảm xúc, Ngũ âm, thú cưng và hành tinh của những lữ khách khác. Muốn đi đâu cũng được, không có gì bắt buộc phải xong.' })
       : L('你這次沒有多說什麼煩惱，這也沒關係。想說的時候，宇宙一直都在。', 'You didn’t mention any worries this time, and that’s okay. Whenever you want to talk, the universe is here.'));
     if (hobby) out.push(L(`你也提到「${hobby}」。那是屬於你的光。今天試著留十分鐘給它，不用做得好，只是回到自己身邊。`,
       `You also mentioned “${hobby}”. That is your own light. Try giving it ten minutes today — it doesn’t have to be done well; it’s simply a way back to yourself.`, { ja: `「${hobby}」のことも話してくれたね。それはあなただけの光。今日は十分だけ、そのための時間をつくってみて。うまくできなくていい。自分のところへ帰るための時間だから。`, ko: `“${hobby}”도 이야기했죠. 그건 당신만의 빛이에요. 오늘 10분만 그 시간을 가져 보세요. 잘하지 않아도 돼요. 자기 자신에게 돌아가는 시간이니까요.`, vi: `Bạn cũng nhắc đến “${hobby}”. Đó là ánh sáng của riêng bạn. Hôm nay hãy dành cho nó mười phút — không cần làm giỏi; chỉ là một cách để trở về với chính mình.` }));
@@ -6423,7 +6469,12 @@ function petSVG(i, opt = {}) {
       // 名字＋生日就是之後回來的鑰匙：在這兩題先說清楚
       $('qNote').textContent = (s.key === 'name' || s.key === 'bday') ? L('✦ 暱稱和生日，會是宇宙認出你的方式。之後想回來看自己的星球，填一樣的暱稱和生日就可以。', '✦ Your nickname and birthday are how the universe recognizes you. To come back to your planet later, just enter the same nickname and birthday.', { ja: '✦ ニックネームと誕生日が、宇宙があなたを見つける手がかりになります。またあなたの星に戻りたいときは、同じニックネームと誕生日を入れてね。', ko: '✦ 닉네임과 생일로 우주가 당신을 알아봐요. 나중에 내 행성을 다시 보고 싶다면 같은 닉네임과 생일을 입력하면 돼요.', vi: '✦ Biệt danh và ngày sinh là cách vũ trụ nhận ra bạn. Muốn quay lại xem hành tinh của mình, chỉ cần nhập đúng biệt danh và ngày sinh ấy.' }) : '';
       ans.value = data.raw[s.key];
-      err.textContent = '';
+      // 煩惱這一題：不是每個人都帶著問題來，給幾個一按就好的選項
+      const chips = $('qChips'); chips.textContent = '';
+      if (s.key === 'worry') [[L('沒有煩惱', 'No worries', { ja: '悩みはない', ko: '걱정 없어요', vi: 'Không có nỗi lo' }), '沒有'], [L('只是想找人聊聊', 'Just want someone to listen', { ja: '話を聞いてほしい', ko: '그냥 이야기하고 싶어요', vi: 'Chỉ muốn có người nghe' }), '只是想找人聊聊'], [L('只是來逛逛', 'Just exploring', { ja: 'ちょっと見に来た', ko: '그냥 둘러보러 왔어요', vi: 'Chỉ ghé chơi' }), '只是來逛逛']].forEach(([label, val]) => {
+        const c = document.createElement('button'); c.type = 'button'; c.className = 'q-chip'; c.textContent = label;
+        c.addEventListener('click', () => { ans.value = val; updateNext(); next(); }); chips.appendChild(c);
+      });
       micState.textContent = IDLE_TEXT;
       Array.from(tdots.children).forEach((d, i) => { d.className = i < step ? 'done' : (i === step ? 'cur' : ''); });
       bBack.style.visibility = (step === 0 && !editing) ? 'hidden' : 'visible';
@@ -6518,7 +6569,7 @@ function petSVG(i, opt = {}) {
     const bdayText = b => L(`${b.year ? b.year + ' 年 ' : ''}${b.month} 月 ${b.day} 日，${b.zodiac}`, `${MON[b.month - 1]} ${b.day}${b.year ? ', ' + b.year : ''} · ${zName(b.zodiac)}`, { ja: `${b.year ? b.year + '年' : ''}${b.month}月${b.day}日・${zName(b.zodiac)}`, ko: `${b.year ? b.year + '년 ' : ''}${b.month}월 ${b.day}일 · ${zName(b.zodiac)}`, vi: `${b.day}/${b.month}${b.year ? '/' + b.year : ''} · ${zName(b.zodiac)}` });
 
     function showSummary() {
-      const vals = [data.name, bdayText(data.bday), data.raw.hobby || L('（略過）', '(skipped)'), data.raw.worry || L('（略過）', '(skipped)')];
+      const vals = [data.name, bdayText(data.bday), data.raw.hobby || L('（略過）', '(skipped)'), { none: L('沒有煩惱 ✦', 'No worries ✦', { ja: '悩みなし ✦', ko: '걱정 없음 ✦', vi: 'Không có nỗi lo ✦' }), listen: L('只是想找人聊聊 ✦', 'Just want someone to listen ✦', { ja: '話を聞いてほしいだけ ✦', ko: '그냥 이야기하고 싶어요 ✦', vi: 'Chỉ muốn có người lắng nghe ✦' }), explore: L('只是來逛逛 ✦', 'Just exploring ✦', { ja: 'ちょっと見に来ただけ ✦', ko: '그냥 둘러보러 왔어요 ✦', vi: 'Chỉ ghé chơi ✦' }) }[worryIntent(data.raw.worry)] || data.raw.worry];
       sumList.textContent = '';
       vals.forEach((v, i) => {
         const row = document.createElement('div'); row.className = 'row';
@@ -6540,11 +6591,13 @@ function petSVG(i, opt = {}) {
         name: data.name,
         birthday: { raw: data.raw.bday, year: b.year, month: b.month, day: b.day, zodiac: b.zodiac },
         hobbies: data.raw.hobby,
-        worry: data.raw.worry,
+        worry: noProblem(data.raw.worry) ? '' : data.raw.worry,   // 「沒有」「無」「只是想聊聊」「只是來逛逛」＝這次沒有要解決的煩惱
+        intent: worryIntent(data.raw.worry),
         interpretationBasis: {
           birthdayRaw: data.raw.bday,
           hobbiesRaw: data.raw.hobby,
-          worryRaw: data.raw.worry
+          worryRaw: data.raw.worry,
+          noWorry: noProblem(data.raw.worry)
         },
         locale: CONFIG.LANG
       };
@@ -7605,7 +7658,7 @@ function petSVG(i, opt = {}) {
       runAI(my);
       {
         const wq = String((App.user && App.user.worry) || '').trim();
-        const noW = !wq || /^(沒有|沒|無|沒事|沒什麼|不用|不需要|沒煩惱|沒有煩惱|沒啥|no|nope|none|nothing|nah|not really|no worries|ない|なし|特にない|特になし|大丈夫|없어|없어요|없음|딱히 없어|không|không có|chẳng có gì)[。！!，,.\s]*$/i.test(wq);
+        const noW = noProblem(wq);
         Me.build({ weather: noW ? 'sunny' : (score.N >= 3.8 ? 'fog' : 'rain') }); publishMe(); Universe.refresh();
       }
     }
@@ -8777,7 +8830,7 @@ function petSVG(i, opt = {}) {
     const later = (sec, fn) => { sleep(sec).then(fn).catch(() => {}); };
     const say = async (lines, hold = 1.2, cls = '', stagger = .8) => { buildCaption(lines, stagger, cls); await sleep(1 + stagger * (lines.length - 1) + hold); hideCaption(); await sleep(.5); };
     const worryText = () => ((App.user && App.user.worry) || '').trim();
-    const hasWorry = () => { const w = worryText(); return w.length > 0 && !/^(沒有|沒|無|沒事|沒什麼|不用|不需要|沒煩惱|沒有煩惱|沒啥|no|nope|none|nothing|nah|not really|no worries|ない|なし|特にない|特になし|大丈夫|없어|없어요|없음|딱히 없어|không|không có|chẳng có gì)[。！!，,.\s]*$/i.test(w); };
+    const hasWorry = () => !noProblem(worryText());
     const petName = () => App.petName || PETS[App.petIdx].en;
     const vib = p => { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) { /* ignore */ } };
     const u2s = (ux, uy) => [CX + ux * U, CY + uy * U * rtYS];
@@ -9089,7 +9142,7 @@ function petSVG(i, opt = {}) {
       setState('ritual'); Object.assign(P, { fade: 0, nebula: .6, starAlpha: .95, starSpeed: .02, dust: .3, orb: 0 });
       const dlg = $('worryDlg'), ta = $('wdText');
       ta.value = ''; dlg.classList.add('on'); setTimeout(() => ta.focus(), 300);
-      const go = w => { dlg.classList.remove('on'); App.user.worry = w; start(); };
+      const go = w => { dlg.classList.remove('on'); App.user.intent = worryIntent(w); App.user.worry = noProblem(w) ? '' : w; start(); };
       $('wdGo').onclick = () => { const w = ta.value.trim(); if (!w) { ta.focus(); return; } go(w.slice(0, 500)); };
       $('wdSkip').onclick = () => go('');
     }
@@ -9148,7 +9201,7 @@ function petSVG(i, opt = {}) {
       name: cut(u.name || me.name, 20),
       birthday: { raw: cut(b.raw, 40), year: b.year || null, month: b.month || null, day: b.day || null, zodiac: b.zodiac || '' },
       hobbies: cut(u.hobbies, 300),
-      worry: cut(u.worry, 500),
+      worry: cut(u.worry, 500), intent: u.intent || (u.worry ? 'worry' : 'none'),
       big5: big5 ? Object.fromEntries(B5_KEYS.map(k => [k, Math.round(big5[k] * 100) / 100])) : null,
       big5Pct: big5 ? Object.fromEntries(B5_KEYS.map(k => [k, Math.round((big5[k] - 1) / 4 * 100)])) : null,
       trait: type ? { key: type.key, letter: type.letter, label: type.label, tag: type.tag, dimension: type.dimName, level: type.level || '', planet: type.planet } : null,
@@ -12832,10 +12885,44 @@ function petSVG(i, opt = {}) {
   })();
 
 
+  /* ---------- 加速與跳過開場（敘事太長時，長按就快轉 ×4） ---------- */
+  const FF_ST = new Set(['act1', 'act2', 'act3', 'act4', 'act5', 'act6', 'end', 'origin', 'wuxing', 'feel', 'ritual']);
+  const FF_PASSIVE = new Set(['act1', 'act2', 'act6', 'end', 'origin']);   // 這幾段不用互動：在畫面任何地方長按也能加速
+  const FF = { hold: false, press: null };
+  const INTRO_ST = new Set(['act1', 'act2', 'act3', 'act4', 'act5', 'act6', 'end']);
+  const ffK = () => (FF.hold && FF_ST.has(state) ? 4 : 1) * (INTRO_ST.has(state) ? clamp(+CONFIG.INTRO_SPEED || 1, .5, 3) : 1);
+  function ffSet(on) {
+    on = !!on && FF_ST.has(state);
+    if (FF.hold === on) return; FF.hold = on;
+    document.body.classList.toggle('ff', on); $('ffHold').classList.toggle('on', on);
+  }
+  (() => {
+    const hb = $('ffHold');
+    hb.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); try { hb.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ } ffSet(true); });
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(k => hb.addEventListener(k, () => ffSet(false)));
+    hb.addEventListener('contextmenu', e => e.preventDefault());
+    hb.addEventListener('click', e => e.stopPropagation());
+    // 不需要互動的段落：在畫面任何地方按住 0.35 秒就開始加速
+    addEventListener('pointerdown', e => {
+      if (!FF_PASSIVE.has(state) || paused || (e.target.closest && e.target.closest('button, input, textarea, a, .chapters, .back-dlg'))) return;
+      clearTimeout(FF.press); const x = e.clientX, y = e.clientY;
+      FF.press = setTimeout(() => ffSet(true), 350);
+      const cancel = ev => { if (ev.type !== 'pointermove' || Math.hypot(ev.clientX - x, ev.clientY - y) > 14) { clearTimeout(FF.press); if (ev.type !== 'pointermove') ffSet(false); } };
+      const end = ev => { cancel(ev); if (ev.type !== 'pointermove') ['pointerup', 'pointercancel', 'pointermove'].forEach(k => removeEventListener(k, end)); };
+      ['pointerup', 'pointercancel', 'pointermove'].forEach(k => addEventListener(k, end));
+    });
+    // 鍵盤：按住 F
+    addEventListener('keydown', e => { if ((e.key === 'f' || e.key === 'F') && !e.repeat && !/INPUT|TEXTAREA/.test((e.target || {}).tagName || '')) ffSet(true); });
+    addEventListener('keyup', e => { if (e.key === 'f' || e.key === 'F') ffSet(false); });
+    addEventListener('blur', () => ffSet(false));
+    $('ffSkip').addEventListener('click', e => { e.stopPropagation(); ffSet(false); jumpTo(ACTS.length + 1); });
+  })();
+
   /* ---------- 主迴圈 ---------- */
   function step(dt) {
+    if (FF.hold && !FF_ST.has(state)) ffSet(false);
     time += dt;
-    const sdt = paused ? 0 : dt;    // 開啟章節選單時，劇情暫停
+    const sdt = paused ? 0 : dt * ffK();    // 開啟章節選單時，劇情暫停；按住加速時 ×4
     for (let i = tweens.length - 1; i >= 0; i--) {
       const T = tweens[i]; T.t += sdt;
       const k = Math.min(1, T.t / T.dur);

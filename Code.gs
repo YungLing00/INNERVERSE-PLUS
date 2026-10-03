@@ -34,8 +34,10 @@ const STYLE = 'a single enchanted miniature planet floating alone, centered, rou
   + 'soft iridescent pearlescent surface, luminous rim light, dreamy pastel glow, gentle bloom, whimsical and elegant, '
   + 'highly detailed hand-painted stylized textures, smooth clean sculpted shapes, premium collectible figurine quality, '
   + 'no text, no face, no characters, no base, no stand, isolated game asset';
-const NEGATIVE = 'text, letters, logo, watermark, face, eyes, mouth, nose, person, character, animal, creature, multiple objects, '
-  + 'base, stand, pedestal, ground plane, scene background, room, dark gloomy, horror, dirty, rusty, noisy texture, low poly, blurry, flat shading, broken mesh';
+// Tripo 的 negative_prompt 最多 255 個字元，超過整個任務會被拒絕（之前星球生不出來的原因）
+const NEGATIVE = 'text, logo, watermark, face, eyes, person, character, animal, multiple objects, base, stand, pedestal, '
+  + 'ground plane, background scene, gloomy, horror, dirty, rusty, noisy texture, low poly, blurry, flat shading, broken mesh';
+const TRIPO_PROMPT_MAX = 1000, TRIPO_NEG_MAX = 255;
 
 const TRAIT_PROMPTS = {
   E_hi:'a radiant golden sun-kissed planet wrapped in shimmering ribbons of light, swirling amber and honey cloud bands, a sparkling halo ring of tiny stars, little floating lanterns orbiting like fireflies, ',
@@ -73,6 +75,7 @@ const SYSTEM_PROMPT = `你是「INNERVERSE PLUS 內在宇宙」的 AI 人格陪�
 - Big Five 是主要依據：說出這個人最明顯的一兩個特質，具體、溫暖地肯定；不要逐項列分數，也不要提「Big Five」「神經質」等術語。
 - 星座、五行只當成溫柔的比喻或意象（例如「像木一樣舒展」），不當成科學或命運的判斷。
 - 有興趣就自然帶到一個可以照顧自己的小建議；有煩惱就先接住感受，不急著解決。
+- 不是每個人都帶著問題來：沒有煩惱、只是想被聽見、或只是來逛逛時，就單純陪伴、歡迎，不要提「煩惱」也不要給解決方法。
 - 可以提到寵物的名字；寵物沒有嘴巴，只用眼睛與光陪伴。
 - 輸出 2～3 小段、約 150～260 個中文字，段落之間空一行。不要 Markdown、不要條列、不要心理診斷、不要預測未來、不要說教。
 - 若煩惱涉及自殺、自殘、想死、不想活，改以關心為主並提醒 1925、1995，緊急時 119。`;
@@ -161,7 +164,10 @@ function profileText_(b) {
     '星座：' + (str_(bd.zodiac,10) || '未提供'),
     '五行：' + (wx.zh ? str_(wx.zh,2) + '（五音「' + str_(wx.tone,2) + '」，對應情緒「' + str_(wx.emotion,2) + '」）' : '未提供'),
     '興趣：' + (str_(b.hobbies || b.hobby,300) || '未提供'),
-    '最近煩惱：' + (str_(b.worry || b.worryText,500) || '未提供'),
+    '最近煩惱：' + (str_(b.worry || b.worryText,500) || ({
+      listen:'沒有特定的煩惱，只是想找人聊聊、被聽見（請只傾聽陪伴，不要分析問題、不要給解決方法）',
+      explore:'沒有特定的煩惱，只是好奇來逛逛（請輕鬆地歡迎他、邀請他探索，不要假設他有問題要解決）'
+    })[String(b.intent || '')] || '沒有（這次沒有煩惱，請不要假設或猜測他有煩惱，也不要往「解決問題」的方向寫）'),
     'Big Five（1–5 分）：開放性 ' + b5('O') + '、盡責性 ' + b5('C') + '、外向性 ' + b5('E') + '、親和性 ' + b5('A') + '、情緒敏感度 ' + b5('N'),
     '人格類型：' + (str_(trait.label,40) || str_(b.dominantTrait,40) || '未提供') + (trait.tag ? '（' + str_(trait.tag,40) + '）' : ''),
     '主要維度：' + (str_(trait.dimension,50) || '未提供') + (trait.level ? '，' + str_(trait.level,10) : ''),
@@ -268,7 +274,8 @@ function modelStart_(body) {
       } catch (_) { /* 舊任務查不到就重新生成 */ }
     }
   }
-  const task = {type:'text_to_model',prompt,negative_prompt:NEGATIVE,texture:true,pbr:true};
+  const neg = NEGATIVE.length > TRIPO_NEG_MAX ? NEGATIVE.slice(0, NEGATIVE.lastIndexOf(', ', TRIPO_NEG_MAX)) : NEGATIVE;
+  const task = {type:'text_to_model',prompt:prompt.slice(0, TRIPO_PROMPT_MAX),negative_prompt:neg,texture:true,pbr:true};
   const v = prop_('TRIPO_MODEL_VERSION');
   if (v) task.model_version = v;
   // 高清：預設用 Tripo 的「detailed」貼圖品質，不限制面數
@@ -281,17 +288,14 @@ function modelStart_(body) {
     payload:JSON.stringify(t),
     muteHttpExceptions:true
   });
-  let r = send(task);
-  let status = r.getResponseCode();
-  let text = r.getContentText();
-  let data = {};
-  try { data = JSON.parse(text); } catch (_) {}
-  // 這個帳號或模型版本不支援高清貼圖參數時，退回一般品質再送一次，至少能生成
-  if ((status < 200 || status >= 300 || data.code !== 0) && task.texture_quality) {
-    delete task.texture_quality;
-    r = send(task); status = r.getResponseCode(); text = r.getContentText(); data = {};
-    try { data = JSON.parse(text); } catch (_) {}
-  }
+  let status = 0, text = '', data = {};
+  const tryOnce = t => { const r = send(t); status = r.getResponseCode(); text = r.getContentText(); data = {}; try { data = JSON.parse(text); } catch (_) {} return status >= 200 && status < 300 && data.code === 0; };
+  // 送不成功時一步一步退回比較保守的設定，至少讓星球生得出來：
+  // ① 完整設定 → ② 拿掉高清貼圖參數 → ③ 再拿掉 negative_prompt 和 PBR
+  // 額度不足（HTTP 403 / code 2010）或金鑰錯誤（401）就不用重試了
+  const fatal = () => status === 401 || status === 403 || data.code === 2010 || data.code === 1002;
+  if (!tryOnce(task) && !fatal() && task.texture_quality) { delete task.texture_quality; tryOnce(task); }
+  if ((status < 200 || status >= 300 || data.code !== 0) && !fatal()) { delete task.negative_prompt; delete task.pbr; tryOnce(task); }
   if (status < 200 || status >= 300 || data.code !== 0 || !data.data || !data.data.task_id) {
     return json_({ok:false,error:'Tripo 建立任務失敗（HTTP ' + status + '）：' + ((data && data.message) || text.slice(0,300)),detail:text.slice(0,600)});
   }

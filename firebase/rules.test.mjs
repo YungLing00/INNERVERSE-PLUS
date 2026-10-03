@@ -134,6 +134,13 @@ await t('bob cannot edit alice home', assertFails(set(ref(B, 'homes/alice'), { p
 await t('home too large rejected', assertFails(set(ref(A, 'homes/alice'), { p: 'x'.repeat(8001), at: ts() })));
 await t('alice sets her title', assertSucceeds(set(ref(A, 'planets/alice/title'), '🌱 Star Gardener')));
 
+// 示範帳號「阿曼」：任何一台裝置都能登入（接手名字）；其他名字不行
+const Dv = anon('dave'), Er = anon('erin');
+await t('dave claims demo name', assertSucceeds(update(ref(Dv), { 'names/阿曼': 'dave', 'planets/dave': planet('阿曼') })));
+await t('erin takes over the demo name on another device', assertSucceeds(update(ref(Er), { 'names/阿曼': 'erin', 'planets/erin': planet('阿曼') })));
+await t('erin cannot hand the demo name to carol', assertFails(set(ref(Er, 'names/阿曼'), 'carol')));
+await t('normal names still cannot be taken over', assertFails(set(ref(C, 'names/bob'), 'carol')));
+
 await env.cleanup();
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

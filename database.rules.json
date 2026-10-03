@@ -35,7 +35,7 @@
     "names": {
       ".read": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous'",
       "$nameKey": {
-        ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && (data.exists() ? data.val() == auth.uid : newData.val() == auth.uid)",
+        ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && (data.exists() ? (data.val() == auth.uid || ($nameKey == '阿曼' && newData.val() == auth.uid)) : newData.val() == auth.uid)",
         ".validate": "newData.isString() && newData.val() == auth.uid"
       }
     },

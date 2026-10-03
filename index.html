@@ -6644,6 +6644,7 @@ function petSVG(i, opt = {}) {
         const b = parseBirthday(text);
         if (!b) { err.textContent = L('我還沒辨識出這個生日。可以輸入 20030906、2003/09/06、2003年9月6日，或直接用說的。', 'I couldn’t read that birthday yet. Try 20030906, 2003/09/06 or Sep 6, 2003 — or just say it.'); return; }
         data.raw.bday = text; data.bday = b;
+        Demo.mark(Demo.isLogin(data.name, b));   // 示範帳號：阿曼／1977-01-04
         // 名字＋生日都對得上：宇宙裡已經有這位旅人
         checking = true; bNext.disabled = true; const tk = token;
         const hit = await Traveler.lookup(data.name, b);
@@ -6654,7 +6655,7 @@ function petSVG(i, opt = {}) {
           if (tk !== token) return;
           if (go === 'jump') { Voice.stop(); show('none'); Traveler.restore(hit.profile, { name: data.name, raw: data.raw.bday, bday: b }); return; }
           Traveler.adoptUid(hit.profile);      // 重新測驗：還是同一個人，沿用原本的旅人編號
-        } else if (!hit.offline && (data.nameTaken || hit.nameTaken)) {
+        } else if (!hit.offline && (data.nameTaken || hit.nameTaken) && !Demo.isLogin(data.name, b)) {
           step = 0; editing = false; render();
           err.textContent = L('這個名字已經有人用了，換一個吧（可以加上數字或符號）。', 'That name is already taken — try another (you can add a number or symbol).', { ja: 'この名前はもう使われています。別の名前にしてね（数字や記号を足してもOK）。', ko: '이미 사용 중인 이름이에요. 다른 이름으로 해 주세요(숫자나 기호를 붙여도 돼요).', vi: 'Tên này đã có người dùng rồi — hãy thử tên khác (có thể thêm số hoặc ký hiệu).' });
           return;
@@ -9321,6 +9322,23 @@ function petSVG(i, opt = {}) {
     }, extra);
   }
 
+  /* ---------- 示範帳號：阿曼／1977-01-04 ----------
+     給大家看的帳號：所有收藏、稱號、地方、親密度都直接打開，任何一台裝置都能登入。
+     ⚠ 之後新增功能時：凡是「要玩過才解鎖」的東西，都要讓 Demo.on() 的時候直接擁有。 */
+  const Demo = (() => {
+    const NAME = '阿曼', KEY = '阿曼|1977-01-04';
+    const isName = k => String(k || '').trim().toLowerCase() === NAME;
+    const isLogin = (name, b) => isName(name) && !!b && +b.year === 1977 && +b.month === 1 && +b.day === 4;
+    function on() {
+      try {
+        if (localStorage.getItem('iv_demo') === '1') return true;
+        const p = JSON.parse(localStorage.getItem('iv_profile') || 'null'); return !!(p && p.key === KEY);
+      } catch (_) { return false; }
+    }
+    const mark = v => { try { if (v) localStorage.setItem('iv_demo', '1'); else localStorage.removeItem('iv_demo'); } catch (_) { /* ignore */ } };
+    return { NAME, isName, isLogin, on, mark };
+  })();
+
   /* ---------- 我的星球（存在這台裝置；公開資料才會送到宇宙） ---------- */
   const Me = {
     uid() {
@@ -9378,6 +9396,16 @@ function petSVG(i, opt = {}) {
       })().catch(e => { boot = null; throw e; }));
     }
 
+    // Apps Script 裡的旅人（Firebase 之前測驗過的人、還沒發佈星球的人）
+    let testerCache = null;   // 這份名單不常變：記 10 分鐘，宇宙才不會每次都等 Apps Script
+    async function testers() {
+      if (!CONFIG.DATA_ENDPOINT) return [];
+      if (testerCache && Date.now() - testerCache.t < 600e3) return testerCache.list;
+      const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 6000);
+      try { const r = await fetch(CONFIG.DATA_ENDPOINT + (CONFIG.DATA_ENDPOINT.includes('?') ? '&' : '?') + 'action=universe', { signal: ctl.signal }); const j = await r.json(); testerCache = { t: Date.now(), list: (j && j.planets) || [] }; return testerCache.list; }
+      catch (e) { console.warn('testers:', e); return (testerCache && testerCache.list) || []; }
+      finally { clearTimeout(tm); }
+    }
     const planetCache = new Map();
     async function planet(id) {
       if (!id) return null;
@@ -9465,7 +9493,7 @@ function petSVG(i, opt = {}) {
       async publishNow(b) {
         const name = cleanName(b.name); if (!name) fail('missing name');
         const key = name.toLowerCase(), old = await val('planets/' + uid), owner = await val('names/' + key);
-        if (owner && owner !== uid) fail('name_taken');
+        if (owner && owner !== uid && !Demo.isName(key)) fail('name_taken');   // 示範帳號可以在任何一台裝置登入
         const P = `planets/${uid}/`, u = { ['names/' + key]: uid };
         if (old && old.nameKey && old.nameKey !== key) u['names/' + old.nameKey] = null;   // 改名：舊名字還給大家
         Object.assign(u, {
@@ -9486,11 +9514,12 @@ function petSVG(i, opt = {}) {
       },
 
       async universe() {
-        const [ps, fr] = await Promise.all([
+        const [ps, fr, names, old] = await Promise.all([
           D.get(D.query(D.ref(db, 'planets'), D.orderByChild('updatedAt'), D.limitToLast(600))),
-          val('friends')
+          val('friends'), val('names').catch(() => null), testers()
         ]);
-        const rows = []; ps.forEach(s => { rows.push([s.key, s.val()]); });
+        // 同一個名字只留一顆：名字現在登記在誰身上，就是那一顆（示範帳號、換過裝置的人）
+        const rows = []; ps.forEach(s => { const p = s.val() || {}; if (!names || !p.nameKey || !names[p.nameKey] || names[p.nameKey] === s.key) rows.push([s.key, p]); });
         let imgs = 0;
         const planets = rows.reverse().map(([id, p]) => {
           const b = p.big5 || {};
@@ -9504,6 +9533,13 @@ function petSVG(i, opt = {}) {
           const k = [a, b].sort().join('|'), l = Number(fr[a][b].level) || 1, e = edges.get(k);
           if (!e) edges.set(k, [a, b, l]); else e[2] = Math.max(e[2], l);
         }));
+        // 所有測驗過的人都要在：Apps Script 裡、還沒搬到 Firebase 的旅人也放進來（只能看，不能互動）
+        const have = new Set(planets.map(p => String(p.name || '').trim().toLowerCase()));
+        (old || []).forEach(p => {
+          const k = String(p.name || '').trim().toLowerCase(); if (!k || have.has(k)) return; have.add(k);
+          const zi = PETS.findIndex(x => x.zh === p.zodiac || x.zh === p.petSign);
+          planets.push(Object.assign({}, p, { legacy: true, typeKey: p.typeKey || 'BAL', planetName: p.planetName || '', petIdx: p.petIdx === '' || p.petIdx == null ? Math.max(0, zi) : Number(p.petIdx) || 0, big5: p.big5 || { O: 3, C: 3, E: 3, A: 3, N: 3 } }));
+        });
         return { ok: true, planets, friends: [...edges.values()].slice(-3000) };
       },
 
@@ -11888,6 +11924,7 @@ function petSVG(i, opt = {}) {
     try { S = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (_) { S = null; }
     if (!S || S.v !== 1) S = { v: 1, inv: {}, seen: {}, placed: [], mem: [], st: {}, mix: {}, th: 'pHome', title: 'newbie', ret: '', uid: 0 };
     S.seen.pHome = S.seen.pHome || Date.now();
+    setTimeout(() => grantAll(), 0);
     let syncT = 0;
     function save() {
       try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (_) { /* 空間不足就算了 */ }
@@ -11961,6 +11998,25 @@ function petSVG(i, opt = {}) {
       save();
     }
     const pending = [];   // 等著揭曉的發現
+    // 示範帳號：圖鑑裡所有東西（包括之後新增的）、所有稱號和地方都直接擁有，家園也先佈置好
+    function grantAll() {
+      if (!Demo.on()) return false;
+      Object.values(C).forEach(x => {
+        if (!has(x.k)) S.seen[x.k] = Date.now();
+        if (x.c !== 'place' && (S.inv[x.k] || 0) < (x.place ? 3 : 1)) S.inv[x.k] = x.place ? 3 : 1;
+        if (x.c === 'sound' && S.mix[x.mix] === undefined) S.mix[x.mix] = .45;
+      });
+      S.st.titles = S.st.titles || {}; TITLES.forEach(t => { if (!S.st.titles[t[0]]) S.st.titles[t[0]] = Date.now(); });
+      S.st.eggs = Math.max(1, S.st.eggs || 0);
+      if (!S.demoHome) {
+        S.demoHome = 1; S.th = 'pDream'; S.title = 'maker';
+        const tree = (sp, a) => S.placed.push({ id: ++S.uid, k: 'seed', a, at: Date.now(), g: 8, sp });
+        tree('tAurora', -.9); tree('tBloom', -.15); tree('tCrystal', .55); tree('tMoon', .95);
+        [['bed', -.72], ['moonflower', -.55], ['radio', -.4], ['tulip', -.28], ['scope', .05], ['rose', .2], ['pond', .38], ['lamp', .72], ['shroom', .82]].forEach(([k, a]) => { if ((S.inv[k] || 0) > 0) { S.inv[k]--; S.placed.push({ id: ++S.uid, k, a, at: Date.now() }); } });
+        S.placed.push({ id: ++S.uid, k: 'egg', a: -.03, at: Date.now(), w: 3 });   // 一顆可以當場孵給大家看的蛋
+      }
+      save(); return true;
+    }
     function checkUnlocks() {
       const st = stats();
       Object.values(C).filter(x => x.c === 'place' && !has(x.k)).forEach(x => { if (x.cond(st)) { S.seen[x.k] = Date.now(); pending.push({ kind: 'place', k: x.k }); } });
@@ -12100,6 +12156,7 @@ function petSVG(i, opt = {}) {
       H.cr = list.map((k, i) => ({ k, ph: Math.random() * TAU, x: Math.random(), y: rand(.15, .5), vx: rand(-.03, .03) || .02, a: rand(-.8, .8), i }));
     }
     function open(visit) {
+      if (!visit) grantAll();
       loadPetImages(); H.visit = visit || null; H.edit = false; H.sel = null;
       root.classList.add('on'); root.classList.toggle('visit', !!visit); size();
       const d = data(); creatures(d.cr || []); H.pet.a = 0; H.pet.mode = 'idle'; H.pet.t = 0;
@@ -12308,7 +12365,7 @@ function petSVG(i, opt = {}) {
       showPanel(L('📖 收藏圖鑑', '📖 Collection'), body => {
         const tabs = el('div', 'hm-tabs'); body.appendChild(tabs);
         const grid = el('div', 'hm-grid'); body.appendChild(grid);
-        const total = Object.values(C).filter(x => x.c !== 'place' && !x.hidden).length, got = Object.values(C).filter(x => x.c !== 'place' && has(x.k)).length;
+        const total = Object.values(C).filter(x => x.c !== 'place' && (!x.hidden || has(x.k))).length, got = Object.values(C).filter(x => x.c !== 'place' && has(x.k)).length;
         $('hmPTitle').textContent = L(`📖 收藏圖鑑　${got}/${total}`, `📖 Collection ${got}/${total}`);
         CATS.forEach(([k, ic, zh, en]) => { const b = el('button', 'hm-tab' + (k === tab ? ' on' : ''), `${ic} ${L(zh, en)}`); b.type = 'button'; b.addEventListener('click', () => book(k)); tabs.appendChild(b); });
         if (tab === 'memory') {
@@ -12396,7 +12453,7 @@ function petSVG(i, opt = {}) {
     // 自動測試用
     if (/[?&]debug=1/.test(location.search)) window.__cos = { S: () => S, add, discover, activity, open, placeItem, receive, C };
     return {
-      discover, receive, open, close, visit, bind(h) { Object.assign(hooks, h); },
+      discover, receive, open, close, visit, grantAll, bind(h) { Object.assign(hooks, h); },
       get on() { return H.on; }, title: () => titleOf(S.title), stats, mixOn: () => Object.keys(S.mix).some(k => S.mix[k] > 0)
     };
   })();
@@ -12753,7 +12810,7 @@ function petSVG(i, opt = {}) {
     function fillFriend(p) {
       const box = $('uvcFriend'), acts = $('ufActs'), noteBox = $('uvcNote');
       acts.textContent = '';
-      if (p.me || p.demo || !p.pid) { box.hidden = true; noteBox.hidden = true; return; }
+      if (p.me || p.demo || p.legacy || !p.pid) { box.hidden = true; noteBox.hidden = true; return; }
       box.hidden = false; noteBox.hidden = !canFriend();
       const me = myPet(), them = petOf(p), f = Fr.friends.get(p.pid);
       const btn = (label, fn, cls = 'ghost') => { const b = document.createElement('button'); b.type = 'button'; b.className = cls + ' uf-b'; b.textContent = label; b.addEventListener('click', fn); acts.appendChild(b); return b; };
@@ -13270,7 +13327,8 @@ function petSVG(i, opt = {}) {
       if (!b || typeof b.xp !== 'number') b = { xp: 0, streak: 0, last: '', day: '', done: {} };
       const save = () => { try { localStorage.setItem(K, JSON.stringify(b)); } catch (_) { /* ignore */ } };
       const roll = () => { const t = dayKey(new Date()); if (b.day !== t) { b.day = t; b.done = {}; } };
-      const level = () => { let l = 0; while (l + 1 < LV.length && b.xp >= LV[l + 1]) l++; return l + 1; };
+      const demoMax = () => { if (Demo.on() && b.xp < 720) { b.xp = 720; save(); } };   // 示範帳號：親密度滿級、所有配件
+      const level = () => { demoMax(); let l = 0; while (l + 1 < LV.length && b.xp >= LV[l + 1]) l++; return l + 1; };
       const progress = () => { const l = level() - 1; return LV[l + 1] ? (b.xp - LV[l]) / (LV[l + 1] - LV[l]) : 1; };
       const toNext = () => { const l = level(); return LV[l] ? LV[l] - b.xp : 0; };
       // 每天第一次來：連續天數＋親密度
@@ -13452,8 +13510,8 @@ function petSVG(i, opt = {}) {
       const bars = $('uvcBars'); bars.textContent = '';
       if (p.big5) ['O', 'C', 'E', 'A', 'N'].forEach(k => bars.appendChild(bar(`${k}`, p.big5[k] || 3)));
       $('uvcStarsN').textContent = p.lights ? L(`已經有 ${p.lights} 點星光`, `${p.lights} bits of starlight so far`, { ja: `これまでに ${p.lights} つの星の光`, ko: `지금까지 별빛 ${p.lights}개`, vi: `Đã có ${p.lights} chút ánh sao` }) : '';
-      $('uvcGive').hidden = !!p.me; fillBond(); fillFriend(p);
-      { const hb = $('uvcHome'); hb.hidden = !(p.me || (FB && FB.on() && p.pid)); hb.textContent = p.me ? L('🏠 我的星球家園', '🏠 My planet home') : L(`🏠 參觀 ${p.name} 的家園`, `🏠 Visit ${p.name}'s home`); }
+      $('uvcGive').hidden = !!p.me || !!p.legacy; fillBond(); fillFriend(p);
+      { const hb = $('uvcHome'); hb.hidden = !(p.me || (FB && FB.on() && p.pid && !p.legacy)); hb.textContent = p.me ? L('🏠 我的星球家園', '🏠 My planet home') : L(`🏠 參觀 ${p.name} 的家園`, `🏠 Visit ${p.name}'s home`); }
       Array.from($('uvcGifts').children).forEach(b => b.classList.toggle('done', !!(given[p.pid || p.name] || {})[b.dataset.k]));
     }
     function give(k) {

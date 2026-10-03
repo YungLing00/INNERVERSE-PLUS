@@ -10581,6 +10581,8 @@ function petSVG(i, opt = {}) {
     const GX = 40, GY = 25, CELL = 40;   // 星空塗鴉的格子
     const LANES = [{ a: '←', f: 523.25, c: '255,150,190', k: ['ArrowLeft', 'd'] }, { a: '↓', f: 587.33, c: '150,210,255', k: ['ArrowDown', 'f'] }, { a: '↑', f: 659.25, c: '170,255,190', k: ['ArrowUp', 'j'] }, { a: '→', f: 783.99, c: '255,220,140', k: ['ArrowRight', 'k'] }];
     const EMOS = ['😆', '💖', '👏', '✨'];
+    // 舞蹈對決：手機用「泡泡模式」（像音樂遊戲：圈圈縮到泡泡邊緣時點它），電腦維持上下左右四條音軌
+    const BUBBLE = /[?&]bubble=1/.test(location.search) || (!/[?&]bubble=0/.test(location.search) && !!(window.matchMedia && matchMedia('(pointer: coarse)').matches));
     const PR = 34, BR = 46, GOAL = 190, SPEED = 330, PLR = 120, AUTO = 30, CD = 4;
     const CODE_CH = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     const TEAM = [{ c: [255, 196, 120], n: () => L('晨光隊', 'Team Dawn') }, { c: [140, 196, 255], n: () => L('夜光隊', 'Team Night') }];
@@ -10680,6 +10682,15 @@ function petSVG(i, opt = {}) {
           if (r() < .5 + d * .4) notes.push({ t, l: Math.floor(r() * 4), hit: 0 });
           if (d > .35 && r() < .3 * d) notes.push({ t: t + beat / 2, l: Math.floor(r() * 4), hit: 0 });
         }
+        // 泡泡模式的位置：一顆接一顆在附近冒出來，手指可以順著畫面流動
+        let bx = .5, by = .7, ang = r() * TAU;
+        notes.sort((a, b) => a.t - b.t).forEach((n, i) => {
+          ang += (r() - .5) * 2.2; const step = .14 + r() * .12;
+          bx += Math.cos(ang) * step; by += Math.sin(ang) * step * .55;
+          if (bx < .14 || bx > .86) { ang = Math.PI - ang; bx = clamp(bx, .14, .86); }
+          if (by < .56 || by > .88) { ang = -ang; by = clamp(by, .56, .88); }
+          n.bx = bx; n.by = by; n.no = (i % 9) + 1;
+        });
         return;
       }
       if (mode !== 'save') return;
@@ -11185,8 +11196,12 @@ function petSVG(i, opt = {}) {
       const t = gt(); let best = null, bd = .36;
       for (const n of notes) { if (n.l !== l || n.hit) continue; const d = Math.abs(n.t - t); if (d < bd) { bd = d; best = n; } }
       if (!best) return;
-      if (bd > .2) { best.hit = -1; combo = 0; pop(me.x, me.y - 120, 'MISS', '200,190,230', .8); return; }
-      const q = bd < .07 ? 3 : bd < .13 ? 2 : 1; best.hit = q; combo++; bestCombo = Math.max(bestCombo, combo);
+      judge(best, bd, l);
+    }
+    // 判定一個音符（音軌或泡泡都用這個）
+    function judge(best, bd, l) {
+      if (bd > .2) { best.hit = -1; best.hitT = time; combo = 0; pop(me.x, me.y - 120, 'MISS', '200,190,230', .8); return; }
+      const q = bd < .07 ? 3 : bd < .13 ? 2 : 1; best.hit = q; best.hitT = time; combo++; bestCombo = Math.max(bestCombo, combo);
       const fever = combo >= 10, pts = Math.min(3, q + (fever ? 1 : 0)); me.del += pts; pushDel();
       me.dn++; me.hitT = time; me.mv = l; send(true);
       const c = LANES[l].c;
@@ -11196,6 +11211,20 @@ function petSVG(i, opt = {}) {
       if (combo === 10) { say('FEVER 🔥', 1.4, true); shake(4); burst(me.x, me.y, 60, { emo: ['🔥', '⭐', '💖', '✨'], speed: 420, life: 1.4 }); }
       Sound.note(LANES[l].f * (q === 3 ? 2 : 1), { type: 'triangle', dur: .5, gain: .07 + q * .015, pan: (l - 1.5) * .3 });
     }
+    // 泡泡模式：點到泡泡，而且時間對了
+    function hitBubble(x, y) {
+      if (!on || ended || mode !== 'dance' || !playing()) return;
+      const t = gt(), R = bubbleR(); let best = null, bd = .36;
+      for (const n of notes) {
+        if (n.hit) continue; const d = Math.abs(n.t - t); if (d >= bd) continue;
+        if (Math.hypot(n.bx * cw - x, n.by * ch - y) < R * 1.35) { bd = d; best = n; }
+      }
+      if (!best) return;
+      judge(best, bd, best.l);
+      if (best.hit > 0) { const c = LANES[best.l].c; bubbleFx.push({ x: best.bx * cw, y: best.by * ch, c, t: 0, q: best.hit }); try { navigator.vibrate && navigator.vibrate(best.hit === 3 ? 18 : 10); } catch (_) { /* ignore */ } }
+    }
+    const bubbleR = () => clamp(Math.min(cw, ch) * .085, 30, 52);
+    const bubbleFx = [];
     function useAbility() {
       if (!on || ended || time - me.abT < CD || me.stun > 0 || mode === 'dance') return;
       const ab = abilOf(myPet); me.abT = time; me.ab++;
@@ -11256,7 +11285,7 @@ function petSVG(i, opt = {}) {
           }
         }
         if (mode === 'dance') {
-          for (const n of notes) if (!n.hit && T - n.t > .2) { n.hit = -1; if (combo) { combo = 0; laneFx[n.l] = -1; } }
+          for (const n of notes) if (!n.hit && T - n.t > .2) { n.hit = -1; n.hitT = time; if (combo) { combo = 0; laneFx[n.l] = -1; } }
           const b = Math.floor(T / beat);
           if (b !== lastBeat && b >= 0) {   // 節拍：低音鼓＋每四拍一個和弦
             lastBeat = b; Sound.note(b % 2 ? 82.41 : 65.41, { type: 'sine', dur: .28, gain: .14 });
@@ -11331,7 +11360,7 @@ function petSVG(i, opt = {}) {
       dt *= slowT > 0 ? .35 : 1;   // 進球時的慢動作（只影響畫面，不影響比賽）
       // 鏡頭：跟著自己的寵物；整個場地放得下就置中
       const fx0 = ended || mode === 'dance' ? M.W / 2 : me.x, fy0 = ended || mode === 'dance' ? M.H / 2 : me.y;   // 結束跳舞時看中間
-      const vw = cw / S, vh = ch / S, tx = M.W <= vw ? M.W / 2 : clamp(fx0, vw / 2, M.W - vw / 2), ty = M.H <= vh ? M.H / 2 : clamp(fy0, vh / 2, M.H - vh / 2);
+      const vw = cw / S, vh = ch / S, tx = M.W <= vw ? M.W / 2 : clamp(fx0, vw / 2, M.W - vw / 2), ty = (M.H <= vh ? M.H / 2 : clamp(fy0, vh / 2, M.H - vh / 2)) + (mode === 'dance' && BUBBLE && !ended ? ch * .2 / S : 0);   // 泡泡模式：舞台推到上面，下面留給泡泡
       const k = camX ? 1 - Math.exp(-6 * dt) : 1; camX += (tx - camX) * k; camY += (ty - camY) * k;
       const bg = g.createLinearGradient(0, 0, 0, ch); bg.addColorStop(0, '#0b0826'); bg.addColorStop(1, '#05040f'); g.fillStyle = bg; g.fillRect(0, 0, cw, ch);
       for (const s of stars) {
@@ -11372,7 +11401,7 @@ function petSVG(i, opt = {}) {
       drawFx(dt);
       g.restore();
       if (flashA > .02) { g.fillStyle = `rgba(255,250,235,${flashA})`; g.fillRect(0, 0, cw, ch); }
-      if (mode === 'dance') drawLanes();
+      if (mode === 'dance') { if (BUBBLE) drawBubbles(dt); else drawLanes(); }
       // 搖桿
       if (input.stick) {
         const s = input.stick; g.strokeStyle = 'rgba(255,255,255,.25)'; g.lineWidth = 2; g.beginPath(); g.arc(s.x0, s.y0, 52, 0, TAU); g.stroke();
@@ -11520,6 +11549,43 @@ function petSVG(i, opt = {}) {
         g.globalAlpha = 1;
       }
       if (combo >= 3) { g.fillStyle = fever ? `hsl(${(time * 200) % 360},90%,75%)` : '#fff3dc'; g.font = `${Math.round(clamp(cw * .06, 22, 40))}px ${bodyFont}`; g.textAlign = 'center'; g.fillText(`${combo} COMBO${fever ? ' 🔥' : ''}`, cw / 2, top - 24); }
+      g.restore();
+    }
+    // 泡泡模式：外圈縮到泡泡邊緣的那一刻點下去
+    function drawBubbles(dt) {
+      const T = gt(), lead = 1.25, R = bubbleR(), fever = combo >= 10;
+      g.save(); g.textAlign = 'center'; g.textBaseline = 'middle';
+      // 接下來要點的泡泡之間連一條淡淡的線，看得出順序
+      const up = room.state === 'play' ? notes.filter(n => !n.hit && n.t - T < lead && n.t - T > -.25).sort((a, b) => a.t - b.t) : [];
+      if (up.length > 1) { g.strokeStyle = 'rgba(255,255,255,.18)'; g.lineWidth = 3; g.setLineDash([2, 10]); g.lineCap = 'round'; g.beginPath(); up.forEach((n, i) => { const x = n.bx * cw, y = n.by * ch; i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.stroke(); g.setLineDash([]); }
+      for (let i = up.length - 1; i >= 0; i--) {
+        const n = up[i], d = n.t - T, x = n.bx * cw, y = n.by * ch, c = LANES[n.l].c, k = clamp(1 - d / lead);
+        const appear = clamp((lead - d) / .25);
+        // 外圈：從很大縮到剛好貼著泡泡
+        g.strokeStyle = `rgba(${c},${.35 + .55 * k})`; g.lineWidth = 3 + 2 * k;
+        g.beginPath(); g.arc(x, y, R * (1 + Math.max(0, d) / lead * 1.8), 0, TAU); g.stroke();
+        // 泡泡本體：半透明、有反光
+        g.globalAlpha = appear;
+        g.save(); g.globalCompositeOperation = 'lighter'; glowAt(x, y, R * 1.7, fever ? `${(time * 200 + n.l * 60) % 255 | 0},200,255` : c, .35); g.restore();
+        const gr = g.createRadialGradient(x - R * .35, y - R * .4, R * .1, x, y, R);
+        gr.addColorStop(0, 'rgba(255,255,255,.95)'); gr.addColorStop(.35, `rgba(${c},.55)`); gr.addColorStop(1, `rgba(${c},.25)`);
+        g.fillStyle = gr; g.beginPath(); g.arc(x, y, R * (1 + Math.sin(time * 8 + i) * .03), 0, TAU); g.fill();
+        g.strokeStyle = 'rgba(255,255,255,.75)'; g.lineWidth = 2; g.stroke();
+        g.fillStyle = 'rgba(255,255,255,.9)'; g.beginPath(); g.ellipse(x - R * .35, y - R * .42, R * .22, R * .12, -.6, 0, TAU); g.fill();
+        g.fillStyle = '#1a1238'; g.font = `700 ${Math.round(R * .7)}px ${bodyFont}`; g.fillText(String(n.no), x, y + 2);
+        g.globalAlpha = 1;
+      }
+      // 點破的泡泡：啵！
+      for (let i = bubbleFx.length - 1; i >= 0; i--) {
+        const b = bubbleFx[i]; b.t += dt; if (b.t > .55) { bubbleFx.splice(i, 1); continue; }
+        const u = b.t / .55;
+        g.strokeStyle = `rgba(${b.c},${1 - u})`; g.lineWidth = 4 * (1 - u) + 1; g.beginPath(); g.arc(b.x, b.y, R * (1 + u * 1.2), 0, TAU); g.stroke();
+        for (let k = 0; k < 10; k++) { const a = k / 10 * TAU, rr = R * (1 + u * 1.6); g.fillStyle = `rgba(${b.c},${1 - u})`; g.beginPath(); g.arc(b.x + Math.cos(a) * rr, b.y + Math.sin(a) * rr, 4 * (1 - u) + 1, 0, TAU); g.fill(); }
+        if (b.q === 3) { g.fillStyle = `rgba(255,236,170,${1 - u})`; g.font = `700 ${Math.round(R * .5)}px ${bodyFont}`; g.fillText('PERFECT', b.x, b.y - R * (1.3 + u)); }
+      }
+      // 沒點到的泡泡慢慢消失
+      for (const n of notes) { if (n.hit !== -1 || !n.hitT || time - n.hitT > .6) continue; const u = (time - n.hitT) / .6; g.globalAlpha = .5 * (1 - u); g.fillStyle = 'rgba(200,190,230,1)'; g.beginPath(); g.arc(n.bx * cw, n.by * ch + u * 30, bubbleR() * (1 - u * .4), 0, TAU); g.fill(); g.globalAlpha = 1; }
+      if (combo >= 3) { g.fillStyle = fever ? `hsl(${(time * 200) % 360},90%,75%)` : '#fff3dc'; g.font = `${Math.round(clamp(cw * .06, 22, 40))}px ${bodyFont}`; g.fillText(`${combo} COMBO${fever ? ' 🔥' : ''}`, cw / 2, ch * .33); }
       g.restore();
     }
     // 跳出來的字、衝擊波
@@ -11702,6 +11768,7 @@ function petSVG(i, opt = {}) {
     }
     function howTo() {
       const ab = abilOf(myPet);
+      if (mode === 'dance' && BUBBLE) return L('泡泡會跟著節奏一顆一顆冒出來，外面的圈圈縮到剛好貼著泡泡時點它！越準分數越高，連擊 10 下進入 FEVER，每一下多 1 分。', 'Bubbles pop up to the beat — tap each one just as its outer ring shrinks onto it! Better timing scores more; a 10-hit combo starts FEVER for +1 each hit.');
       if (mode === 'dance') return L('音符落到下面的圈圈時，點那一條音軌（或按 ← ↓ ↑ → / D F J K）。越準分數越高，連擊 10 下進入 FEVER，每一下多 1 分！左下角可以送表情給大家。', 'Tap a lane (or press ← ↓ ↑ → / D F J K) when its note reaches the circle. Better timing scores more; a 10-hit combo starts FEVER for +1 each hit! Send emotes from the bottom left.');
       return ({
         ball: L('拖曳畫面（或用方向鍵）移動寵物，把發光的星星球推進對面的星門。', 'Drag (or use arrow keys) to move your pet and push the glowing star ball into the other team\'s gate.'),
@@ -11725,7 +11792,7 @@ function petSVG(i, opt = {}) {
     /* ---------- 輸入 ---------- */
     cv.addEventListener('pointerdown', e => {
       if (!on || ended) return; e.preventDefault();
-      if (mode === 'dance') { const { lw, x0, top } = laneBox(), l = Math.floor((e.clientX - x0) / lw); if (e.clientY > top - 40 && l >= 0 && l < 4) hitLane(l); return; }
+      if (mode === 'dance') { if (BUBBLE) { hitBubble(e.clientX, e.clientY); return; } const { lw, x0, top } = laneBox(), l = Math.floor((e.clientX - x0) / lw); if (e.clientY > top - 40 && l >= 0 && l < 4) hitLane(l); return; }
       cv.setPointerCapture && cv.setPointerCapture(e.pointerId);
       input.stick = { id: e.pointerId, x0: e.clientX, y0: e.clientY }; input.x = input.y = 0;
     });
@@ -11827,6 +11894,7 @@ function petSVG(i, opt = {}) {
       window.__arIn = (x, y) => { input.x = x; input.y = y; };
       window.__arAb = () => useAbility();
       window.__arLane = l => hitLane(l);
+      window.__arBubbles = () => { const t = gt(); return notes.filter(n => !n.hit && n.t - t > -.1 && n.t - t < .6).map(n => [Math.round(n.bx * cw), Math.round(n.by * ch), +(n.t - t).toFixed(3)]); };
       window.__arNotes = () => { const t = gt(); return notes.filter(n => !n.hit && n.t - t > -.1 && n.t - t < .6).map(n => [n.l, +(n.t - t).toFixed(3)]); };
       window.__arStars = () => { const t = gt(); return items.filter(it => !claimed[it.i] && it.k !== 3 && t >= it.at && t <= it.at + it.f).map(it => starPos(it, t)).filter(Boolean).map(p => p.map(r1)); };
       window.__arFx = () => ({ pops: pops.length, rings: rings.length, fx: fx.length, shake: +shakeA.toFixed(2), combo, best: bestCombo, del: me.del, sent: me.delSent, pct: [pct(0), pct(1)], tot: [teamTot(0), teamTot(1)] });

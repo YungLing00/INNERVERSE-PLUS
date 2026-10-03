@@ -223,6 +223,51 @@
     white-space: pre-line; text-wrap: balance;
     text-shadow: 0 0 18px rgba(5,4,15,.95);
   }
+  /* ✦ 星球家園與發現 */
+  .home { position: fixed; inset: 0; z-index: 34; display: none; background: #0b0826; touch-action: none; -webkit-user-select: none; user-select: none; }
+  .home.on { display: block; }
+  .home canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .hm-top { position: absolute; left: calc(env(safe-area-inset-left, 0px) + 10px); top: calc(env(safe-area-inset-top, 0px) + 10px); right: 10px; display: flex; gap: 10px; align-items: center; pointer-events: none; }
+  .hm-x { pointer-events: auto; width: 40px; height: 40px; flex: none; border-radius: 50%; border: 1px solid rgba(255,255,255,.22); background: rgba(10,8,30,.55); color: var(--dim); font-size: 1.3rem; cursor: pointer; }
+  .hm-h { display: grid; gap: 2px; color: #fff3dc; text-shadow: 0 0 12px rgba(5,4,15,.9); } .hm-h b { font-weight: 400; letter-spacing: .12em; font-size: .95rem; } .hm-h small { font-size: .74rem; color: rgba(255,236,200,.85); letter-spacing: .08em; }
+  .hm-side { position: absolute; right: calc(env(safe-area-inset-right, 0px) + 10px); top: calc(env(safe-area-inset-top, 0px) + 10px); display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+  .hm-side .pill { min-height: 36px; padding: .4rem .8rem; font-size: .74rem; letter-spacing: .08em; }
+  .hm-side .pill.on { color: #1a1238; background: linear-gradient(135deg, #ffe3a8, #ffd6e8); }
+  .home.visit .hm-side, .home.visit .hm-tray { display: none; }
+  .hm-msg { position: absolute; left: 50%; top: 28%; transform: translateX(-50%); width: min(90vw, 420px); text-align: center; padding: .5rem .9rem; border-radius: 14px; background: rgba(20,14,46,.85); color: #fff3dc; font-size: .82rem; letter-spacing: .06em; opacity: 0; transition: opacity .4s ease; pointer-events: none; }
+  .hm-msg.on { opacity: 1; }
+  .hm-tray { position: absolute; left: 0; right: 0; bottom: 0; padding: 10px calc(env(safe-area-inset-right, 0px) + 10px) calc(env(safe-area-inset-bottom, 0px) + 10px) calc(env(safe-area-inset-left, 0px) + 10px); display: flex; gap: 8px; overflow-x: auto; background: linear-gradient(to top, rgba(6,4,20,.85), rgba(6,4,20,0)); }
+  .hm-item { flex: none; display: grid; justify-items: center; gap: 2px; min-width: 64px; padding: 6px 8px; border-radius: 14px; border: 1px solid rgba(255,226,170,.35); background: rgba(20,14,46,.7); color: #fff3dc; cursor: pointer; font-family: var(--tc); }
+  .hm-item b { font-size: 1.5rem; } .hm-item small { font-size: .62rem; letter-spacing: .04em; white-space: nowrap; }
+  .hm-empty { color: var(--dim); font-size: .74rem; letter-spacing: .04em; line-height: 1.7; padding: 4px 6px; }
+  .hm-panel { position: absolute; inset: 0; display: none; place-items: center; padding: 14px; background: rgba(6,4,20,.5); }
+  .hm-panel.on { display: grid; }
+  .hm-pcard { position: relative; width: min(560px, 100%); max-height: calc(100dvh - 28px); overflow-y: auto; padding: 1.1rem 1rem 1.2rem; border-radius: 22px; background: linear-gradient(160deg, rgba(40,28,92,.96), rgba(14,10,40,.97)); border: 1px solid rgba(255,255,255,.16); color: var(--ink); }
+  .hm-pcard .hm-x { position: absolute; right: 10px; top: 10px; }
+  .hm-pcard h3 { font-weight: 400; letter-spacing: .1em; font-size: 1rem; color: #fff3dc; padding-right: 44px; }
+  .hm-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-top: .8rem; }
+  .hm-tab { padding: .35rem .7rem; border-radius: 99px; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.05); color: var(--dim); font-family: var(--tc); font-size: .72rem; cursor: pointer; }
+  .hm-tab.on { color: #1a1238; background: linear-gradient(135deg, #ffe3a8, #ffd6e8); }
+  .hm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; margin-top: .8rem; }
+  .hm-count { grid-column: 1 / -1; font-size: .74rem; color: var(--dim); letter-spacing: .04em; line-height: 1.6; margin: .2rem 0; }
+  .hm-card { display: grid; justify-items: center; gap: 3px; padding: 10px 6px; border-radius: 14px; border: 1px solid rgba(255,226,170,.3); background: rgba(255,255,255,.05); color: #fff3dc; font-family: var(--tc); cursor: pointer; text-align: center; }
+  .hm-card b { font-size: 1.8rem; } .hm-card span { font-size: .74rem; letter-spacing: .04em; } .hm-card small { font-size: .62rem; color: rgba(255,226,170,.8); line-height: 1.4; }
+  .hm-card.locked { opacity: .5; border-style: dashed; cursor: default; } .hm-card.on { box-shadow: 0 0 16px rgba(255,214,170,.5); }
+  .hm-mem { grid-column: 1 / -1; display: grid; grid-template-columns: 34px 1fr auto; gap: 8px; align-items: center; padding: 8px 10px; border-radius: 12px; background: rgba(255,255,255,.05); font-size: .78rem; line-height: 1.5; }
+  .hm-mem b { font-size: 1.3rem; } .hm-mem small { color: var(--dim); font-size: .66rem; }
+  .hm-mix { display: grid; grid-template-columns: 30px 1fr 1.4fr; gap: 8px; align-items: center; margin-top: .6rem; font-size: .8rem; }
+  .hm-mix.locked { opacity: .45; } .hm-mix b { font-size: 1.3rem; } .hm-mix input { width: 100%; accent-color: #ffd6a8; }
+  .hm-friend { display: flex; gap: 10px; align-items: center; width: 100%; margin-top: 8px; padding: 10px 12px; border-radius: 14px; border: 1px solid rgba(255,226,170,.3); background: rgba(255,255,255,.05); color: #fff3dc; font-family: var(--tc); font-size: .82rem; cursor: pointer; text-align: left; }
+  .hm-friend b { font-size: 1.3rem; } .hm-friend.on { box-shadow: 0 0 14px rgba(255,214,170,.5); border-color: rgba(255,226,170,.8); } .hm-friend.locked { opacity: .45; cursor: default; }
+  .cos-dlg { z-index: 45; }
+  .cd-head { font-size: .8rem; letter-spacing: .1em; color: rgba(255,226,190,.9); line-height: 1.6; }
+  .cd-big { margin: .6rem auto .2rem; width: 120px; height: 120px; display: grid; place-items: center; font-size: 4.2rem; border-radius: 50%; background: radial-gradient(circle, rgba(255,236,190,.35), rgba(255,236,190,0) 70%); }
+  .cos-dlg.on .cd-big { animation: cdPop .9s cubic-bezier(.2,1.6,.4,1) both, cdFloat 3s ease-in-out .9s infinite; }
+  .cos-dlg.rare .cd-big { background: conic-gradient(from 0deg, rgba(255,180,220,.35), rgba(180,220,255,.35), rgba(200,255,220,.35), rgba(255,236,170,.35), rgba(255,180,220,.35)); box-shadow: 0 0 40px rgba(255,214,170,.6); }
+  .cos-dlg.rare .cd-card { box-shadow: 0 0 60px rgba(255,214,170,.35); }
+  @keyframes cdPop { 0% { transform: scale(.2) rotate(-20deg); opacity: 0; } 60% { transform: scale(1.15) rotate(6deg); opacity: 1; } 100% { transform: none; } }
+  @keyframes cdFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  @media (prefers-reduced-motion: reduce) { .cos-dlg.on .cd-big { animation: none; } }
   .q-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: .7rem; }
   .q-chips:empty { display: none; }
   .q-chip { padding: .45rem .9rem; border-radius: 999px; border: 1px solid rgba(255,226,170,.45); background: rgba(255,226,170,.08); color: #fff3dc; font-family: var(--tc); font-size: .78rem; letter-spacing: .06em; cursor: pointer; transition: background .2s ease, transform .2s ease; }
@@ -1285,7 +1330,7 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
   <div class="uv-title"><h2>✦ OUR UNIVERSE ✦</h2><p class="uv-demo" id="uvDemo" hidden>示範宇宙：真實旅人還不多，先用示範星球陪你逛逛</p></div>
   <p class="uv-hint" id="uvHint"></p>
   <div class="uv-ev" id="uvEvent" hidden><p class="ev-t" id="evTitle"></p><p class="ev-s" id="evSub"></p><div class="ev-bar"><i id="evBar"></i></div><div class="ev-row"><span class="ev-n" id="evN"></span><button class="main ev-go" id="evGo" type="button"></button></div></div>
-  <div class="uv-tools"><button class="pill" id="uvHand" type="button">🖐️ 手勢控制</button><button class="pill" id="uvAll" type="button">✦ 看見整座宇宙</button><button class="pill uv-mail" id="uvMail" type="button" hidden>💌</button><button class="pill" id="uvFriends" type="button" hidden>✦</button><button class="pill uv-play" id="uvPlay" type="button" hidden>🎮 一起玩</button></div>
+  <div class="uv-tools"><button class="pill" id="uvHand" type="button">🖐️ 手勢控制</button><button class="pill" id="uvAll" type="button">✦ 看見整座宇宙</button><button class="pill uv-mail" id="uvMail" type="button" hidden>💌</button><button class="pill" id="uvFriends" type="button" hidden>✦</button><button class="pill uv-play" id="uvPlay" type="button" hidden>🎮 一起玩</button><button class="pill" id="uvMyHome" type="button" hidden>🏠 家園</button></div>
   <div class="uv-gest" id="uvGest"><span>🖐️ 張開手掌移動：旋轉宇宙</span><span>🖐️ 手掌靠近／遠離鏡頭：放大／縮小</span><span>✌️ 兩指或三指移動：平移</span><span>🤏 捏合：選擇星球</span><span>✊ 握拳：回到整個宇宙</span></div>
   <aside class="uv-card" id="uvCard" aria-live="polite">
     <button class="uv-x" id="uvcClose" type="button" aria-label="回到宇宙">×</button>
@@ -1304,6 +1349,7 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
     </div>
     <div id="uvcGive"><p class="uv-sub">留下一點星光</p><div class="uv-gifts" id="uvcGifts"></div></div>
     <div class="un" id="uvcNote" hidden><p class="uv-sub">留下一句話（只有星球主人看得到）</p><div class="un-row"><input id="unText" type="text" maxlength="60" placeholder="想對牠的主人說些什麼？" autocomplete="off"><button class="mini un-send" id="unSend" type="button" aria-label="送出">✦</button></div></div>
+    <button class="main uv-homeb" id="uvcHome" type="button" hidden></button>
     <p class="uv-tune" id="uvcTune"></p>
     <p class="uv-n" id="uvcStarsN"></p>
     <button class="ghost uv-back" id="uvBack" type="button">回到宇宙</button>
@@ -1339,6 +1385,22 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
     <div class="un-row gm-join"><input id="gmCode" type="text" maxlength="5" autocomplete="off" autocapitalize="characters"><button class="ghost" id="gmJoin" type="button"></button></div>
     <p class="gm-msg" id="gmMsg" role="status"></p>
     <div class="bd-acts"><button class="ghost" id="gmClose" type="button"></button></div>
+  </div>
+</div>
+<section class="home" id="home" aria-label="星球家園">
+  <canvas id="hmCv"></canvas>
+  <div class="hm-top"><button class="hm-x" id="hmClose" type="button" aria-label="回到宇宙">×</button><div class="hm-h"><b id="hmName"></b><small id="hmTitle"></small></div></div>
+  <div class="hm-side"><button class="pill" id="hmBook" type="button">📖 圖鑑</button><button class="pill" id="hmSound" type="button">🎵 聲景</button><button class="pill" id="hmGift" type="button">🎁 送禮</button><button class="pill" id="hmTitleB" type="button">🏷️ 稱號</button><button class="pill" id="hmEdit" type="button">✏️ 擺放</button></div>
+  <p class="hm-msg" id="hmMsg" role="status"></p>
+  <div class="hm-tray" id="hmTray"></div>
+  <div class="hm-panel" id="hmPanel"><div class="hm-pcard"><button class="hm-x" id="hmPClose" type="button" aria-label="關閉">×</button><h3 id="hmPTitle"></h3><div id="hmPBody"></div></div></div>
+</section>
+<div class="back-dlg cos-dlg" id="cosDlg" role="dialog" aria-modal="true" aria-labelledby="cdName">
+  <div class="bd-card cd-card">
+    <p class="cd-head" id="cdHead"></p>
+    <div class="cd-big" id="cdBig" aria-hidden="true"></div>
+    <h3 id="cdName"></h3><p class="bd-sub" id="cdSub"></p>
+    <div class="bd-acts"><button class="main" id="cdGo" type="button"></button><button class="ghost" id="cdHome" type="button"></button></div>
   </div>
 </div>
 <div class="back-dlg" id="mailDlg" role="dialog" aria-modal="true" aria-labelledby="mlTitle">
@@ -1407,6 +1469,7 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
   // 日文、韓文、越南文：以英文為 key 的對照表 [ja, ko, vi]
   const I18N = {
     "Hold to speed up": ["長押しで早送り", "길게 눌러 빨리 감기", "Nhấn giữ để tua nhanh"],
+    "🏠 Home": ["🏠 おうち", "🏠 집", "🏠 Nhà"], "📖 Collection": ["📖 図鑑", "📖 도감", "📖 Bộ sưu tập"], "🎵 Sounds": ["🎵 サウンド", "🎵 소리", "🎵 Âm thanh"], "🎁 Give": ["🎁 おくる", "🎁 선물", "🎁 Tặng"], "🏷️ Titles": ["🏷️ 称号", "🏷️ 칭호", "🏷️ Danh hiệu"], "✏️ Arrange": ["✏️ ならべる", "✏️ 배치", "✏️ Sắp xếp"],
     "Skip intro ⏭": ["オープニングをスキップ ⏭", "오프닝 건너뛰기 ⏭", "Bỏ qua phần mở đầu ⏭"],
     "🖐️ Palm toward / away from the camera: zoom in / out": ["🖐️ 手のひらをカメラに近づける／離す：拡大／縮小", "🖐️ 손바닥을 카메라에 가까이／멀리：확대／축소", "🖐️ Đưa lòng bàn tay lại gần / ra xa camera: phóng to / thu nhỏ"],
     "✌️ Move two or three fingers: pan": ["✌️ 2本か3本の指を動かす：移動", "✌️ 두세 손가락을 움직이기：이동", "✌️ Di chuyển hai hoặc ba ngón tay: dịch chuyển"],
@@ -4066,6 +4129,7 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
   // 靜態 HTML 的英文：依中文原文對照替換文字節點、placeholder、aria-label
   const HTML_EN = {
     '長按加速': 'Hold to speed up', '跳過開場 ⏭': 'Skip intro ⏭',
+    '🏠 家園': '🏠 Home', '📖 圖鑑': '📖 Collection', '🎵 聲景': '🎵 Sounds', '🎁 送禮': '🎁 Give', '🏷️ 稱號': '🏷️ Titles', '✏️ 擺放': '✏️ Arrange',
     '🎮 一起玩': '🎮 Play together', '現在開始': 'Start now', '邀請朋友': 'Invite friends', '離開': 'Leave', '再玩一次': 'Play again', '回到宇宙': 'Back to the universe',
     '友情星圖': 'Friendship Constellation', '在 INNERVERSE，每一段友情，都從一支舞開始。': 'In INNERVERSE, friendship begins with a dance.', '留下一句話（只有星球主人看得到）': 'Leave a few words (only the owner can see)', '想對牠的主人說些什麼？': 'Anything you want to tell the owner?', '送出': 'Send',
     '最近，心裡有什麼煩惱嗎？': 'Has anything been weighing on you lately?', '說出來，讓寵物陪你一起放下。': 'Say it, and let your pet help you set it down.', '不用整理，想到什麼就寫什麼': 'No need to organize it — write whatever comes', '交給寵物': 'Give it to my pet', '沒有煩惱，陪我一下就好': 'No worries — just keep me company',
@@ -5041,6 +5105,51 @@ function petSVG(i, opt = {}) {
         else if (el === 'water') { guqin(f / 2, { gain: .14, dur: 5 }); droplet({ delay: .1 }); droplet({ delay: .45 }); }
       },
       // 🪩 GALAXY DANCE：依在場寵物的 Big Five 比例混出今天的音樂（O 多→空靈層、E 多→鼓、A 多→和聲、C 多→穩定節奏、N 多→柔和長音）
+      // 我的宇宙聲景：玩家收集到的聲音一層一層疊起來（mix：每一層 0～1；null＝關掉）
+      scape(mix) {
+        if (!ac) return;
+        const S = this._sc || (this._sc = { L: {}, t: 0 });
+        const want = mix || {}, now = ac.currentTime;
+        const layer = (k, make) => { if (!S.L[k] && want[k] > 0) S.L[k] = make(); return S.L[k]; };
+        const out = g => { g.connect(dry); g.connect(rev); return g; };
+        const ocean = layer('ocean', () => {
+          const src = ac.createBufferSource(); src.buffer = noiseBuf(4); src.loop = true;
+          const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 520;
+          const g = out(ac.createGain()); g.gain.value = 0;
+          const lfo = ac.createOscillator(); lfo.frequency.value = .11; const lg = ac.createGain(); lg.gain.value = 0; lfo.connect(lg); lg.connect(g.gain);
+          src.connect(f); f.connect(g); src.start(); lfo.start(); return { g, lg, stop() { src.stop(); lfo.stop(); } };
+        });
+        const rain = layer('rain', () => {
+          const src = ac.createBufferSource(); src.buffer = noiseBuf(3); src.loop = true;
+          const f = ac.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 2600;
+          const g = out(ac.createGain()); g.gain.value = 0; src.connect(f); f.connect(g); src.start(); return { g, stop() { src.stop(); } };
+        });
+        const pad = layer('pad', () => {
+          const g = out(ac.createGain()); g.gain.value = 0; const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 800; f.connect(g);
+          const os = [110, 164.81, 220, 277.18].map((fr, i) => { const o = ac.createOscillator(); o.type = 'sawtooth'; o.frequency.value = fr; o.detune.value = (i - 1.5) * 6; o.connect(f); o.start(); return o; });
+          return { g, stop() { os.forEach(o => o.stop()); } };
+        });
+        if (ocean) { ramp(ocean.g.gain, (want.ocean || 0) * .16, 2); ramp(ocean.lg.gain, (want.ocean || 0) * .1, 2); }
+        if (rain) ramp(rain.g.gain, (want.rain || 0) * .05, 2);
+        if (pad) ramp(pad.g.gain, (want.pad || 0) * .022, 3);
+        // 一顆一顆的聲音：鈴、月光鋼琴、鯨魚的歌、雨滴
+        clearInterval(S.t); S.mix = want;
+        const on = Object.keys(want).some(k => want[k] > 0);
+        if (!on) { setTimeout(() => { if (Object.keys(S.mix || {}).some(k => S.mix[k] > 0)) return; Object.keys(S.L).forEach(k => { try { S.L[k].stop(); } catch (_) { /* ignore */ } }); S.L = {}; }, 3500); return; }
+        const PENT = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.66];
+        S.t = setInterval(() => {
+          const m = S.mix || {};
+          if (m.bell > 0 && Math.random() < .14 * m.bell) bell(PENT[(Math.random() * PENT.length) | 0], { gain: .05 * m.bell, dur: 4 });
+          if (m.piano > 0 && Math.random() < .3 * m.piano) pluck(PENT[(Math.random() * 5) | 0] / 2, { gain: .06 * m.piano, dur: 2.6, pan: Math.random() - .5 });
+          if (m.rain > 0 && Math.random() < .25 * m.rain) pluck(1800 + Math.random() * 1600, { gain: .012 * m.rain, dur: .25, pan: Math.random() * 2 - 1 });
+          if (m.whale > 0 && Math.random() < .035 * m.whale) {   // 鯨魚的歌：慢慢滑下來的長音
+            const o = ac.createOscillator(), g = out(ac.createGain()), t = ac.currentTime, f0 = 260 + Math.random() * 120;
+            o.type = 'sine'; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f0 * .62, t + 3.2); o.frequency.exponentialRampToValueAtTime(f0 * .8, t + 4.6);
+            g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.05 * m.whale, t + .8); g.gain.exponentialRampToValueAtTime(.0001, t + 5);
+            o.connect(g); o.start(t); o.stop(t + 5.1);
+          }
+        }, 400);
+      },
       galaxy(mix = [3, 3, 3, 3, 3], sec = 16) {
         if (!ac) return;
         clearTimeout(galT); stopBreathLoop(); pianoOn = false; clearTimeout(pianoTimer);
@@ -9242,7 +9351,7 @@ function petSVG(i, opt = {}) {
      ================================================================ */
   var FB = (() => {   // var：上面的 apiPost 也會用到，要在這段跑完之前就能安全檢查
     const SDK = 'https://www.gstatic.com/firebasejs/12.19.0/';
-    const ACTIONS = ['checkName', 'publish', 'universe', 'invite', 'friendAct', 'inbox', 'ack', 'respond', 'note', 'event', 'eventGive', 'starlight', 'visits'];
+    const ACTIONS = ['checkName', 'publish', 'universe', 'invite', 'friendAct', 'inbox', 'ack', 'respond', 'note', 'event', 'eventGive', 'starlight', 'visits', 'gift', 'home', 'saveHome'];
     const WEATHERS = ['sunny', 'rain', 'fog', 'rainbow', 'night'], ELEMENTS = ['earth', 'metal', 'wood', 'fire', 'water'], GIFTS = ['star', 'leaf', 'drop', 'light', 'heart'];
     const LEVELS = ['', 'Friend', 'Close Friend', 'Shared Memory', 'Best Friend', 'Soul Constellation'];
     let boot = null, db = null, uid = '', D = null, offset = 0, pubQ = Promise.resolve();
@@ -9387,7 +9496,7 @@ function petSVG(i, opt = {}) {
           const b = p.big5 || {};
           return { model: p.modelTask || '', img: p.img && imgs++ < 80 ? p.img : '',   // 縮圖只放最近 80 顆
             pid: id, name: p.name, planetName: p.planetName || '', typeKey: p.typeKey || '', petIdx: Number(p.petIdx) || 0, petSign: p.petSign || '', petName: p.petName || '',
-            element: p.element || '', weather: p.weather || 'sunny', lights: Number(p.lights) || 0,
+            element: p.element || '', weather: p.weather || 'sunny', lights: Number(p.lights) || 0, title: String(p.title || '').slice(0, 30),
             big5: { O: +b.O || 3, C: +b.C || 3, E: +b.E || 3, A: +b.A || 3, N: +b.N || 3 } };
         });
         const edges = new Map();
@@ -9437,11 +9546,11 @@ function petSVG(i, opt = {}) {
       },
 
       async inbox(q) {
-        const [inv, outs, notes] = await Promise.all(['invites', 'outcomes', 'notes'].map(k => val(`inbox/${uid}/${k}`)));
+        const [inv, outs, notes, gifts] = await Promise.all(['invites', 'outcomes', 'notes', 'gifts'].map(k => val(`inbox/${uid}/${k}`)));
         const cnt = o => Object.keys(o || {}).length;
-        if (q.peek) return { ok: true, peek: true, invites: cnt(inv), outcomes: cnt(outs), notes: cnt(notes) };
+        if (q.peek) return { ok: true, peek: true, invites: cnt(inv), outcomes: cnt(outs), notes: cnt(notes) + cnt(gifts) };
         const mineF = (await val('friends/' + uid)) || {};
-        const ids = new Set([...Object.keys(inv || {}), ...Object.keys(outs || {}), ...Object.keys(mineF), ...Object.values(notes || {}).map(n => n.from)]);
+        const ids = new Set([...Object.keys(inv || {}), ...Object.keys(outs || {}), ...Object.keys(mineF), ...Object.values(notes || {}).map(n => n.from), ...Object.values(gifts || {}).map(n => n.from)]);
         const P = new Map(await Promise.all([...ids].filter(Boolean).map(async id => [id, pub(id, await planet(id))])));
         const invites = Object.keys(inv || {}).map(id => ({ id, createdAt: inv[id].createdAt, from: P.get(id) })).filter(x => x.from);
         // 讀信箱不會刪信：要等用戶真的打開、收下（ack）才收起來，信才不會還沒看到就消失
@@ -9452,7 +9561,8 @@ function petSVG(i, opt = {}) {
         const nl = Object.keys(notes || {}).map(id => Object.assign({ id }, notes[id])).sort((a, b) => (a.time || 0) - (b.time || 0));
         const friends = await Promise.all(Object.keys(mineF).filter(id => P.get(id)).map(async id => Object.assign({ partner: P.get(id) }, friendOut(mergeF(mineF[id], await val(`friends/${id}/${uid}`))))));
         return { ok: true, invites, outcomes, friends,
-          notes: nl.slice(-20).map(n => ({ id: n.id, time: n.time, text: n.text, from: P.get(n.from) || null })) };
+          notes: nl.slice(-20).map(n => ({ id: n.id, time: n.time, text: n.text, from: P.get(n.from) || null })),
+          gifts: Object.keys(gifts || {}).slice(0, 20).map(id => ({ id, k: gifts[id].k, at: gifts[id].at, from: P.get(gifts[id].from) || null })) };
       },
 
       // 收下信件：notes＝留言 id、outcomes＝邀請結果 id（「對方uid_時間」）
@@ -9461,9 +9571,26 @@ function petSVG(i, opt = {}) {
         const del = {};
         ids(b.notes).forEach(id => { del[`inbox/${uid}/notes/${id}`] = null; });
         ids(b.outcomes).forEach(id => { const k = id.lastIndexOf('_'); del[`inbox/${uid}/outcomes/${k > 0 ? id.slice(0, k) : id}`] = null; });
+        ids(b.gifts).forEach(id => { del[`inbox/${uid}/gifts/${id}`] = null; });
         if (Object.keys(del).length) await D.update(D.ref(db), del);
         return { ok: true };
       },
+
+      // 送朋友一樣找到的東西（花、種子、家具⋯）
+      async gift(b) {
+        const to = str(b.to, 128), k = str(b.k, 16);
+        if (!to || to === uid || !/^[a-zA-Z]{2,16}$/.test(k)) fail('bad_gift');
+        await D.push(D.ref(db, `inbox/${to}/gifts`), { from: uid, k, at: ts() });
+        return { ok: true };
+      },
+      // 星球家園：自己的存起來給別人參觀；稱號也寫到星球上
+      async saveHome(b) {
+        const h = { p: str(b.p, 8000), th: str(b.th, 12), t: str(b.t, 30), at: ts() };
+        await D.set(D.ref(db, 'homes/' + uid), h);
+        if (await val('planets/' + uid + '/name')) await D.set(D.ref(db, `planets/${uid}/title`), h.t).catch(() => {});
+        return { ok: true };
+      },
+      async home(q) { const id = str(q.id, 128) || uid; return { ok: true, home: (await val('homes/' + id)) || null }; },
 
       async note(b) {
         const to = str(b.to, 128), text = str(b.text, 60).replace(/[\u0000-\u001f]/g, ' ').trim();
@@ -9527,7 +9654,7 @@ function petSVG(i, opt = {}) {
       async watchInbox(cb) {
         await start();
         let t = 0; const fire = () => { clearTimeout(t); t = setTimeout(cb, 250); };
-        ['invites', 'outcomes', 'notes'].forEach(k => D.onValue(D.ref(db, `inbox/${uid}/${k}`), fire, e => console.warn('watch inbox:', e)));
+        ['invites', 'outcomes', 'notes', 'gifts'].forEach(k => D.onValue(D.ref(db, `inbox/${uid}/${k}`), fire, e => console.warn('watch inbox:', e)));
       },
       has(action) { return this.on() && ACTIONS.includes(action); },
       async call(q, ms = 12000) {
@@ -11133,6 +11260,8 @@ function petSVG(i, opt = {}) {
       say(L('ENDING DANCE｜兩隊一起跳舞 ✦', 'ENDING DANCE · both teams dance together ✦'), 4, true);
       await sleepMs(9000); if (!on) return;
       $('arEnd').classList.add('on'); endText();
+      // 玩完之後：可能有什麼東西跟著你回家
+      try { const sl = slotList(); setTimeout(() => { if (on) Cosmos.discover('game', { mode, humans: sl.filter(s => s.uid && !s.me).map(s => ({ pid: s.uid, name: s.name || s.petName })), signs: sl.map(s => s.petIdx) }); }, 1200); } catch (e) { console.warn('discover:', e); }
       setTimeout(() => { if (state === 'universe') { Sound.wxStart('all', null); Sound.wxLevel(.55, 3); } }, 6000);
     }
     function endText() {
@@ -11672,6 +11801,606 @@ function petSVG(i, opt = {}) {
   })();
 
   /* ================================================================
+     ✦ 我的宇宙：收藏、發現、星球家園（獎勵生態第一期）
+     Play → Discover → Collect → Change Your Universe
+     玩 → 遇見東西 → 收藏回憶 → 宇宙慢慢變成自己的樣子（沒有抽卡、沒有排行榜、不用花錢）
+     ================================================================ */
+  const Cosmos = (() => {
+    const KEY = 'iv_cosmos';
+    // 圖鑑七大類
+    const CATS = [['pet', '👾', '寵物與小家', 'Pet & Home'], ['creature', '🥚', '宇宙生物', 'Creatures'], ['nature', '🌱', '植物', 'Nature'], ['dance', '💃', '舞蹈', 'Dances'], ['sound', '🎵', '聲音', 'Sounds'], ['place', '🌌', '地方', 'Places'], ['memory', '💞', '回憶', 'Memories']];
+    const C = {};
+    const def = (k, c, e, zh, en, r = 1, x = {}) => { C[k] = Object.assign({ k, c, e, zh, en, r }, x); };
+    // 宇宙生物（只會從宇宙蛋孵出來）
+    def('jelly', 'creature', '🪼', '小宇宙水母', 'Cosmic Jelly', 1, { mv: 'float' });
+    def('cloud', 'creature', '☁️', '雲朵生物', 'Cloud Puff', 1, { mv: 'drift' });
+    def('fly', 'creature', '🦋', '發光蝴蝶', 'Glow Butterfly', 1, { mv: 'flutter' });
+    def('ray', 'creature', '🐠', '星星魟魚', 'Star Ray', 2, { mv: 'swim' });
+    def('squid', 'creature', '🦑', '星雲小烏賊', 'Nebula Squid', 2, { mv: 'float' });
+    def('sat', 'creature', '🛰️', '迷你衛星生物', 'Tiny Satellite', 2, { mv: 'orbit' });
+    def('whale', 'creature', '🐋', '迷你鯨魚', 'Mini Whale', 3, { mv: 'swim' });
+    def('turtle', 'creature', '🐢', '月亮龜', 'Moon Turtle', 3, { mv: 'walk' });
+    // 植物：種子會長大，長成什麼看你平常怎麼玩
+    def('seed', 'nature', '🌰', '星之種子', 'Star Seed', 1, { place: 1, seed: 1 });
+    def('moonflower', 'nature', '🌼', '月光花', 'Moon Flower', 1, { place: 1, plant: 1 });
+    def('starflower', 'nature', '💮', '星星花', 'Star Flower', 1, { place: 1, plant: 1 });
+    def('tulip', 'nature', '🌷', '宇宙鬱金香', 'Cosmic Tulip', 1, { place: 1, plant: 1 });
+    def('rose', 'nature', '🌹', '星雲玫瑰', 'Nebula Rose', 2, { place: 1, plant: 1 });
+    def('shroom', 'nature', '🍄', '發光蘑菇', 'Glow Mushroom', 2, { place: 1, plant: 1 });
+    def('tAurora', 'nature', '🌳', '極光樹', 'Aurora Tree', 3, { tree: 1, glow: '150,255,215' });
+    def('tMoon', 'nature', '🌲', '月亮樹', 'Moon Tree', 3, { tree: 1, glow: '200,210,255' });
+    def('tBloom', 'nature', '🌸', '花之樹', 'Bloom Tree', 3, { tree: 1, glow: '255,190,220' });
+    def('tCrystal', 'nature', '💎', '水晶樹', 'Crystal Tree', 3, { tree: 1, glow: '190,230,255' });
+    // 寵物的小家：寵物真的會用它們
+    def('bed', 'pet', '🛏️', '小床', 'Little Bed', 1, { place: 1, use: 'sleep' });
+    def('lamp', 'pet', '🏮', '星星燈', 'Star Lamp', 1, { place: 1, use: 'glow' });
+    def('radio', 'pet', '📻', '音樂盒', 'Music Box', 1, { place: 1, use: 'dance' });
+    def('scope', 'pet', '🔭', '望遠鏡', 'Telescope', 2, { place: 1, use: 'look' });
+    def('sofa', 'pet', '🛋️', '雲朵沙發', 'Cloud Sofa', 2, { place: 1, use: 'sit' });
+    def('pond', 'pet', '⛲', '小水池', 'Little Pond', 2, { place: 1, use: 'splash' });
+    def('tent', 'pet', '⛺', '星空帳篷', 'Star Tent', 2, { place: 1, use: 'sleep' });
+    def('ship', 'pet', '🚀', '小飛船', 'Tiny Ship', 3, { place: 1, use: 'ride' });
+    // 舞蹈：學會之後，寵物在家裡會自己跳
+    def('dStep', 'dance', '👣', '星星踏步', 'Star Step', 1, { d: 'step' });
+    def('dBounce', 'dance', '🫧', '小小彈跳', 'Tiny Bounce', 1, { d: 'bounce' });
+    def('dSwing', 'dance', '🎐', '左右搖擺', 'Side Swing', 1, { d: 'swing' });
+    def('dWaltz', 'dance', '🌙', '月光華爾滋', 'Moon Waltz', 2, { d: 'waltz' });
+    def('dSpin', 'dance', '☄️', '彗星旋轉', 'Comet Spin', 2, { d: 'spin' });
+    def('dZeroG', 'dance', '🪐', '無重力之舞', 'Zero-G Dance', 2, { d: 'zerog' });
+    def('dMeteor', 'dance', '🌠', '流星之舞', 'Meteor Dance', 3, { d: 'meteor' });
+    def('dAurora', 'dance', '🌈', '極光之舞', 'Aurora Dance', 3, { d: 'aurora', special: 1 });
+    def('dMidnight', 'dance', '🌑', '午夜之舞', 'Midnight Dance', 3, { d: 'eclipse', hidden: 1 });
+    // 聲音：回到家園，自己混出「我的宇宙聽起來的樣子」
+    def('sOcean', 'sound', '🌊', '海浪', 'Ocean Sound', 1, { mix: 'ocean' });
+    def('sRain', 'sound', '🌧️', '宇宙之雨', 'Cosmic Rain', 1, { mix: 'rain' });
+    def('sBell', 'sound', '🔔', '星星鈴', 'Star Bell', 1, { mix: 'bell' });
+    def('sPiano', 'sound', '🎹', '月光鋼琴', 'Moon Piano', 2, { mix: 'piano' });
+    def('sPad', 'sound', '🌌', '星雲和弦', 'Nebula Pad', 2, { mix: 'pad' });
+    def('sWhale', 'sound', '🐋', '鯨魚之歌', 'Whale Voice', 3, { mix: 'whale' });
+    // 地方：不寫「LV20 解鎖」，而是神秘的條件；解鎖後家園的天空會換成那裡的樣子
+    const P = (k, e, zh, en, hz, he, cond, sky) => def(k, 'place', e, zh, en, 3, { hz, he, cond, sky });
+    P('pHome', '🌎', '家園星球', 'Home Planet', '一開始就在這裡', 'Where it all begins', () => true, ['#0b0826', '#2a1d5c', '#5b3f8a', [110, 90, 190], [60, 150, 120]]);
+    P('pBloom', '🌸', '花之星雲', 'Bloom Nebula', '在家園種下 5 株植物', 'Grow 5 plants at home', s => s.plants >= 5, ['#1d0b26', '#5c1d4f', '#b05f8a', [255, 160, 200], [170, 110, 160]]);
+    P('pOcean', '🌊', '海洋之月', 'Ocean Moon', '收集 3 種宇宙的聲音', 'Collect 3 cosmic sounds', s => s.sounds >= 3, ['#04132a', '#0b3a5c', '#2f7fa0', [120, 200, 255], [40, 110, 150]]);
+    P('pDream', '☁️', '夢之雲', 'Dream Cloud', '孵出 2 隻宇宙生物', 'Hatch 2 creatures', s => s.creatures >= 2, ['#1a1838', '#4a4f8a', '#b9b6e8', [230, 225, 255], [150, 150, 200]]);
+    P('pCrystal', '✨', '水晶帶', 'Crystal Belt', '和大家一起點亮宇宙 2 次', 'Light the Universe twice', s => (s.events || 0) >= 2, ['#08142a', '#163a5c', '#6fb6d8', [190, 240, 255], [90, 140, 180]]);
+    P('pEclipse', '🌑', '月蝕之地', 'Eclipse Zone', '？？？（夜很深的時候⋯）', '??? (when the night is deep…)', s => (s.midnight || 0) >= 1, ['#030208', '#120a24', '#3a2052', [255, 120, 90], [70, 40, 90]]);
+    P('pWhale', '🐋', '鯨魚星系', 'Whale Galaxy', '和 5 位不同的旅人一起玩過', 'Play with 5 different travelers', s => s.friends >= 5, ['#020c1e', '#0a2950', '#1f5f8f', [140, 220, 255], [30, 80, 130]]);
+    // 稱號：不是強弱，是「我是什麼樣的旅人」
+    const TITLES = [
+      ['newbie', '✦', '新來的旅人', 'New Traveler', () => true],
+      ['gardener', '🌱', '星之園丁', 'Star Gardener', s => s.plants >= 5 || s.trees >= 1],
+      ['sound', '🎵', '聲音收藏家', 'Sound Collector', s => s.sounds >= 4],
+      ['dancer', '💃', '宇宙舞者', 'Cosmic Dancer', s => s.dances >= 5 || (s.duets || 0) >= 5],
+      ['explorer', '🐋', '夢境探險家', 'Dream Explorer', s => s.creatures >= 3],
+      ['maker', '🌌', '星座編織者', 'Constellation Maker', s => s.friends >= 5],
+      ['night', '🌙', '夜行旅人', 'Night Wanderer', s => (s.nights || 0) >= 5],
+      ['warm', '💞', '溫暖的同伴', 'Warm Companion', s => (s.giftsSent || 0) >= 3 || (s.humanGames || 0) >= 5],
+      ['six', '🌈', '六魂之光', 'Six Souls', s => (s.six || 0) >= 1, 1]
+    ];
+    const nm = x => x ? L(x.zh, x.en) : '';
+    const titleOf = k => { const t = TITLES.find(x => x[0] === k) || TITLES[0]; return `${t[1]} ${L(t[2], t[3])}`; };
+    const RW = { 1: 70, 2: 25, 3: 5 };
+    const day = (d = new Date()) => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+    const fmtDate = t => { const d = new Date(t || Date.now()); return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`; };
+
+    let S = null;
+    try { S = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (_) { S = null; }
+    if (!S || S.v !== 1) S = { v: 1, inv: {}, seen: {}, placed: [], mem: [], st: {}, mix: {}, th: 'pHome', title: 'newbie', ret: '', uid: 0 };
+    S.seen.pHome = S.seen.pHome || Date.now();
+    let syncT = 0;
+    function save() {
+      try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (_) { /* 空間不足就算了 */ }
+      clearTimeout(syncT); syncT = setTimeout(sync, 1500);
+    }
+    // 家園放到 Firebase：朋友可以來參觀，稱號也會顯示在你的星球上
+    function sync() {
+      if (!(FB && FB.on()) || !((Me.get() || {}).pid)) return;
+      const p = JSON.stringify(S.placed.slice(-30).map(o => ({ k: o.k, a: +o.a.toFixed(3), at: o.at, fn: o.fn || '', g: o.g || 0, sp: o.sp || '', w: o.w || 0 })).concat(owned('creature').map(k => ({ k, cr: 1 })))).slice(0, 8000);
+      apiPost(CONFIG.DATA_ENDPOINT, { action: 'saveHome', p, th: S.th, t: titleOf(S.title) }, 15000).catch(e => console.warn('saveHome:', e));
+    }
+    const has = k => !!S.seen[k];
+    const owned = c => Object.keys(C).filter(k => C[k].c === c && (S.inv[k] || 0) > 0);
+    function stats() {
+      const st = S.st;
+      return Object.assign({}, st, {
+        plants: S.placed.filter(o => C[o.k] && (C[o.k].plant || C[o.k].seed)).length,
+        trees: S.placed.filter(o => o.sp).length,
+        sounds: Object.keys(C).filter(k => C[k].c === 'sound' && has(k)).length,
+        dances: Object.keys(C).filter(k => C[k].c === 'dance' && has(k)).length,
+        creatures: owned('creature').length,
+        friends: Object.keys(st.fp || {}).length
+      });
+    }
+    function add(k, n = 1) {
+      if (!C[k]) return;
+      const first = !has(k); S.inv[k] = (S.inv[k] || 0) + n; if (first) S.seen[k] = Date.now();
+      if (C[k].c === 'sound' && first) S.mix[C[k].mix] = .6;
+      return first;
+    }
+    // 隨機挑一樣：越稀有越少見；舞蹈、聲音、生物優先給還沒有的
+    function roll(cat, opts = {}) {
+      let pool = Object.values(C).filter(x => x.c === cat && !x.hidden && !x.tree && !x.special && x.c !== 'place' && (!opts.place || x.place));
+      if (opts.maxR) pool = pool.filter(x => x.r <= opts.maxR);
+      if (!pool.length) return null;
+      const unique = cat === 'dance' || cat === 'sound' || cat === 'creature';
+      for (let tries = 0; tries < 4; tries++) {
+        let tot = 0; pool.forEach(x => { tot += RW[x.r]; });
+        let r = Math.random() * tot, pick = pool[0];
+        for (const x of pool) { r -= RW[x.r]; if (r <= 0) { pick = x; break; } }
+        if (!unique || !has(pick.k) || tries === 3) return pick.k;
+      }
+      return pool[0].k;
+    }
+    const pickCat = w => { let tot = 0; for (const k in w) tot += w[k]; let r = Math.random() * tot; for (const k in w) { r -= w[k]; if (r <= 0) return k; } return Object.keys(w)[0]; };
+    function memory(e, zh, en, withName) {
+      S.mem.unshift({ e, zh, en, w: withName || '', at: Date.now() }); S.mem = S.mem.slice(0, 120);
+      return { kind: 'memory', e, zh, en, w: withName || '' };
+    }
+    function egg() { S.placed.push({ id: ++S.uid, k: 'egg', a: freeSpot(), at: Date.now(), w: 0 }); S.st.eggs = (S.st.eggs || 0) + 1; return { kind: 'egg' }; }
+    function freeSpot() {
+      const used = S.placed.map(o => o.a);
+      for (let i = 0; i < 60; i++) { const a = Math.random() * 1.9 - .95; if (used.every(u => Math.abs(u - a) > .17)) return a; }
+      return Math.random() * 1.8 - .9;
+    }
+    // 一起玩、照顧寵物、參加活動⋯⋯讓蛋變暖、種子長大
+    const ACT_W = { game: 1, friend: 1, event: 1.2, daily: 1, care: .25 };
+    function activity(type) {
+      const w = ACT_W[type] || .5;
+      S.placed.forEach(o => {
+        if (o.k === 'egg') o.w = Math.min(3, (o.w || 0) + w);
+        if (o.k === 'seed' && !o.sp) {
+          o.g = (o.g || 0) + w; o.gs = o.gs || {}; o.gs[type] = (o.gs[type] || 0) + w;
+          if (o.g >= 8) {   // 長成一棵樹：長成哪一種，看它陪你經歷了什麼
+            const gs = o.gs, best = Object.keys(gs).sort((a, b) => gs[b] - gs[a])[0];
+            o.sp = { friend: 'tBloom', game: 'tAurora', event: 'tCrystal' }[best] || 'tMoon';
+            add(o.sp); pending.push({ kind: 'tree', k: o.sp });
+          }
+        }
+      });
+      save();
+    }
+    const pending = [];   // 等著揭曉的發現
+    function checkUnlocks() {
+      const st = stats();
+      Object.values(C).filter(x => x.c === 'place' && !has(x.k)).forEach(x => { if (x.cond(st)) { S.seen[x.k] = Date.now(); pending.push({ kind: 'place', k: x.k }); } });
+      TITLES.forEach(t => { if (!(S.st.titles || {})[t[0]] && t[4](st)) { S.st.titles = Object.assign({}, S.st.titles, { [t[0]]: Date.now() }); if (t[0] !== 'newbie') pending.push({ kind: 'title', t: t[0] }); } });
+    }
+
+    /* ---------- 發現：玩過之後，可能遇見的東西 ---------- */
+    const MODE_N = { ball: ['星球球', 'Star Ball'], save: ['搶救小星球', 'Save the Planet'], catch: ['流星接接樂', 'Star Catch'], paint: ['星空塗鴉', 'Paint the Galaxy'], dance: ['星光舞蹈對決', 'Star Dance Battle'] };
+    function discover(src, ctx = {}) {
+      const out = [], st = S.st, hour = new Date().getHours(), night = hour >= 21 || hour < 4;
+      if (src === 'game') {
+        st.games = (st.games || 0) + 1;
+        const humans = (ctx.humans || []).filter(h => h && h.pid);
+        if (humans.length) { st.humanGames = (st.humanGames || 0) + 1; st.fp = st.fp || {}; humans.forEach(h => { st.fp[h.pid] = 1; }); }
+        // 第一次玩一定會有一顆蛋跟著你回家；之後偶爾才會
+        if (!st.eggs || Math.random() < .08) out.push(egg());
+        const cat = pickCat({ nature: 40, pet: 25, sound: 15, dance: 20 }), k = roll(cat);
+        if (k) { out.push({ kind: 'item', k, first: add(k) }); }
+        const mn = MODE_N[ctx.mode] || ['3V3', '3V3'];
+        humans.slice(0, 2).forEach(h => out.push(memory('🎮', `和 ${h.name} 一起玩了「${mn[0]}」`, `Played ${mn[1]} with ${h.name}`, h.name)));
+        // 神秘獎勵：不告訴你條件
+        if (hour < 4 && humans.length && !has('dMidnight')) { st.midnight = (st.midnight || 0) + 1; add('dMidnight'); out.push({ kind: 'item', k: 'dMidnight', first: true, mystery: 1 }); }
+        if ((ctx.signs || []).length >= 6 && new Set(ctx.signs).size >= 6 && !st.six) { st.six = 1; }
+        activity('game'); if (humans.length) activity('friend');
+      } else if (src === 'duet') {
+        st.duets = (st.duets || 0) + 1; st.fp = st.fp || {}; if (ctx.pid) st.fp[ctx.pid] = 1;
+        const k = roll('dance'); if (k) out.push({ kind: 'item', k, first: add(k) });
+        if (ctx.first) out.push(memory('💃', `第一次和 ${ctx.name} 的寵物一起跳舞`, `First dance with ${ctx.name}'s pet`, ctx.name));
+        if (hour < 4 && !has('dMidnight')) { st.midnight = (st.midnight || 0) + 1; add('dMidnight'); out.push({ kind: 'item', k: 'dMidnight', first: true, mystery: 1 }); }
+        activity('friend');
+      } else if (src === 'meteor' || src === 'travel') {
+        out.push(src === 'meteor' ? memory('☄️', `和 ${ctx.name} 一起看了一場流星雨`, `Watched a meteor shower with ${ctx.name}`, ctx.name) : memory('🚀', `和 ${ctx.name} 一起去了宇宙的另一端`, `Traveled to the far side of the universe with ${ctx.name}`, ctx.name));
+        if (Math.random() < .4) { const k = roll('sound'); if (k) out.push({ kind: 'item', k, first: add(k) }); }
+        activity('friend');
+      } else if (src === 'event') {
+        st.events = (st.events || 0) + 1;
+        const k = !has('dAurora') ? 'dAurora' : roll(pickCat({ sound: 40, nature: 40, pet: 20 }), { place: 0 });
+        if (k) out.push({ kind: 'item', k, first: add(k) });
+        out.push(memory('🌟', '和大家一起點亮了失落的星星', 'Lit the Lost Star together with everyone'));
+        activity('event');
+      } else if (src === 'daily') {
+        // 寵物自己出去旅行了一趟，帶東西回來
+        if (S.ret === day()) return [];
+        S.ret = day(); st.days = (st.days || 0) + 1; if (night) st.nights = (st.nights || 0) + 1;
+        const r = Math.random();
+        if (r < .12) out.push(Object.assign(egg(), { pet: 1 }));
+        else if (r < .35 && ctx.other) out.push(Object.assign(memory('📷', `${ctx.petName} 昨天遇見了 ${ctx.other.name} 的寵物 ${ctx.other.petName}，牠們一起坐著看星星`, `${ctx.petName} met ${ctx.other.name}'s pet ${ctx.other.petName} yesterday — they sat and watched the stars together`, ctx.other.name), { pet: 1, photo: ctx.other }));
+        else { const k = roll(pickCat({ nature: 50, sound: 20, pet: 30 }), { maxR: 2 }); if (k) out.push({ kind: 'item', k, first: add(k), pet: 1 }); }
+        activity('daily');
+      } else if (src === 'care') { activity('care'); return []; }
+      checkUnlocks(); save();
+      const all = out.concat(pending.splice(0));
+      if (all.length) reveal(all, ctx);
+      return all;
+    }
+
+    /* ---------- 揭曉：一張一張慢慢翻開 ---------- */
+    const dlg = $('cosDlg'), q = [];
+    let showing = false;
+    function reveal(list, ctx = {}) { list.forEach(x => q.push(Object.assign({ ctx }, x))); if (!showing) next(); }
+    function next() {
+      if (!q.length) { showing = false; dlg.classList.remove('on'); return; }
+      // 別的視窗開著（大廳、信件、共舞動畫⋯）就先等一下，不要蓋在上面
+      if (!dlg.classList.contains('on') && hooks.busy && hooks.busy()) { showing = true; clearTimeout(next.t); next.t = setTimeout(() => { showing = false; next(); }, 2000); return; }
+      const it = q.shift();
+      showing = true;
+      const big = $('cdBig'), head = $('cdHead'), name = $('cdName'), sub = $('cdSub'), go = $('cdGo'), home = $('cdHome');
+      const petName = (Me.get() || {}).petName || L('你的寵物', 'Your pet');
+      let e = '✦', h = '', n = '', s = '', canPlace = false;
+      if (it.kind === 'egg') {
+        e = '🥚'; h = it.pet ? L(`${petName} 從外面抱回了一顆蛋⋯`, `${petName} brought an egg home…`) : 'Something followed you home…';
+        n = L('一顆不知道是什麼的蛋', 'An egg of unknown origin'); s = L('牠已經在你的星球上了。多陪陪牠、多和朋友一起玩，蛋就會越來越暖⋯', 'It\'s already on your planet. Play with friends and spend time together — it will grow warmer…');
+      } else if (it.kind === 'item') {
+        const x = C[it.k]; e = x.e; n = nm(x);
+        h = it.mystery ? L('🌑 ？？？　你發現了一個祕密', '🌑 ??? You found a secret') : it.pet ? L(`${petName} 好像出去旅行了一趟，帶回了⋯`, `${petName} seems to have gone on a trip, and brought back…`) : it.first ? L('✦ 你發現了新的東西', '✦ You discovered something new') : L('✦ 又找到一個', '✦ Found another one');
+        s = { creature: L('宇宙生物', 'Creature'), nature: L('植物', 'Nature'), pet: L('寵物的小家', 'Pet home'), dance: L('舞蹈：寵物在家裡會自己跳', 'Dance — your pet will dance it at home'), sound: L('聲音：可以加進你的宇宙聲景', 'Sound — add it to your soundscape') }[x.c] + '　' + '★'.repeat(x.r);
+        canPlace = !!x.place;
+      } else if (it.kind === 'memory') {
+        e = it.e; h = it.pet ? L(`${petName} 帶回了一張照片`, `${petName} brought back a photo`) : L('💞 新的回憶', '💞 A new memory'); n = L(it.zh, it.en); s = fmtDate();
+      } else if (it.kind === 'tree') {
+        const x = C[it.k]; e = x.e; h = L('🌱 你種的種子長大了！', '🌱 Your seed has grown!'); n = nm(x); s = L('它長成什麼樣子，跟它陪你經歷的事情有關。', 'What it became depends on what you lived through together.');
+      } else if (it.kind === 'place') {
+        const x = C[it.k]; e = x.e; h = L('遠方傳來一個聲音⋯', 'A distant voice is calling you…'); n = nm(x); s = L('宇宙裡出現了一條以前不存在的路。在家園可以把天空換成這裡。', 'A path that wasn\'t there before has appeared. You can change your home sky to this place.');
+        try { Sound.whoosh(3); } catch (_) { /* ignore */ }
+      } else if (it.kind === 'title') {
+        const t = TITLES.find(x => x[0] === it.t); e = t[1]; h = L('你得到了一個新的稱號', 'You earned a new title'); n = L(t[2], t[3]); s = L('稱號不是強弱，而是你是什麼樣的旅人。可以在家園換上它。', 'Titles aren\'t about being strong — they show what kind of traveler you are. Wear it from your home.');
+      } else if (it.kind === 'hatch') {
+        const x = C[it.k]; e = x.e; h = L('🥚 蛋裂開了⋯！', '🥚 The egg is hatching…!'); n = nm(x); s = L('牠會住在你的星球上。', 'It will live on your planet.') + '　' + '★'.repeat(x.r);
+      } else if (it.kind === 'gift') {
+        const x = C[it.k]; e = x ? x.e : '🎁'; h = L(`${it.from} 在你的宇宙留下了一樣東西`, `${it.from} left something in your universe`); n = nm(x); s = L(`From ${it.from} · ${fmtDate(it.at)}　已經放在你的星球上了`, `From ${it.from} · ${fmtDate(it.at)} — it's on your planet now`);
+      }
+      big.textContent = e; head.textContent = h; name.textContent = n; sub.textContent = s;
+      dlg.classList.remove('on', 'rare'); void dlg.offsetWidth; dlg.classList.add('on');
+      if ((it.kind === 'item' && C[it.k].r >= 3) || it.kind === 'place' || it.kind === 'hatch' || it.mystery) dlg.classList.add('rare');
+      try { Sound.chime(.4); setTimeout(() => Sound.chime(1), 260); if (dlg.classList.contains('rare')) setTimeout(() => Sound.gift(), 500); } catch (_) { /* ignore */ }
+      go.textContent = canPlace ? L('放到我的星球', 'Put it on my planet') : q.length ? L('下一個 ✦', 'Next ✦') : L('收下 ✦', 'Keep it ✦');
+      go.onclick = () => { if (canPlace && (S.inv[it.k] || 0) > 0) placeItem(it.k); next(); };
+      home.hidden = !!(H.on && !H.visit);
+      home.onclick = () => { if (canPlace && (S.inv[it.k] || 0) > 0) placeItem(it.k); q.length = 0; showing = false; dlg.classList.remove('on'); open(); };
+    }
+
+    /* ---------- 擺東西、孵蛋、收禮物 ---------- */
+    function placeItem(k, extra = {}) {
+      if (!C[k] || !C[k].place || (S.inv[k] || 0) <= 0 || S.placed.length >= 30) return null;
+      S.inv[k]--; const o = Object.assign({ id: ++S.uid, k, a: freeSpot(), at: Date.now() }, k === 'seed' ? { g: 0, gs: {} } : {}, extra);
+      S.placed.push(o); checkUnlocks(); save(); if (pending.length) reveal(pending.splice(0));
+      return o;
+    }
+    function store(o) { S.placed = S.placed.filter(x => x !== o); if (o.k !== 'egg' && !o.sp) S.inv[o.k] = (S.inv[o.k] || 0) + 1; save(); }
+    function hatch(o) {
+      const k = roll('creature'); S.placed = S.placed.filter(x => x !== o); add(k); S.st.hatched = (S.st.hatched || 0) + 1;
+      H.fx.push({ x: o.a, burst: 1, t: 0 }); checkUnlocks(); save(); reveal([{ kind: 'hatch', k }].concat(pending.splice(0)));
+    }
+    // 朋友送來的東西：直接種在你的星球上，點它會看到是誰送的
+    function receive(g) {
+      if (!C[g.k]) return;
+      const from = (g.from && g.from.name) || L('一位旅人', 'A traveler');
+      add(g.k);
+      if (C[g.k].place) placeItem(g.k, { fn: from, at: Number(g.at) || Date.now() });
+      memory('🎁', `${from} 送了你一個「${C[g.k].zh}」`, `${from} gave you a ${C[g.k].en}`, from);
+      save(); reveal([{ kind: 'gift', k: g.k, from, at: g.at }]);
+    }
+
+    /* ---------- 星球家園（畫面） ---------- */
+    const root = $('home'), cv = $('hmCv'), g = cv.getContext('2d');
+    const H = { on: false, visit: null, edit: false, raf: 0, t: 0, last: 0, cw: 0, ch: 0, R: 0, cx: 0, cy: 0, span: 1, pet: { a: 0, ta: 0, mode: 'idle', t: 0, f: 1, use: null, dance: 'bounce' }, fx: [], drag: null, sel: null, cr: [] };
+    function size() {
+      const d = Math.min(devicePixelRatio || 1, 2); H.cw = innerWidth; H.ch = innerHeight;
+      cv.width = H.cw * d; cv.height = H.ch * d; g.setTransform(d, 0, 0, d, 0, 0);
+      H.R = Math.max(H.cw * .75, H.ch * .55); H.cx = H.cw / 2; H.cy = H.ch * .74 + H.R;
+      H.span = Math.min(1.15, (H.cw * .47) / H.R);
+    }
+    const posA = (a, h = 0) => { const th = -Math.PI / 2 + a * H.span, r = H.R + h; return [H.cx + Math.cos(th) * r, H.cy + Math.sin(th) * r, th + Math.PI / 2]; };
+    const U0 = () => clamp(Math.min(H.cw, H.ch) / 11, 30, 64);
+    const data = () => H.visit ? H.visit : { placed: S.placed, cr: owned('creature'), th: S.th, petIdx: (Me.get() || {}).petIdx | 0, petName: (Me.get() || {}).petName || '', dances: Object.keys(C).filter(k => C[k].c === 'dance' && has(k)).map(k => C[k].d), title: titleOf(S.title), name: (Me.get() || {}).name || '' };
+    function creatures(list) {
+      H.cr = list.map((k, i) => ({ k, ph: Math.random() * TAU, x: Math.random(), y: rand(.15, .5), vx: rand(-.03, .03) || .02, a: rand(-.8, .8), i }));
+    }
+    function open(visit) {
+      loadPetImages(); H.visit = visit || null; H.edit = false; H.sel = null;
+      root.classList.add('on'); root.classList.toggle('visit', !!visit); size();
+      const d = data(); creatures(d.cr || []); H.pet.a = 0; H.pet.mode = 'idle'; H.pet.t = 0;
+      $('hmName').textContent = visit ? L(`${visit.name} 的星球家園`, `${visit.name}'s planet home`) : L('我的星球家園', 'My Planet Home');
+      $('hmTitle').textContent = d.title || '';
+      ui(); cancelAnimationFrame(H.raf); H.on = true; H.last = performance.now(); H.raf = requestAnimationFrame(loop);
+      if (!visit && Object.keys(S.mix).some(k => S.mix[k] > 0) && S.mixOn !== false) Sound.scape(S.mix);
+      if (!visit) { checkUnlocks(); if (pending.length) reveal(pending.splice(0)); }
+      try { Sound.chime(.8); } catch (_) { /* ignore */ }
+    }
+    function close() {
+      H.on = false; cancelAnimationFrame(H.raf); root.classList.remove('on'); $('hmPanel').classList.remove('on'); Sound.scape(null);
+    }
+    async function visit(p) {
+      if (!(FB && FB.on()) || !p || !p.pid) return;
+      try {
+        const j = await apiGet({ action: 'home', id: p.pid }, 12000), h = (j && j.home) || {};
+        let list = []; try { list = JSON.parse(h.p || '[]'); } catch (_) { list = []; }
+        open({ placed: list.filter(o => !o.cr && C[o.k] || o.k === 'egg'), cr: list.filter(o => o.cr && C[o.k]).map(o => o.k), th: C[h.th] ? h.th : 'pHome', petIdx: Number(p.petIdx) || 0, petName: p.petName || '', dances: ['bounce', 'swing'], title: h.t || '', name: p.name || '' });
+      } catch (e) { console.warn('visit home:', e); }
+    }
+    function ui() {
+      const d = data(), tray = $('hmTray'); tray.textContent = '';
+      if (H.visit) return;
+      Object.keys(S.inv).filter(k => S.inv[k] > 0 && C[k] && C[k].place).forEach(k => {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'hm-item';
+        b.innerHTML = ''; const e = document.createElement('b'); e.textContent = C[k].e; const n = document.createElement('small'); n.textContent = `${nm(C[k])}${S.inv[k] > 1 ? ' ×' + S.inv[k] : ''}`;
+        b.append(e, n); b.addEventListener('click', () => { const o = placeItem(k); if (o) { H.fx.push({ x: o.a, burst: 1, t: 0 }); Sound.chime(.6); ui(); } else say(L('星球上已經放滿了（最多 30 樣），先收起一些吧', 'Your planet is full (30 items) — store some first')); });
+        tray.appendChild(b);
+      });
+      if (!tray.children.length) { const p = document.createElement('p'); p.className = 'hm-empty'; p.textContent = L('玩遊戲、和朋友跳舞、參加活動，都可能遇見可以放在這裡的東西 ✦', 'Play games, dance with friends and join events to find things to put here ✦'); tray.appendChild(p); }
+      $('hmEdit').classList.toggle('on', H.edit);
+    }
+    let sayT = 0;
+    function say(t, sec = 3) { const m = $('hmMsg'); m.textContent = t; m.classList.add('on'); clearTimeout(sayT); sayT = setTimeout(() => m.classList.remove('on'), sec * 1000); }
+
+    function loop(now) {
+      if (!H.on) return;
+      const dt = Math.min(.05, (now - H.last) / 1000); H.last = now; H.t += dt;
+      try { draw(dt); } catch (e) { console.warn('home:', e); }
+      H.raf = requestAnimationFrame(loop);
+    }
+    const SKY = k => (C[k] && C[k].sky) || C.pHome.sky;
+    function draw(dt) {
+      const d = data(), sky = SKY(d.th), { cw, ch } = H, t = H.t, u = U0();
+      const bg = g.createLinearGradient(0, 0, 0, ch); bg.addColorStop(0, sky[0]); bg.addColorStop(.6, sky[1]); bg.addColorStop(1, sky[2]); g.fillStyle = bg; g.fillRect(0, 0, cw, ch);
+      // 星星
+      for (let i = 0; i < 90; i++) { const x = (i * 97.13 % 1) * cw, y = (i * 57.31 % 1) * ch * .7; g.globalAlpha = .3 + .5 * Math.abs(Math.sin(t * .8 + i)); g.fillStyle = '#fff'; g.fillRect(x, y, i % 7 ? 1.4 : 2.4, i % 7 ? 1.4 : 2.4); }
+      g.globalAlpha = 1;
+      // 在天上的生物（鯨魚、魟魚、雲、衛星、水母）
+      drawCreatures(dt, d, true);
+      // 星球
+      const pg = g.createRadialGradient(H.cx, H.cy - H.R * .9, H.R * .1, H.cx, H.cy, H.R);
+      pg.addColorStop(0, `rgb(${sky[4].map(v => Math.min(255, v + 50)).join(',')})`); pg.addColorStop(1, `rgb(${sky[4].map(v => v * .45 | 0).join(',')})`);
+      g.save(); g.shadowColor = `rgba(${sky[3].join(',')},.7)`; g.shadowBlur = 40; g.fillStyle = pg; g.beginPath(); g.arc(H.cx, H.cy, H.R, 0, TAU); g.fill(); g.restore();
+      g.strokeStyle = `rgba(${sky[3].join(',')},.6)`; g.lineWidth = 3; g.beginPath(); g.arc(H.cx, H.cy, H.R, -Math.PI / 2 - H.span * 1.4, -Math.PI / 2 + H.span * 1.4); g.stroke();
+      // 草地小點點
+      for (let i = 0; i < 26; i++) { const [x, y] = posA(-1.25 + i * .1, -6); g.fillStyle = `rgba(${sky[3].join(',')},.35)`; g.beginPath(); g.arc(x, y, 3 + (i % 3), 0, TAU); g.fill(); }
+      // 擺在地上的東西（由左到右）
+      // 樹畫在最後面，其他東西由左到右
+      const big = o => !!(o.sp || (C[o.k] && C[o.k].tree)), items = (d.placed || []).slice().sort((a, b) => (big(b) - big(a)) || a.a - b.a);
+      for (const o of items) drawItem(o, u);
+      drawPet(dt, d, u);
+      drawCreatures(dt, d, false);
+      // 粒子
+      for (let i = H.fx.length - 1; i >= 0; i--) {
+        const f = H.fx[i]; f.t += dt;
+        if (f.burst) { if (f.t > 1.2) { H.fx.splice(i, 1); continue; } const [x, y] = posA(f.x, u * .6); for (let k = 0; k < 12; k++) { const an = k / 12 * TAU, r = f.t * 90; g.globalAlpha = 1 - f.t / 1.2; g.fillStyle = k % 2 ? '#ffe9b0' : '#ffd0e8'; g.beginPath(); g.arc(x + Math.cos(an) * r, y + Math.sin(an) * r, 3, 0, TAU); g.fill(); } g.globalAlpha = 1; continue; }
+        if (f.t > f.life) { H.fx.splice(i, 1); continue; }
+        g.globalAlpha = 1 - f.t / f.life; g.font = `${Math.round(f.s)}px serif`; g.textAlign = 'center'; g.fillText(f.e, f.x + f.vx * f.t, f.y + f.vy * f.t); g.globalAlpha = 1;
+      }
+      // 點選的東西：名字、誰送的
+      if (H.sel) {
+        const [x, y] = H.sel.pos, txt = H.sel.txt;
+        g.font = `13px ${bodyFont}`; const w = Math.max(...txt.map(s => g.measureText(s).width)) + 22, hh = txt.length * 18 + 14;
+        g.fillStyle = 'rgba(20,14,46,.9)'; g.strokeStyle = 'rgba(255,226,170,.6)'; g.lineWidth = 1;
+        const bx = clamp(x - w / 2, 8, cw - w - 8), by = Math.max(8, y - hh - 10);
+        g.beginPath(); g.roundRect ? g.roundRect(bx, by, w, hh, 10) : g.rect(bx, by, w, hh); g.fill(); g.stroke();
+        g.fillStyle = '#fff3dc'; g.textAlign = 'center'; g.textBaseline = 'top'; txt.forEach((s, i) => { g.fillStyle = i ? 'rgba(255,236,210,.75)' : '#fff3dc'; g.fillText(s, bx + w / 2, by + 8 + i * 18); });
+        g.textBaseline = 'alphabetic';
+      }
+    }
+    function plantE(o) { if (o.sp) return C[o.sp].e; const gg = o.g || 0; return gg < 1 ? '🌰' : gg < 3 ? '🌱' : gg < 6 ? '🌿' : '🪴'; }
+    function drawItem(o, u) {
+      const x0 = C[o.k] || {}, t = H.t;
+      let e = x0.e || '✦', sc = 1, h = 0, rot = 0;
+      if (o.k === 'egg') { e = '🥚'; const w = o.w || 0; rot = w >= 2 ? Math.sin(t * (w >= 3 ? 14 : 6)) * (w >= 3 ? .2 : .08) : 0; }
+      if (o.k === 'seed') { e = plantE(o); sc = o.sp ? 1.7 : .8 + Math.min(1, (o.g || 0) / 8) * .6; }
+      if (x0.tree) sc = 1.7;
+      const [x, y, th] = posA(o.a, 0);
+      g.save(); g.translate(x, y); g.rotate(th + rot);
+      if (o.sp || x0.tree || (o.k === 'egg' && (o.w || 0) >= 3) || o.k === 'lamp') {
+        const gc = o.sp ? C[o.sp].glow : x0.glow || '255,226,170', r = u * sc * .9;
+        const gr = g.createRadialGradient(0, -r * .6, 0, 0, -r * .6, r * 1.3); gr.addColorStop(0, `rgba(${gc},${.35 + .15 * Math.sin(t * 2 + o.a * 9)})`); gr.addColorStop(1, `rgba(${gc},0)`);
+        g.fillStyle = gr; g.beginPath(); g.arc(0, -r * .6, r * 1.3, 0, TAU); g.fill();
+      }
+      g.font = `${Math.round(u * sc)}px serif`; g.textAlign = 'center'; g.textBaseline = 'bottom';
+      if (H.drag && H.drag.o === o) g.globalAlpha = .7;
+      g.fillText(e, 0, h + 4);
+      if (o.fn) { g.font = `${Math.round(u * .28)}px serif`; g.fillText('💌', u * .35 * sc, -u * .8 * sc); }
+      g.restore();
+      o._p = [x, y - u * sc * .5, u * sc * .6];
+    }
+    // 寵物：到處走走，看到家具就去用它（床→睡覺、望遠鏡→看星星、音樂盒→跳舞⋯）
+    const DANCE = {
+      step: (k, u) => ({ hop: Math.abs(Math.sin(k * 6)) * u * .15, rot: Math.sin(k * 6) * .15 }),
+      bounce: (k, u) => ({ hop: Math.abs(Math.sin(k * 8)) * u * .35, sy: 1 - Math.abs(Math.cos(k * 8)) * .15 }),
+      swing: (k, u) => ({ rot: Math.sin(k * 3) * .35, dx: Math.sin(k * 3) * u * .2 }),
+      waltz: (k, u) => ({ dx: Math.cos(k * 2.4) * u * .4, hop: (Math.sin(k * 2.4) + 1) * u * .1, rot: Math.sin(k * 2.4) * .2 }),
+      spin: (k, u) => ({ rot: k * 7, hop: Math.abs(Math.sin(k * 3.5)) * u * .2 }),
+      zerog: (k, u) => ({ hop: (Math.sin(k * 1.4) + 1.2) * u * .5, rot: Math.sin(k * .9) * .6 }),
+      meteor: (k, u) => ({ hop: Math.abs(Math.sin(k * 4)) * u * .7, rot: Math.sin(k * 4) > 0 ? k * 9 : 0, trail: 1 }),
+      aurora: (k, u) => ({ hop: Math.abs(Math.sin(k * 5)) * u * .25, glow: 1 }),
+      eclipse: (k, u) => ({ hop: Math.abs(Math.sin(k * 3)) * u * .2, rot: Math.sin(k * 6) * .3, dark: 1 })
+    };
+    function drawPet(dt, d, u) {
+      const p = H.pet, t = H.t, im = PET_IMG[d.petIdx | 0];
+      p.t += dt;
+      const furn = (d.placed || []).filter(o => C[o.k] && C[o.k].use);
+      if (p.mode === 'idle' && p.t > 2 + Math.random() * 3) {
+        p.t = 0;
+        if (furn.length && Math.random() < .65) { const f = furn[(Math.random() * furn.length) | 0]; p.ta = f.a; p.use = f; p.mode = 'walk'; }
+        else if ((d.dances || []).length && Math.random() < .5) { p.mode = 'dance'; p.dance = d.dances[(Math.random() * d.dances.length) | 0]; p.use = null; }
+        else { p.ta = clamp(p.a + rand(-.6, .6), -.95, .95); p.use = null; p.mode = 'walk'; }
+      }
+      if (p.mode === 'walk') {
+        const dir = Math.sign(p.ta - p.a); p.f = dir || p.f; p.a += dir * Math.min(Math.abs(p.ta - p.a), dt * .22);
+        if (Math.abs(p.ta - p.a) < .005) { p.mode = p.use ? 'use' : 'idle'; p.t = 0; }
+      }
+      if ((p.mode === 'use' && p.t > 6) || (p.mode === 'dance' && p.t > 5)) { p.mode = 'idle'; p.t = 0; }
+      let hop = p.mode === 'walk' ? Math.abs(Math.sin(t * 10)) * u * .12 : Math.sin(t * 2) * u * .03, rot = 0, sy = 1, dx = 0, alpha = 1, extra = '';
+      const use = p.mode === 'use' && p.use ? C[p.use.k].use : '';
+      if (use === 'sleep') { rot = -.5; hop = -u * .05; alpha = .85; if (Math.random() < dt * 1.5) H.fx.push({ e: 'z', x: posA(p.a, u)[0], y: posA(p.a, u)[1], vx: 10, vy: -30, t: 0, life: 2, s: u * .35 }); }
+      if (use === 'look') { rot = -.25; if (Math.random() < dt * 2) H.fx.push({ e: '✦', x: posA(p.a, u * 1.8)[0] + rand(-30, 30), y: posA(p.a, u * 2.2)[1], vx: 0, vy: -20, t: 0, life: 1.4, s: u * .3 }); }
+      if (use === 'dance' || p.mode === 'dance') { const fn = DANCE[p.mode === 'dance' ? p.dance : (d.dances || [])[0] || 'bounce'] || DANCE.bounce, r = fn(p.t, u); hop += r.hop || 0; rot += r.rot || 0; sy = r.sy || 1; dx = r.dx || 0; if (Math.random() < dt * 3) H.fx.push({ e: Math.random() < .5 ? '♪' : '♫', x: posA(p.a, u)[0] + rand(-20, 20), y: posA(p.a, u * 1.2)[1], vx: rand(-10, 10), vy: -40, t: 0, life: 1.6, s: u * .32 }); if (r.glow) extra = 'glow'; if (r.dark) alpha = .75; }
+      if (use === 'sit') { hop = u * .15; sy = .92; }
+      if (use === 'splash' && Math.random() < dt * 4) H.fx.push({ e: '💧', x: posA(p.a, u * .4)[0] + rand(-20, 20), y: posA(p.a, u * .4)[1], vx: rand(-40, 40), vy: -60, t: 0, life: .9, s: u * .25 });
+      if (use === 'ride') { hop = Math.sin(Math.min(1, p.t / 6) * Math.PI) * u * 3; rot = Math.sin(p.t * 2) * .2; }
+      if (use === 'glow') extra = 'glow';
+      const [x, y, th] = posA(p.a, hop + u * .05); const s = u * 1.4;
+      g.save(); g.translate(x + dx, y); g.rotate(th + rot); g.globalAlpha = alpha;
+      if (extra === 'glow') { const gr = g.createRadialGradient(0, -s * .45, 0, 0, -s * .45, s); gr.addColorStop(0, `hsla(${(t * 80) % 360},90%,75%,.5)`); gr.addColorStop(1, 'hsla(0,0%,100%,0)'); g.fillStyle = gr; g.beginPath(); g.arc(0, -s * .45, s, 0, TAU); g.fill(); }
+      if (use === 'ride') { g.font = `${Math.round(u)}px serif`; g.textAlign = 'center'; g.fillText('🚀', 0, s * .1); }
+      g.scale(p.f < 0 ? -1 : 1, sy);
+      if (imgOK(im)) g.drawImage(im, -s / 2, -s, s, s); else { g.fillStyle = (PETS[d.petIdx | 0] || PETS[0]).c || '#fff'; g.beginPath(); g.arc(0, -s / 2, s * .35, 0, TAU); g.fill(); }
+      g.restore();
+      H.petP = [x, y - s / 2, s * .5];
+      // 名字和稱號
+      g.font = `12px ${bodyFont}`; g.textAlign = 'center'; g.fillStyle = 'rgba(255,243,220,.9)';
+      const [nx, ny] = posA(p.a, hop + s * 1.15); g.fillText(`${d.petName || ''}${d.title ? '　' + d.title : ''}`, nx, ny);
+    }
+    function drawCreatures(dt, d, sky) {
+      const t = H.t, u = U0(), { cw, ch } = H;
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      for (const c of H.cr) {
+        const x0 = C[c.k]; if (!x0) continue; const mv = x0.mv, inSky = mv === 'swim' || mv === 'drift' || mv === 'orbit';
+        if (inSky !== sky) continue;
+        let x, y, sz = u * .9, fl = 1;
+        if (mv === 'swim') { c.x += c.vx * dt * (c.k === 'whale' ? .5 : 1); if (c.x > 1.2) c.x = -.2; if (c.x < -.2) c.x = 1.2; x = c.x * cw; y = ch * c.y + Math.sin(t * .8 + c.ph) * 14; sz = c.k === 'whale' ? u * 2.2 : u; fl = c.vx > 0 ? -1 : 1; }
+        else if (mv === 'drift') { c.x += .01 * dt; if (c.x > 1.2) c.x = -.2; x = c.x * cw; y = ch * c.y * .8; sz = u * 1.3; }
+        else if (mv === 'orbit') { const an = t * .4 + c.ph; x = H.cx + Math.cos(an) * H.R * .35; y = H.cy - H.R - u * 2.4 + Math.sin(an) * u * .8; sz = u * .8; }
+        else if (mv === 'walk') { c.a += Math.sin(t * .2 + c.ph) * dt * .05; c.a = clamp(c.a, -.95, .95); const p = posA(c.a, u * .1); x = p[0]; y = p[1] - u * .3; fl = Math.cos(t * .2 + c.ph) > 0 ? -1 : 1; }
+        else if (mv === 'flutter') { const p = posA(c.a + Math.sin(t * .5 + c.ph) * .15, u * (1.6 + Math.sin(t * 3 + c.ph) * .4)); x = p[0]; y = p[1]; sz = u * .7; }
+        else { const p = posA(c.a + Math.sin(t * .2 + c.ph) * .1, u * (2.2 + Math.sin(t * 1.1 + c.ph) * .5)); x = p[0]; y = p[1]; }
+        g.save(); g.translate(x, y); g.scale(fl, 1); g.globalAlpha = .95; g.font = `${Math.round(sz)}px serif`; g.fillText(x0.e, 0, 0); g.restore();
+        c._p = [x, y, sz * .6];
+      }
+    }
+
+    /* ---------- 點、拖曳 ---------- */
+    const hit = (p, x, y) => p && Math.hypot(p[0] - x, p[1] - y) < Math.max(26, p[2]);
+    cv.addEventListener('pointerdown', e => {
+      const x = e.clientX, y = e.clientY, d = data();
+      const o = (d.placed || []).slice().reverse().find(o => hit(o._p, x, y));
+      if (o && H.edit && !H.visit) { H.drag = { o, x0: x, a0: o.a, moved: false }; cv.setPointerCapture && cv.setPointerCapture(e.pointerId); return; }
+      if (o) {
+        if (o.k === 'egg' && !H.visit && (o.w || 0) >= 3) { hatch(o); return; }
+        const x0 = C[o.k] || {}, lines = [o.k === 'egg' ? L('一顆溫暖的蛋', 'A warm egg') : o.k === 'seed' ? (o.sp ? nm(C[o.sp]) : L(`星之種子（成長 ${Math.min(100, Math.round((o.g || 0) / 8 * 100))}%）`, `Star Seed (${Math.min(100, Math.round((o.g || 0) / 8 * 100))}% grown)`)) : nm(x0)];
+        if (o.k === 'egg') lines.push((o.w || 0) >= 3 ? L('牠在動了！點一下 ✦', 'It\'s moving! Tap it ✦') : L(`溫度 ${'●'.repeat(Math.floor(o.w || 0))}${'○'.repeat(3 - Math.floor(o.w || 0))}　和朋友一起玩會變暖`, `Warmth ${'●'.repeat(Math.floor(o.w || 0))}${'○'.repeat(3 - Math.floor(o.w || 0))} — play with friends to warm it`));
+        if (o.fn) lines.push(`From ${o.fn} · ${fmtDate(o.at)}`); else if (o.at) lines.push(fmtDate(o.at));
+        H.sel = { pos: [o._p[0], o._p[1] - o._p[2]], txt: lines, t: H.t }; Sound.chime(.5); return;
+      }
+      const c = H.cr.find(c => hit(c._p, x, y));
+      if (c) { H.sel = { pos: [c._p[0], c._p[1] - c._p[2]], txt: [nm(C[c.k]), '★'.repeat(C[c.k].r)] }; Sound.chime(1); return; }
+      if (hit(H.petP, x, y)) { H.pet.mode = 'dance'; H.pet.t = 0; const ds = d.dances || []; H.pet.dance = ds.length ? ds[(Math.random() * ds.length) | 0] : 'bounce'; H.fx.push({ e: '♡', x, y: y - 30, vx: 0, vy: -40, t: 0, life: 1.4, s: 26 }); if (!H.visit) discover('care'); Sound.chime(1.2); return; }
+      H.sel = null;
+    });
+    cv.addEventListener('pointermove', e => {
+      const dr = H.drag; if (!dr) return;
+      const dx = e.clientX - dr.x0; if (Math.abs(dx) > 6) dr.moved = true;
+      dr.o.a = clamp(dr.a0 + dx / (H.R * H.span), -1, 1);
+    });
+    const up = e => {
+      const dr = H.drag; if (!dr) return; H.drag = null;
+      if (e.clientY > H.ch - 90 || (!dr.moved && confirmStore(dr.o))) { store(dr.o); ui(); say(L('收起來了', 'Stored')); } else save();
+    };
+    const confirmStore = o => { H.sel = { pos: [o._p[0], o._p[1] - o._p[2]], txt: [nm(C[o.k] || { zh: '蛋', en: 'Egg' }), L('拖到最下面可以收起來', 'Drag to the bottom to store it')] }; return false; };
+    cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+    window.addEventListener('resize', () => { if (H.on) size(); });
+
+    /* ---------- 面板：圖鑑、聲景、送禮、稱號 ---------- */
+    const panel = $('hmPanel'), pBody = $('hmPBody');
+    function showPanel(title, build) { $('hmPTitle').textContent = title; pBody.textContent = ''; build(pBody); panel.classList.add('on'); }
+    const el = (tag, cls, txt) => { const x = document.createElement(tag); if (cls) x.className = cls; if (txt !== undefined) x.textContent = txt; return x; };
+    function book(tab = 'creature') {
+      showPanel(L('📖 收藏圖鑑', '📖 Collection'), body => {
+        const tabs = el('div', 'hm-tabs'); body.appendChild(tabs);
+        const grid = el('div', 'hm-grid'); body.appendChild(grid);
+        const total = Object.values(C).filter(x => x.c !== 'place' && !x.hidden).length, got = Object.values(C).filter(x => x.c !== 'place' && has(x.k)).length;
+        $('hmPTitle').textContent = L(`📖 收藏圖鑑　${got}/${total}`, `📖 Collection ${got}/${total}`);
+        CATS.forEach(([k, ic, zh, en]) => { const b = el('button', 'hm-tab' + (k === tab ? ' on' : ''), `${ic} ${L(zh, en)}`); b.type = 'button'; b.addEventListener('click', () => book(k)); tabs.appendChild(b); });
+        if (tab === 'memory') {
+          if (!S.mem.length) grid.appendChild(el('p', 'hm-empty', L('和朋友一起跳舞、看流星、一起玩，這裡就會留下你們的回憶。', 'Dance, watch meteors and play with friends — your memories will gather here.')));
+          S.mem.forEach(m => { const r = el('div', 'hm-mem'); r.append(el('b', '', m.e), el('span', '', L(m.zh, m.en)), el('small', '', fmtDate(m.at))); grid.appendChild(r); });
+          return;
+        }
+        const list = Object.values(C).filter(x => x.c === tab && !(x.hidden && !has(x.k)));
+        const n = list.filter(x => has(x.k)).length;
+        grid.appendChild(el('p', 'hm-count', `${n} / ${list.length}${tab === 'creature' ? L('　（只會從宇宙蛋孵出來）', ' (they only hatch from cosmic eggs)') : ''}`));
+        if (tab === 'pet') { const lv = hooks.bondLevel ? hooks.bondLevel() : 1; grid.appendChild(el('p', 'hm-count', L(`👾 ${data().petName || '寵物'} 的親密度 Lv.${lv}`, `👾 ${data().petName || 'Pet'} · affection Lv.${lv}`))); }
+        list.forEach(x => {
+          const ok = has(x.k), card = el('button', 'hm-card' + (ok ? '' : ' locked') + (x.c === 'place' && S.th === x.k ? ' on' : '')); card.type = 'button';
+          card.append(el('b', '', ok ? x.e : '？'), el('span', '', ok ? nm(x) : '???'), el('small', '', ok ? (x.c === 'place' ? (S.th === x.k ? L('目前的天空', 'Current sky') : L('點一下換成這片天空', 'Tap to use this sky')) : (S.inv[x.k] > 1 ? `×${S.inv[x.k]}　` : '') + '★'.repeat(x.r)) : x.c === 'place' ? L(x.hz, x.he) : '★'.repeat(x.r)));
+          if (ok && x.c === 'place') card.addEventListener('click', () => { S.th = x.k; save(); book('place'); });
+          grid.appendChild(card);
+        });
+      });
+    }
+    function sounds() {
+      showPanel(L('🎵 我的宇宙聲景', '🎵 My Universe Soundscape'), body => {
+        const list = Object.values(C).filter(x => x.c === 'sound');
+        body.appendChild(el('p', 'hm-count', L('把收集到的聲音調成你喜歡的比例。每個人的宇宙，聽起來都不一樣。', 'Mix the sounds you\'ve collected. Everyone\'s universe sounds different.')));
+        list.forEach(x => {
+          const row = el('label', 'hm-mix' + (has(x.k) ? '' : ' locked'));
+          row.append(el('b', '', has(x.k) ? x.e : '？'), el('span', '', has(x.k) ? nm(x) : '???'));
+          const r = document.createElement('input'); r.type = 'range'; r.min = 0; r.max = 100; r.value = Math.round((S.mix[x.mix] || 0) * 100); r.disabled = !has(x.k);
+          r.addEventListener('input', () => { S.mix[x.mix] = r.value / 100; S.mixOn = true; Sound.scape(S.mix); save(); });
+          row.appendChild(r); body.appendChild(row);
+        });
+      });
+    }
+    function giftPanel(k) {
+      showPanel(L('🎁 送給朋友', '🎁 Give to a friend'), body => {
+        const fr = hooks.friends ? hooks.friends() : [];
+        if (!(FB && FB.on())) { body.appendChild(el('p', 'hm-empty', L('需要連上宇宙（Firebase）才能送禮物。', 'Gifts need the universe connection (Firebase).'))); return; }
+        if (!k) {
+          const items = Object.keys(S.inv).filter(x => S.inv[x] > 0 && C[x] && C[x].place);
+          body.appendChild(el('p', 'hm-count', L('選一樣你找到的東西。朋友下次來的時候，牠的寵物會抱著它跑過來。', 'Pick something you found. Next time your friend comes, their pet will run over holding it.')));
+          if (!items.length) body.appendChild(el('p', 'hm-empty', L('先把東西收起來（拖到最下面），或玩遊戲找到新的東西，才能送人。', 'Store something first (drag it to the bottom), or find new things by playing.')));
+          const grid = el('div', 'hm-grid'); body.appendChild(grid);
+          items.forEach(x => { const c = el('button', 'hm-card'); c.type = 'button'; c.append(el('b', '', C[x].e), el('span', '', nm(C[x])), el('small', '', `×${S.inv[x]}`)); c.addEventListener('click', () => giftPanel(x)); grid.appendChild(c); });
+          return;
+        }
+        body.appendChild(el('p', 'hm-count', L(`要把「${C[k].zh}」送給誰？`, `Who should get the ${C[k].en}?`)));
+        if (!fr.length) body.appendChild(el('p', 'hm-empty', L('還沒有朋友。到宇宙裡邀請別人的寵物跳一支舞吧 ✦', 'No friends yet. Invite someone\'s pet to dance in the universe ✦')));
+        fr.forEach(f => {
+          const b = el('button', 'hm-friend'); b.type = 'button'; b.append(el('b', '', f.glyph || '✦'), el('span', '', `${f.name}${f.petName ? '・' + f.petName : ''}`));
+          b.addEventListener('click', async () => {
+            if ((S.inv[k] || 0) <= 0) return; b.disabled = true;
+            try {
+              await apiPost(CONFIG.DATA_ENDPOINT, { action: 'gift', to: f.pid, k }, 12000);
+              S.inv[k]--; S.st.giftsSent = (S.st.giftsSent || 0) + 1; memory('🎁', `送了「${C[k].zh}」給 ${f.name}`, `Gave a ${C[k].en} to ${f.name}`, f.name);
+              checkUnlocks(); save(); if (hooks.ping) hooks.ping(f.pid);
+              panel.classList.remove('on'); ui(); say(L(`送出去了！${f.name} 下次來的時候就會收到 ✦`, `Sent! ${f.name} will find it next time ✦`), 4); Sound.gift();
+              if (pending.length) reveal(pending.splice(0));
+            } catch (e) { console.warn('gift:', e); b.disabled = false; say(L('星星信差暫時迷路了，等一下再試試。', 'The star courier got lost. Try again in a moment.')); }
+          });
+          body.appendChild(b);
+        });
+      });
+    }
+    function titles() {
+      showPanel(L('🏷️ 我的稱號', '🏷️ My Titles'), body => {
+        body.appendChild(el('p', 'hm-count', L('稱號不是強弱，而是你是什麼樣的旅人。會顯示在你的寵物旁邊。', 'Titles aren\'t about strength — they show what kind of traveler you are.')));
+        const got = S.st.titles || { newbie: 1 };
+        TITLES.filter(t => got[t[0]] || !t[5]).forEach(t => {
+          const ok = !!got[t[0]] || t[0] === 'newbie', b = el('button', 'hm-friend' + (S.title === t[0] ? ' on' : '') + (ok ? '' : ' locked')); b.type = 'button';
+          b.append(el('b', '', ok ? t[1] : '？'), el('span', '', ok ? L(t[2], t[3]) : '???'));
+          if (ok) b.addEventListener('click', () => { S.title = t[0]; save(); $('hmTitle').textContent = titleOf(S.title); titles(); });
+          body.appendChild(b);
+        });
+      });
+    }
+    $('hmClose').addEventListener('click', () => close());
+    $('hmBook').addEventListener('click', () => book());
+    $('hmSound').addEventListener('click', () => sounds());
+    $('hmGift').addEventListener('click', () => giftPanel());
+    $('hmTitleB').addEventListener('click', () => titles());
+    $('hmEdit').addEventListener('click', () => { H.edit = !H.edit; ui(); say(H.edit ? L('拖曳東西換位置，拖到最下面可以收起來', 'Drag things to move them, or to the bottom to store them') : L('完成擺放 ✦', 'Done ✦')); });
+    $('hmPClose').addEventListener('click', () => panel.classList.remove('on'));
+    $('cdHome').textContent = L('去我的星球家園', 'Go to my planet home');
+
+    const hooks = {};
+    // 自動測試用
+    if (/[?&]debug=1/.test(location.search)) window.__cos = { S: () => S, add, discover, activity, open, placeItem, receive, C };
+    return {
+      discover, receive, open, close, visit, bind(h) { Object.assign(hooks, h); },
+      get on() { return H.on; }, title: () => titleOf(S.title), stats, mixOn: () => Object.keys(S.mix).some(k => S.mix[k] > 0)
+    };
+  })();
+  /* ================================================================
      OUR UNIVERSE：多人星球宇宙
      拖曳旋轉、滾輪／雙指縮放、點選飛過去、手勢控制、留下星光
      ================================================================ */
@@ -12075,6 +12804,7 @@ function petSVG(i, opt = {}) {
       await duet(mode, A, B);
       setEdge(p.pid, (friend && friend.level) || 1); fillFriend(p); updatePills();
       const nm = partnerName || B.name;
+      setTimeout(() => Cosmos.discover('duet', { pid: p.pid, name: p.name || nm, first: mode !== 'again' }), 4200);
       toast(L(`${nm} 已經加入你的友情星圖 ✦`, `${nm} joined your Friendship Constellation ✦`, { ja: `${nm} があなたの友情星図に加わったよ ✦`, ko: `${nm}이(가) 우정 별자리에 들어왔어요 ✦`, vi: `${nm} đã vào chòm sao tình bạn của bạn ✦` }), 4.5);
     }
     function setEdge(pid, level) {
@@ -12093,6 +12823,7 @@ function petSVG(i, opt = {}) {
         toast((act === 'meteor' ? L('☄ 你們一起看了一場流星雨。', '☄ You watched a meteor shower together.', { ja: '☄ いっしょに流星群を見たね。', ko: '☄ 함께 유성우를 봤어요.', vi: '☄ Hai bạn đã cùng ngắm mưa sao băng.' }) : L('♡ 你們一起去宇宙的另一端旅行了。', '♡ You traveled to the far side of the universe together.', { ja: '♡ いっしょに宇宙の向こうへ旅したよ。', ko: '♡ 함께 우주 저편으로 여행했어요.', vi: '♡ Hai bạn đã cùng du hành đến phía bên kia vũ trụ.' }))
           + (j.friend.level > old ? ' ' + L(`關係升級：${frLvName(j.friend.level)} ✦`, `Now: ${frLvName(j.friend.level)} ✦`) : ''), 5);
         fillFriend(p);
+        setTimeout(() => Cosmos.discover(act, { name: p.name }), 5200);
       } catch (e) { console.warn('friendAct:', e); }
       finally { Fr.busy = false; }
     }
@@ -12102,7 +12833,7 @@ function petSVG(i, opt = {}) {
     function markSeen(q) {
       Fr.seen.add(q.id);
       try { localStorage.setItem('iv_mail_seen', JSON.stringify([...Fr.seen].slice(-300))); } catch (_) { /* ignore */ }
-      const kind = q.kind === 'note' ? 'notes' : q.kind === 'outcome' ? 'outcomes' : '';
+      const kind = q.kind === 'note' ? 'notes' : q.kind === 'outcome' ? 'outcomes' : q.kind === 'gift' ? 'gifts' : '';
       if (kind) apiPost(CONFIG.DATA_ENDPOINT, { action: 'ack', uid: Me.uid(), [kind]: [q.id.slice(1)] }, 12000).catch(e => console.warn('ack:', e));
     }
     async function pollInbox() {
@@ -12116,6 +12847,7 @@ function petSVG(i, opt = {}) {
         (j.outcomes || []).forEach(o => { if (!has('o' + o.id)) Fr.queue.push({ id: 'o' + o.id, kind: 'outcome', o }); });
         (j.invites || []).forEach(v => { if (!has('i' + v.id)) { Fr.queue.push({ id: 'i' + v.id, kind: 'invite', v }); newInv++; } });
         (j.notes || []).forEach(n => { if (!has('n' + n.id)) { Fr.queue.push({ id: 'n' + n.id, kind: 'note', n }); newNote++; } });
+        (j.gifts || []).forEach(gf => { if (!has('g' + gf.id)) { Fr.queue.push({ id: 'g' + gf.id, kind: 'gift', g: gf }); newNote++; } });
         if (newInv || newNote) mailAlert(newInv, newNote);
         updatePills();
         Fr.polled = Date.now();
@@ -12161,6 +12893,8 @@ function petSVG(i, opt = {}) {
     }
     function openMail() {
       const q = Fr.queue.find(x => x.kind !== 'outcome'); if (!q || Fr.D) return;
+      // 朋友送的東西：不用打開信，直接種到你的星球上
+      if (q.kind === 'gift') { Fr.queue.splice(Fr.queue.indexOf(q), 1); markSeen(q); updatePills(); Cosmos.receive(q.g); return; }
       const dlg = $('mailDlg'), go = $('mlGo'), later = $('mlLater');
       if (q.kind === 'invite') {
         const v = q.v, them = petOf(v.from), age = Date.now() - new Date(v.createdAt).getTime();
@@ -12337,7 +13071,7 @@ function petSVG(i, opt = {}) {
       EV.dance = time; EV.danceMix = d.mix; Sound.galaxy(d.mix, 18); root.classList.add('ev-dance');
       buildCaption([{ text: 'EVERYBODY DANCE', cls: 'en' }, L(`${(d.pets || []).length} 隻寵物一起跳舞 ✦`, `${(d.pets || []).length} pets dancing together ✦`, { ja: `${(d.pets || []).length} 匹のペットがいっしょに踊る ✦`, ko: `펫 ${(d.pets || []).length}마리가 함께 춤춰요 ✦`, vi: `${(d.pets || []).length} thú cưng cùng nhảy ✦` })], 1, 'mid');
       setTimeout(hideCaption, 6000);
-      setTimeout(() => { EV.dance = 0; root.classList.remove('ev-dance'); Sound.wxStart('all', null); Sound.wxLevel(.55, 3); }, 18000);
+      setTimeout(() => { EV.dance = 0; root.classList.remove('ev-dance'); Sound.wxStart('all', null); Sound.wxLevel(.55, 3); if (!replay) Cosmos.discover('event'); }, 18000);
     }
     function drawEvent(dt, a) {
       const d = EV.data; if (!d || !d.active) return;
@@ -12604,7 +13338,7 @@ function petSVG(i, opt = {}) {
         UVS.react = 'sing'; UVS.reactA = 2.7; const base = [261.63, 293.66, 329.63, 392, 440], o = { earth: 0, metal: 1, wood: 2, fire: 3, water: 4 }[p.el] || 0;
         [0, 2, 4, 2, 0, 4, 3, 0].forEach((d, i) => setTimeout(() => { Sound.note(base[(o + d) % 5] * (d > 2 ? 2 : 1), { dur: 1.1, gain: .07 }); if (sel === p && p.petX) note(p.petX + rand(-30, 30), p.petY - p.petS * .35, i % 2 ? '♫' : '♪', '#e6dcff'); }, i * 330));
       }
-      const r = Bond.act(k); fillBond();
+      const r = Bond.act(k); fillBond(); Cosmos.discover('care');
       if (r.task) setTimeout(() => toast(L(`今日小任務完成！${nm} 好開心 ✦ 親密度 +15`, `Today's tasks done! ${nm} is so happy ✦ +15 affection`, { ja: `今日のミッション達成！${nm} 大よろこび ✦ 親密度 +15`, ko: `오늘의 미션 완료! ${nm}이(가) 정말 기뻐해요 ✦ 친밀도 +15`, vi: `Hoàn thành nhiệm vụ hôm nay! ${nm} vui lắm ✦ +15 thân thiết` }), 4.2), 900);
       if (r.up) setTimeout(() => { const l = Bond.level(); toast(L(`${nm} 的親密度升到 Lv.${l}！解鎖了 ${accName(l)}`, `${nm} reached affection Lv.${l}! Unlocked ${accName(l)}`, { ja: `${nm} の親密度が Lv.${l} に！${accName(l)} を手に入れた`, ko: `${nm}의 친밀도가 Lv.${l}! ${accName(l)} 획득`, vi: `${nm} đạt thân thiết Lv.${l}! Mở khóa ${accName(l)}` }), 4.5); if (sel && sel.petX) emit(sel.petX, sel.petY, 50, ['255,236,190', '255,200,235', '255,255,255'], { speed: 160, life: 1.5 }); Sound.gift(); }, r.task ? 4800 : 600);
     }
@@ -12648,6 +13382,13 @@ function petSVG(i, opt = {}) {
     $('upMail').addEventListener('click', () => openMail());
     $('uvFriends').addEventListener('click', () => openFriends());
     $('uvPlay').addEventListener('click', () => { if (sel) back(); Arena.openLobby(); });
+    $('uvMyHome').addEventListener('click', () => Cosmos.open());
+    $('uvcHome').addEventListener('click', () => { if (!sel) return; if (sel.me) Cosmos.open(); else Cosmos.visit(sel); });
+    Cosmos.bind({
+      bondLevel: () => Bond.level(),
+      busy: () => !!Fr.D || (!!sel && state === 'universe' && !Arena.on) || /INPUT|TEXTAREA/.test((document.activeElement || {}).tagName || '') || ['gmDlg', 'mailDlg', 'frDlg', 'backDlg', 'worryDlg'].some(id => { const e = $(id); return e && e.classList.contains('on'); }) || (Arena.on && !$('arEnd').classList.contains('on')),
+      friends: () => [...Fr.friends.values()].filter(f => f.partner && f.partner.pid).map(f => ({ pid: f.partner.pid, name: f.partner.name, petName: f.partner.petName, glyph: petOf(f.partner).glyph }))
+    });
     $('frClose').addEventListener('click', () => $('frDlg').classList.remove('on'));
     $('unSend').addEventListener('click', () => sendNote(sel));
     $('unText').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); sendNote(sel); } });
@@ -12705,12 +13446,14 @@ function petSVG(i, opt = {}) {
         [L('主要五行', 'Element'), `${d.icon} ${L(d.zh, d.en, { ja: d.zh })}`], [L('五行之音', 'Element tone'), L(d.tone, `${d.toneEn} (${d.tone})`, { ja: d.tone, ko: `${tr(d.toneEn)} (${d.tone})`, vi: `${tr(d.toneEn)} (${d.tone})` })],
         [L('今天的星球天氣', 'Planet weather today'), `${w[0]} ${w[1]}`]
       ];
+      { const tt = p.me ? Cosmos.title() : p.title; if (tt) rows.splice(1, 0, [L('稱號', 'Title'), tt]); }
       const info = $('uvcInfo'); info.textContent = '';
       rows.forEach(([k, v]) => { const dt2 = document.createElement('dt'); dt2.textContent = k; const dd = document.createElement('dd'); dd.textContent = v; info.append(dt2, dd); });
       const bars = $('uvcBars'); bars.textContent = '';
       if (p.big5) ['O', 'C', 'E', 'A', 'N'].forEach(k => bars.appendChild(bar(`${k}`, p.big5[k] || 3)));
       $('uvcStarsN').textContent = p.lights ? L(`已經有 ${p.lights} 點星光`, `${p.lights} bits of starlight so far`, { ja: `これまでに ${p.lights} つの星の光`, ko: `지금까지 별빛 ${p.lights}개`, vi: `Đã có ${p.lights} chút ánh sao` }) : '';
       $('uvcGive').hidden = !!p.me; fillBond(); fillFriend(p);
+      { const hb = $('uvcHome'); hb.hidden = !(p.me || (FB && FB.on() && p.pid)); hb.textContent = p.me ? L('🏠 我的星球家園', '🏠 My planet home') : L(`🏠 參觀 ${p.name} 的家園`, `🏠 Visit ${p.name}'s home`); }
       Array.from($('uvcGifts').children).forEach(b => b.classList.toggle('done', !!(given[p.pid || p.name] || {})[b.dataset.k]));
     }
     function give(k) {
@@ -12825,13 +13568,15 @@ function petSVG(i, opt = {}) {
           // 每天回來：寵物想你了＋連續天數
           const ck = Bond.checkIn(), nm = me.petName || 'Pet';
           if (ck) setTimeout(() => { if (my === token) toast(ck.streak > 1 ? L(`${nm} 好想你！連續陪伴第 ${ck.streak} 天 ✦ 親密度 +${ck.gain}`, `${nm} missed you! Day ${ck.streak} in a row ✦ +${ck.gain} affection`, { ja: `${nm} はさみしかったよ！${ck.streak} 日連続 ✦ 親密度 +${ck.gain}`, ko: `${nm}이(가) 보고 싶었대요! ${ck.streak}일 연속 ✦ 친밀도 +${ck.gain}`, vi: `${nm} nhớ bạn lắm! Ngày thứ ${ck.streak} liên tiếp ✦ +${ck.gain} thân thiết` }) : L(`${nm} 在等你。點你的星球，和牠一起玩吧 ✦ 親密度 +${ck.gain}`, `${nm} is waiting. Tap your planet to play together ✦ +${ck.gain} affection`, { ja: `${nm} が待ってるよ。自分の星をタップしていっしょに遊ぼう ✦ +${ck.gain}`, ko: `${nm}이(가) 기다려요. 내 행성을 눌러 함께 놀아요 ✦ +${ck.gain}`, vi: `${nm} đang đợi. Chạm vào hành tinh của bạn để chơi cùng ✦ +${ck.gain}` }), 5); }, 5200);
+          // 寵物每天會自己出去旅行一趟，帶點東西回來（一天一次）
+          setTimeout(() => { if (my !== token || Arena.on) return; const others = list.filter(q => !q.me && q.petName); const o = others.length ? others[(Math.random() * others.length) | 0] : null; Cosmos.discover('daily', { petName: nm, other: o && { name: o.name, petName: o.petName } }); }, ck ? 10500 : 6000);
         }
         visits();
         Fr.polled = 0; updatePills(); pollInbox();
         if (Fr.openOnArrive) { Fr.openOnArrive = false; setTimeout(() => { if (my === token) openMail(); }, 600); }
         evPoll(); clearInterval(EV.t); EV.t = setInterval(evPoll, 5000);
         // 3V3 小遊戲：有 Firebase 才開；朋友傳來的 ?play=房間代碼 直接加入
-        $('uvPlay').hidden = !FB.on();
+        $('uvPlay').hidden = !FB.on(); $('uvMyHome').hidden = !Me.get();
         const pc = (location.search.match(/[?&]play=([A-Za-z0-9]{5})/) || [])[1];
         if (pc && FB.on() && !start.played) { start.played = true; Arena.join(pc); }
       } catch (e) { if (!(e instanceof Cancel)) throw e; }
@@ -12879,7 +13624,7 @@ function petSVG(i, opt = {}) {
 
     function reset(keep) {
       token++; sel = null; hover = null; gifts = []; phase = ''; drag = null; pinch = null; pts.clear();
-      if (Arena.on) Arena.close(); $('gmDlg').classList.remove('on');
+      if (Arena.on) Arena.close(); $('gmDlg').classList.remove('on'); if (Cosmos.on) Cosmos.close();
       if (Fr.D) { const r = Fr.D.res; Fr.D = null; r(); } clearInterval(Fr.pollT); root.classList.remove('ev-dance', 'ev-on');
       clearInterval(EV.t); EV.going = false; EV.carry = 0; EV.frags = []; EV.beams = []; EV.dance = 0; EV.data = null; $('uvEvent').hidden = true; toastQ.length = 0; clearTimeout(toastT); toastBusy = false; toastEl.classList.remove('on'); ['mailDlg', 'frDlg'].forEach(id => $(id).classList.remove('on'));
       root.className = 'uv'; finEl.classList.remove('on'); $('uvFinBtns').classList.remove('on');

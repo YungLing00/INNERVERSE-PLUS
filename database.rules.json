@@ -25,6 +25,7 @@
         "modelTask": { ".validate": "newData.isString() && newData.val().matches(/^([A-Za-z0-9_-]{8,120})?$/)" },
         "img": { ".validate": "newData.isString() && newData.val().length <= 45000 && newData.val().matches(/^(data:image\\/(webp|png|jpeg);base64,[A-Za-z0-9+\\/=]+)?$/)" },
         "lights": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000" },
+        "title": { ".validate": "newData.isString() && newData.val().length <= 30" },
         "createdAt": { ".validate": "newData.isNumber() && (data.exists() ? newData.val() == data.val() : newData.val() == now)" },
         "updatedAt": { ".validate": "newData.val() == now" },
         "$other": { ".validate": false }
@@ -100,7 +101,31 @@
             "time": { ".validate": "newData.val() == now" },
             "$any": { ".validate": false }
           }
+        },
+
+        "gifts": {
+          "$id": {
+            ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && ((!data.exists() && auth.uid != $uid && root.child('planets').child(auth.uid).exists() && root.child('planets').child($uid).exists()) || (auth.uid == $uid && !newData.exists()))",
+            ".validate": "newData.hasChildren(['from', 'k', 'at'])",
+            "from": { ".validate": "newData.val() == auth.uid" },
+            "k": { ".validate": "newData.isString() && newData.val().matches(/^[a-zA-Z]{2,16}$/)" },
+            "at": { ".validate": "newData.val() == now" },
+            "$any": { ".validate": false }
+          }
         }
+      }
+    },
+
+    "homes": {
+      ".read": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous'",
+      "$uid": {
+        ".write": "auth != null && auth.token.firebase.sign_in_provider == 'anonymous' && auth.uid == $uid",
+        ".validate": "newData.hasChildren(['p', 'at'])",
+        "p": { ".validate": "newData.isString() && newData.val().length <= 8000" },
+        "th": { ".validate": "newData.isString() && newData.val().length <= 12" },
+        "t": { ".validate": "newData.isString() && newData.val().length <= 30" },
+        "at": { ".validate": "newData.val() == now" },
+        "$any": { ".validate": false }
       }
     },
 

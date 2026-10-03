@@ -10372,7 +10372,7 @@ function petSVG(i, opt = {}) {
 
     let rt = null, code = '', R = '', mode = 'ball', M = MODES.ball, seed = 1, on = false, raf = 0, lastT = 0, time = 0;
     let room = { host: '', state: '', startAt: 0, createdAt: 0, slots: {}, p: {}, open: '' };
-    let offs = [], disc = [], mySlot = -1, myPet = 0, sentAt = 0, sentKey = '', ended = false, endT = 0, joining = false, priv = false;
+    let offs = [], disc = [], mySlot = -1, myPet = 0, sentAt = 0, sentKey = '', ended = false, endT = 0, joining = false, priv = false, gone = false;
     const me = { x: 0, y: 0, vx: 0, vy: 0, f: 1, ab: 0, abT: -9, c: '', kn: 0, kx: 0, ky: 0, stun: 0, kickAt: 0, ghost: null, del: 0, delSent: 0, em: 0, emT: -9, emI: 0, dn: 0, hitT: -9, mv: 0 };
     // 玩起來更熱鬧的特效：畫面震動、慢動作、跳出來的字、衝擊波
     let shakeA = 0, slowT = 0, flashA = 0, pops = [], rings = [], trail = [];
@@ -10585,11 +10585,12 @@ function petSVG(i, opt = {}) {
       sub('host', v => { room.host = v || ''; if (isHost() && !hostW) becomeHost(); if (!isHost()) hostW = null; });
       sub('state', v => { room.state = v || ''; ui(); });
       sub('startAt', v => { room.startAt = v || 0; ui(); });
-      sub('createdAt', v => { if (!v && on && !ended) { say(L('這個房間已經關閉了', 'This room has closed'), 3); setTimeout(() => close(), 1600); } });
+      sub('createdAt', v => { if (!v && on && ended) gone = true;   // 結束後房主會清掉房間：留在結算畫面，不要把大家踢出去
+      else if (!v && on) { say(L('這個房間已經關閉了', 'This room has closed'), 3); setTimeout(() => close(), 1600); } });
       sub('slots', v => { room.slots = v || {}; checkMe(); ui(); });
       sub('p', v => { room.p = v || {}; ui(); });
       sub('open', v => { room.open = v || ''; });
-      sub('w', v => onWorld(v || {}));
+      sub('w', v => { if (!v && ended) return; onWorld(v || {}); });
       sub('del', v => { dels = v || {}; });
       const sref = D.ref(db, R + 's');
       offs.push(D.onChildAdded(sref, s => onS(s.key, s.val())), D.onChildChanged(sref, s => onS(s.key, s.val())), D.onChildRemoved(sref, s => others.delete(s.key)));
@@ -10597,7 +10598,7 @@ function petSVG(i, opt = {}) {
       send(true);
     }
     // 被清出房間（例如斷線太久，位置被別人拿走）
-    function checkMe() { if (on && code && rt && room.slots[mySlot] !== rt.uid && !joining) { say(L('連線中斷，已經離開房間', 'Disconnected from the room'), 3); setTimeout(() => close(), 1500); } }
+    function checkMe() { if (on && code && rt && !ended && room.slots[mySlot] !== rt.uid && !joining) { say(L('連線中斷，已經離開房間', 'Disconnected from the room'), 3); setTimeout(() => close(), 1500); } }
 
     // 別人接到流星／撿到顏料炸彈：在我的畫面上也演出來
     function remoteClaim(i, who) {
@@ -10984,7 +10985,7 @@ function petSVG(i, opt = {}) {
       burst(me.x, me.y - 60, 8, { emo: [EMOS[i]], speed: 160, life: 1.1, dir: -Math.PI / 2, spread: 1.2 }); Sound.chime(.6 + i * .2);
     }
     function send(force) {
-      if (!rt || !code || !on) return;
+      if (!rt || !code || !on || gone) return;
       const now = performance.now(), v = { x: r1(me.x), y: r1(me.y), vx: r1(me.vx), vy: r1(me.vy), ab: me.ab, c: me.c, kn: me.kn, kx: me.kx, ky: me.ky, em: me.em * 10 + me.emI, dn: me.dn };
       const key = JSON.stringify(v);
       if (!force && (now - sentAt < 100 || (key === sentKey && now - sentAt < 1000))) return;
@@ -11002,9 +11003,9 @@ function petSVG(i, opt = {}) {
     let lastSec = -1;
     function update(dt) {
       if (!rt || !code) return;
-      elect();
+      if (!gone) elect();
       stepMe(dt);
-      if (isHost() && hostW) hostTick(dt);
+      if (isHost() && hostW && !gone) hostTick(dt);
       if (mode === 'ball' && playing()) ballStep(dt);
       // 別人的寵物：往他們最新的位置平滑地移過去（稍微往前預測一點）
       const now = rt.now();
@@ -11573,14 +11574,14 @@ function petSVG(i, opt = {}) {
       const was = on; on = false; cancelAnimationFrame(raf);
       root.classList.remove('on'); $('arEnd').classList.remove('on'); $('arWait').classList.remove('on'); msgEl.classList.remove('on');
       offs.forEach(f => { try { f(); } catch (e) {} }); offs = [];
-      if (was && rt && code) {
+      if (was && rt && code && !gone) {
         disc.forEach(d => d.cancel().catch(() => {})); disc = [];
         const u = { [R + 'slots/' + mySlot]: null, [R + 'p/' + rt.uid]: null, [R + 's/' + rt.uid]: null };
         const left = Object.keys(room.p).filter(k => k !== rt.uid);
         if (!left.length && room.state === 'wait') u[R + 'open'] = null;   // 最後一個人離開：不再讓別人配對進來
         try { await rt.D.update(rt.D.ref(rt.db), u); } catch (e) { console.warn('leave:', e); }
       }
-      code = ''; R = ''; others.clear(); bots = {}; hostW = null; ended = false; joining = false; input.keys.clear(); input.stick = null;
+      code = ''; R = ''; others.clear(); bots = {}; hostW = null; ended = false; gone = false; joining = false; input.keys.clear(); input.stick = null;
     }
     EMOS.forEach((em, i) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = em; b.setAttribute('aria-label', em); b.addEventListener('pointerdown', e => { e.preventDefault(); emote(i); }); $('arEmo').appendChild(b); });
     $('gmJoin').addEventListener('click', () => join($('gmCode').value));

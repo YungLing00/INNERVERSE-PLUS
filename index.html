@@ -706,6 +706,54 @@
     .uv-title h2 { font-size: 1rem; letter-spacing: .24em; }
   }
 
+  /* ===== 3V3 小遊戲 ===== */
+  .uv-play { color: #fff3dc; border-color: rgba(255,214,150,.55); }
+  .ar { position: fixed; inset: 0; z-index: 30; display: none; background: #05040f; touch-action: none; -webkit-user-select: none; user-select: none; }
+  .ar.on { display: block; }
+  .ar canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; }
+  .ar-top { position: absolute; left: 50%; transform: translateX(-50%); top: calc(env(safe-area-inset-top, 0px) + 10px); display: flex; align-items: center; gap: 10px; padding: 6px 14px; border-radius: 99px;
+    background: rgba(14,10,40,.62); border: 1px solid rgba(255,255,255,.16); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); font-size: .78rem; letter-spacing: .06em; white-space: nowrap; pointer-events: none; }
+  .ar-tn.a { color: rgb(255,196,120); } .ar-tn.b { color: rgb(140,196,255); }
+  .ar-sc { font-family: var(--latin); font-weight: 400; font-size: 1.05rem; color: #fff; background: linear-gradient(90deg, rgb(255,206,140), #fff 50%, rgb(160,206,255)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .ar-tm, .ar-life { color: var(--dim); font-size: .72rem; } .ar-life:empty { display: none; }
+  .ar[data-s="wait"] .ar-top, .ar[data-s="wait"] .ar-ab, .ar[data-s="wait"] .ar-abn, .ar[data-s="end"] .ar-ab, .ar[data-s="end"] .ar-abn { display: none; }
+  .ar-x { position: absolute; left: calc(env(safe-area-inset-left, 0px) + 10px); top: calc(env(safe-area-inset-top, 0px) + 10px); width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,.2); background: rgba(10,8,30,.5); color: var(--dim); font-size: 1.3rem; cursor: pointer; }
+  .ar-ab { --cd: 0deg; position: absolute; right: calc(env(safe-area-inset-right, 0px) + 22px); bottom: calc(env(safe-area-inset-bottom, 0px) + 30px); width: 76px; height: 76px; border-radius: 50%; font-size: 2rem; cursor: pointer;
+    color: #fff; border: 1px solid rgba(255,226,170,.6); background: radial-gradient(circle, rgba(255,226,170,.22), rgba(20,14,50,.7)); box-shadow: 0 0 22px rgba(255,214,150,.35); touch-action: none; }
+  .ar-ab.cd { opacity: .55; background: conic-gradient(rgba(10,8,30,.75) var(--cd), rgba(255,226,170,.2) 0); box-shadow: none; }
+  .ar-abn { position: absolute; right: calc(env(safe-area-inset-right, 0px) + 22px); width: 76px; bottom: calc(env(safe-area-inset-bottom, 0px) + 10px); text-align: center; font-size: .7rem; letter-spacing: .1em; color: var(--dim); pointer-events: none; }
+  .ar-msg { position: absolute; left: 0; right: 0; top: 24%; text-align: center; padding: 0 16px; font-size: 1rem; letter-spacing: .1em; color: #fff3dc; text-shadow: 0 0 18px rgba(5,4,15,.95); opacity: 0; transform: translateY(8px); transition: opacity .4s ease, transform .4s ease; pointer-events: none; }
+  .ar-msg.big { font-family: var(--latin); font-size: clamp(1.4rem, 6vw, 2.6rem); letter-spacing: .14em; }
+  .ar-msg.on { opacity: 1; transform: none; }
+  .ar-wait, .ar-end { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(520px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); overflow-y: auto; padding: 1.4rem 1.2rem 1.2rem; border-radius: 24px; text-align: center;
+    background: linear-gradient(160deg, rgba(40,28,92,.9), rgba(14,10,40,.92)); border: 1px solid rgba(255,255,255,.16); box-shadow: 0 0 40px rgba(0,0,0,.4); display: none; }
+  .ar-wait.on, .ar-end.on { display: block; }
+  .ar-wait h3, .ar-end h3 { font-weight: 400; font-size: 1.1rem; letter-spacing: .1em; color: #fff3dc; }
+  .ar-ws, .ar-end p { margin-top: .6rem; font-size: .78rem; line-height: 1.7; letter-spacing: .04em; color: var(--dim); }
+  .ar-teams { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 1rem; text-align: left; }
+  .ar-team { display: grid; gap: 6px; align-content: start; }
+  .ar-team > b { font-weight: 400; font-size: .8rem; letter-spacing: .1em; color: var(--tc); }
+  .ar-slot { display: flex; align-items: center; gap: 6px; min-height: 44px; padding: 4px 8px; border-radius: 12px; font-family: var(--tc); font-size: .74rem; color: var(--ink); text-align: left;
+    background: rgba(255,255,255,.06); border: 1px solid color-mix(in srgb, var(--tc) 45%, transparent); overflow: hidden; }
+  .ar-slot img { width: 34px; height: 34px; flex: none; }
+  .ar-slot span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ar-slot.me { box-shadow: 0 0 14px color-mix(in srgb, var(--tc) 55%, transparent); }
+  .ar-slot.empty { color: var(--dim); border-style: dashed; }
+  .ar-slot.empty:not(:disabled) { cursor: pointer; } .ar-slot.empty:not(:disabled):hover { background: rgba(255,255,255,.12); }
+  .ar-code { margin-top: .9rem; font-family: var(--latin); letter-spacing: .2em; color: #ffe3a8; font-size: .9rem; }
+  .ar-wn { margin-top: .3rem; font-size: .72rem; color: var(--dim); letter-spacing: .04em; }
+  .gm-modes { display: grid; gap: 10px; margin-top: 1rem; }
+  .gm-mode { display: grid; gap: 3px; padding: .8rem 1rem; border-radius: 16px; cursor: pointer; text-align: left; color: var(--ink); font-family: var(--tc);
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,226,170,.3); transition: transform .2s ease, background .3s ease, box-shadow .3s ease; }
+  .gm-mode:hover, .gm-mode:focus-visible { transform: translateY(-2px); background: rgba(255,226,170,.1); box-shadow: 0 0 18px rgba(255,214,170,.3); outline: none; }
+  .gm-mode b { font-family: var(--latin); font-weight: 400; letter-spacing: .08em; color: #fff3dc; } .gm-mode span { font-size: .82rem; letter-spacing: .1em; }
+  .gm-mode small { font-size: .72rem; line-height: 1.6; color: var(--dim); }
+  .gm-priv { display: flex; gap: 8px; align-items: center; justify-content: center; margin-top: .8rem; font-size: .72rem; color: var(--dim); letter-spacing: .04em; cursor: pointer; }
+  .gm-join { margin-top: .7rem; } .gm-join input { text-transform: uppercase; letter-spacing: .2em; }
+  .gm-msg { min-height: 1.2em; margin-top: .5rem; font-size: .76rem; color: #ffd6e8; letter-spacing: .04em; }
+  @media (orientation: landscape) and (max-height: 520px) { .ar-wait .ar-ws { display: none; } .ar-ab { width: 64px; height: 64px; } }
+  @media (max-width: 480px) { .ar-top { left: 58px; right: 10px; transform: none; justify-content: center; gap: 8px; } .ar-tn, .ar-life { display: none; } }
+
   /* ===== 章節選單 ===== */
   .ctl-r { display: flex; gap: 10px; }
   #chap { display: none; }
@@ -1210,7 +1258,7 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
   <div class="uv-title"><h2>✦ OUR UNIVERSE ✦</h2><p class="uv-demo" id="uvDemo" hidden>示範宇宙：真實旅人還不多，先用示範星球陪你逛逛</p></div>
   <p class="uv-hint" id="uvHint"></p>
   <div class="uv-ev" id="uvEvent" hidden><p class="ev-t" id="evTitle"></p><p class="ev-s" id="evSub"></p><div class="ev-bar"><i id="evBar"></i></div><div class="ev-row"><span class="ev-n" id="evN"></span><button class="main ev-go" id="evGo" type="button"></button></div></div>
-  <div class="uv-tools"><button class="pill" id="uvHand" type="button">🖐️ 手勢控制</button><button class="pill" id="uvAll" type="button">✦ 看見整座宇宙</button><button class="pill uv-mail" id="uvMail" type="button" hidden>💌</button><button class="pill" id="uvFriends" type="button" hidden>✦</button></div>
+  <div class="uv-tools"><button class="pill" id="uvHand" type="button">🖐️ 手勢控制</button><button class="pill" id="uvAll" type="button">✦ 看見整座宇宙</button><button class="pill uv-mail" id="uvMail" type="button" hidden>💌</button><button class="pill" id="uvFriends" type="button" hidden>✦</button><button class="pill uv-play" id="uvPlay" type="button" hidden>🎮 一起玩</button></div>
   <div class="uv-gest" id="uvGest"><span>🖐️ 張開手掌移動：旋轉宇宙</span><span>🖐️ 手掌靠近／遠離鏡頭：放大／縮小</span><span>✌️ 兩指或三指移動：平移</span><span>🤏 捏合：選擇星球</span><span>✊ 握拳：回到整個宇宙</span></div>
   <aside class="uv-card" id="uvCard" aria-live="polite">
     <button class="uv-x" id="uvcClose" type="button" aria-label="回到宇宙">×</button>
@@ -1240,6 +1288,31 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
   </div>
 </section>
 
+<section class="ar" id="ar" aria-label="3V3">
+  <canvas id="arCv"></canvas>
+  <div class="ar-top"><span class="ar-tn a" id="arA"></span><b class="ar-sc" id="arSc"></b><span class="ar-tn b" id="arB"></span><span class="ar-tm" id="arTm"></span><span class="ar-life" id="arLife"></span></div>
+  <button class="ar-x" id="arX" type="button" aria-label="離開">×</button>
+  <button class="ar-ab" id="arAb" type="button"></button><span class="ar-abn" id="arAbN"></span>
+  <p class="ar-msg" id="arMsg" role="status"></p>
+  <div class="ar-wait" id="arWait">
+    <h3 id="arWT"></h3><p class="ar-ws" id="arWS"></p>
+    <div class="ar-teams" id="arTeams"></div>
+    <p class="ar-code" id="arCode"></p><p class="ar-wn" id="arWN"></p>
+    <div class="bd-acts"><button class="main" id="arStart" type="button">現在開始</button><button class="ghost" id="arShare" type="button">邀請朋友</button><button class="ghost" id="arLeave" type="button">離開</button></div>
+  </div>
+  <div class="ar-end" id="arEnd"><h3 id="arEndT"></h3><p id="arEndS"></p><div class="bd-acts"><button class="main" id="arAgain" type="button">再玩一次</button><button class="ghost" id="arHome" type="button">回到宇宙</button></div></div>
+</section>
+<div class="back-dlg" id="gmDlg" role="dialog" aria-modal="true" aria-labelledby="gmTitle">
+  <div class="bd-card gm-card">
+    <p class="bd-star" aria-hidden="true">🎮</p>
+    <h3 id="gmTitle"></h3><p class="bd-sub" id="gmSub"></p>
+    <div class="gm-modes"><button class="gm-mode" id="gmBall" type="button"></button><button class="gm-mode" id="gmSave" type="button"></button></div>
+    <label class="gm-priv"><input type="checkbox" id="gmPriv"> <span id="gmPrivL"></span></label>
+    <div class="un-row gm-join"><input id="gmCode" type="text" maxlength="5" autocomplete="off" autocapitalize="characters"><button class="ghost" id="gmJoin" type="button"></button></div>
+    <p class="gm-msg" id="gmMsg" role="status"></p>
+    <div class="bd-acts"><button class="ghost" id="gmClose" type="button"></button></div>
+  </div>
+</div>
 <div class="back-dlg" id="mailDlg" role="dialog" aria-modal="true" aria-labelledby="mlTitle">
   <div class="bd-card">
     <p class="bd-star ml-star" id="mlStar" aria-hidden="true">💌</p>
@@ -3962,6 +4035,7 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
 
   // 靜態 HTML 的英文：依中文原文對照替換文字節點、placeholder、aria-label
   const HTML_EN = {
+    '🎮 一起玩': '🎮 Play together', '現在開始': 'Start now', '邀請朋友': 'Invite friends', '離開': 'Leave', '再玩一次': 'Play again', '回到宇宙': 'Back to the universe',
     '友情星圖': 'Friendship Constellation', '在 INNERVERSE，每一段友情，都從一支舞開始。': 'In INNERVERSE, friendship begins with a dance.', '留下一句話（只有星球主人看得到）': 'Leave a few words (only the owner can see)', '想對牠的主人說些什麼？': 'Anything you want to tell the owner?', '送出': 'Send',
     '最近，心裡有什麼煩惱嗎？': 'Has anything been weighing on you lately?', '說出來，讓寵物陪你一起放下。': 'Say it, and let your pet help you set it down.', '不用整理，想到什麼就寫什麼': 'No need to organize it — write whatever comes', '交給寵物': 'Give it to my pet', '沒有煩惱，陪我一下就好': 'No worries — just keep me company',
     '宇宙有查詢到您的資料': 'The universe found your record', '歡迎回來': 'Welcome back', '需要跳轉到後面嗎？還是要重新測驗？': 'Jump ahead to your results, or take the test again?', '跳轉到後面': 'Jump ahead', '重新測驗': 'Retake the test',
@@ -9122,6 +9196,8 @@ function petSVG(i, opt = {}) {
         const [A, U, Db] = await Promise.all(['app', 'auth', 'database'].map(n => import(SDK + 'firebase-' + n + '.js')));
         const app = A.initializeApp(CONFIG.FIREBASE), auth = U.getAuth(app);
         D = Db; db = Db.getDatabase(app);
+        // 本機測試：網址加 ?emu=1 就連到 Firebase 模擬器（只在 localhost 有效）
+        if (/[?&]emu=1/.test(location.search) && /^(localhost|127\.0\.0\.1)$/.test(location.hostname)) { U.connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true }); Db.connectDatabaseEmulator(db, '127.0.0.1', 9000); }
         await auth.authStateReady();
         uid = (auth.currentUser || (await U.signInAnonymously(auth)).user).uid;
         Db.onValue(Db.ref(db, '.info/serverTimeOffset'), s => { offset = s.val() || 0; });
@@ -9373,6 +9449,8 @@ function petSVG(i, opt = {}) {
     };
 
     return {
+      // 3V3 小遊戲直接用資料庫的即時同步（不經過上面那層 action）
+      async rt() { await start(); return { D, db, uid, now, ts }; },
       on: () => !!(CONFIG.FIREBASE && CONFIG.FIREBASE.databaseURL),
       has(action) { return this.on() && ACTIONS.includes(action); },
       async call(q, ms = 12000) {
@@ -10240,6 +10318,872 @@ function petSVG(i, opt = {}) {
   const WXD_SEMI = { earth: 0, metal: 2, wood: 4, fire: 7, water: 9 };
 
   /* ================================================================
+     🎮 3V3 小遊戲：⭐ STAR BALL 星球球／🪐 SAVE THE PLANET 搶救小星球
+     即時同步走 Firebase Realtime Database 的 rooms/{房間代碼}：
+       slots/{0..5}＝誰坐哪個位置（0–2 晨光隊、3–5 夜光隊），p/{uid}＝寵物資料
+       s/{uid}＝自己的位置，一秒寫 10 次；只有自己能寫自己的
+       host＝房主：模擬球和「星靈」（補空位的電腦寵物），把結果寫進 w
+       items／del＝搶救小星球的物資：誰撿走（規則保證同一個只能被撿一次）、各自帶回幾份
+     房主斷線就由還在線上、uid 排最前面的人接手
+     ================================================================ */
+  const Arena = (() => {
+    const root = $('ar'), cv = $('arCv'), g = cv.getContext('2d'), dlg = $('gmDlg');
+    const MODES = { ball: { W: 1600, H: 1000, dur: 120, view: 1000 }, save: { W: 2200, H: 1500, dur: 120, view: 900 } };
+    const PR = 34, BR = 46, GOAL = 190, SPEED = 330, PLR = 120, AUTO = 30, CD = 4;
+    const CODE_CH = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const TEAM = [{ c: [255, 196, 120], n: () => L('晨光隊', 'Team Dawn') }, { c: [140, 196, 255], n: () => L('夜光隊', 'Team Night') }];
+    const ITEMS = [{ e: '💧', n: () => L('星露', 'star dew') }, { e: '✨', n: () => L('星塵', 'stardust') }, { e: '🌱', n: () => L('種子', 'seed') }, { e: '☀️', n: () => L('光球', 'light orb') }];
+    // 星座能力：玩法不一樣，強弱一樣。火象衝刺、土象穩推、風象幻影、水象漂浮（牡羊 0 是火、金牛 1 是土…照順序輪）
+    const ABIL = [
+      { k: 'dash', icon: '🔥', dur: .45, n: () => L('衝刺', 'Dash'), d: () => L('一下子衝很快，撞球特別遠', 'A burst of speed — hits the ball extra far') },
+      { k: 'steady', icon: '🪨', dur: 1.6, n: () => L('穩推', 'Steady'), d: () => L('變得很穩：推球更有力，風和黑洞也拉不動你', 'Rock steady: stronger pushes, wind and black holes can\'t move you') },
+      { k: 'blink', icon: '💨', dur: .9, n: () => L('幻影', 'Blink'), d: () => L('留下一個幻影，瞬間移到前面', 'Leave a phantom and blink ahead') },
+      { k: 'float', icon: '🫧', dur: 1.8, n: () => L('漂浮', 'Float'), d: () => L('飄起來：穿過大家，流星也打不到你', 'Float up: pass through others, meteors miss you') }
+    ];
+    const abilOf = pi => ABIL[(pi | 0) % 4];
+    const BOT_NAMES = ['Lumo', 'Pip', 'Nimbus', 'Kiki', 'Sol', 'Mochi'];
+    const sleepMs = ms => new Promise(r => setTimeout(r, ms));
+    const DBG_DUR = /[?&]debug=1/.test(location.search) ? +(location.search.match(/[?&]ardur=(\d+)/) || [])[1] || 0 : 0;   // 測試用：縮短比賽時間
+    const rng = s => () => { s |= 0; s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+    const teamOf = slot => (+slot < 3 ? 0 : 1);
+    const r1 = v => Math.round(v);
+
+    let rt = null, code = '', R = '', mode = 'ball', M = MODES.ball, seed = 1, on = false, raf = 0, lastT = 0, time = 0;
+    let room = { host: '', state: '', startAt: 0, createdAt: 0, slots: {}, p: {}, open: '' };
+    let offs = [], disc = [], mySlot = -1, myPet = 0, sentAt = 0, sentKey = '', ended = false, endT = 0, joining = false, priv = false;
+    const me = { x: 0, y: 0, vx: 0, vy: 0, f: 1, ab: 0, abT: -9, c: '', kn: 0, kx: 0, ky: 0, stun: 0, kickAt: 0, ghost: null, del: 0 };
+    const others = new Map();     // uid → 其他玩家（畫面上平滑地跟著他們的位置）
+    let bots = {};                // slot → 星靈（房主模擬，其他人從 w 讀）
+    const ball = { x: 800, y: 500, vx: 0, vy: 0, rot: 0, lock: 0 };
+    let W0 = {}, gSeen = -1, hostW = null, items = [], claimed = {}, dels = {}, haz = [], fx = [], banners = [], hazSeen = new Set(), lastGt = -99;
+    const input = { x: 0, y: 0, keys: new Set(), stick: null };
+    let cw = 0, ch = 0, S = 1, camX = 0, camY = 0, stars = [];
+    const isHost = () => rt && room.host === rt.uid;
+    const gt = () => (rt && room.startAt ? (rt.now() - room.startAt) / 1000 : -99);
+    const playing = () => room.state === 'play' && gt() >= 0 && gt() < M.dur && !ended;
+
+    /* ---------- 畫面大小 ---------- */
+    function size() {
+      const d = Math.min(devicePixelRatio || 1, 2); cw = innerWidth; ch = innerHeight;
+      cv.width = Math.max(1, cw * d); cv.height = Math.max(1, ch * d); g.setTransform(d, 0, 0, d, 0, 0);
+      S = Math.max(Math.min(cw / M.W, ch / M.H), Math.min(cw, ch) / M.view);
+      stars = Array.from({ length: 140 }, () => ({ x: Math.random(), y: Math.random(), s: rand(.4, 1.6), p: rand(0, TAU), z: rand(.2, .7) }));
+    }
+    window.addEventListener('resize', () => { if (on) size(); });
+    const toS = (x, y) => [(x - camX) * S + cw / 2, (y - camY) * S + ch / 2];
+
+    /* ---------- 小工具 ---------- */
+    const msgEl = $('arMsg');
+    let msgT = 0;
+    function say(t, sec = 2.4, big) { msgEl.textContent = t; msgEl.classList.toggle('big', !!big); msgEl.classList.add('on'); clearTimeout(msgT); msgT = setTimeout(() => msgEl.classList.remove('on'), sec * 1000); }
+    function burst(x, y, n, o = {}) {
+      for (let k = 0; k < n && fx.length < 700; k++) {
+        const a = o.dir !== undefined ? o.dir + rand(-1, 1) * (o.spread || .8) : rand(0, TAU), sp = rand(.3, 1) * (o.speed || 260);
+        fx.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, age: 0, life: rand(.7, 1.3) * (o.life || 1.2), s: rand(.7, 1.3) * (o.size || 1),
+          e: o.emo ? o.emo[(Math.random() * o.emo.length) | 0] : '', c: o.cols ? o.cols[(Math.random() * o.cols.length) | 0] : '255,240,200', g: o.g || 0 });
+      }
+    }
+    const petName = uid => { const p = room.p[uid]; return p ? (p.petName || PETS[p.petIdx | 0].en) : ''; };
+    function slotList() {
+      const out = [];
+      for (let i = 0; i < 6; i++) {
+        const uid = room.slots[i], p = uid && room.p[uid];
+        if (p) out.push({ slot: i, uid, me: uid === rt.uid, petIdx: p.petIdx | 0, name: p.name || '', petName: p.petName || PETS[p.petIdx | 0].en });
+        else out.push({ slot: i, bot: true, petIdx: botPet(i), name: L('星靈', 'Star Sprite'), petName: BOT_NAMES[i] });
+      }
+      return out;
+    }
+    const botPet = i => Math.floor(rng(seed * 7 + i * 131)() * 12);
+    function spawnOf(slot) {
+      const tm = teamOf(slot), k = slot % 3;
+      if (mode === 'ball') return [tm ? M.W - 260 - (k === 2 ? 0 : 160) : 260 + (k === 2 ? 0 : 160), M.H / 2 + [-220, 220, 0][k]];
+      return [tm ? M.W - 420 : 420, M.H / 2 + [-200, 200, 0][k]];
+    }
+
+    /* ---------- 搶救小星球：物資和危險都由種子決定，大家算出來的一樣，不用另外同步 ---------- */
+    function genWorld() {
+      items = []; haz = []; claimed = {}; dels = {}; hazSeen = new Set();
+      if (mode !== 'save') return;
+      const r = rng(seed);
+      for (let i = 0; i < 110; i++) {
+        let x, y; do { x = 80 + r() * (M.W - 160); y = 80 + r() * (M.H - 160); } while (Math.hypot(x - M.W / 2, y - M.H / 2) < 330);
+        items.push({ i, k: Math.floor(r() * 4), x, y, at: i < 28 ? 0 : (i - 28) * 1.65 + 2, ph: r() * TAU });
+      }
+      const order = ['wind', 'hole', 'meteor'];
+      for (let t = 13, n = 0; t < M.dur - 8; t += 17, n++) {
+        const k = order[(n + Math.floor(r() * 3)) % 3], h = { k, t0: t };
+        if (k === 'wind') { h.dur = 4.2; h.a = r() * TAU; }
+        if (k === 'hole') { const a = r() * TAU, d = 460 + r() * 300; h.dur = 9; h.x = M.W / 2 + Math.cos(a) * d; h.y = M.H / 2 + Math.sin(a) * d * .7; }
+        if (k === 'meteor') { h.dur = 7; h.st = Array.from({ length: 22 }, () => ({ t: 1 + r() * 5.6, x: 100 + r() * (M.W - 200), y: 100 + r() * (M.H - 200) })); }
+        haz.push(h);
+      }
+    }
+    const teamTot = tm => Object.values(dels).reduce((s, d) => s + (d && +d.tm === tm ? +d.n || 0 : 0), 0) + (+((W0.bd || {})[tm]) || 0);
+    const life = () => clamp((teamTot(0) + teamTot(1)) / Math.round(M.dur * .75));   // 兩分鐘的比賽：一起帶回 90 份就完全恢復
+
+    /* ---------- 進房、配對 ---------- */
+    async function need() {
+      rt = rt || await FB.rt();
+      const my = Me.get();
+      if (!my || !my.pid || my.pid !== rt.uid) { const e = new Error('no_planet'); e.code = 'no_planet'; throw e; }
+      return my;
+    }
+    const newCode = () => Array.from({ length: 5 }, () => CODE_CH[(Math.random() * CODE_CH.length) | 0]).join('');
+    function myP(slot) {
+      const my = Me.get(), b = my.big5 || {}, o = { slot: String(slot), petIdx: Math.max(0, Math.min(11, my.petIdx | 0)), petName: String(my.petName || '').slice(0, 20), name: String(my.name || '').slice(0, 20), at: rt.ts(), b: {} };
+      ['O', 'C', 'E', 'A', 'N'].forEach((k, i) => { const v = +b[k]; o.b[i] = v >= 1 && v <= 5 ? Math.round(v * 10) / 10 : 3; });
+      return o;
+    }
+    async function create(m, isPriv) {
+      await need();
+      const { D, db } = rt;
+      for (let n = 0; n < 4; n++) {
+        const c = newCode(), P = 'rooms/' + c + '/';
+        if ((await D.get(D.ref(db, P + 'host'))).exists()) continue;
+        const u = { [P + 'host']: rt.uid, [P + 'createdAt']: rt.ts(), [P + 'mode']: m, [P + 'seed']: Math.floor(Math.random() * 1e9), [P + 'state']: 'wait', [P + 'slots/0']: rt.uid };
+        if (!isPriv) u[P + 'open'] = m;
+        u[P + 'p/' + rt.uid] = myP(0);
+        await D.update(D.ref(db), u);
+        return c;
+      }
+      throw new Error('no_code');
+    }
+    // 搶一個空位：規則只讓「空的位置」寫入自己的 uid，搶輸了就換下一個
+    async function takeSlot(c, prefer) {
+      const { D, db } = rt, P = 'rooms/' + c + '/';
+      const sl = (await D.get(D.ref(db, P + 'slots'))).val() || {}, ps = (await D.get(D.ref(db, P + 'p'))).val() || {};
+      for (const k of Object.keys(sl)) if (sl[k] === rt.uid && ps[rt.uid]) return +k;   // 已經在裡面
+      const t0 = [0, 1, 2].filter(i => !sl[i]).length, t1 = [3, 4, 5].filter(i => !sl[i]).length;
+      const order = prefer !== undefined ? [prefer] : (t0 >= t1 ? [0, 3, 1, 4, 2, 5] : [3, 0, 4, 1, 5, 2]);
+      for (const i of order) {
+        if (sl[i] && ps[sl[i]]) continue;
+        try {
+          if (sl[i]) await D.remove(D.ref(db, P + 'slots/' + i));   // 前一個人已經離開，位置還沒清掉
+          await D.set(D.ref(db, P + 'slots/' + i), rt.uid);
+          await D.set(D.ref(db, P + 'p/' + rt.uid), myP(i));
+          return i;
+        } catch (e) { /* 被別人搶走了 */ }
+      }
+      return -1;
+    }
+    async function quick(m) {
+      await need();
+      const { D, db } = rt, q = await D.get(D.query(D.ref(db, 'rooms'), D.orderByChild('open'), D.equalTo(m), D.limitToLast(12)));
+      const now = rt.now(), cands = [];
+      q.forEach(s => {
+        const r = s.val() || {}, ps = Object.keys(r.p || {}), free = [0, 1, 2, 3, 4, 5].filter(i => !(r.slots || {})[i] || !(r.p || {})[r.slots[i]]).length;
+        if (now - (r.createdAt || 0) > 7200e3) { D.remove(s.ref).catch(() => {}); return; }
+        if (!ps.length || !free || r.state === 'end') return;
+        if (r.state === 'play' && now - (r.startAt || 0) > MODES[m].dur * 500) return;   // 已經過一半就不插隊了
+        cands.push({ c: s.key, w: r.state === 'wait' ? 0 : 1, n: ps.length });
+      });
+      cands.sort((a, b) => a.w - b.w || b.n - a.n);
+      for (const c of cands) { const i = await takeSlot(c.c); if (i >= 0) return c.c; }
+      return create(m, false);
+    }
+    async function enter(c) {
+      const { D, db } = rt; code = c; R = 'rooms/' + c + '/';
+      const r = (await D.get(D.ref(db, 'rooms/' + c))).val();
+      if (!r || !r.mode) throw Object.assign(new Error('no_room'), { code: 'no_room' });
+      mode = r.mode; M = MODES[mode]; if (DBG_DUR) M = Object.assign({}, M, { dur: DBG_DUR }); seed = r.seed || 1; ended = false; endT = 0; W0 = {}; gSeen = -1; hostW = null; bots = {}; others.clear(); fx = []; me.del = 0; me.c = ''; me.kn = 0;
+      room = { host: r.host || '', state: r.state || 'wait', startAt: r.startAt || 0, createdAt: r.createdAt || 0, slots: r.slots || {}, p: r.p || {}, open: r.open || '' };
+      priv = !r.open;
+      genWorld(); size();
+      mySlot = +Object.keys(room.slots).find(k => room.slots[k] === rt.uid);
+      myPet = (room.p[rt.uid] || {}).petIdx | 0;
+      const wb = r.w && r.w.bots && r.w.bots[mySlot], sp = wb ? [wb.x, wb.y] : spawnOf(mySlot);
+      me.x = sp[0]; me.y = sp[1]; me.vx = me.vy = 0; me.f = teamOf(mySlot) ? -1 : 1;
+      ball.x = M.W / 2; ball.y = M.H / 2; ball.vx = ball.vy = 0;
+      // 斷線就把自己的位置清掉，空位會由星靈補上
+      disc = ['slots/' + mySlot, 'p/' + rt.uid, 's/' + rt.uid].map(k => D.onDisconnect(D.ref(db, R + k)));
+      disc.forEach(d => d.remove());
+      const sub = (path, fn) => offs.push(D.onValue(D.ref(db, R + path), s => fn(s.val())));
+      sub('host', v => { room.host = v || ''; if (isHost() && !hostW) becomeHost(); if (!isHost()) hostW = null; });
+      sub('state', v => { room.state = v || ''; ui(); });
+      sub('startAt', v => { room.startAt = v || 0; ui(); });
+      sub('createdAt', v => { if (!v && on && !ended) { say(L('這個房間已經關閉了', 'This room has closed'), 3); setTimeout(() => close(), 1600); } });
+      sub('slots', v => { room.slots = v || {}; checkMe(); ui(); });
+      sub('p', v => { room.p = v || {}; ui(); });
+      sub('open', v => { room.open = v || ''; });
+      sub('w', v => onWorld(v || {}));
+      sub('del', v => { dels = v || {}; });
+      const sref = D.ref(db, R + 's');
+      offs.push(D.onChildAdded(sref, s => onS(s.key, s.val())), D.onChildChanged(sref, s => onS(s.key, s.val())), D.onChildRemoved(sref, s => others.delete(s.key)));
+      offs.push(D.onChildAdded(D.ref(db, R + 'items'), s => { claimed[s.key] = s.val(); }));
+      send(true);
+    }
+    // 被清出房間（例如斷線太久，位置被別人拿走）
+    function checkMe() { if (on && code && rt && room.slots[mySlot] !== rt.uid && !joining) { say(L('連線中斷，已經離開房間', 'Disconnected from the room'), 3); setTimeout(() => close(), 1500); } }
+
+    /* ---------- 收到別人的位置 ---------- */
+    function onS(uid, v) {
+      if (!v || uid === rt.uid) return;
+      let o = others.get(uid);
+      if (!o) { o = { dx: v.x, dy: v.y, ab: v.ab || 0, abT: -9, kn: v.kn || 0, f: 1 }; others.set(uid, o); }
+      if ((v.ab || 0) > o.ab) { o.abT = time; o.ghost = (abilOf((room.p[uid] || {}).petIdx).k === 'blink') ? { x: o.dx, y: o.dy, t: time } : null; }
+      o.ab = v.ab || 0;
+      if (isHost() && (v.kn || 0) > o.kn && mode === 'ball' && playing()) {   // 別人踢到球：房主照他們看到的結果走
+        if (Math.hypot(ball.x - v.x, ball.y - v.y) < (PR + BR) * 3 && !(hostW.fz > rt.now())) { ball.vx = v.kx || 0; ball.vy = v.ky || 0; }
+      }
+      o.kn = v.kn || 0;
+      Object.assign(o, { x: v.x, y: v.y, vx: v.vx || 0, vy: v.vy || 0, c: v.c || '', t: v.t || 0, at: time });
+      if (Math.abs(o.vx) > 20) o.f = o.vx > 0 ? 1 : -1;
+    }
+    function onWorld(w) {
+      W0 = w;
+      if (w.g && w.g.n !== gSeen) { const first = gSeen === -1; gSeen = w.g.n; if (!first && w.g.n > 0) goalFx(w.g.tm); }
+      if (isHost()) return;
+      if (w.b && performance.now() > ball.lock) {
+        const lag = clamp((rt.now() - (w.t || 0)) / 1000, 0, .3), bx = w.b.x + w.b.vx * lag, by = w.b.y + w.b.vy * lag;
+        if (Math.hypot(bx - ball.x, by - ball.y) > 220) { ball.x = bx; ball.y = by; } else { ball.x += (bx - ball.x) * .5; ball.y += (by - ball.y) * .5; }
+        ball.vx = w.b.vx; ball.vy = w.b.vy;
+      }
+      const nb = w.bots || {};
+      for (const k of Object.keys(bots)) if (!nb[k]) delete bots[k];
+      for (const k of Object.keys(nb)) {
+        const v = nb[k], b = bots[k] || (bots[k] = { dx: v.x, dy: v.y, abT: -9, ab: v.ab || 0, f: 1 });
+        if ((v.ab || 0) > b.ab) b.abT = time;
+        Object.assign(b, { x: v.x, y: v.y, vx: v.vx || 0, vy: v.vy || 0, c: v.c || '', ab: v.ab || 0, t: w.t || 0 });
+        if (Math.abs(b.vx) > 20) b.f = b.vx > 0 ? 1 : -1;
+      }
+    }
+
+    /* ---------- 房主 ---------- */
+    function becomeHost() {
+      hostW = { sc: Object.assign({ 0: 0, 1: 0 }, W0.sc), g: Object.assign({ n: 0, tm: 0 }, W0.g), fz: W0.fz || 0, bd: Object.assign({ 0: 0, 1: 0 }, W0.bd) };
+      for (const k of Object.keys(bots)) { const b = bots[k]; b.x = b.dx; b.y = b.dy; }
+    }
+    // 房主不在了（沒有更新超過 4 秒）：還在線上、uid 排最前面的人接手
+    let electAt = 0;
+    function elect() {
+      if (time - electAt < 1) return; electAt = time;
+      const live = u => u === rt.uid || (others.get(u) && rt.now() - (others.get(u).t || 0) < 4000);
+      const mem = Object.keys(room.p);
+      if (room.host && mem.includes(room.host) && live(room.host)) return;
+      const c = mem.filter(live).sort()[0];
+      if (c === rt.uid) rt.D.set(rt.D.ref(rt.db, R + 'host'), rt.uid).catch(e => console.warn('host:', e));
+    }
+    let hostSent = 0, autoT = 0;
+    function hostTick(dt) {
+      const now = rt.now();
+      // 等待室：時間到自動開始；空位由星靈補上
+      if (room.state === 'wait' && room.createdAt && now - room.createdAt > AUTO * 1000 && time - autoT > 3) { autoT = time; startGame(); }
+      if (room.state === 'play' && gt() >= M.dur + 1 && !hostW.endSet) {
+        hostW.endSet = true;
+        rt.D.update(rt.D.ref(rt.db), { [R + 'state']: 'end', [R + 'open']: null }).catch(e => console.warn('end:', e));
+        setTimeout(() => { if (isHost()) rt.D.remove(rt.D.ref(rt.db, 'rooms/' + code)).catch(() => {}); }, 40000);
+      }
+      if (room.state === 'play' && room.open && gt() > M.dur / 2) rt.D.set(rt.D.ref(rt.db, R + 'open'), null).catch(() => {});
+      // 星靈
+      const humans = new Set(Object.keys(room.slots).filter(k => room.p[room.slots[k]]).map(Number));
+      for (let i = 0; i < 6; i++) {
+        if (humans.has(i)) { delete bots[i]; continue; }
+        if (!bots[i]) { const sp = spawnOf(i); bots[i] = { x: sp[0], y: sp[1], dx: sp[0], dy: sp[1], vx: 0, vy: 0, ab: 0, abT: -9, c: '', f: teamOf(i) ? -1 : 1, stun: 0, think: 0 }; }
+        if (room.state === 'play' && playing()) botStep(bots[i], i, dt);
+        else { const b = bots[i]; b.vx *= .9; b.vy *= .9; b.dx = b.x; b.dy = b.y; }
+      }
+      if (mode === 'ball' && playing()) {
+        if (hostW.fz && now > hostW.fz) { hostW.fz = 0; ball.x = M.W / 2; ball.y = M.H / 2; ball.vx = ball.vy = 0; }
+        if (!hostW.fz) for (const k of Object.keys(bots)) { const b = bots[k]; hitBall(b, abilOf(botPet(k)), time - b.abT); }
+      }
+      if (time - hostSent > .1) {
+        hostSent = time;
+        const bo = {};
+        for (const k of Object.keys(bots)) { const b = bots[k]; bo[k] = { x: r1(b.x), y: r1(b.y), vx: r1(b.vx), vy: r1(b.vy), ab: b.ab, c: b.c || '' }; }
+        const w = { t: rt.ts(), sc: hostW.sc, g: hostW.g, fz: hostW.fz, bd: hostW.bd, bots: bo };
+        if (mode === 'ball') w.b = { x: r1(ball.x), y: r1(ball.y), vx: r1(ball.vx), vy: r1(ball.vy) };
+        rt.D.set(rt.D.ref(rt.db, R + 'w'), w).catch(e => console.warn('w:', e));
+      }
+    }
+    function startGame() {
+      if (!isHost() || room.state !== 'wait') return;
+      rt.D.update(rt.D.ref(rt.db), { [R + 'state']: 'play', [R + 'startAt']: rt.now() + 3500 }).catch(e => console.warn('start:', e));
+    }
+    function scored(tm) {
+      hostW.sc[tm] = (hostW.sc[tm] || 0) + 1; hostW.g = { n: (hostW.g.n || 0) + 1, tm, at: rt.now() }; hostW.fz = rt.now() + 2400;
+      ball.vx *= .2; ball.vy *= .2; hostSent = 0;
+    }
+
+    /* ---------- 星靈（電腦寵物） ---------- */
+    function botStep(b, i, dt) {
+      const tm = teamOf(i), pet = botPet(i), ab = abilOf(pet);
+      let tx = b.x, ty = b.y, sp = SPEED * .78;
+      if (b.stun > 0) { b.stun -= dt; sp = 0; }
+      if (mode === 'ball') {
+        const gx = (tm ? 0 : M.W) - ball.x, gy = M.H / 2 - ball.y, gl = Math.hypot(gx, gy) || 1, ux = gx / gl, uy = gy / gl;
+        const bx = ball.x - ux * (PR + BR + 14), by = ball.y - uy * (PR + BR + 14), own = tm ? M.W : 0, role = i % 3;
+        const behind = (b.x - ball.x) * ux + (b.y - ball.y) * uy < 0;
+        if (role === 2 && Math.abs(ball.x - own) > 560) { tx = own + (tm ? -280 : 280); ty = clamp(ball.y, M.H / 2 - 200, M.H / 2 + 200); }
+        else if (role === 1 && Math.abs(ball.x - own) > M.W * .7) { tx = lerp(own, ball.x, .65); ty = lerp(M.H / 2, ball.y, .6) + 120; }
+        else if (!behind) { const side = (b.y < ball.y ? -1 : 1); tx = bx - uy * side * 90; ty = by + ux * side * 90; }   // 繞到球的後面
+        else if (Math.hypot(b.x - bx, b.y - by) > 40) { tx = bx; ty = by; }
+        else { tx = ball.x + ux * 120; ty = ball.y + uy * 120; if (Math.random() < dt * .5 && time - b.abT > CD && ab.k !== 'blink') { b.abT = time; b.ab++; } }
+      } else {
+        b.think -= dt;
+        if (b.c.length >= 3 || (b.c && b.think < -8)) { tx = M.W / 2; ty = M.H / 2; }
+        else {
+          if (!b.goal || claimed[b.goal.i] || b.think <= 0) {
+            b.think = rand(2, 4); let best = null, bd = 1e9;
+            for (const it of items) { if (claimed[it.i] || gt() < it.at) continue; const d = Math.hypot(it.x - b.x, it.y - b.y) * rand(.8, 1.3); if (d < bd) { bd = d; best = it; } }
+            b.goal = best;
+          }
+          if (b.goal) { tx = b.goal.x; ty = b.goal.y; }
+          if (b.goal && Math.hypot(b.goal.x - b.x, b.goal.y - b.y) < PR + 22 && !claimed[b.goal.i] && b.c.length < 3) {
+            const it = b.goal; claimed[it.i] = 'b' + i; b.c += it.k; b.goal = null;
+            rt.D.set(rt.D.ref(rt.db, R + 'items/' + it.i), 'b' + i).catch(() => { b.c = b.c.slice(0, -1); });
+          }
+        }
+        if (b.c && Math.hypot(b.x - M.W / 2, b.y - M.H / 2) < PLR + PR + 16) { hostW.bd[tm] = (hostW.bd[tm] || 0) + b.c.length; deliverFx(b.x, b.y, b.c); b.c = ''; b.think = 0; }
+      }
+      const dx = tx - b.x, dy = ty - b.y, d = Math.hypot(dx, dy) || 1, want = Math.min(sp, d * 4) * (time - b.abT < ab.dur && ab.k === 'dash' ? 2.2 : 1);
+      const k = 1 - Math.exp(-7 * dt);
+      b.vx += (dx / d * want - b.vx) * k; b.vy += (dy / d * want - b.vy) * k;
+      if (mode === 'save') hazardsOn(b, dt, ab, time - b.abT < ab.dur, true);
+      b.x = clamp(b.x + b.vx * dt, PR, M.W - PR); b.y = clamp(b.y + b.vy * dt, PR, M.H - PR); b.dx = b.x; b.dy = b.y;
+      if (Math.abs(b.vx) > 20) b.f = b.vx > 0 ? 1 : -1;
+    }
+
+    /* ---------- 球 ---------- */
+    function hitBall(p, ab, since) {
+      const dx = ball.x - p.x, dy = ball.y - p.y, d = Math.hypot(dx, dy), min = PR + BR;
+      if (d >= min || d < .01) return false;
+      const nx = dx / d, ny = dy / d, act = since < ab.dur;
+      const pow = act && ab.k === 'dash' ? 1.9 : act && ab.k === 'steady' ? 1.6 : 1;
+      ball.x = p.x + nx * min; ball.y = p.y + ny * min;
+      const pv = (p.vx || 0) * nx + (p.vy || 0) * ny, bv = ball.vx * nx + ball.vy * ny, push = Math.max(0, pv) * 1.3 * pow + 140 * pow;
+      if (bv < push) { ball.vx += (push - bv) * nx; ball.vy += (push - bv) * ny; }
+      return true;
+    }
+    function ballStep(dt) {
+      const host = isHost();
+      if (host && hostW && hostW.fz) return;
+      if (!host && W0.fz && rt.now() < W0.fz) return;
+      const fr = Math.exp(-.7 * dt); ball.vx *= fr; ball.vy *= fr;
+      const sp = Math.hypot(ball.vx, ball.vy); if (sp > 1500) { ball.vx *= 1500 / sp; ball.vy *= 1500 / sp; }
+      ball.x += ball.vx * dt; ball.y += ball.vy * dt; ball.rot += (ball.vx * .004) * dt * 4;
+      if (ball.y < BR) { ball.y = BR; ball.vy = Math.abs(ball.vy) * .85; }
+      if (ball.y > M.H - BR) { ball.y = M.H - BR; ball.vy = -Math.abs(ball.vy) * .85; }
+      const mouth = Math.abs(ball.y - M.H / 2) < GOAL - BR * .4;
+      for (const side of [0, 1]) {
+        const out = side ? ball.x > M.W - BR : ball.x < BR;
+        if (!out) continue;
+        if (!mouth) { ball.x = side ? M.W - BR : BR; ball.vx = (side ? -1 : 1) * Math.abs(ball.vx) * .85; continue; }
+        const deep = side ? ball.x > M.W + BR * .6 : ball.x < -BR * .6;
+        if (deep) { if (host && playing()) scored(side ? 0 : 1); ball.x = side ? M.W + BR * .6 : -BR * .6; ball.vx = 0; }
+      }
+    }
+    function goalFx(tm) {
+      const gx = tm ? 0 : M.W;   // 晨光隊（0）攻右邊的門
+      Sound.boom(); setTimeout(() => Sound.gift(false), 300);
+      burst(gx, M.H / 2, 90, { emo: ['🌸', '🌼', '✿', '⭐', '✨', '🌷'], speed: 520, life: 2.2, size: 1.3, dir: tm ? 0 : Math.PI, spread: 1.3 });
+      burst(gx, M.H / 2, 120, { cols: ['255,236,190', '255,200,235', '255,255,255', '190,220,255'], speed: 620, life: 1.6 });
+      say(`🌸 BOOM！ ${TEAM[tm].n()} ${L('進球了 ✦', 'scores ✦')}`, 2.4, true);
+    }
+
+    /* ---------- 搶救小星球：撿、送、危險 ---------- */
+    function hazNow(t) { return haz.filter(h => t >= h.t0 && t < h.t0 + h.dur); }
+    function hazardsOn(p, dt, ab, act, isBot) {
+      const t = gt(); if (t < 0) return;
+      for (const h of hazNow(t)) {
+        const steady = act && ab.k === 'steady';
+        if (h.k === 'wind' && !steady) { p.vx += Math.cos(h.a) * 640 * dt; p.vy += Math.sin(h.a) * 640 * dt; }
+        if (h.k === 'hole') {
+          const dx = h.x - p.x, dy = h.y - p.y, d = Math.hypot(dx, dy) || 1;
+          if (d < 440 && !steady) { const f = (1 - d / 440) * 1100 * dt; p.vx += dx / d * f; p.vy += dy / d * f; }
+          if (d < 48) {
+            const sp = spawnOf(isBot ? +Object.keys(bots).find(k => bots[k] === p) : mySlot);
+            p.x = sp[0]; p.y = sp[1]; p.vx = p.vy = 0; p.stun = .6; burst(h.x, h.y, 30, { cols: ['200,160,255', '120,90,220'], speed: 200 });
+            if (p.c) { p.c = ''; if (!isBot) say(L('🕳️ 被小黑洞吸走了⋯手上的東西都掉了', '🕳️ Sucked into the black hole… you dropped everything'), 2.6); }
+          }
+        }
+        if (h.k === 'meteor') for (const s of h.st) {
+          const at = h.t0 + s.t;
+          if (at <= lastGt || at > t) continue;
+          if (Math.hypot(s.x - p.x, s.y - p.y) < 74 && !(act && ab.k === 'float')) {
+            p.stun = 1; const dx = p.x - s.x, dy = p.y - s.y, d = Math.hypot(dx, dy) || 1; p.vx = dx / d * 420; p.vy = dy / d * 420;
+            if (p.c) p.c = p.c.slice(1);
+            if (!isBot) { say(L('🌠 被流星打到了！', '🌠 Hit by a meteor!'), 1.8); Sound.note(110, { dur: .6, gain: .1 }); }
+          }
+        }
+      }
+    }
+    function tryPick() {
+      if (me.c.length >= 3) return;
+      const t = gt();
+      for (const it of items) {
+        if (claimed[it.i] || t < it.at || Math.hypot(it.x - me.x, it.y - me.y) > PR + 24) continue;
+        claimed[it.i] = rt.uid; me.c += it.k; Sound.chime(me.c.length * .3);
+        burst(it.x, it.y, 12, { cols: ['255,236,190', '255,255,255'], speed: 140, life: .7 });
+        rt.D.set(rt.D.ref(rt.db, R + 'items/' + it.i), rt.uid).catch(() => { const j = me.c.lastIndexOf(String(it.k)); if (j >= 0) me.c = me.c.slice(0, j) + me.c.slice(j + 1); });
+        send(true);
+        if (me.c.length >= 3) say(L('拿滿 3 個了，帶回中央的小星球吧 🪐', 'Hands full (3) — bring them to the planet 🪐'), 2);
+        return;
+      }
+    }
+    function tryDeliver() {
+      if (!me.c || Math.hypot(me.x - M.W / 2, me.y - M.H / 2) > PLR + PR + 16) return;
+      const n = me.c.length; me.del += n; deliverFx(me.x, me.y, me.c); me.c = '';
+      rt.D.set(rt.D.ref(rt.db, R + 'del/' + rt.uid), { n: me.del, tm: String(teamOf(mySlot)) }).catch(e => { console.warn('del:', e); });
+      Sound.ding(.3); send(true);
+    }
+    function deliverFx(x, y, c) {
+      [...c].forEach((k, j) => setTimeout(() => burst(lerp(x, M.W / 2, .7), lerp(y, M.H / 2, .7), 8, { emo: [ITEMS[+k].e], speed: 120, life: .9 }), j * 120));
+      burst(M.W / 2, M.H / 2, 24, { cols: ['255,236,190', '200,255,210', '190,220,255'], speed: 260 });
+    }
+
+    /* ---------- 自己的寵物 ---------- */
+    function myInput() {
+      let x = input.x, y = input.y;
+      const K = input.keys;
+      if (K.has('ArrowLeft') || K.has('a')) x -= 1; if (K.has('ArrowRight') || K.has('d')) x += 1;
+      if (K.has('ArrowUp') || K.has('w')) y -= 1; if (K.has('ArrowDown') || K.has('s')) y += 1;
+      const l = Math.hypot(x, y); if (l > 1) { x /= l; y /= l; }
+      return [x, y];
+    }
+    function stepMe(dt) {
+      const ab = abilOf(myPet), act = time - me.abT < ab.dur, [ix, iy] = ended ? [0, 0] : myInput();
+      let sp = SPEED * (act && ab.k === 'dash' ? 2.3 : act && ab.k === 'float' ? 1.3 : 1);
+      if (me.stun > 0) { me.stun -= dt; sp = 0; }
+      const k = 1 - Math.exp(-(act && ab.k === 'float' ? 5 : 10) * dt);
+      me.vx += (ix * sp - me.vx) * k; me.vy += (iy * sp - me.vy) * k;
+      if (mode === 'save' && playing()) hazardsOn(me, dt, ab, act, false);
+      me.x = clamp(me.x + me.vx * dt, PR, M.W - PR); me.y = clamp(me.y + me.vy * dt, PR, M.H - PR);
+      if (Math.abs(me.vx) > 20) me.f = me.vx > 0 ? 1 : -1;
+      // 互相推擠（漂浮中可以穿過去）
+      if (!(act && ab.k === 'float')) {
+        const ps = [...others.values()].map(o => [o.dx, o.dy]).concat(Object.values(bots).map(b => [b.dx, b.dy]));
+        if (mode === 'save') ps.push([M.W / 2, M.H / 2, PLR]);
+        for (const [x, y, r] of ps) {
+          const dx = me.x - x, dy = me.y - y, d = Math.hypot(dx, dy) || .01, min = (r || PR) + PR;
+          if (d < min) { const push = (min - d) * (act && ab.k === 'steady' ? .2 : .6); me.x += dx / d * push; me.y += dy / d * push; }
+        }
+      }
+      if (!playing()) return;
+      if (mode === 'ball' && hitBall(me, ab, time - me.abT) && time - me.kickAt > .08) {
+        me.kickAt = time;
+        if (!isHost()) { me.kn++; me.kx = r1(clamp(ball.vx, -2000, 2000)); me.ky = r1(clamp(ball.vy, -2000, 2000)); ball.lock = performance.now() + 280; send(true); }
+      }
+      if (mode === 'save') { tryPick(); tryDeliver(); }
+    }
+    function useAbility() {
+      if (!on || ended || time - me.abT < CD || me.stun > 0) return;
+      const ab = abilOf(myPet); me.abT = time; me.ab++;
+      if (ab.k === 'blink') {
+        let [dx, dy] = myInput(); if (!dx && !dy) { dx = me.vx; dy = me.vy; } if (!dx && !dy) dx = me.f;
+        const l = Math.hypot(dx, dy) || 1; me.ghost = { x: me.x, y: me.y, t: time };
+        me.x = clamp(me.x + dx / l * 180, PR, M.W - PR); me.y = clamp(me.y + dy / l * 180, PR, M.H - PR);
+      }
+      Sound.chime(1.2); burst(me.x, me.y, 18, { cols: ['255,240,200', '255,200,235'], speed: 180, life: .7 }); send(true);
+    }
+    function send(force) {
+      if (!rt || !code || !on) return;
+      const now = performance.now(), v = { x: r1(me.x), y: r1(me.y), vx: r1(me.vx), vy: r1(me.vy), ab: me.ab, c: me.c, kn: me.kn, kx: me.kx, ky: me.ky };
+      const key = JSON.stringify(v);
+      if (!force && (now - sentAt < 100 || (key === sentKey && now - sentAt < 1000))) return;
+      sentAt = now; sentKey = key; v.t = rt.now();
+      rt.D.set(rt.D.ref(rt.db, R + 's/' + rt.uid), v).catch(e => console.warn('s:', e));
+    }
+
+    /* ---------- 每一格 ---------- */
+    function loop(t) {
+      if (!on) return;
+      const dt = Math.min(.05, (t - lastT) / 1000 || 0); lastT = t; time += dt;
+      try { update(dt); draw(dt); } catch (e) { console.warn('arena:', e); }
+      raf = requestAnimationFrame(loop);
+    }
+    let lastSec = -1;
+    function update(dt) {
+      if (!rt || !code) return;
+      elect();
+      stepMe(dt);
+      if (isHost() && hostW) hostTick(dt);
+      if (mode === 'ball' && playing()) ballStep(dt);
+      // 別人的寵物：往他們最新的位置平滑地移過去（稍微往前預測一點）
+      const now = rt.now();
+      for (const o of [...others.values(), ...(isHost() ? [] : Object.values(bots))]) {
+        if (o.x === undefined) continue;
+        const ahead = clamp((now - (o.t || now)) / 1000, 0, .25), tx = o.x + o.vx * ahead, ty = o.y + o.vy * ahead, k = 1 - Math.exp(-12 * dt);
+        if (Math.hypot(tx - o.dx, ty - o.dy) > 300) { o.dx = tx; o.dy = ty; } else { o.dx += (tx - o.dx) * k; o.dy += (ty - o.dy) * k; }
+      }
+      send(false);
+      const T = gt();
+      if (room.state === 'play' && T < 0 && T > -4) { const s = Math.ceil(-T); if (s !== lastSec) { lastSec = s; say(String(s), .9, true); Sound.note(523.25, { dur: .3, gain: .08 }); } }
+      if (room.state === 'play' && T >= 0 && lastSec > 0) { lastSec = 0; say('START ✦', 1.2, true); Sound.ding(); ui(); }
+      if (mode === 'save' && room.state === 'play' && T >= 0) {
+        for (const h of hazNow(T)) if (!hazSeen.has(h)) {
+          hazSeen.add(h); Sound.whoosh(1.4);
+          say({ wind: L('🌪️ 星雲風吹過來了！', '🌪️ A nebula wind is blowing!'), hole: L('🕳️ 小黑洞出現了，別靠太近！', '🕳️ A small black hole appeared — keep away!'), meteor: L('🌠 流星雨！看到紅圈就快閃開', '🌠 Meteor shower! Dodge the red circles') }[h.k], 2.6);
+        }
+        lastGt = T;
+      }
+      if (room.state && (room.state === 'end' || (room.state === 'play' && T >= M.dur)) && !ended && room.startAt) finish();
+      hud();
+    }
+
+    /* ---------- 結束：沒有輸家，兩隊一起跳 Ending Dance ---------- */
+    async function finish() {
+      ended = true; endT = time; input.stick = null; ui();
+      say(L('時間到 ✦', 'Time\'s up ✦'), 1.8, true);
+      const mix = [0, 0, 0, 0, 0], ps = Object.values(room.p);
+      ps.forEach(p => { for (let i = 0; i < 5; i++) mix[i] += +((p.b || {})[i]) || 3; });
+      const avg = mix.map(v => ps.length ? v / ps.length : 3);
+      await sleepMs(1800); if (!on) return;
+      if (mode === 'save') {
+        Sound.boom(); burst(M.W / 2, M.H / 2, 180, { emo: ['🌸', '🌳', '🌈', '✨', '🌷', '🍃', '🦋'], speed: 520, life: 2.6, size: 1.2 });
+        say('BOOM ✨', 2, true); await sleepMs(2200); if (!on) return;
+      }
+      Sound.galaxy(avg, 14);
+      say(L('ENDING DANCE｜兩隊一起跳舞 ✦', 'ENDING DANCE · both teams dance together ✦'), 4, true);
+      await sleepMs(9000); if (!on) return;
+      $('arEnd').classList.add('on'); endText();
+      setTimeout(() => { if (state === 'universe') { Sound.wxStart('all', null); Sound.wxLevel(.55, 3); } }, 6000);
+    }
+    function endText() {
+      const t0 = TEAM[0].n(), t1 = TEAM[1].n();
+      if (mode === 'ball') {
+        const sc = W0.sc || {}, a = +sc[0] || 0, b = +sc[1] || 0;
+        $('arEndT').textContent = `⭐ ${t0} ${a} : ${b} ${t1}`;
+        $('arEndS').textContent = a + b ? L(`這場一共炸開了 ${a + b} 次花和星星。`, `${a + b} goals blossomed into flowers and stars.`) : L('這場沒有進球，但大家一起追著星星跑了好久。', 'No goals this time, but everyone chased the star together.');
+      } else {
+        const a = teamTot(0), b = teamTot(1), pct = Math.round(life() * 100);
+        $('arEndT').textContent = L(`🪐 小星球恢復了 ${pct}% 的生命`, `🪐 The little planet is ${pct}% alive again`);
+        $('arEndS').textContent = L(`${t0} 帶回 ${a} 份、${t1} 帶回 ${b} 份。兩隊其實都在修復同一顆星球。`, `${t0} brought ${a}, ${t1} brought ${b}. Both teams were healing the same planet.`);
+      }
+    }
+
+    /* ---------- 畫面 ---------- */
+    function draw(dt) {
+      g.clearRect(0, 0, cw, ch);
+      // 鏡頭：跟著自己的寵物；整個場地放得下就置中
+      const fx0 = ended ? M.W / 2 : me.x, fy0 = ended ? M.H / 2 : me.y;   // 結束跳舞時看中間
+      const vw = cw / S, vh = ch / S, tx = M.W <= vw ? M.W / 2 : clamp(fx0, vw / 2, M.W - vw / 2), ty = M.H <= vh ? M.H / 2 : clamp(fy0, vh / 2, M.H - vh / 2);
+      const k = camX ? 1 - Math.exp(-6 * dt) : 1; camX += (tx - camX) * k; camY += (ty - camY) * k;
+      const bg = g.createLinearGradient(0, 0, 0, ch); bg.addColorStop(0, '#0b0826'); bg.addColorStop(1, '#05040f'); g.fillStyle = bg; g.fillRect(0, 0, cw, ch);
+      for (const s of stars) {
+        const x = ((s.x * cw - camX * S * s.z * .1) % cw + cw) % cw, y = ((s.y * ch - camY * S * s.z * .1) % ch + ch) % ch;
+        g.globalAlpha = .35 + .35 * Math.sin(time * 1.5 + s.p); g.fillStyle = '#fff'; g.beginPath(); g.arc(x, y, s.s, 0, TAU); g.fill();
+      }
+      g.globalAlpha = 1;
+      if (mode === 'ball') drawPitch(); else drawSpace();
+      // 寵物
+      const list = [];
+      const T = ended ? time - endT : 0;
+      slotList().forEach((s, idx) => {
+        let o;
+        if (s.me) o = { x: me.x, y: me.y, vx: me.vx, vy: me.vy, f: me.f, abT: me.abT, c: me.c, ghost: me.ghost, stun: me.stun };
+        else if (s.uid) { const q = others.get(s.uid); if (!q || q.dx === undefined) return; o = { x: q.dx, y: q.dy, vx: q.vx, vy: q.vy, f: q.f, abT: q.abT, c: q.c, ghost: q.ghost }; }
+        else { if (room.state === 'wait' || !bots[s.slot]) return; const b = bots[s.slot]; o = { x: b.dx, y: b.dy, vx: b.vx, vy: b.vy, f: b.f, abT: b.abT, c: b.c, stun: b.stun }; }
+        if (ended && T > 1.8 + (mode === 'save' ? 2.2 : 0)) {   // 跳舞：大家排成一圈
+          const cx = M.W / 2, cy = M.H / 2, rr = mode === 'save' ? PLR + 110 : 200, a = idx / 6 * TAU + time * .5, u = clamp((T - 2) / 2.4);
+          o = Object.assign({}, o, { x: lerp(o.x, cx + Math.cos(a) * rr, easeIO(u)), y: lerp(o.y, cy + Math.sin(a) * rr * .75, easeIO(u)), dance: u });
+        }
+        list.push(Object.assign(o, s));
+      });
+      if (mode === 'ball' && !ended) list.push({ isBall: true, y: ball.y });
+      list.sort((a, b) => a.y - b.y);
+      for (const o of list) o.isBall ? drawBall() : drawPetAt(o);
+      // 粒子
+      for (let i = fx.length - 1; i >= 0; i--) {
+        const p = fx[i]; p.age += dt; if (p.age > p.life) { fx.splice(i, 1); continue; }
+        p.vx *= Math.pow(.25, dt); p.vy *= Math.pow(.25, dt); p.vy += p.g * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+        const [x, y] = toS(p.x, p.y), a = 1 - p.age / p.life;
+        g.globalAlpha = a;
+        if (p.e) { g.font = `${Math.round(22 * p.s * S + 6)}px serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(p.e, x, y); }
+        else { g.fillStyle = `rgba(${p.c},1)`; g.beginPath(); g.arc(x, y, (2 + 2 * a) * p.s * Math.max(.6, S), 0, TAU); g.fill(); }
+      }
+      g.globalAlpha = 1;
+      // 搖桿
+      if (input.stick) {
+        const s = input.stick; g.strokeStyle = 'rgba(255,255,255,.25)'; g.lineWidth = 2; g.beginPath(); g.arc(s.x0, s.y0, 52, 0, TAU); g.stroke();
+        g.fillStyle = 'rgba(255,236,200,.35)'; g.beginPath(); g.arc(s.x0 + input.x * 52, s.y0 + input.y * 52, 22, 0, TAU); g.fill();
+      }
+    }
+    function glowAt(x, y, r, c, a) {
+      if (r <= 0 || a <= 0) return;
+      const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, `rgba(${c},${a})`); gr.addColorStop(1, `rgba(${c},0)`);
+      g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+    }
+    function drawPitch() {
+      const [x0, y0] = toS(0, 0), w = M.W * S, h = M.H * S;
+      g.save();
+      g.fillStyle = 'rgba(120,110,255,.05)'; g.strokeStyle = 'rgba(210,200,255,.35)'; g.lineWidth = 2;
+      g.beginPath(); g.roundRect ? g.roundRect(x0, y0, w, h, 40 * S) : g.rect(x0, y0, w, h); g.fill(); g.stroke();
+      g.setLineDash([6, 10]); g.beginPath(); g.moveTo(x0 + w / 2, y0); g.lineTo(x0 + w / 2, y0 + h); g.stroke();
+      g.beginPath(); g.arc(x0 + w / 2, y0 + h / 2, 150 * S, 0, TAU); g.stroke(); g.setLineDash([]);
+      // 星門：左邊是晨光隊守的、右邊是夜光隊守的
+      for (const side of [0, 1]) {
+        const c = TEAM[side].c.join(','), gx = side ? x0 + w : x0, gy0 = y0 + (M.H / 2 - GOAL) * S, gy1 = y0 + (M.H / 2 + GOAL) * S;
+        g.globalCompositeOperation = 'lighter'; glowAt(gx, (gy0 + gy1) / 2, GOAL * S * 1.2, c, .22 + .08 * Math.sin(time * 2 + side)); g.globalCompositeOperation = 'source-over';
+        g.strokeStyle = `rgba(${c},.9)`; g.lineWidth = 5 * Math.max(.6, S); g.lineCap = 'round';
+        g.beginPath(); g.moveTo(gx, gy0); g.quadraticCurveTo(gx + (side ? 1 : -1) * 70 * S, (gy0 + gy1) / 2, gx, gy1); g.stroke();
+        g.fillStyle = `rgba(${c},.95)`; [gy0, gy1].forEach(y => { g.beginPath(); g.arc(gx, y, 7 * Math.max(.6, S), 0, TAU); g.fill(); });
+      }
+      g.restore();
+    }
+    function drawBall() {
+      const [x, y] = toS(ball.x, ball.y), r = BR * S;
+      g.save(); g.globalCompositeOperation = 'lighter';
+      glowAt(x, y, r * 3.2, '255,226,150', .35 + .1 * Math.sin(time * 4)); glowAt(x, y, r * 1.5, '255,250,230', .5);
+      g.globalCompositeOperation = 'source-over'; g.translate(x, y); g.rotate(ball.rot);
+      const gr = g.createRadialGradient(-r * .3, -r * .3, r * .1, 0, 0, r); gr.addColorStop(0, '#fffbe8'); gr.addColorStop(1, '#ffc95e');
+      g.fillStyle = gr; g.beginPath();
+      for (let i = 0; i < 10; i++) { const a = i / 10 * TAU - Math.PI / 2, rr = i % 2 ? r * .52 : r; g.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+      g.closePath(); g.fill(); g.restore();
+    }
+    function drawSpace() {
+      const [x0, y0] = toS(0, 0);
+      g.strokeStyle = 'rgba(210,200,255,.18)'; g.lineWidth = 2; g.setLineDash([4, 12]); g.strokeRect(x0, y0, M.W * S, M.H * S); g.setLineDash([]);
+      const T = gt(), hz = room.state === 'play' ? hazNow(T) : [];
+      // 危險
+      for (const h of hz) {
+        if (h.k === 'hole') {
+          const [x, y] = toS(h.x, h.y), u = clamp((T - h.t0) / .8) * clamp((h.t0 + h.dur - T) / .8);
+          g.save(); g.globalAlpha = u;
+          const gr = g.createRadialGradient(x, y, 0, x, y, 440 * S); gr.addColorStop(0, 'rgba(10,0,30,.95)'); gr.addColorStop(.12, 'rgba(60,20,120,.7)'); gr.addColorStop(1, 'rgba(60,20,120,0)');
+          g.fillStyle = gr; g.beginPath(); g.arc(x, y, 440 * S, 0, TAU); g.fill();
+          g.strokeStyle = 'rgba(200,160,255,.6)'; g.lineWidth = 2;
+          for (let k = 0; k < 3; k++) { g.beginPath(); g.arc(x, y, (60 + k * 40) * S, time * (2 + k) , time * (2 + k) + 4); g.stroke(); }
+          g.restore();
+        }
+        if (h.k === 'meteor') for (const s of h.st) {
+          const at = h.t0 + s.t, d = at - T, [x, y] = toS(s.x, s.y);
+          if (d > 0 && d < 1.1) { g.strokeStyle = `rgba(255,110,110,${.4 + .5 * (1 - d)})`; g.lineWidth = 2; g.beginPath(); g.arc(x, y, 74 * S * (.4 + .6 * (1 - d / 1.1)), 0, TAU); g.stroke();
+            const mx = x + d * 260 * S, my = y - d * 420 * S; g.globalCompositeOperation = 'lighter'; glowAt(mx, my, 26 * S + 6, '255,200,150', .9); g.globalCompositeOperation = 'source-over'; }
+          if (d <= 0 && d > -.15 && !s.boom) { s.boom = 1; burst(s.x, s.y, 26, { cols: ['255,200,150', '255,140,110', '255,255,255'], speed: 320, life: .8 }); }
+        }
+        if (h.k === 'wind') {
+          g.save(); g.strokeStyle = 'rgba(200,230,255,.25)'; g.lineWidth = 2; const ca = Math.cos(h.a), sa = Math.sin(h.a);
+          for (let k = 0; k < 26; k++) { const ph = (time * .9 + k * .137) % 1, ox = (k * 97.3 % cw), oy = (k * 57.1 % ch), px = ox + ca * (ph - .5) * cw, py = oy + sa * (ph - .5) * ch; g.beginPath(); g.moveTo(px, py); g.lineTo(px - ca * 60, py - sa * 60); g.stroke(); }
+          g.restore();
+        }
+      }
+      // 物資
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      for (const it of items) {
+        if (claimed[it.i] || (room.state === 'play' && T < it.at) || room.state !== 'play') continue;
+        const [x, y] = toS(it.x, it.y + Math.sin(time * 2 + it.ph) * 6); if (x < -40 || y < -40 || x > cw + 40 || y > ch + 40) continue;
+        g.globalCompositeOperation = 'lighter'; glowAt(x, y, 30 * S + 8, '255,240,210', .35); g.globalCompositeOperation = 'source-over';
+        g.font = `${Math.round(30 * S + 8)}px serif`; g.fillText(ITEMS[it.k].e, x, y);
+      }
+      // 中央的小星球：帶回來的越多，越有生命
+      const [px, py] = toS(M.W / 2, M.H / 2), r = PLR * S, L1 = ended && time - endT > 3.6 ? 1 : life(), tot = teamTot(0) + teamTot(1);
+      g.save(); g.globalCompositeOperation = 'lighter'; glowAt(px, py, r * (1.8 + L1 * 1.4), `${r1(160 + 90 * L1)},${r1(170 + 70 * L1)},${r1(200 - 40 * L1)}`, .2 + L1 * .35); g.restore();
+      const gr = g.createRadialGradient(px - r * .35, py - r * .35, r * .1, px, py, r);
+      gr.addColorStop(0, `rgb(${r1(150 + 60 * L1)},${r1(150 + 90 * L1)},${r1(160 + 60 * L1)})`); gr.addColorStop(1, `rgb(${r1(60 + 10 * L1)},${r1(62 + 80 * L1)},${r1(80 + 90 * L1)})`);
+      g.fillStyle = gr; g.beginPath(); g.arc(px, py, r, 0, TAU); g.fill();
+      g.save(); g.beginPath(); g.arc(px, py, r, 0, TAU); g.clip();
+      const n = Math.min(tot, 80);
+      for (let k = 0; k < n; k++) {   // 海洋和草地的斑點
+        const a = k * 2.39996, d = r * (.25 + .55 * ((k * .618) % 1));
+        g.fillStyle = k % 4 === 0 ? 'rgba(90,170,255,.55)' : k % 4 === 2 ? 'rgba(110,210,120,.55)' : 'rgba(255,230,160,.25)';
+        g.beginPath(); g.arc(px + Math.cos(a) * d, py + Math.sin(a) * d, r * (.12 + .05 * (k % 3)), 0, TAU); g.fill();
+      }
+      g.restore();
+      const deco = ['🌳', '🌸', '🌷', '🌿', '🍄', '🌼'];
+      g.font = `${Math.round(24 * S + 6)}px serif`;
+      for (let k = 0; k < Math.min(n, 36); k++) { const a = k * 2.39996 - Math.PI / 2; g.fillText(k % 4 === 1 ? '✨' : deco[k % deco.length], px + Math.cos(a) * r * 1.02, py + Math.sin(a) * r * 1.02); }
+      if (L1 >= 1 || (ended && time - endT > 3.6)) { g.font = `${Math.round(54 * S + 10)}px serif`; g.fillText('🌈', px, py - r * 1.35); }
+      g.fillStyle = 'rgba(255,245,225,.9)'; g.font = `300 ${Math.round(clamp(r * .22, 11, 18))}px ${bodyFont}`;
+      g.fillText(`${Math.round(life() * 100)}%`, px, py + r + 22 * S + 8);
+    }
+    function drawPetAt(o) {
+      const [x, y] = toS(o.x, o.y), s = PR * S * 2.5, pet = o.petIdx | 0, ab = abilOf(pet), act = time - (o.abT || -9) < ab.dur;
+      const tc = TEAM[teamOf(o.slot)].c.join(','), moving = Math.hypot(o.vx || 0, o.vy || 0) > 30;
+      const hop = o.dance ? Math.abs(Math.sin(time * 6 + o.slot)) * 18 * S * o.dance : moving ? Math.abs(Math.sin(time * 12 + o.slot)) * 6 * S : Math.sin(time * 2 + o.slot) * 2 * S;
+      if (o.ghost && time - o.ghost.t < 1) { const [gx, gy] = toS(o.ghost.x, o.ghost.y); g.save(); g.globalAlpha = .4 * (1 - (time - o.ghost.t)); drawImg(pet, gx, gy, s, o.f); g.restore(); }
+      // 隊伍光環
+      g.save(); g.globalCompositeOperation = 'lighter'; glowAt(x, y + PR * S * .7, PR * S * 1.6, tc, o.me ? .5 : .3); g.restore();
+      g.strokeStyle = `rgba(${tc},.8)`; g.lineWidth = o.me ? 3 : 1.6; g.beginPath(); g.ellipse(x, y + PR * S * .85, PR * S * 1.05, PR * S * .32, 0, 0, TAU); g.stroke();
+      if (act) {
+        g.save(); g.globalCompositeOperation = 'lighter';
+        if (ab.k === 'dash') glowAt(x - (o.vx || 0) * .08 * S, y - (o.vy || 0) * .08 * S, s * .7, '255,150,90', .6);
+        if (ab.k === 'steady') { g.strokeStyle = 'rgba(230,200,140,.8)'; g.lineWidth = 4; g.beginPath(); g.arc(x, y, s * .55, 0, TAU); g.stroke(); }
+        if (ab.k === 'float') glowAt(x, y, s * .75, '170,220,255', .45);
+        g.restore();
+      }
+      g.save(); if (o.stun > 0) g.globalAlpha = .6 + .4 * Math.sin(time * 30);
+      drawImg(pet, x, y - hop - (act && ab.k === 'float' ? 14 * S : 0), s, o.f, o.dance ? Math.sin(time * 6 + o.slot) * .25 : moving ? Math.sin(time * 12) * .06 : 0);
+      g.restore();
+      if (ab.k === 'float' && act) { g.strokeStyle = 'rgba(200,235,255,.6)'; g.lineWidth = 1.5; g.beginPath(); g.arc(x, y - 14 * S, s * .58, 0, TAU); g.stroke(); }
+      // 手上的物資繞著寵物轉
+      if (o.c) { g.font = `${Math.round(16 * S + 6)}px serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; [...o.c].forEach((k, j) => { const a = time * 2.4 + j * TAU / o.c.length; g.fillText(ITEMS[+k].e, x + Math.cos(a) * s * .62, y - s * .1 + Math.sin(a) * s * .3); }); }
+      // 名字
+      g.textAlign = 'center'; g.textBaseline = 'bottom'; g.font = `${o.me ? 500 : 300} ${Math.round(clamp(12 * S + 5, 10, 15))}px ${bodyFont}`;
+      g.fillStyle = o.me ? '#fff3dc' : `rgba(${tc},.95)`;
+      g.fillText((o.me ? '▼ ' : '') + (o.bot ? '✦ ' + o.petName : o.petName), x, y - s * .55 - hop);
+    }
+    function drawImg(i, x, y, s, f = 1, rot = 0) {
+      const im = PET_IMG[i]; if (!imgOK(im)) { g.fillStyle = PETS[i].c; g.beginPath(); g.arc(x, y, s * .35, 0, TAU); g.fill(); return; }
+      g.save(); g.translate(x, y); if (rot) g.rotate(rot); g.scale(f < 0 ? -1 : 1, 1); g.drawImage(im, -s / 2, -s / 2, s, s); g.restore();
+    }
+
+    /* ---------- 介面 ---------- */
+    function hud() {
+      const T = gt(), left = ended || room.state === 'end' ? 0 : room.state === 'play' ? Math.max(0, Math.ceil(M.dur - Math.max(0, T))) : M.dur, mm = Math.floor(left / 60) + ':' + ('0' + (left % 60)).slice(-2);
+      let mid;
+      if (mode === 'ball') { const sc = W0.sc || {}; mid = `${+sc[0] || 0} : ${+sc[1] || 0}`; }
+      else mid = `✦${teamTot(0)} · ✦${teamTot(1)}`;
+      const txt = `${TEAM[0].n()}|${mid}|${TEAM[1].n()}|${mm}`;
+      if (hud.last !== txt) {
+        hud.last = txt;
+        $('arA').textContent = TEAM[0].n(); $('arB').textContent = TEAM[1].n(); $('arSc').textContent = mid; $('arTm').textContent = '⏱ ' + mm;
+        $('arLife').textContent = mode === 'save' ? L(`星球生命 ${Math.round(life() * 100)}%`, `Planet life ${Math.round(life() * 100)}%`) : '';
+      }
+      const cdLeft = Math.max(0, CD - (time - me.abT)), b = $('arAb');
+      b.style.setProperty('--cd', (cdLeft / CD * 360).toFixed(0) + 'deg'); b.classList.toggle('cd', cdLeft > 0);
+      if (room.state === 'wait' && room.createdAt) { const s = Math.max(0, Math.ceil(AUTO - (rt.now() - room.createdAt) / 1000)), t = L(`${s} 秒後自動開始，空位會由星靈 ✦ 補上`, `Starts in ${s}s — Star Sprites ✦ fill empty spots`); if ($('arWN').textContent !== t) $('arWN').textContent = t; }
+    }
+    function ui() {
+      if (!on || !rt) return;
+      const wait = room.state === 'wait' && !ended;
+      root.dataset.s = ended ? 'end' : room.state || 'wait'; root.dataset.m = mode;
+      $('arWait').classList.toggle('on', wait);
+      if (wait) {
+        $('arWT').textContent = mode === 'ball' ? '⭐ 3V3 STAR BALL｜星球球' : '🪐 3V3 SAVE THE PLANET｜搶救小星球';
+        $('arWS').textContent = howTo();
+        $('arCode').textContent = L(`房間代碼 ${code}`, `Room code ${code}`) + (priv ? L('（私人）', ' (private)') : '');
+        const box = $('arTeams'); box.textContent = '';
+        [0, 1].forEach(tm => {
+          const col = document.createElement('div'); col.className = 'ar-team'; col.style.setProperty('--tc', `rgb(${TEAM[tm].c})`);
+          const h = document.createElement('b'); h.textContent = TEAM[tm].n(); col.appendChild(h);
+          slotList().filter(s => teamOf(s.slot) === tm).forEach(s => {
+            const row = document.createElement('button'); row.type = 'button'; row.className = 'ar-slot' + (s.me ? ' me' : '') + (s.bot ? ' empty' : '');
+            if (!s.bot) { const im = document.createElement('img'); im.alt = ''; im.src = (PET_IMG[s.petIdx] || {}).src || ''; row.appendChild(im); }
+            const t = document.createElement('span'); t.textContent = s.bot ? L('等待旅人⋯', 'Waiting…') : `${s.petName}${s.name ? '・' + s.name : ''}`; row.appendChild(t);
+            if (s.bot && teamOf(mySlot) !== tm) { row.title = L('換到這一隊', 'Switch to this team'); row.addEventListener('click', () => moveTo(s.slot)); } else row.disabled = true;
+            col.appendChild(row);
+          });
+          box.appendChild(col);
+        });
+        $('arStart').hidden = !isHost();
+      }
+      const ab = abilOf(myPet); $('arAb').textContent = ab.icon; $('arAb').title = `${ab.n()}：${ab.d()}`; $('arAbN').textContent = ab.n();
+    }
+    function howTo() {
+      const ab = abilOf(myPet);
+      return (mode === 'ball'
+        ? L('拖曳畫面（或用方向鍵）移動寵物，把發光的星星球推進對面的星門。', 'Drag (or use arrow keys) to move your pet and push the glowing star ball into the other team\'s gate.')
+        : L('去宇宙各處撿 💧星露 ✨星塵 🌱種子 ☀️光球（一次最多 3 個），帶回中央的灰色小星球。小心星雲風、小黑洞和流星雨！', 'Collect 💧 star dew, ✨ stardust, 🌱 seeds and ☀️ light orbs (3 at a time) and bring them to the grey planet in the middle. Watch out for nebula wind, black holes and meteors!'))
+        + ' ' + L(`你的星座能力是 ${ab.icon} ${ab.n()}：${ab.d()}（空白鍵或右下角按鈕）。`, `Your sign's power is ${ab.icon} ${ab.n()}: ${ab.d()} (Space or the button).`);
+    }
+    async function moveTo(slot) {
+      if (joining) return; joining = true;
+      try {
+        const { D, db } = rt, old = mySlot;
+        await D.set(D.ref(db, R + 'slots/' + slot), rt.uid);
+        await D.update(D.ref(db), { [R + 'p/' + rt.uid + '/slot']: String(slot), [R + 'slots/' + old]: null });
+        mySlot = slot; disc.forEach(d => d.cancel()); disc = ['slots/' + slot, 'p/' + rt.uid, 's/' + rt.uid].map(k => D.onDisconnect(D.ref(db, R + k))); disc.forEach(d => d.remove());
+        const sp = spawnOf(slot); me.x = sp[0]; me.y = sp[1]; me.f = teamOf(slot) ? -1 : 1; ui();
+      } catch (e) { console.warn('switch:', e); }
+      finally { joining = false; }
+    }
+
+    /* ---------- 輸入 ---------- */
+    cv.addEventListener('pointerdown', e => {
+      if (!on || ended) return; e.preventDefault();
+      cv.setPointerCapture && cv.setPointerCapture(e.pointerId);
+      input.stick = { id: e.pointerId, x0: e.clientX, y0: e.clientY }; input.x = input.y = 0;
+    });
+    cv.addEventListener('pointermove', e => {
+      const s = input.stick; if (!s || s.id !== e.pointerId) return;
+      const dx = e.clientX - s.x0, dy = e.clientY - s.y0, d = Math.hypot(dx, dy), m = Math.min(1, d / 52);
+      input.x = d ? dx / d * m : 0; input.y = d ? dy / d * m : 0;
+    });
+    const up = e => { if (input.stick && input.stick.id === e.pointerId) { input.stick = null; input.x = input.y = 0; } };
+    cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+    window.addEventListener('keydown', e => {
+      if (!on) return;
+      if (e.key === ' ' || e.key === 'Shift') { e.preventDefault(); useAbility(); return; }
+      const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+      if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'w', 'a', 's', 'd'].includes(k)) { input.keys.add(k); e.preventDefault(); e.stopImmediatePropagation(); }
+    }, true);
+    window.addEventListener('keyup', e => { const k = e.key.length === 1 ? e.key.toLowerCase() : e.key; input.keys.delete(k); });
+    $('arAb').addEventListener('pointerdown', e => { e.preventDefault(); useAbility(); });
+    $('arStart').addEventListener('click', () => startGame());
+    $('arShare').addEventListener('click', async () => {
+      const url = location.origin + location.pathname + '?play=' + code;
+      try { if (navigator.share) await navigator.share({ title: 'INNERVERSE', text: L('來我的宇宙一起玩 ✦', 'Come play in my universe ✦'), url }); else { await navigator.clipboard.writeText(url); say(L('邀請連結複製好了，傳給朋友吧 ✦', 'Invite link copied ✦'), 2.4); } }
+      catch (e) { say(code, 4, true); }
+    });
+    [$('arLeave'), $('arX'), $('arHome')].forEach(b => b.addEventListener('click', () => close()));
+    $('arAgain').addEventListener('click', () => { const m = mode; close().then(() => play(m, false)); });
+
+    /* ---------- 大廳 ---------- */
+    function openLobby() {
+      const msg = $('gmMsg'); msg.textContent = '';
+      $('gmTitle').textContent = L('一起玩', 'Play together');
+      $('gmSub').textContent = L('六隻寵物、兩隊、一場遊戲。人不夠的時候，星靈 ✦ 會來補位。', 'Six pets, two teams, one game. Star Sprites ✦ fill in when there aren\'t enough travelers.');
+      $('gmBall').innerHTML = ''; $('gmSave').innerHTML = '';
+      [['gmBall', '⭐ 3V3 STAR BALL', L('星球球', 'Star Ball'), L('三隻對三隻，把巨大的發光星星球推進對方的星門。進球不會喊 GOAL，星門會直接炸成幾百朵花和星星。', 'Three vs three: push a giant glowing star into the other gate. A goal bursts into hundreds of flowers and stars.')],
+        ['gmSave', '🪐 3V3 SAVE THE PLANET', L('搶救小星球', 'Save the Planet'), L('兩隊比賽收集星露、星塵、種子和光球，躲開星雲風、小黑洞和流星雨，最後一起讓灰色的小星球長出生命。', 'Race to gather star dew, stardust, seeds and light orbs, dodge wind, black holes and meteors, and bring a grey planet back to life together.')]]
+        .forEach(([id, t, s, d]) => { const b = $(id); const x = document.createElement('b'); x.textContent = t; const y = document.createElement('span'); y.textContent = s; const z = document.createElement('small'); z.textContent = d; b.append(x, y, z); });
+      $('gmPrivL').textContent = L('建立私人房間（只有拿到代碼的朋友能加入）', 'Private room (only friends with the code can join)');
+      $('gmCode').placeholder = L('朋友給的房間代碼', 'Room code from a friend'); $('gmJoin').textContent = L('加入', 'Join'); $('gmClose').textContent = L('回到宇宙', 'Back to the universe');
+      dlg.classList.add('on');
+    }
+    function lobbyErr(e) {
+      const m = e && e.code === 'no_planet' ? L('完成測驗、有了自己的星球之後，就能一起玩喔。', 'Once you have your own planet, you can play too.')
+        : e && e.code === 'no_room' ? L('找不到這個房間，可能已經結束了。', 'That room doesn\'t exist or has ended.')
+        : e && e.code === 'full' ? L('這個房間已經滿了。', 'That room is full.')
+        : L('星星的訊號斷斷續續的，等一下再試試。', 'The star signal is patchy. Try again in a moment.');
+      $('gmMsg').textContent = m; if (!dlg.classList.contains('on')) { openLobby(); $('gmMsg').textContent = m; }
+    }
+    async function play(m, isPriv) {
+      if (joining) return; joining = true; $('gmMsg').textContent = L('正在找隊友⋯', 'Finding teammates…');
+      try { const c = isPriv ? await create(m, true) : await quick(m); await show(c); }
+      catch (e) { console.warn('play:', e); joining = false; lobbyErr(e); }
+    }
+    async function join(c) {
+      c = String(c || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+      if (!/^[A-HJ-NP-Z2-9]{5}$/.test(c)) { lobbyErr({ code: 'no_room' }); return; }
+      if (joining) return; joining = true;
+      try {
+        await need();
+        const r = (await rt.D.get(rt.D.ref(rt.db, 'rooms/' + c + '/mode'))).val(); if (!r) throw Object.assign(new Error('no_room'), { code: 'no_room' });
+        if (await takeSlot(c) < 0) throw Object.assign(new Error('full'), { code: 'full' });
+        await show(c);
+      } catch (e) { console.warn('join:', e); joining = false; lobbyErr(e); }
+    }
+    async function show(c) {
+      loadPetImages();
+      dlg.classList.remove('on'); on = true; root.classList.add('on'); $('arEnd').classList.remove('on');
+      await enter(c); joining = false; ui();
+      lastT = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop);
+      Sound.ding(.2);
+      if (room.state === 'play' && gt() > 0) say(L('加入比賽 ✦', 'Joined the match ✦'), 1.6, true);
+    }
+    async function close() {
+      const was = on; on = false; cancelAnimationFrame(raf);
+      root.classList.remove('on'); $('arEnd').classList.remove('on'); $('arWait').classList.remove('on'); msgEl.classList.remove('on');
+      offs.forEach(f => { try { f(); } catch (e) {} }); offs = [];
+      if (was && rt && code) {
+        disc.forEach(d => d.cancel().catch(() => {})); disc = [];
+        const u = { [R + 'slots/' + mySlot]: null, [R + 'p/' + rt.uid]: null, [R + 's/' + rt.uid]: null };
+        const left = Object.keys(room.p).filter(k => k !== rt.uid);
+        if (!left.length && room.state === 'wait') u[R + 'open'] = null;   // 最後一個人離開：不再讓別人配對進來
+        try { await rt.D.update(rt.D.ref(rt.db), u); } catch (e) { console.warn('leave:', e); }
+      }
+      code = ''; R = ''; others.clear(); bots = {}; hostW = null; ended = false; joining = false; input.keys.clear(); input.stick = null;
+    }
+    $('gmBall').addEventListener('click', () => play('ball', $('gmPriv').checked));
+    $('gmSave').addEventListener('click', () => play('save', $('gmPriv').checked));
+    $('gmJoin').addEventListener('click', () => join($('gmCode').value));
+    $('gmCode').addEventListener('keydown', e => { if (e.key === 'Enter') join($('gmCode').value); });
+    $('gmClose').addEventListener('click', () => dlg.classList.remove('on'));
+
+    // 自動測試用（網址加上 ?debug=1 才會出現）
+    if (/[?&]debug=1/.test(location.search)) {
+      window.__ar = () => ({ code, mode, state: room.state, host: room.host, me: rt && rt.uid, isHost: isHost(), slot: mySlot, gt: +gt().toFixed(2), x: r1(me.x), y: r1(me.y), c: me.c, del: me.del, ball: [r1(ball.x), r1(ball.y)],
+        sc: W0.sc || null, tot: mode === 'save' ? [teamTot(0), teamTot(1)] : null, others: [...others.keys()].length, bots: Object.keys(bots).length, ended, claimed: Object.keys(claimed).length,
+        items: items.filter(it => !claimed[it.i] && gt() >= it.at).slice(0, 40).map(it => [it.i, r1(it.x), r1(it.y)]) });
+      window.__arIn = (x, y) => { input.x = x; input.y = y; };
+      window.__arAb = () => useAbility();
+      window.__arTp = (x, y) => { me.x = x; me.y = y; };   // 測試：直接移到某個位置
+    }
+    return { openLobby, join, close, get on() { return on; } };
+  })();
+
+  /* ================================================================
      OUR UNIVERSE：多人星球宇宙
      拖曳旋轉、滾輪／雙指縮放、點選飛過去、手勢控制、留下星光
      ================================================================ */
@@ -10816,7 +11760,7 @@ function petSVG(i, opt = {}) {
     const EV = { data: null, t: 0, intro: new Set(), going: false, carry: 0, frags: [], beams: [], doneShown: '', dance: 0, danceMix: null, sending: false };
     const evOn = () => !!(EV.data && EV.data.active);
     async function evPoll() {
-      if (state !== 'universe' || !CONFIG.DATA_ENDPOINT || document.hidden) return;
+      if (state !== 'universe' || !CONFIG.DATA_ENDPOINT || document.hidden || Arena.on) return;
       try {
         const q = { action: 'event' }; if ((Me.get() || {}).pid) { q.uid = Me.uid(); q.join = 1; }
         const d = await apiGet(q, 9000); if (state !== 'universe') return;
@@ -11212,6 +12156,7 @@ function petSVG(i, opt = {}) {
     $('evGo').addEventListener('click', () => evGo());
     $('upMail').addEventListener('click', () => openMail());
     $('uvFriends').addEventListener('click', () => openFriends());
+    $('uvPlay').addEventListener('click', () => { if (sel) back(); Arena.openLobby(); });
     $('frClose').addEventListener('click', () => $('frDlg').classList.remove('on'));
     $('unSend').addEventListener('click', () => sendNote(sel));
     $('unText').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); sendNote(sel); } });
@@ -11394,6 +12339,10 @@ function petSVG(i, opt = {}) {
         Fr.polled = 0; updatePills(); pollInbox();
         if (Fr.openOnArrive) { Fr.openOnArrive = false; setTimeout(() => { if (my === token) openMail(); }, 600); }
         evPoll(); clearInterval(EV.t); EV.t = setInterval(evPoll, 5000);
+        // 3V3 小遊戲：有 Firebase 才開；朋友傳來的 ?play=房間代碼 直接加入
+        $('uvPlay').hidden = !FB.on();
+        const pc = (location.search.match(/[?&]play=([A-Za-z0-9]{5})/) || [])[1];
+        if (pc && FB.on() && !start.played) { start.played = true; Arena.join(pc); }
       } catch (e) { if (!(e instanceof Cancel)) throw e; }
     }
     // 回來時告訴你：有幾位旅人經過你的星球
@@ -11439,6 +12388,7 @@ function petSVG(i, opt = {}) {
 
     function reset(keep) {
       token++; sel = null; hover = null; gifts = []; phase = ''; drag = null; pinch = null; pts.clear();
+      if (Arena.on) Arena.close(); $('gmDlg').classList.remove('on');
       if (Fr.D) { const r = Fr.D.res; Fr.D = null; r(); } clearInterval(Fr.pollT); root.classList.remove('ev-dance', 'ev-on');
       clearInterval(EV.t); EV.going = false; EV.carry = 0; EV.frags = []; EV.beams = []; EV.dance = 0; EV.data = null; $('uvEvent').hidden = true; toastQ.length = 0; clearTimeout(toastT); toastBusy = false; toastEl.classList.remove('on'); ['mailDlg', 'frDlg'].forEach(id => $(id).classList.remove('on'));
       root.className = 'uv'; finEl.classList.remove('on'); $('uvFinBtns').classList.remove('on');
@@ -11485,7 +12435,7 @@ function petSVG(i, opt = {}) {
     if (state === 'feel') drawFeel(dt);
     if (state === 'ritual') drawRitual(dt);
     if (state === 'wuxing') drawWx(dt);
-    if (state === 'universe') Universe.draw(dt);
+    if (state === 'universe' && !Arena.on) Universe.draw(dt);
     drawDust(dt);
     drawGalaxy();
     drawLinks();

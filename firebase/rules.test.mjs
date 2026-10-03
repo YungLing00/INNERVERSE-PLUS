@@ -120,6 +120,20 @@ await t('negative emote rejected', assertFails(set(ref(A, R2 + 's/alice'), { x: 
 await t('score +3 accepted', assertSucceeds(set(ref(A, R2 + 'del/alice'), { n: 3, tm: '0' })));
 await t('score +4 at once rejected', assertFails(set(ref(A, R2 + 'del/alice'), { n: 7, tm: '0' })));
 
+// 獎勵生態：送禮、星球家園、稱號
+await t('alice gives bob a flower', assertSucceeds(set(ref(A, 'inbox/bob/gifts/g1'), { from: 'alice', k: 'rose', at: ts() })));
+await t('cannot fake the sender of a gift', assertFails(set(ref(A, 'inbox/bob/gifts/g2'), { from: 'carol', k: 'rose', at: ts() })));
+await t('cannot overwrite a gift', assertFails(set(ref(C, 'inbox/bob/gifts/g1'), { from: 'carol', k: 'tulip', at: ts() })));
+await t('gift item key must be plain letters', assertFails(set(ref(A, 'inbox/bob/gifts/g3'), { from: 'alice', k: 'rose<script>', at: ts() })));
+await t('cannot gift yourself', assertFails(set(ref(A, 'inbox/alice/gifts/g4'), { from: 'alice', k: 'rose', at: ts() })));
+await t('carol cannot read bob gifts', assertFails(get(ref(C, 'inbox/bob/gifts'))));
+await t('bob reads and removes his gift', assertSucceeds(get(ref(B, 'inbox/bob/gifts')).then(() => remove(ref(B, 'inbox/bob/gifts/g1')))));
+await t('alice saves her home', assertSucceeds(set(ref(A, 'homes/alice'), { p: '[]', th: 'pHome', t: '✦ New Traveler', at: ts() })));
+await t('bob can visit alice home', assertSucceeds(get(ref(B, 'homes/alice'))));
+await t('bob cannot edit alice home', assertFails(set(ref(B, 'homes/alice'), { p: '[]', at: ts() })));
+await t('home too large rejected', assertFails(set(ref(A, 'homes/alice'), { p: 'x'.repeat(8001), at: ts() })));
+await t('alice sets her title', assertSucceeds(set(ref(A, 'planets/alice/title'), '🌱 Star Gardener')));
+
 await env.cleanup();
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

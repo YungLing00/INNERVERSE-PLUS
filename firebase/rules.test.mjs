@@ -111,6 +111,15 @@ await t('host ends the game', assertSucceeds(set(ref(B, R + 'state'), 'end')));
 await t('host deletes the finished room', assertSucceeds(remove(ref(B, 'rooms/ABCDE'))));
 await t('anon can query open rooms', assertSucceeds(get(ref(C, 'rooms'))));
 
+// 新玩法：流星接接樂、星空塗鴉、舞蹈對決；表情 em 和舞蹈 dn
+const R2 = 'rooms/FGHJK/';
+await t('dance room can be created', assertSucceeds(update(ref(A), { [R2 + 'host']: 'alice', [R2 + 'createdAt']: ts(), [R2 + 'mode']: 'dance', [R2 + 'seed']: 3, [R2 + 'state']: 'wait', [R2 + 'open']: 'dance', [R2 + 'slots/0']: 'alice', [R2 + 'p/alice']: { slot: '0', petIdx: 2, at: ts() } })));
+await t('unknown mode rejected', assertFails(update(ref(B), { 'rooms/LMNPQ/host': 'bob', 'rooms/LMNPQ/createdAt': ts(), 'rooms/LMNPQ/mode': 'golf' })));
+await t('player sends emote and dance hits', assertSucceeds(set(ref(A, R2 + 's/alice'), { x: 600, y: 500, t: 1, em: 31, dn: 12 })));
+await t('negative emote rejected', assertFails(set(ref(A, R2 + 's/alice'), { x: 600, y: 500, t: 1, em: -1 })));
+await t('score +3 accepted', assertSucceeds(set(ref(A, R2 + 'del/alice'), { n: 3, tm: '0' })));
+await t('score +4 at once rejected', assertFails(set(ref(A, R2 + 'del/alice'), { n: 7, tm: '0' })));
+
 await env.cleanup();
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

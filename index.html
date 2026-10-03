@@ -9179,7 +9179,7 @@ function petSVG(i, opt = {}) {
      ================================================================ */
   var FB = (() => {   // var：上面的 apiPost 也會用到，要在這段跑完之前就能安全檢查
     const SDK = 'https://www.gstatic.com/firebasejs/12.19.0/';
-    const ACTIONS = ['checkName', 'publish', 'universe', 'invite', 'friendAct', 'inbox', 'respond', 'note', 'event', 'eventGive', 'starlight', 'visits'];
+    const ACTIONS = ['checkName', 'publish', 'universe', 'invite', 'friendAct', 'inbox', 'ack', 'respond', 'note', 'event', 'eventGive', 'starlight', 'visits'];
     const WEATHERS = ['sunny', 'rain', 'fog', 'rainbow', 'night'], ELEMENTS = ['earth', 'metal', 'wood', 'fire', 'water'], GIFTS = ['star', 'leaf', 'drop', 'light', 'heart'];
     const LEVELS = ['', 'Friend', 'Close Friend', 'Shared Memory', 'Best Friend', 'Soul Constellation'];
     let boot = null, db = null, uid = '', D = null, offset = 0, pubQ = Promise.resolve();
@@ -9381,17 +9381,25 @@ function petSVG(i, opt = {}) {
         const ids = new Set([...Object.keys(inv || {}), ...Object.keys(outs || {}), ...Object.keys(mineF), ...Object.values(notes || {}).map(n => n.from)]);
         const P = new Map(await Promise.all([...ids].filter(Boolean).map(async id => [id, pub(id, await planet(id))])));
         const invites = Object.keys(inv || {}).map(id => ({ id, createdAt: inv[id].createdAt, from: P.get(id) })).filter(x => x.from);
-        const done = {}, outcomes = [];
+        // 讀信箱不會刪信：要等用戶真的打開、收下（ack）才收起來，信才不會還沒看到就消失
+        const outcomes = [];
         for (const id of Object.keys(outs || {})) {
           if (P.get(id)) outcomes.push({ id: id + '_' + outs[id].at, status: outs[id].status, partner: P.get(id), friend: friendOut(await friendOf(id)) });
-          done[`inbox/${uid}/outcomes/${id}`] = null;   // 看過就收起來
         }
         const nl = Object.keys(notes || {}).map(id => Object.assign({ id }, notes[id])).sort((a, b) => (a.time || 0) - (b.time || 0));
-        nl.forEach(n => { done[`inbox/${uid}/notes/${n.id}`] = null; });
         const friends = await Promise.all(Object.keys(mineF).filter(id => P.get(id)).map(async id => Object.assign({ partner: P.get(id) }, friendOut(mergeF(mineF[id], await val(`friends/${id}/${uid}`))))));
-        if (Object.keys(done).length) D.update(D.ref(db), done).catch(e => console.warn('inbox clear:', e));
         return { ok: true, invites, outcomes, friends,
           notes: nl.slice(-20).map(n => ({ id: n.id, time: n.time, text: n.text, from: P.get(n.from) || null })) };
+      },
+
+      // 收下信件：notes＝留言 id、outcomes＝邀請結果 id（「對方uid_時間」）
+      async ack(b) {
+        const ids = v => (Array.isArray(v) ? v : []).slice(0, 50).map(x => str(x, 160)).filter(x => x && !/[.#$[\]/]/.test(x));
+        const del = {};
+        ids(b.notes).forEach(id => { del[`inbox/${uid}/notes/${id}`] = null; });
+        ids(b.outcomes).forEach(id => { const k = id.lastIndexOf('_'); del[`inbox/${uid}/outcomes/${k > 0 ? id.slice(0, k) : id}`] = null; });
+        if (Object.keys(del).length) await D.update(D.ref(db), del);
+        return { ok: true };
       },
 
       async note(b) {
@@ -9452,6 +9460,12 @@ function petSVG(i, opt = {}) {
       // 3V3 小遊戲直接用資料庫的即時同步（不經過上面那層 action）
       async rt() { await start(); return { D, db, uid, now, ts }; },
       on: () => !!(CONFIG.FIREBASE && CONFIG.FIREBASE.databaseURL),
+      // 即時收信：信箱一有變化（新邀請、新留言、邀請結果）就馬上通知，不用等下一次輪詢
+      async watchInbox(cb) {
+        await start();
+        let t = 0; const fire = () => { clearTimeout(t); t = setTimeout(cb, 250); };
+        ['invites', 'outcomes', 'notes'].forEach(k => D.onValue(D.ref(db, `inbox/${uid}/${k}`), fire, e => console.warn('watch inbox:', e)));
+      },
       has(action) { return this.on() && ACTIONS.includes(action); },
       async call(q, ms = 12000) {
         let tm;
@@ -12145,7 +12159,10 @@ function petSVG(i, opt = {}) {
     // 即時收信：在哪個畫面都會收（宇宙裡每 5 秒、其他畫面每 10 秒；切回這個分頁時馬上收一次）
     setInterval(() => {
       if (document.hidden || !canFriend()) return;
-      if (Date.now() - Fr.polled >= (state === 'universe' ? 5000 : 8000) - 300) pollInbox();
+      if (Fr.live === undefined && FB && FB.on() && Date.now() > (Fr.liveRetry || 0)) { Fr.live = false; FB.watchInbox(() => pollInbox()).then(() => { Fr.live = true; }).catch(e => { Fr.live = undefined; Fr.liveRetry = Date.now() + 60000; console.warn('live inbox:', e); }); }
+      // 有 Firebase 即時通知時，輪詢只當備援（30 秒一次）
+      const gap = Fr.live ? 30000 : state === 'universe' ? 5000 : 8000;
+      if (Date.now() - Fr.polled >= gap - 300) pollInbox();
     }, 1000);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) pollInbox(); });
     addEventListener('focus', () => pollInbox());

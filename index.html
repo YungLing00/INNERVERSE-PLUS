@@ -108,9 +108,9 @@
   [data-state="idle"] .ctl, [data-state="end"] .ctl { opacity: 0; visibility: hidden; }
   /* 加速／跳過：敘事比較長的地方才出現 */
   .ff-bar { position: fixed; z-index: 6; right: calc(env(safe-area-inset-right, 0px) + 14px); bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); display: none; gap: 8px; align-items: center; }
-  [data-state^="act"] .ff-bar, [data-state="end"] .ff-bar, [data-state="origin"] .ff-bar, [data-state="wuxing"] .ff-bar, [data-state="feel"] .ff-bar, [data-state="ritual"] .ff-bar { display: flex; }
+  [data-state^="act"] .ff-bar, [data-state="end"] .ff-bar, [data-state="inner"] .ff-bar, [data-state="signal"] .ff-bar, [data-state="origin"] .ff-bar, [data-state="wuxing"] .ff-bar, [data-state="feel"] .ff-bar, [data-state="ritual"] .ff-bar { display: flex; }
   .ff-skip { display: none; }
-  [data-state^="act"] .ff-skip, [data-state="end"] .ff-skip { display: inline-flex; }
+  [data-state^="act"] .ff-skip, [data-state="end"] .ff-skip, [data-state="inner"] .ff-skip, [data-state="signal"] .ff-skip { display: inline-flex; }
   .ff-bar .pill { min-height: 38px; padding: .45rem .9rem; font-size: .74rem; letter-spacing: .1em; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: none; }
   .ff-bar .ff-hold.on { color: #1a1238; font-weight: 500; background: linear-gradient(135deg, #ffe3a8, #ffd6e8); box-shadow: 0 0 22px rgba(255,214,170,.6); }
   body.ff .caption .ln { transition-duration: .35s !important; transition-delay: 0s !important; }
@@ -268,6 +268,18 @@
   @keyframes cdPop { 0% { transform: scale(.2) rotate(-20deg); opacity: 0; } 60% { transform: scale(1.15) rotate(6deg); opacity: 1; } 100% { transform: none; } }
   @keyframes cdFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
   @media (prefers-reduced-motion: reduce) { .cos-dlg.on .cd-big { animation: none; } }
+  /* ✦ 前導動畫《你心裡的世界》 */
+  .caption.ink { text-shadow: 0 0 16px rgba(255,255,255,.95), 0 0 3px rgba(255,255,255,.9); color: #3f2f6e; }
+  .caption.ink .en { color: #4a3784; }
+  .caption.nar .en { font-size: 1.5em; line-height: 1.32; letter-spacing: .02em; }
+  .caption.nar { bottom: calc(env(safe-area-inset-bottom, 0px) + 13dvh); }
+  .inner-go { position: fixed; inset: 0; z-index: 6; display: grid; place-content: center; justify-items: center; gap: .7rem; padding: 0 24px 14vh; text-align: center; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 1.4s ease, visibility 0s 1.4s; }
+  .inner-go.on { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity 1.6s ease; }
+  .ig-t { font-family: var(--latin); font-weight: 300; font-size: clamp(1.4rem, 6vw, 2.6rem); letter-spacing: .16em; color: #fff3dc; text-shadow: 0 0 24px rgba(200,180,255,.8); margin-top: 34vh; }
+  .ig-en { font-family: var(--latin); font-size: clamp(.95rem, 3.6vw, 1.2rem); letter-spacing: .08em; color: rgba(255,240,220,.9); }
+  .ig-zh { font-size: .86rem; letter-spacing: .14em; line-height: 1.8; color: rgba(255,236,210,.8); }
+  .inner-go .main { margin-top: .8rem; min-width: 12rem; }
+  body.inner-bg .quiz { background: rgba(24,16,56,.58); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,.18); border-radius: 24px; padding: 18px 16px; }
   .q-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: .7rem; }
   .q-chips:empty { display: none; }
   .q-chip { padding: .45rem .9rem; border-radius: 999px; border: 1px solid rgba(255,226,170,.45); background: rgba(255,226,170,.08); color: #fff3dc; font-family: var(--tc); font-size: .78rem; letter-spacing: .06em; cursor: pointer; transition: background .2s ease, transform .2s ease; }
@@ -824,7 +836,7 @@
   /* ===== 章節選單 ===== */
   .ctl-r { display: flex; gap: 10px; }
   #chap { display: none; }
-  [data-state^="act"] #chap { display: inline-block; }
+  [data-state="inner"] #chap, [data-state^="act"] #chap { display: inline-block; }
   .chap-intro { position: fixed; z-index: 4; top: calc(env(safe-area-inset-top, 0px) + 14px); right: calc(env(safe-area-inset-right, 0px) + 16px); opacity: 0; visibility: hidden; transition: opacity 1.2s ease 2.4s; }
   [data-state="idle"] .chap-intro { opacity: 1; visibility: visible; }
   .chapters {
@@ -1235,6 +1247,12 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
   </div>
 </section>
 
+<div class="inner-go" id="innerGo" role="dialog" aria-labelledby="igT">
+  <p class="ig-t" id="igT">DISCOVER YOUR INNERVERSE</p>
+  <p class="ig-en">10 questions. No right answers. Just you.</p>
+  <p class="ig-zh">10 個問題。沒有正確答案。<br>只有最接近你的答案。</p>
+  <button class="main" id="igStart" type="button">✦ 開始探索</button>
+</div>
 <section class="q5" id="q5">
   <h2>你，是什麼樣的人？</h2>
   <p>10 個小問題，<br>讓宇宙聽見你的訊號。</p>
@@ -4129,6 +4147,7 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
   // 靜態 HTML 的英文：依中文原文對照替換文字節點、placeholder、aria-label
   const HTML_EN = {
     '長按加速': 'Hold to speed up', '跳過開場 ⏭': 'Skip intro ⏭',
+    '✦ 開始探索': '✦ Start exploring',
     '🏠 家園': '🏠 Home', '📖 圖鑑': '📖 Collection', '🎵 聲景': '🎵 Sounds', '🎁 送禮': '🎁 Give', '🏷️ 稱號': '🏷️ Titles', '✏️ 擺放': '✏️ Arrange',
     '🎮 一起玩': '🎮 Play together', '現在開始': 'Start now', '邀請朋友': 'Invite friends', '離開': 'Leave', '再玩一次': 'Play again', '回到宇宙': 'Back to the universe',
     '友情星圖': 'Friendship Constellation', '在 INNERVERSE，每一段友情，都從一支舞開始。': 'In INNERVERSE, friendship begins with a dance.', '留下一句話（只有星球主人看得到）': 'Leave a few words (only the owner can see)', '想對牠的主人說些什麼？': 'Anything you want to tell the owner?', '送出': 'Send',
@@ -5105,6 +5124,25 @@ function petSVG(i, opt = {}) {
         else if (el === 'water') { guqin(f / 2, { gain: .14, dur: 5 }); droplet({ delay: .1 }); droplet({ delay: .45 }); }
       },
       // 🪩 GALAXY DANCE：依在場寵物的 Big Five 比例混出今天的音樂（O 多→空靈層、E 多→鼓、A 多→和聲、C 多→穩定節奏、N 多→柔和長音）
+      // 前導動畫的音效：心跳、啵、BOING、報告砸下來、風、水滴、BOOP
+      sfx(name, o = {}) {
+        if (!ac) return;
+        const t = ac.currentTime + (o.delay || 0), pan = o.pan || 0, k = o.gain || 1;
+        const env = (g, a, peak, dur) => { g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(.0001, t + dur); };
+        const osc = (type, f0, f1, dur, peak, a = .005) => { const o2 = ac.createOscillator(), g = outChain(pan, 0); o2.type = type; o2.frequency.setValueAtTime(f0, t); if (f1) o2.frequency.exponentialRampToValueAtTime(f1, t + dur * .9); const gg = ac.createGain(); o2.connect(gg); gg.connect(g); env(gg, a, peak * k, dur); o2.start(t); o2.stop(t + dur + .05); };
+        const noise = (type, f, q, dur, peak, a = .003) => { const src = ac.createBufferSource(); src.buffer = noiseBuf(Math.max(.2, dur)); const fl = ac.createBiquadFilter(); fl.type = type; fl.frequency.setValueAtTime(f, t); fl.Q.value = q; const gg = ac.createGain(), g = outChain(pan, 0); src.connect(fl); fl.connect(gg); gg.connect(g); env(gg, a, peak * k, dur); src.start(t); src.stop(t + dur + .05); return fl; };
+        if (name === 'beat') { osc('sine', 72, 42, .5, .5, .004); osc('sine', 140, 60, .12, .18); noise('lowpass', 180, 1, .18, .12); }
+        else if (name === 'pop') { osc('sine', 520 * (o.p || 1), 1180 * (o.p || 1), .12, .22); noise('bandpass', 2400, 2, .06, .08); }
+        else if (name === 'boing') { const o2 = ac.createOscillator(), gg = ac.createGain(), g = outChain(pan, 0); o2.type = 'triangle'; o2.frequency.setValueAtTime(180, t); o2.frequency.exponentialRampToValueAtTime(520, t + .09); o2.frequency.exponentialRampToValueAtTime(140, t + .5); const lfo = ac.createOscillator(), lg = ac.createGain(); lfo.frequency.value = 22; lg.gain.value = 40; lfo.connect(lg); lg.connect(o2.frequency); o2.connect(gg); gg.connect(g); env(gg, .005, .22 * k, .55); o2.start(t); lfo.start(t); o2.stop(t + .6); lfo.stop(t + .6); }
+        else if (name === 'thud') { osc('sine', 110, 46, .35, .55); noise('lowpass', 900, .8, .22, .35); noise('bandpass', 3200, 1.5, .05, .1); }
+        else if (name === 'drip') { osc('sine', 1400 * (o.p || 1), 520 * (o.p || 1), .16, .2); }
+        else if (name === 'ding') { osc('sine', 1318.5 * (o.p || 1), 0, 1.2, .12); osc('sine', 2637 * (o.p || 1), 0, .6, .04); }
+        else if (name === 'boop') { osc('sine', 660, 990, .16, .25); osc('triangle', 1320, 0, .4, .06, .02); }
+        else if (name === 'wind') { const fl = noise('bandpass', 300, .6, 3.2, .16, .9); fl.frequency.exponentialRampToValueAtTime(1400, t + 1.6); fl.frequency.exponentialRampToValueAtTime(260, t + 3.1); }
+        else if (name === 'tick') { osc('square', 2200, 0, .03, .04); }
+        else if (name === 'swish') { const fl = noise('bandpass', 600, 1.2, .5, .12, .05); fl.frequency.exponentialRampToValueAtTime(3200, t + .45); }
+        else if (name === 'chord') { [130.81, 196, 261.63, 329.63, 392, 523.25].forEach((f, i) => { const o2 = ac.createOscillator(), gg = ac.createGain(), g = outChain((i - 2.5) * .2); o2.type = i % 2 ? 'triangle' : 'sine'; o2.frequency.value = f; o2.connect(gg); gg.connect(g); gg.gain.setValueAtTime(0, t); gg.gain.linearRampToValueAtTime(.07 * k, t + 1.2); gg.gain.exponentialRampToValueAtTime(.0001, t + 7); o2.start(t); o2.stop(t + 7.1); }); }
+      },
       // 我的宇宙聲景：玩家收集到的聲音一層一層疊起來（mix：每一層 0～1；null＝關掉）
       scape(mix) {
         if (!ac) return;
@@ -5699,7 +5737,810 @@ function petSVG(i, opt = {}) {
     await startTalk();
   }
 
-  const ACTS = [act1, act2, act3, act4, act5, act6];
+  /* ================================================================
+     ✦ 前導動畫《The World Inside You｜你心裡的世界》
+     致敬 Disney‧Pixar《腦筋急轉彎 2（Inside Out 2）》：把看不見的心理活動，轉譯成看得見、會運作、可愛又有情緒的世界。
+     角色、場景、造型與橋段全部是 INNERVERSE 自己的設計：這裡沒有「情緒小人」，而是——
+       情緒像天氣，人格像地形，而經歷，會在上面慢慢長出東西。
+     Experience → Emotion → Personality → Inner Signal → INNERVERSE
+     ================================================================ */
+  const Inner = (() => {
+    // 鏡頭與世界參數（全部用 tw() 補間，跟著劇情時鐘走：加速、暫停、跳過都會一起生效）
+    const I = {
+      dark: 1, dot: 0, dotPulse: 0, iris: 0, sphere: 0, many: 0, dim: 0, empty: 0, cam: 1, camX: 0, camY: 0,
+      skyA: 0, warm: 0, blue: 0, purple: 0, mint: 0, rain: 0, droop: 0, wind: 0, joy: 0, lights: 0, signal: 0, ribbons: 0,
+      fly: 0, title: 0, petsA: 0, credit: 0, quizA: 0, count: 0, countA: 0, focus: 0, sigUp: 0, shake: 0, cloudA: 1
+    };
+    const I0 = Object.assign({}, I);
+    let orbs = [], clouds = [], plants = [], bubbles = [], ripples = [], items = [], motes = [], fx = [], worlds = [];
+    let puddle = { x: .55, w: 0, lvl: 0 }, rope = null, doors = [], blocks = [], quizMarks = [];
+    let T = 0, S = 1;
+    const GROUND = .52;
+    // 鏡頭：手機直向時自動拉近（不然光球只剩幾個像素），橫向時看得到整個世界
+    const scaleNow = () => Math.min(W / 2.2, H / 1.75);
+    const VIS = () => Math.min(1.55, W / scaleNow() / 2 - .08);   // 畫面左右看得到的範圍
+    // 世界座標 → 畫面座標（x 約 -1.6～1.6，y 約 -1～1，往下是正）
+    const sx = x => W / 2 + (x - I.camX) * S, sy = y => H / 2 + (y - I.camY) * S;
+    const groundY = x => GROUND + Math.sin(x * 2.1 + T * .9) * .018 + Math.sin(x * 5.3 - T * 1.3) * .008;
+    const COL = { joy: [255, 214, 110], sad: [120, 170, 255], anx: [178, 120, 255], calm: [140, 230, 200], warm: [255, 190, 150], pink: [255, 170, 200] };
+    const rgba = (c, a) => `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${a})`;
+    const mix = (a, b, k) => [lerp(a[0], b[0], k), lerp(a[1], b[1], k), lerp(a[2], b[2], k)];
+
+    /* ---------- 世界裡的東西 ---------- */
+    function orb(x, y, o = {}) {
+      return Object.assign({ x, y, vx: 0, vy: 0, r: .085, c: [255, 246, 226], sq: 1, sv: 0, rot: 0, sym: '', symT: -9, glow: 0, ground: true, tx: null, ty: null, spd: .6, dim: 0, wob: Math.random() * TAU }, o);
+    }
+    function reset() {
+      Object.assign(I, I0); T = 0;
+      orbs = []; clouds = []; plants = []; bubbles = []; ripples = []; items = []; fx = []; worlds = []; doors = []; blocks = []; quizMarks = [];
+      puddle = { x: .55, w: 0, lvl: 0 }; rope = null;
+      const v = VIS();
+      motes = Array.from({ length: 36 }, () => ({ x: rand(-1.7, 1.7), y: rand(-1.1, .5), r: rand(.004, .012), p: rand(0, TAU), v: rand(.01, .04) }));
+      for (let i = 0; i < 4; i++) clouds.push({ x: -v + i * v * .66 + rand(-.1, .1), y: -.6 + rand(-.12, .1), s: rand(.8, 1.2), v: rand(.01, .025) });
+      for (let i = 0; i < 7; i++) plants.push({ x: lerp(-v + .12, v - .12, i / 6) + rand(-.04, .04), h: 0, bloom: 0, c: [COL.pink, COL.joy, COL.calm, COL.warm][i % 4], ph: rand(0, TAU), sq: 1, sv: 0, size: rand(.95, 1.25), flower2: 0 });
+    }
+    reset();
+
+    /* ---------- 物理：Q 彈的光球（squash & stretch） ---------- */
+    function stepOrbs(dt) {
+      for (const o of orbs) {
+        if (o.tx !== null) {   // 有目標：飛過去（帶一點慣性）
+          const dx = o.tx - o.x, dy = (o.ty === null ? o.y : o.ty) - o.y, d = Math.hypot(dx, dy) || 1, sp = Math.min(o.spd, d * 4);
+          o.vx += (dx / d * sp - o.vx) * Math.min(1, dt * 6); if (o.ty !== null) o.vy += (dy / d * sp - o.vy) * Math.min(1, dt * 6);
+        }
+        if (o.ground && o.ty === null) o.vy += 2.6 * dt;   // 重力
+        // 閒著的光球：偶爾自己蹦一下（先壓扁再彈起來）
+        if (o.idle && o.ground && o.tx === null && o.vy === 0 && T > (o.nextHop || 0)) { o.vy = -rand(.55, 1); o.vx += rand(-.15, .15); o.sv += 3.2; o.nextHop = T + rand(1.6, 4.2); }
+        o.x += o.vx * dt; o.y += o.vy * dt;
+        const gy = groundY(o.x) - o.r;
+        if (o.ground && o.y > gy) {
+          if (o.vy > .35) { o.sv -= o.vy * 3.2; if (o.vy > .8) Sound.sfx('pop', { p: .7, gain: .5, pan: clamp(o.x / 1.6, -1, 1) }); }
+          o.y = gy; o.vy = -o.vy * .42; if (Math.abs(o.vy) < .12) o.vy = 0; o.vx *= .96;
+        }
+        const wall = VIS() - o.r; if (!o.free && (o.x < -wall || o.x > wall)) { o.vx = -o.vx * .7; o.x = clamp(o.x, -wall, wall); o.sv -= 1.5; }
+        // 彈簧：形狀慢慢回到圓
+        o.sv += (1 - o.sq) * 140 * dt; o.sv *= Math.exp(-7 * dt); o.sq += o.sv * dt; o.sq = clamp(o.sq, .55, 1.5);
+        o.glow = Math.max(0, o.glow - dt * .8);
+      }
+      // 光球彼此碰撞：BOING！
+      for (let i = 0; i < orbs.length; i++) for (let j = i + 1; j < orbs.length; j++) {
+        const a = orbs[i], b = orbs[j]; if (a.ghost || b.ghost) continue;
+        const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy), m = a.r + b.r;
+        if (d < m && d > 1e-4) {
+          const nx = dx / d, ny = dy / d, rv = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
+          a.x -= nx * (m - d) / 2; a.y -= ny * (m - d) / 2; b.x += nx * (m - d) / 2; b.y += ny * (m - d) / 2;
+          if (rv < 0) {
+            const j2 = -1.7 * rv / 2; a.vx -= j2 * nx; a.vy -= j2 * ny; b.vx += j2 * nx; b.vy += j2 * ny;
+            if (-rv > .4) { a.sv -= -rv * 4; b.sv -= -rv * 4; a.symT = b.symT = T; a.sym = b.sym = '!'; Sound.sfx('boing', { pan: clamp(a.x / 1.6, -1, 1) }); spark((a.x + b.x) / 2, (a.y + b.y) / 2, 10, [255, 250, 230]); }
+          }
+        }
+      }
+    }
+    function spark(x, y, n, c, o = {}) {
+      for (let i = 0; i < n && fx.length < 400; i++) { const a = o.dir !== undefined ? o.dir + rand(-1, 1) * (o.spread || .8) : rand(0, TAU), v = rand(.2, 1) * (o.v || .9); fx.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, t: 0, life: rand(.5, 1.1) * (o.life || 1), r: rand(.006, .016) * (o.size || 1), c, g: o.g || 0, e: o.e || '' }); }
+    }
+
+    /* ---------- 焦慮的紫色線：一條會自己打結的繩子（verlet） ---------- */
+    function makeRope(x, y, n = 26) { rope = { pts: Array.from({ length: n }, (_, i) => ({ x: x + i * .02, y, px: x + i * .02, py: y })), seg: .028, mode: 'calm', t: 0, head: { x, y }, ball: 0, knot: 0 }; }
+    function stepRope(dt) {
+      if (!rope) return; const R = rope; R.t += dt;
+      const h = R.pts[0];
+      if (R.mode === 'run') { const a = R.t * 7.5, rr = .32 + .12 * Math.sin(R.t * 2.3); h.x = R.cx + Math.cos(a) * rr + Math.sin(R.t * 11) * .05; h.y = R.cy + Math.sin(a * 1.3) * rr * .7; }
+      else if (R.mode === 'ball') { h.x = lerp(h.x, R.cx, dt * 3); h.y = lerp(h.y, R.cy, dt * 3); }
+      else if (R.mode === 'loose') { h.x += Math.sin(R.t * 1.2) * dt * .12; h.y = lerp(h.y, R.cy + Math.sin(R.t) * .05, dt * 2); }
+      for (let i = 1; i < R.pts.length; i++) {
+        const p = R.pts[i], vx = (p.x - p.px) * .96, vy = (p.y - p.py) * .96; p.px = p.x; p.py = p.y; p.x += vx; p.y += vy + (R.mode === 'loose' ? .0004 : 0);
+        if (R.mode === 'ball') { const dx = R.cx - p.x, dy = R.cy - p.y; p.x += dx * dt * 2.5; p.y += dy * dt * 2.5; }
+      }
+      for (let k = 0; k < 4; k++) for (let i = 1; i < R.pts.length; i++) {
+        const a = R.pts[i - 1], b = R.pts[i], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1e-4, seg = R.seg * (1 - R.ball * .55), diff = (d - seg) / d;
+        if (i > 1) { a.x += dx * diff * .5; a.y += dy * diff * .5; } b.x -= dx * diff * .5; b.y -= dy * diff * .5;
+      }
+    }
+
+    /* ---------- 畫：內在世界 ---------- */
+    // 柔光：先畫好一張小圖存起來，之後直接縮放貼上（手機上才不會卡）
+    const SPR = new Map();
+    function sprite(c) {
+      const k = (c[0] | 0) + ',' + (c[1] | 0) + ',' + (c[2] | 0); let cv = SPR.get(k);
+      if (!cv) { cv = document.createElement('canvas'); cv.width = cv.height = 128; const g2 = cv.getContext('2d'), gr = g2.createRadialGradient(64, 64, 0, 64, 64, 64); gr.addColorStop(0, `rgba(${k},1)`); gr.addColorStop(.35, `rgba(${k},.55)`); gr.addColorStop(1, `rgba(${k},0)`); g2.fillStyle = gr; g2.fillRect(0, 0, 128, 128); if (SPR.size > 120) SPR.clear(); SPR.set(k, cv); }
+      return cv;
+    }
+    function softBlob(x, y, r, c, a) { if (r <= .5 || a <= .004) return; const ga = ctx.globalAlpha; ctx.globalAlpha = ga * Math.min(1, a); ctx.drawImage(sprite(c), x - r, y - r, r * 2, r * 2); ctx.globalAlpha = ga; }
+    function drawSky() {
+      // 奶油粉彩的液體天空：幾團顏色慢慢流動，情緒會改變它的顏色（＝天氣）
+      let top = [252, 226, 222], mid = [236, 202, 236], bot = [196, 206, 250];
+      top = mix(top, [255, 226, 170], I.warm * .6); mid = mix(mid, [255, 214, 170], I.warm * .5);
+      top = mix(top, [176, 196, 236], I.blue * .7); mid = mix(mid, [170, 190, 230], I.blue * .6); bot = mix(bot, [150, 170, 220], I.blue * .6);
+      top = mix(top, [214, 188, 245], I.purple * .6); mid = mix(mid, [206, 176, 240], I.purple * .6);
+      top = mix(top, [214, 246, 236], I.mint * .5); bot = mix(bot, [196, 240, 228], I.mint * .5);
+      const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, rgba(top, 1)); g.addColorStop(.55, rgba(mid, 1)); g.addColorStop(1, rgba(bot, 1));
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      const blobs = [[COL.pink, .7, -.5, .9], [COL.calm, -.8, -.3, .8], [COL.joy, .2, -.75, .7], [[200, 190, 255], -.2, .1, 1], [COL.warm, 1.2, .2, .7]];
+      blobs.forEach(([c, bx, by, br], i) => {
+        const x = sx(bx + Math.sin(T * .17 + i * 2) * .25), y = sy(by + Math.cos(T * .13 + i) * .15);
+        softBlob(x, y, br * S * 1.3, c, .28 + .06 * Math.sin(T * .5 + i));
+      });
+      // 從上面落下的柔光
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < 3; i++) { const x = sx(-1 + i * .9 + Math.sin(T * .1 + i) * .2), gr = ctx.createLinearGradient(x, 0, x + S * .2, H * .8); gr.addColorStop(0, `rgba(255,250,235,${.045 + .025 * Math.sin(T * .6 + i)})`); gr.addColorStop(1, 'rgba(255,250,235,0)'); ctx.fillStyle = gr; ctx.beginPath(); ctx.moveTo(x - S * .05, 0); ctx.lineTo(x + S * .08, 0); ctx.lineTo(x + S * .45, H); ctx.lineTo(x + S * .05, H); ctx.fill(); }
+      ctx.restore();
+    }
+    function drawMotes(dt) {
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      for (const m of motes) { m.y -= m.v * dt; m.x += Math.sin(T * .7 + m.p) * dt * .02; if (m.y < -1.2) { m.y = .5; m.x = rand(-1.7, 1.7); } softBlob(sx(m.x), sy(m.y), m.r * S * 3, [255, 246, 220], .22 + .18 * Math.sin(T * 2 + m.p)); }
+      ctx.restore();
+    }
+    function cloud(x, y, s, a) {
+      const X = sx(x), Y = sy(y), r = .09 * s * S;
+      ctx.save(); ctx.globalAlpha = a;
+      const puffs = [[-1.6, .25, .9], [-.8, -.2, 1.15], [0, -.45, 1.35], [.9, -.15, 1.1], [1.6, .25, .85], [0, .3, 1.2]];
+      ctx.fillStyle = 'rgba(160,150,210,.18)'; puffs.forEach(([dx, dy, k]) => { ctx.beginPath(); ctx.arc(X + dx * r, Y + dy * r + r * .25, r * k, 0, TAU); ctx.fill(); });
+      puffs.forEach(([dx, dy, k]) => { const g = ctx.createRadialGradient(X + dx * r - r * .3, Y + dy * r - r * .4, r * .1, X + dx * r, Y + dy * r, r * k); g.addColorStop(0, 'rgba(255,255,255,.98)'); g.addColorStop(1, 'rgba(240,236,255,.9)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(X + dx * r, Y + dy * r, r * k, 0, TAU); ctx.fill(); });
+      ctx.restore();
+    }
+    function drawGround() {
+      // 半透明果凍地面：會微微晃動，有高光和透出來的光
+      const y0 = sy(GROUND), steps = 48;
+      ctx.save();
+      ctx.beginPath(); ctx.moveTo(0, H);
+      for (let i = 0; i <= steps; i++) { const x = -1.8 + i / steps * 3.6; ctx.lineTo(sx(x), sy(groundY(x))); }
+      ctx.lineTo(W, H); ctx.closePath();
+      const g = ctx.createLinearGradient(0, y0 - S * .05, 0, H); g.addColorStop(0, rgba(mix([190, 238, 222], [170, 196, 236], I.blue), .9)); g.addColorStop(.4, rgba(mix([214, 196, 245], [180, 160, 230], I.purple), .82)); g.addColorStop(1, 'rgba(250,214,236,.9)');
+      ctx.fillStyle = g; ctx.fill();
+      ctx.clip();
+      for (let i = 0; i < 7; i++) softBlob(sx(-1.4 + i * .5 + Math.sin(T * .3 + i) * .1), sy(GROUND + .25 + Math.sin(T * .4 + i * 1.7) * .08), S * .3, [255, 255, 255], .18);
+      for (let i = 0; i < 12; i++) { const x = -1.6 + i * .3, yy = GROUND + .1 + (i % 3) * .1 + Math.sin(T + i) * .01; ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.beginPath(); ctx.arc(sx(x), sy(yy), S * (.008 + (i % 3) * .004), 0, TAU); ctx.fill(); }
+      ctx.restore();
+      // 果凍邊緣的高光
+      ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = Math.max(2, S * .008); ctx.lineCap = 'round';
+      ctx.beginPath(); for (let i = 0; i <= steps; i++) { const x = -1.8 + i / steps * 3.6; const p = [sx(x), sy(groundY(x)) + S * .006]; i ? ctx.lineTo(...p) : ctx.moveTo(...p); } ctx.stroke(); ctx.restore();
+    }
+    function drawPuddle() {
+      if (puddle.lvl <= .01) return;
+      const X = sx(puddle.x), Y = sy(groundY(puddle.x) + .03), w = puddle.w * S * puddle.lvl, h = w * .22;
+      ctx.save(); const g = ctx.createRadialGradient(X, Y, 0, X, Y, w); g.addColorStop(0, `rgba(150,200,255,${.85 * puddle.lvl})`); g.addColorStop(1, `rgba(120,170,255,${.35 * puddle.lvl})`);
+      ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(X, Y, w, h, 0, 0, TAU); ctx.fill();
+      ctx.strokeStyle = `rgba(255,255,255,${.7 * puddle.lvl})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(X - w * .25, Y - h * .25, w * .35, h * .25, 0, Math.PI * 1.1, Math.PI * 1.7); ctx.stroke();
+      ctx.restore();
+    }
+    function drawRipples(dt) {
+      for (let i = ripples.length - 1; i >= 0; i--) {
+        const r = ripples[i]; r.t += dt; if (r.t > (r.life || 1.6)) { ripples.splice(i, 1); continue; }
+        if (r.t <= 0) continue;   // 還沒開始的波紋（排好時間的）
+        const u = r.t / (r.life || 1.6), X = sx(r.x), Y = sy(r.y), rr = (r.big ? .5 : .16) * S * easeOut(u);
+        ctx.strokeStyle = rgba(r.c || [255, 255, 255], (1 - u) * .8); ctx.lineWidth = Math.max(1.5, (1 - u) * S * .012);
+        ctx.beginPath(); ctx.ellipse(X, Y, rr, rr * (r.flat === false ? 1 : .28), 0, 0, TAU); ctx.stroke();
+      }
+    }
+    function drawPlant(p) {
+      if (p.h <= .01) return;
+      const bx = sx(p.x), by = sy(groundY(p.x) + .004), hh = .3 * p.h * p.size * S * p.sq, sway = Math.sin(T * 1.6 + p.ph) * .12 * (1 + I.wind * 2) + I.wind * .25, droop = p.droop || I.droop;
+      const tipX = bx + Math.sin(sway) * hh * .5 + droop * hh * .45, tipY = by - hh * (1 - droop * .35);
+      ctx.save(); ctx.lineCap = 'round';
+      ctx.strokeStyle = 'rgba(96,170,120,.95)'; ctx.lineWidth = Math.max(2, S * .012 * p.size);
+      ctx.beginPath(); ctx.moveTo(bx, by); ctx.quadraticCurveTo(bx + Math.sin(sway) * hh * .1, by - hh * .55, tipX, tipY); ctx.stroke();
+      // 葉子
+      [[.35, -1], [.55, 1]].forEach(([k, sd]) => { const lx = lerp(bx, tipX, k), ly = lerp(by, tipY, k); ctx.fillStyle = 'rgba(120,200,140,.95)'; ctx.beginPath(); ctx.ellipse(lx + sd * hh * .12, ly, hh * .14, hh * .06, sd * (.5 + droop * .6), 0, TAU); ctx.fill(); });
+      // 花：音樂、快樂讓它開
+      const bl = p.bloom;
+      if (bl > .02) {
+        const r = S * .045 * p.size * (.3 + bl * .7);
+        ctx.translate(tipX, tipY); ctx.rotate(sway * .5 + droop * .8);
+        for (let k = 0; k < 6; k++) { ctx.rotate(TAU / 6); ctx.fillStyle = rgba(p.c, .95); ctx.beginPath(); ctx.ellipse(0, -r * .9 * bl, r * .55, r * .9 * bl, 0, 0, TAU); ctx.fill(); }
+        ctx.fillStyle = 'rgba(255,240,170,1)'; ctx.beginPath(); ctx.arc(0, 0, r * .45, 0, TAU); ctx.fill();
+        if (p.flower2 > .02) { ctx.translate(-hh * .25, hh * .3); for (let k = 0; k < 5; k++) { ctx.rotate(TAU / 5); ctx.fillStyle = rgba(COL.pink, .9); ctx.beginPath(); ctx.ellipse(0, -r * .6 * p.flower2, r * .4, r * .6 * p.flower2, 0, 0, TAU); ctx.fill(); } ctx.fillStyle = '#fff3c4'; ctx.beginPath(); ctx.arc(0, 0, r * .3, 0, TAU); ctx.fill(); }
+      } else { ctx.fillStyle = 'rgba(140,210,150,1)'; ctx.beginPath(); ctx.arc(tipX, tipY, S * .012 * p.size, 0, TAU); ctx.fill(); }
+      ctx.restore();
+    }
+    function drawOrb(o) {
+      if (o.hide) return;
+      const X = sx(o.x), Y = sy(o.y), r = o.r * S, sq = o.sq, k = 1 / Math.sqrt(sq);
+      // 影子
+      if (o.ground) { const gy = sy(groundY(o.x)), d = clamp(1 - (gy - Y) / (S * .5)); ctx.fillStyle = `rgba(110,80,160,${.18 * d})`; ctx.beginPath(); ctx.ellipse(X, gy + S * .004, r * 1.1 * k, r * .28, 0, 0, TAU); ctx.fill(); }
+      ctx.save(); ctx.translate(X, Y + r * (1 - sq)); ctx.rotate(o.rot || 0);
+      ctx.globalCompositeOperation = 'lighter'; softBlob(0, 0, r * (2.4 + o.glow * 2), o.c, .35 + o.glow * .4); ctx.globalCompositeOperation = 'source-over';
+      ctx.scale(k, sq);
+      // 毛茸茸的光球：內部漸層＋邊緣光＋一點高光
+      const g = ctx.createRadialGradient(-r * .35, -r * .4, r * .05, 0, 0, r); g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(.45, rgba(mix(o.c, [255, 255, 255], .45), 1)); g.addColorStop(1, rgba(o.c, .95));
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = Math.max(1, r * .08); ctx.beginPath(); ctx.arc(0, 0, r * .96, Math.PI * .15, Math.PI * .85); ctx.stroke();
+      for (let i = 0; i < 9; i++) { const a = i / 9 * TAU + o.wob + T * .5, rr = r * (1.02 + .06 * Math.sin(T * 6 + i)); ctx.fillStyle = rgba(mix(o.c, [255, 255, 255], .6), .55); ctx.beginPath(); ctx.arc(Math.cos(a) * rr, Math.sin(a) * rr, r * .14, 0, TAU); ctx.fill(); }
+      ctx.fillStyle = 'rgba(255,255,255,.95)'; ctx.beginPath(); ctx.ellipse(-r * .35, -r * .42, r * .22, r * .13, -.6, 0, TAU); ctx.fill();
+      if (o.dim) { ctx.fillStyle = `rgba(80,70,120,${o.dim * .5})`; ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.fill(); }
+      ctx.restore();
+      // 頭上冒出的符號：！ ？ … ✦
+      const st = T - o.symT;
+      if (o.sym && st < 1.6) {
+        const u = st < .15 ? st / .15 : 1, a = st > 1.2 ? (1.6 - st) / .4 : 1;
+        ctx.save(); ctx.globalAlpha = a; ctx.font = `700 ${Math.round(S * .07 * (.6 + .5 * u))}px ${bodyFont}`; ctx.textAlign = 'center'; ctx.fillStyle = o.sym === '!' || o.sym === '！！！' ? '#ff7a9a' : '#6a5ab0';
+        ctx.fillText(o.sym, X, Y - r * 1.6 - S * .03 * u); ctx.restore();
+      }
+    }
+    function drawRope() {
+      if (!rope) return; const R = rope;
+      ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = 'rgba(178,120,255,.35)'; ctx.lineWidth = Math.max(5, S * .03);
+      ctx.beginPath(); R.pts.forEach((p, i) => i ? ctx.lineTo(sx(p.x), sy(p.y)) : ctx.moveTo(sx(p.x), sy(p.y))); ctx.stroke();
+      ctx.globalCompositeOperation = 'source-over'; ctx.strokeStyle = 'rgba(150,90,235,.95)'; ctx.lineWidth = Math.max(2.5, S * .011);
+      ctx.beginPath(); R.pts.forEach((p, i) => i ? ctx.lineTo(sx(p.x), sy(p.y)) : ctx.moveTo(sx(p.x), sy(p.y))); ctx.stroke();
+      if (R.ball > .02) {   // 纏成一顆大毛球
+        const X = sx(R.cx), Y = sy(R.cy), r = S * .12 * R.ball;
+        const g = ctx.createRadialGradient(X - r * .3, Y - r * .3, r * .1, X, Y, r); g.addColorStop(0, 'rgba(215,180,255,1)'); g.addColorStop(1, 'rgba(140,80,220,1)');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(X, Y, r, 0, TAU); ctx.fill();
+        ctx.strokeStyle = 'rgba(110,60,190,.7)'; ctx.lineWidth = Math.max(1.5, r * .05);
+        for (let i = 0; i < 9; i++) { ctx.beginPath(); ctx.ellipse(X, Y, r * .9, r * (.2 + (i % 4) * .2), i * .7 + T * .2, 0, TAU); ctx.stroke(); }
+      }
+      ctx.restore();
+    }
+    function drawItems(dt) {
+      for (let i = items.length - 1; i >= 0; i--) {
+        const it = items[i]; it.t += dt;
+        if (!it.landed) {
+          it.vy += 2.2 * dt; it.y += it.vy * dt; it.rot += (it.vr || 0) * dt;
+          const gy = groundY(it.x) - (it.h || .03);
+          if (it.y >= gy && it.vy > 0) { it.y = gy; it.landed = true; it.lt = 0; it.onLand && it.onLand(it); }
+        } else { it.lt += dt; if (it.life && it.lt > it.life) { items.splice(i, 1); continue; } }
+        const X = sx(it.x), Y = sy(it.y), s = S;
+        ctx.save(); ctx.translate(X, Y); ctx.rotate(it.rot || 0);
+        const sq = it.landed && it.lt < .3 ? 1 - Math.sin(it.lt / .3 * Math.PI) * .25 : 1; ctx.scale(1 / sq, sq);
+        if (it.kind === 'msg') {   // 手機訊息泡泡
+          const w = s * .34, h = s * .1; ctx.fillStyle = 'rgba(255,255,255,.97)'; ctx.strokeStyle = 'rgba(140,120,200,.4)'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-w / 2, -h / 2, w, h, h * .45) : ctx.rect(-w / 2, -h / 2, w, h); ctx.fill(); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(-w * .32, h * .45); ctx.lineTo(-w * .4, h * .8); ctx.lineTo(-w * .18, h * .45); ctx.fill();
+          ctx.fillStyle = '#5a4a8a'; ctx.font = `${Math.round(h * .42)}px ${bodyFont}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(L('今天一起吃飯嗎？', 'Dinner together tonight?', { ja: '今日いっしょにごはん？', ko: '오늘 같이 밥 먹을래?', vi: 'Tối nay ăn cùng nhé?' }), 0, 1);
+        } else if (it.kind === 'drop') {
+          const r = s * .03; const g = ctx.createRadialGradient(-r * .3, 0, r * .1, 0, r * .3, r * 1.4); g.addColorStop(0, 'rgba(235,245,255,1)'); g.addColorStop(1, 'rgba(110,160,255,.95)'); ctx.fillStyle = g;
+          ctx.beginPath(); ctx.moveTo(0, -r * 1.8); ctx.bezierCurveTo(r * 1.2, -r * .2, r, r, 0, r); ctx.bezierCurveTo(-r, r, -r * 1.2, -r * .2, 0, -r * 1.8); ctx.fill();
+        } else if (it.kind === 'note') {
+          ctx.fillStyle = rgba(it.c || [150, 120, 230], 1); ctx.font = `${Math.round(s * .08)}px serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(it.ch || '♪', 0, 0);
+        } else if (it.kind === 'report') {   // 報告：一本一本砸下來
+          const w = s * .2, h = s * .06; ctx.fillStyle = it.c || '#f3efe6'; ctx.strokeStyle = 'rgba(90,80,120,.5)'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-w / 2, -h / 2, w, h, 4) : ctx.rect(-w / 2, -h / 2, w, h); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = 'rgba(90,80,120,.35)'; for (let k = 0; k < 3; k++) ctx.fillRect(-w * .38, -h * .25 + k * h * .22, w * (.5 + (k % 2) * .2), Math.max(1, h * .06));
+          ctx.fillStyle = it.tab || '#ff9ab8'; ctx.fillRect(w * .32, -h / 2, w * .08, h);
+        }
+        ctx.restore();
+      }
+    }
+    function drawBubbles(dt) {
+      for (let i = bubbles.length - 1; i >= 0; i--) {
+        const b = bubbles[i]; b.t += dt; b.y += (b.vy || -.08) * dt; b.x += Math.sin(T * 1.5 + b.p) * dt * .03;
+        if (b.bounce) { const gy = groundY(b.x) - b.r; b.vy += 2 * dt; if (b.y > gy) { b.y = gy; b.vy = -1.15; b.sq = .7; } }
+        b.sq = lerp(b.sq || 1, 1, dt * 6);
+        if (b.t > (b.life || 8) || b.y < -1.3) { bubbles.splice(i, 1); continue; }
+        const X = sx(b.x), Y = sy(b.y), r = b.r * S, a = Math.min(1, b.t * 3) * (b.life ? clamp((b.life - b.t) / .6) : 1);
+        ctx.save(); ctx.globalAlpha = a; ctx.translate(X, Y); ctx.scale(1 / b.sq, b.sq);
+        const g = ctx.createRadialGradient(-r * .3, -r * .35, r * .1, 0, 0, r); g.addColorStop(0, 'rgba(255,255,255,.85)'); g.addColorStop(.6, rgba(b.c, .35)); g.addColorStop(1, rgba(b.c, .7));
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,.8)'; ctx.lineWidth = Math.max(1, r * .06); ctx.stroke();
+        ctx.fillStyle = 'rgba(255,255,255,.95)'; ctx.beginPath(); ctx.ellipse(-r * .38, -r * .4, r * .2, r * .11, -.6, 0, TAU); ctx.fill();
+        ctx.restore();
+      }
+    }
+    function drawFx(dt) {
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      for (let i = fx.length - 1; i >= 0; i--) {
+        const p = fx[i]; p.t += dt; if (p.t > p.life) { fx.splice(i, 1); continue; }
+        p.vx *= Math.exp(-2 * dt); p.vy = p.vy * Math.exp(-2 * dt) + p.g * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+        const a = 1 - p.t / p.life;
+        if (p.e) { ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = a; ctx.font = `${Math.round(S * p.r * 5)}px serif`; ctx.textAlign = 'center'; ctx.fillText(p.e, sx(p.x), sy(p.y)); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'lighter'; }
+        else softBlob(sx(p.x), sy(p.y), p.r * S * 2.4, p.c, a * .9);
+      }
+      ctx.restore();
+    }
+    function drawRain(dt) {
+      if (I.rain <= .01) return;
+      ctx.save(); ctx.strokeStyle = `rgba(120,160,240,${.5 * I.rain})`; ctx.lineWidth = Math.max(1, S * .004); ctx.lineCap = 'round';
+      const n = Math.round(60 * I.rain);
+      for (let i = 0; i < n; i++) { const x = ((i * 0.6180339 * 3.4 + T * .05) % 3.4) - 1.7, y = ((i * .37 + T * .9) % 1.6) - 1; ctx.beginPath(); ctx.moveTo(sx(x), sy(y)); ctx.lineTo(sx(x - .01), sy(y + .045)); ctx.stroke(); if (y > GROUND - .05 && Math.random() < dt * 2) ripples.push({ x, y: groundY(x), t: 0, life: .7, c: [140, 180, 255] }); }
+      ctx.restore();
+    }
+    function drawWind() {
+      if (I.wind <= .01) return;
+      ctx.save(); ctx.strokeStyle = `rgba(255,255,255,${.55 * I.wind})`; ctx.lineWidth = Math.max(1.5, S * .006); ctx.lineCap = 'round';
+      for (let i = 0; i < 9; i++) { const ph = (T * .5 + i * .13) % 1, y = -.6 + i * .12, x0 = -1.8 + ph * 3.6; ctx.beginPath(); ctx.moveTo(sx(x0), sy(y)); ctx.bezierCurveTo(sx(x0 + .15), sy(y - .04), sx(x0 + .3), sy(y + .04), sx(x0 + .45), sy(y)); ctx.stroke(); }
+      ctx.restore();
+    }
+    // 人格小劇場：門（開放性）、排好的方塊（盡責性）
+    function drawDoors() {
+      for (const d of doors) {
+        if (d.a <= .01) continue;
+        const X = sx(d.x), Y = sy(groundY(d.x)), w = S * .13, h = S * .22;
+        ctx.save(); ctx.globalAlpha = d.a;
+        ctx.fillStyle = 'rgba(255,248,236,.95)'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(X - w / 2 - 6, Y - h - 6, w + 12, h + 6, [w / 2 + 6, w / 2 + 6, 0, 0]) : ctx.rect(X - w / 2, Y - h, w, h); ctx.fill();
+        // 打開的門後面：別的世界的光
+        const g = ctx.createLinearGradient(X, Y - h, X, Y); g.addColorStop(0, rgba(d.c, 1)); g.addColorStop(1, rgba(mix(d.c, [255, 255, 255], .5), 1));
+        ctx.fillStyle = g; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(X - w / 2, Y - h, w, h, [w / 2, w / 2, 0, 0]) : ctx.rect(X - w / 2, Y - h, w, h); ctx.fill();
+        if (d.open > .02) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; softBlob(X, Y - h * .5, h * .9 * d.open, [255, 250, 220], .6 * d.open); ctx.restore(); }
+        const ow = w * (1 - d.open * .85);
+        ctx.fillStyle = 'rgba(200,170,240,1)'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(X - w / 2, Y - h, ow, h, [w / 2, d.open > .5 ? 4 : w / 2, 0, 0]) : ctx.rect(X - w / 2, Y - h, ow, h); ctx.fill();
+        ctx.fillStyle = '#ffe9a8'; ctx.beginPath(); ctx.arc(X - w / 2 + ow - w * .14, Y - h * .45, w * .06, 0, TAU); ctx.fill();
+        ctx.restore();
+      }
+      for (const b of blocks) {
+        if (b.a <= .01) continue;
+        const X = sx(lerp(b.x0, b.x1, b.k)), Y = sy(lerp(b.y0, b.y1, b.k) + Math.sin(T * 1.4 + b.p) * .02 * (1 - b.k)), r = S * .035;
+        ctx.save(); ctx.globalAlpha = b.a; ctx.translate(X, Y); ctx.rotate(lerp(b.r0, 0, b.k));
+        ctx.fillStyle = rgba(b.c, .95); ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-r, -r, r * 2, r * 2, r * .4) : ctx.rect(-r, -r, r * 2, r * 2); ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.fillRect(-r * .6, -r * .7, r * .5, r * .25);
+        ctx.restore();
+      }
+    }
+    // 整個內在世界（可以被裝進一顆透明的泡泡裡）
+    function drawWorld(dt, emptyK = 0) {
+      drawSky(); drawMotes(dt);
+      clouds.forEach(c => { c.x += c.v * dt; if (c.x > 1.9) c.x = -1.9; cloud(c.x, c.y + Math.sin(T * .4 + c.x) * .02, c.s, .95 * (1 - emptyK) * clamp(I.cloudA)); });
+      drawGround(); drawPuddle(); drawRipples(dt);
+      if (emptyK < .99) { ctx.save(); ctx.globalAlpha = 1 - emptyK; plants.forEach(drawPlant); drawDoors(); ctx.restore(); }
+      quizMarks.forEach(m => m.draw(dt));
+      if (emptyK < .99) { ctx.save(); ctx.globalAlpha = 1 - emptyK; orbs.forEach(drawOrb); drawRope(); drawItems(dt); drawBubbles(dt); ctx.restore(); }
+      drawFx(dt); drawRain(dt); drawWind();
+      // 柔焦暗角
+      const v = ctx.createRadialGradient(W / 2, H * .45, Math.min(W, H) * .3, W / 2, H / 2, Math.max(W, H) * .78); v.addColorStop(0, 'rgba(60,30,90,0)'); v.addColorStop(1, 'rgba(50,24,84,.4)'); ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
+    }
+    // 畫一個「世界泡泡」：把 fn 畫的內容裝進圓形玻璃裡
+    function glassBall(X, Y, R, fn, a = 1) {
+      if (R < .5) return;
+      ctx.save(); ctx.globalAlpha = a; ctx.beginPath(); ctx.arc(X, Y, R, 0, TAU); ctx.clip(); fn(); ctx.restore();
+      ctx.save(); ctx.globalAlpha = a;
+      const g = ctx.createRadialGradient(X - R * .35, Y - R * .4, R * .05, X, Y, R); g.addColorStop(0, 'rgba(255,255,255,.35)'); g.addColorStop(.7, 'rgba(255,255,255,0)'); g.addColorStop(1, 'rgba(200,220,255,.35)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(X, Y, R, 0, TAU); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.lineWidth = Math.max(1, R * .025); ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.beginPath(); ctx.ellipse(X - R * .42, Y - R * .5, R * .2, R * .09, -.7, 0, TAU); ctx.fill();
+      ctx.restore();
+    }
+    // 別人的內在世界：每一顆都不一樣（海、森林、雲、下雨、開花、亂成一團、空空的）
+    const KINDS = ['ocean', 'forest', 'cloud', 'rain', 'flower', 'tangle', 'empty', 'aurora', 'desert'];
+    function miniWorld(X, Y, R, kind, seed) {
+      const top = { ocean: [170, 220, 255], forest: [200, 240, 210], cloud: [240, 236, 255], rain: [170, 185, 225], flower: [255, 220, 236], tangle: [220, 200, 250], empty: [236, 232, 245], aurora: [40, 40, 90], desert: [255, 226, 190] }[kind];
+      const bot = { ocean: [60, 130, 220], forest: [90, 170, 110], cloud: [200, 210, 250], rain: [110, 130, 190], flower: [250, 170, 210], tangle: [170, 130, 230], empty: [220, 216, 236], aurora: [20, 80, 100], desert: [240, 190, 130] }[kind];
+      const g = ctx.createLinearGradient(X, Y - R, X, Y + R); g.addColorStop(0, rgba(top, 1)); g.addColorStop(1, rgba(bot, 1)); ctx.fillStyle = g; ctx.fillRect(X - R, Y - R, R * 2, R * 2);
+      const r = n => { const v = Math.sin(seed * 12.9898 + n * 78.233) * 43758.5453; return v - Math.floor(v); };
+      ctx.lineCap = 'round';
+      if (kind === 'ocean') { for (let i = 0; i < 4; i++) { ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = Math.max(1, R * .05); ctx.beginPath(); for (let k = 0; k <= 10; k++) { const x = X - R + k / 10 * R * 2, y = Y + R * (i * .2 - .1) + Math.sin(k + T * 2 + i) * R * .05; k ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.stroke(); } }
+      if (kind === 'forest') for (let i = 0; i < 5; i++) { const x = X - R * .7 + i * R * .35, h = R * (.5 + r(i) * .4); ctx.fillStyle = `rgba(${60 + i * 10},${140 + i * 8},90,1)`; ctx.beginPath(); ctx.moveTo(x, Y + R * .4 - h); ctx.lineTo(x - R * .18, Y + R * .4); ctx.lineTo(x + R * .18, Y + R * .4); ctx.fill(); }
+      if (kind === 'cloud' || kind === 'rain') for (let i = 0; i < 3; i++) { ctx.fillStyle = kind === 'rain' ? 'rgba(220,226,245,.95)' : '#fff'; ctx.beginPath(); ctx.arc(X - R * .4 + i * R * .4, Y - R * .2 + (i % 2) * R * .15, R * .28, 0, TAU); ctx.fill(); }
+      if (kind === 'rain') { ctx.strokeStyle = 'rgba(80,110,200,.8)'; ctx.lineWidth = Math.max(1, R * .03); for (let i = 0; i < 8; i++) { const x = X - R * .7 + r(i) * R * 1.4, y = Y + ((T * .8 + r(i + 9)) % 1) * R * .8; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - R * .03, y + R * .12); ctx.stroke(); } }
+      if (kind === 'flower') for (let i = 0; i < 6; i++) { const x = X - R * .7 + r(i) * R * 1.4, y = Y + R * (r(i + 3) * .6 - .1); ctx.fillStyle = ['#ff8fb8', '#ffd36e', '#c9a8ff'][i % 3]; for (let k = 0; k < 5; k++) { ctx.beginPath(); ctx.arc(x + Math.cos(k * 1.26) * R * .07, y + Math.sin(k * 1.26) * R * .07, R * .06, 0, TAU); ctx.fill(); } }
+      if (kind === 'tangle') { ctx.strokeStyle = 'rgba(130,70,210,.9)'; ctx.lineWidth = Math.max(1, R * .04); ctx.beginPath(); for (let k = 0; k < 30; k++) { const a = k * 1.7 + T, rr = R * (.15 + r(k) * .4); const x = X + Math.cos(a) * rr, y = Y + Math.sin(a * 1.3) * rr; k ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.stroke(); }
+      if (kind === 'aurora') { for (let i = 0; i < 3; i++) { ctx.strokeStyle = `rgba(${[120, 255, 200][i]},${[255, 160, 220][i]},${[200, 220, 255][i]},.7)`; ctx.lineWidth = R * .12; ctx.beginPath(); for (let k = 0; k <= 8; k++) { const x = X - R + k / 8 * R * 2, y = Y - R * .3 + i * R * .2 + Math.sin(k * .8 + T + i) * R * .1; k ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.stroke(); } }
+      if (kind === 'desert') { ctx.fillStyle = 'rgba(230,170,110,1)'; ctx.beginPath(); ctx.ellipse(X - R * .3, Y + R * .5, R * .7, R * .3, 0, 0, TAU); ctx.fill(); ctx.beginPath(); ctx.ellipse(X + R * .4, Y + R * .6, R * .6, R * .28, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#fff2c0'; ctx.beginPath(); ctx.arc(X + R * .3, Y - R * .4, R * .14, 0, TAU); ctx.fill(); }
+      if (kind === 'empty') { ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.beginPath(); ctx.arc(X, Y, R * .06, 0, TAU); ctx.fill(); }
+    }
+
+    /* ---------- 宇宙那一段（訊號飛出去之後） ---------- */
+    const PT = { x: -1.6, y: 0, lit: 0, turn: 0, near: 0, boop: 0, decoys: [], mine: 0 };
+    let cstars = [];
+    function initCosmos() { cstars = Array.from({ length: 260 }, () => ({ x: rand(-2, 2), y: rand(-1.2, 1.2), z: rand(.2, 1), p: rand(0, TAU) })); }
+    initCosmos();
+    function spaceBg(warp = 0) {
+      const g = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) * .8); g.addColorStop(0, '#1b1446'); g.addColorStop(.6, '#0b0826'); g.addColorStop(1, '#04030b'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      [[[150, 110, 255], -.7, -.3, 1.2], [[255, 140, 200], .8, .2, 1], [[90, 180, 255], .1, .6, 1.1]].forEach(([c, x, y, r], i) => softBlob(sx(x + Math.sin(T * .05 + i) * .1), sy(y), r * S, c, .16));
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      for (const s of cstars) {
+        const X = W / 2 + s.x * S / s.z * .9, Y = H / 2 + s.y * S / s.z * .9;
+        if (warp > .02) { const dx = X - W / 2, dy = Y - H / 2, l = warp * .25 / s.z; ctx.strokeStyle = `rgba(220,230,255,${.6 * warp})`; ctx.lineWidth = 1.5 / s.z; ctx.beginPath(); ctx.moveTo(X, Y); ctx.lineTo(X + dx * l, Y + dy * l); ctx.stroke(); }
+        ctx.fillStyle = `rgba(255,255,255,${(.4 + .4 * Math.sin(T * 2 + s.p)) * (1 - s.z * .3)})`; ctx.fillRect(X, Y, 1.6 / s.z, 1.6 / s.z);
+      }
+      ctx.restore();
+    }
+    function star(X, Y, r, a = 1, hue = null) {
+      if (r <= .5 || a <= .01) return;
+      ctx.save(); ctx.globalAlpha = a; ctx.globalCompositeOperation = 'lighter';
+      softBlob(X, Y, r * 4, hue || [255, 236, 200], .55); softBlob(X, Y, r * 1.8, [255, 255, 255], .8);
+      ctx.translate(X, Y); ctx.rotate(T * .4); ctx.fillStyle = '#fff';
+      ctx.beginPath(); for (let i = 0; i < 8; i++) { const rr = i % 2 ? r * .3 : r * 1.6, an = i / 8 * TAU; ctx.lineTo(Math.cos(an) * rr, Math.sin(an) * rr); } ctx.closePath(); ctx.fill();
+      ctx.restore();
+    }
+    // Ch10：訊號穿過一層一層，越來越遠
+    function drawFly(dt) {
+      const f = I.fly, seg = (a, b) => clamp((f - a) / (b - a));
+      const warp = clamp(Math.sin(f * Math.PI) * 1.2);
+      ctx.fillStyle = '#04030b'; ctx.fillRect(0, 0, W, H);
+      const cx = W / 2, cy = H / 2, D = Math.hypot(W, H);
+      // 黑暗 → 柔軟的光膜
+      const m = seg(.05, .18); if (m > 0 && m < 1) { const r = D * Math.pow(m, 2.2) * 1.4; const g = ctx.createRadialGradient(cx, cy, r * .85, cx, cy, r); g.addColorStop(0, 'rgba(255,200,240,0)'); g.addColorStop(.6, `rgba(200,180,255,${.6 * (1 - m)})`); g.addColorStop(1, 'rgba(160,230,255,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); }
+      // 城市的燈光（從高空往下看）
+      const c = seg(.16, .32); if (c > 0 && c < 1) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; const k = 1 - c; for (let i = 0; i < 180; i++) { const a = i * 2.39996, rr = Math.sqrt(i / 180) * D * .6 * (.4 + k * .8); const x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr * .8; softBlob(x, y, 4 + 8 * k, i % 3 ? [255, 210, 140] : [180, 220, 255], .5 * Math.sin(c * Math.PI)); } ctx.restore(); }
+      // 天空、雲層衝過去
+      const s2 = seg(.3, .46); if (s2 > 0 && s2 < 1) { const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, `rgba(120,170,255,${.8 * Math.sin(s2 * Math.PI)})`); g.addColorStop(1, `rgba(255,210,230,${.6 * Math.sin(s2 * Math.PI)})`); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); for (let i = 0; i < 8; i++) { const z = ((s2 * 3 + i / 8) % 1), r = D * .08 / Math.max(.05, 1 - z) * .3, a2 = i * 2.3; const x = cx + Math.cos(a2) * r * 2.4, y = cy + Math.sin(a2) * r * 1.6; ctx.fillStyle = `rgba(255,255,255,${.75 * (1 - z) * Math.sin(s2 * Math.PI)})`; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.arc(x + r * .8, y + r * .2, r * .8, 0, TAU); ctx.arc(x - r * .8, y + r * .2, r * .7, 0, TAU); ctx.fill(); } }
+      // 大氣層、地球（越來越遠）
+      const e = seg(.44, .66); if (e > 0) { const r = D * lerp(1.6, .05, easeOut(e)), ey = cy + r * .35 + lerp(H * .4, H * .25, e); const a = e < 1 ? 1 : clamp(1 - (f - .66) * 8); if (a > 0) { ctx.save(); ctx.globalAlpha = a; ctx.globalCompositeOperation = 'lighter'; softBlob(cx, ey, r * 1.15, [120, 190, 255], .5); ctx.globalCompositeOperation = 'source-over'; const g = ctx.createRadialGradient(cx - r * .3, ey - r * .4, r * .1, cx, ey, r); g.addColorStop(0, '#9fd8ff'); g.addColorStop(.5, '#3f86d8'); g.addColorStop(1, '#14336e'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, ey, r, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(110,200,140,.8)'; ctx.beginPath(); ctx.ellipse(cx - r * .3, ey - r * .1, r * .3, r * .18, .4, 0, TAU); ctx.ellipse(cx + r * .35, ey + r * .2, r * .2, r * .12, -.3, 0, TAU); ctx.fill(); ctx.restore(); } }
+      // 月亮從旁邊經過
+      const mo = seg(.6, .72); if (mo > 0 && mo < 1) { const r = D * .02 / Math.max(.08, 1 - mo) * .5, x = cx + W * .2 + (mo * W * .5), y = cy - H * .1 - mo * H * .2; const g = ctx.createRadialGradient(x - r * .3, y - r * .3, r * .1, x, y, r); g.addColorStop(0, '#f4f2ea'); g.addColorStop(1, '#9a98a8'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill(); }
+      // 太陽系
+      const so = seg(.7, .84); if (so > 0 && so < 1) { const k = lerp(1.4, .1, easeOut(so)), a = Math.sin(so * Math.PI); ctx.save(); ctx.globalAlpha = a; ctx.globalCompositeOperation = 'lighter'; softBlob(cx, cy, D * .06 * k, [255, 210, 120], .9); ctx.strokeStyle = 'rgba(200,210,255,.35)'; ctx.lineWidth = 1.5; for (let i = 1; i <= 6; i++) { ctx.beginPath(); ctx.ellipse(cx, cy, D * .07 * i * k, D * .025 * i * k, 0, 0, TAU); ctx.stroke(); const an = T * (1.5 / i) + i; softBlob(cx + Math.cos(an) * D * .07 * i * k, cy + Math.sin(an) * D * .025 * i * k, 4 + i, [180, 220, 255], .9); } ctx.restore(); }
+      // 星雲、銀河
+      const ne = seg(.8, .94); if (ne > 0 && ne < 1) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; const a = Math.sin(ne * Math.PI); [[255, 120, 200], [120, 160, 255], [160, 255, 220]].forEach((col, i) => softBlob(cx + Math.cos(i * 2 + ne * 3) * W * .3 * (1 - ne), cy + Math.sin(i * 2) * H * .2, D * .5 * (1.2 - ne), col, .35 * a)); ctx.restore(); }
+      const ga = seg(.9, 1); if (ga > 0) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; const k = lerp(1.2, .3, easeOut(ga)); for (let i = 0; i < 260; i++) { const arm = i % 2, rr = Math.sqrt(i / 260) * D * .3 * k, an = rr / (D * .3 * k) * 5 + arm * Math.PI + T * .2; ctx.fillStyle = `rgba(${200 + arm * 40},${200},255,${.7 * (1 - rr / (D * .3 * k)) * clamp(ga * 2)})`; ctx.fillRect(cx + Math.cos(an) * rr, cy + Math.sin(an) * rr * .45, 2, 2); } softBlob(cx, cy, D * .04 * k, [255, 240, 220], .9 * clamp(ga * 2)); ctx.restore(); }
+      // 速度線
+      if (warp > .05) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; for (let i = 0; i < 70; i++) { const an = i * 2.39996, z = ((T * 1.8 + i * .137) % 1), r0 = z * D * .7, r1 = r0 + D * .06 * warp * (z + .2); ctx.strokeStyle = `rgba(220,230,255,${.5 * warp * z})`; ctx.lineWidth = 1 + z * 2; ctx.beginPath(); ctx.moveTo(cx + Math.cos(an) * r0, cy + Math.sin(an) * r0); ctx.lineTo(cx + Math.cos(an) * r1, cy + Math.sin(an) * r1); ctx.stroke(); } ctx.restore(); }
+      star(cx, cy, Math.min(W, H) * .022 * (1 + .1 * Math.sin(T * 8)), 1);
+    }
+    // Ch11–12：INNERVERSE，然後訊號經過一隻一隻寵物，直到有一隻聽見了你
+    function petDraw(i, X, Y, s, o = {}) {
+      const im = PET_IMG[i]; if (!imgOK(im)) { ctx.fillStyle = (PETS[i] || PETS[0]).c || '#fff'; ctx.beginPath(); ctx.arc(X, Y, s * .35, 0, TAU); ctx.fill(); return; }
+      ctx.save(); ctx.translate(X, Y); if (o.rot) ctx.rotate(o.rot); ctx.scale((o.f || 1) * (o.sx || 1), o.sy || 1); ctx.globalAlpha = o.a === undefined ? 1 : o.a;
+      if (o.dark) ctx.filter = `brightness(${1 - o.dark * .75}) saturate(${1 - o.dark * .6})`;
+      ctx.drawImage(im, -s / 2, -s / 2, s, s); ctx.restore();
+    }
+    function drawPets(dt) {
+      spaceBg(0);
+      const u = Math.min(W, H), T2 = T;
+      // 標題
+      if (I.title > .01) {
+        const k = easeOut(clamp(I.title)), sz = clamp(u * .1, 34, 90) * (.85 + .15 * k);
+        ctx.save(); ctx.globalAlpha = clamp(I.title) * (1 - I.petsA * .85); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.font = `300 ${Math.round(sz)}px "Cormorant Garamond", Georgia, serif`; ctx.shadowColor = 'rgba(200,180,255,.9)'; ctx.shadowBlur = 40 * k;
+        const g = ctx.createLinearGradient(W / 2 - sz * 3, 0, W / 2 + sz * 3, 0); g.addColorStop(0, '#ffe3a8'); g.addColorStop(.5, '#ffffff'); g.addColorStop(1, '#c9b9ff'); ctx.fillStyle = g;
+        ctx.fillText('INNERVERSE', W / 2, H / 2 - u * .02); ctx.restore();
+      }
+      if (I.petsA <= .01) { star(W / 2, H / 2 + u * .14, u * .02, clamp(I.title)); return; }
+      ctx.save(); ctx.globalAlpha = I.petsA;
+      const s = clamp(u * .2, 70, 170), y = H * .58;
+      // 其他寵物：睡覺、看一眼、躲起來、耳朵動一下
+      PT.decoys.forEach((d, i) => {
+        const X = W * (.14 + i * .17), near = clamp(1 - Math.abs(PT.x - (.14 + i * .17)) / .1);
+        let o = { a: .9, dark: .35 }, dy = 0;
+        if (d.kind === 'sleep') { o.rot = -.3; dy = Math.sin(T2 * 1.5 + i) * 3; if (Math.random() < dt * 1.2) fx.push({ x: (X - W / 2) / S + .05, y: (y - H / 2) / S - .1, vx: .03, vy: -.08, t: 0, life: 1.6, r: .012, c: [255, 255, 255], g: 0, e: 'z' }); }
+        if (d.kind === 'glance') o.rot = near * .3 * Math.sin(T2 * 3);
+        if (d.kind === 'hide') { o.sy = 1 - near * .45; o.sx = 1 + near * .1; dy = near * s * .2; o.a = .9 - near * .5; }
+        if (d.kind === 'ear') o.rot = near * .12 * Math.sin(T2 * 18);
+        if (d.kind === 'play') dy = -Math.abs(Math.sin(T2 * 5 + i)) * s * .12;
+        petDraw(d.i, X, y + dy, s * .78, o);
+      });
+      // 牠：背對著鏡頭，頭上的星星亮了，慢慢回頭，走過來，BOOP
+      const mi = App.petIdx | 0, mx = W * lerp(.86, .62, easeIO(PT.near)), my = y - s * .05 - PT.near * s * .08;
+      ctx.save(); ctx.globalCompositeOperation = 'lighter'; softBlob(mx, my, s * (1 + PT.boop * 1.5), [255, 236, 200], .2 + PT.lit * .25 + PT.boop * .5); ctx.restore();
+      petDraw(mi, mx, my + Math.sin(T2 * 2) * 3, s * (1 + PT.near * .15), { f: lerp(-1, 1, easeIO(PT.turn)), sx: PT.turn > .05 && PT.turn < .95 ? Math.abs(Math.cos(PT.turn * Math.PI)) * .7 + .3 : 1, dark: .55 * (1 - PT.lit) * (1 - PT.turn), rot: PT.tilt || 0 });
+      star(mx, my - s * .58, s * (.03 + PT.lit * .05), .4 + PT.lit * .6, [255, 226, 150]);
+      ctx.restore();
+      // 訊號
+      if (!PT.mine) star(W * PT.x, y - s * .2 + Math.sin(T2 * 3) * 8, u * .018, I.petsA);
+    }
+
+    /* ---------- 每一格 ---------- */
+    function draw(dt) {
+      T += dt; S = scaleNow() * I.cam;
+      const camX0 = I.camX, camY0 = I.camY; if (I.shake > .001) { I.camX += rand(-1, 1) * I.shake; I.camY += rand(-1, 1) * I.shake; }
+      try { drawAll(dt); } finally { I.camX = camX0; I.camY = camY0; }
+    }
+    function drawAll(dt) {
+      stepOrbs(dt); stepRope(dt);
+      plants.forEach(p => { p.sv += (1 - p.sq) * 120 * dt; p.sv *= Math.exp(-6 * dt); p.sq += p.sv * dt; });
+      if (I.fly > 0 && I.fly < 1) { drawFly(dt); drawCredit(); return; }
+      if (I.title > 0 || I.petsA > 0) { drawPets(dt); drawFx(dt); return; }
+      ctx.fillStyle = '#05040f'; ctx.fillRect(0, 0, W, H);
+      const D = Math.hypot(W, H) / 2, cx = W / 2, cy = H / 2, u = Math.min(W, H);
+      if (I.iris > .001 && I.sphere < .001) {
+        const R = lerp(u * .02, D * 1.05, easeIO(clamp(I.iris)));
+        if (I.iris >= .999) drawWorld(dt, I.empty); else glassBall(cx, cy, R, () => drawWorld(dt, I.empty));
+      } else if (I.sphere > .001) {
+        // 拉遠：原來這只是一個人的內在世界
+        const zoom = lerp(1, .07, easeIO(clamp(I.many)));
+        const R0 = lerp(D, u * .19, easeIO(clamp(I.sphere))) * lerp(1, zoom, 1) * lerp(1, 1.7, clamp(I.focus || 0));
+        if (I.many > .001) {
+          const base = u * .19;
+          for (let i = 1; i < worlds.length; i++) {
+            const w = worlds[i], X = cx + w.x * base * 2.3 * zoom, Y = cy + w.y * base * 2.3 * zoom, R = base * w.s * zoom;
+            if (X < -R || Y < -R || X > W + R || Y > H + R) continue;
+            const a = clamp(I.many * 6 - w.d * .9) * (1 - I.dim);
+            if (a <= .01) continue;
+            if (R > 7) glassBall(X, Y, R, () => miniWorld(X, Y, R, w.kind, i), a);
+            else { ctx.save(); ctx.globalAlpha = a; softBlob(X, Y, R * 2.2, w.c, .9); ctx.restore(); }
+          }
+        }
+        glassBall(cx, cy, R0, () => { ctx.save(); ctx.translate(cx, cy); const k = R0 / D; ctx.scale(k, k); ctx.translate(-cx, -cy); drawWorld(dt, I.empty); ctx.restore(); });
+        if (I.empty > .5) star(cx, cy, R0 * .08, I.empty);
+        // 五道很淡的光（O C E A N）
+        if (I.lights > .01) { const cols = [[120, 170, 255], [150, 230, 170], [255, 214, 110], [255, 170, 200], [200, 170, 255]]; cols.forEach((c, i) => { const an = T * .35 + i / 5 * TAU, rr = R0 * 1.35; ctx.save(); ctx.globalAlpha = I.lights; ctx.globalCompositeOperation = 'lighter'; softBlob(cx + Math.cos(an) * rr, cy + Math.sin(an) * rr * .8, R0 * .28, c, .6); ctx.restore(); }); }
+        if (I.count > .01) { ctx.save(); ctx.globalAlpha = clamp(I.countA || 0); ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(255,243,220,.9)'; ctx.font = `300 ${Math.round(clamp(u * .09, 30, 80))}px "Cormorant Garamond", Georgia, serif`; ctx.fillText(['', '10', '100', '1,000', '∞'][Math.round(I.count)] || '', cx, H * .14 + u * .04); ctx.restore(); }
+      }
+      // Ch9：五道光融合成你的訊號
+      if (I.ribbons > .001) drawRibbons();
+      if (I.signal > .001) star(cx, sigY(), u * .03 * (1 + .12 * Math.sin(T * 6)) * clamp(I.signal * 1.4), clamp(I.signal * 2));
+      // Ch1：黑暗裡的一個光點
+      if (I.dark > .001) { ctx.fillStyle = `rgba(0,0,0,${I.dark})`; ctx.fillRect(0, 0, W, H); }
+      if (I.dot > .001) {
+        const r = u * .006 * (1 + I.dot * 1.6) * (1 + I.dotPulse * .6);
+        ctx.save(); ctx.globalCompositeOperation = 'lighter'; softBlob(cx, cy, r * 10 * (1 + I.dotPulse), [255, 240, 225], .35 * I.dot); softBlob(cx, cy, r * 2.5, [255, 255, 255], .9 * I.dot); ctx.restore();
+        ctx.fillStyle = `rgba(255,255,255,${I.dot})`; ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.fill();
+        drawRipples(dt); drawFx(dt);
+      }
+      drawCredit();
+    }
+    const sigY = () => H / 2 - (I.sigUp || 0) * H * .7;
+    function drawRibbons() {
+      const cx = W / 2, cy = H / 2, k = easeIO(clamp(I.ribbons)), cols = [[120, 170, 255], [150, 230, 170], [255, 214, 110], [255, 170, 200], [200, 170, 255]];
+      const src = [[-1.1, .2], [1.1, -.3], [-.4, -.75], [.6, .45], [1.2, .5]];
+      ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
+      cols.forEach((c, i) => {
+        const X0 = sx(src[i][0]), Y0 = sy(src[i][1]), n = 40;
+        ctx.strokeStyle = rgba(c, .75); ctx.lineWidth = Math.max(3, S * .018);
+        ctx.beginPath();
+        for (let j = 0; j <= n * k; j++) { const t = j / n, sw = Math.sin(t * Math.PI) * S * .25, an = t * 5 + i; const x = lerp(X0, cx, t) + Math.cos(an) * sw * (1 - t), y = lerp(Y0, cy, t) + Math.sin(an) * sw * (1 - t); j ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+        ctx.stroke();
+        const t = k, sw = Math.sin(t * Math.PI) * S * .25, an = t * 5 + i; softBlob(lerp(X0, cx, t) + Math.cos(an) * sw * (1 - t), lerp(Y0, cy, t) + Math.sin(an) * sw * (1 - t), S * .06, c, .9);
+      });
+      ctx.restore();
+    }
+    // 致敬 Inside Out 2（畫面最下方，開場一開始和最後都會淡淡地出現）
+    function drawCredit() {
+      if (I.credit <= .01) return;
+      ctx.save(); ctx.globalAlpha = I.credit * .85; ctx.textAlign = 'center'; ctx.fillStyle = I.dark > .5 || I.fly > 0 || I.sphere > .5 ? 'rgba(255,243,220,.85)' : 'rgba(90,70,140,.85)';
+      ctx.font = `${Math.round(clamp(Math.min(W, H) * .028, 11, 15))}px ${bodyFont}`;
+      ctx.fillText(L('致敬 Disney‧Pixar《腦筋急轉彎 2》（Inside Out 2）：把看不見的心理活動，變成看得見的世界', 'Homage to Disney·Pixar’s Inside Out 2 — turning the invisible life of the mind into a world you can see'), W / 2, H - Math.max(18, H * .04));
+      ctx.restore();
+    }
+
+    /* ---------- 旁白 ---------- */
+    // 中文：上面英文、下面中文；其他語言只顯示那個語言
+    const narr = (en, zh, o = {}) => { const lines = LANG === 'zh' ? [{ text: en, cls: 'en' }, zh] : [{ text: L(zh, en), cls: 'en' }]; return sayLines(lines, Object.assign({ stagger: .7, hold: 1.1, fade: .6, cls: (o.ink === false ? '' : 'ink ') + 'nar' }, o)); };
+    const beat = () => { Sound.sfx('beat'); I.dotPulse = 1; tw(I, 'dotPulse', 0, .7, easeOut); ripples.push({ x: 0, y: 0, t: 0, life: 1.6, big: true, flat: false, c: [255, 240, 225] }); };
+    const nearPlants = (x, n) => plants.slice().sort((a, b) => Math.abs(a.x - x) - Math.abs(b.x - x)).slice(0, n);
+    const drop = o => items.push(Object.assign({ t: 0, x: 0, y: -1.25, vy: 0, rot: 0, vr: 0 }, o));
+    let active = false, run = 0;
+    const live = r => { if (r !== run) throw new Cancel(); };
+    const mark = n => { if (window.__marks) window.__marks.push([n, +T.toFixed(1)]); };
+
+    async function prologue() {
+      const r = ++run; active = true; reset(); loadPetImages();
+      setState('inner'); Object.assign(P, { orb: 0, nebula: 0, starAlpha: 0, dust: 0, galaxy: 0, fade: 0, extra: 0 }); planets.forEach(p => { p.light = 0; });
+      I.dark = 1; I.credit = 0;
+      Sound.mood('breathe'); Sound.wxLevel && Sound.wxLevel(0, .5);
+      mark('ch01');
+      /* CHAPTER 01｜BEFORE THE WORLD EXISTS：全黑，三次心跳，一個光點 */
+      tw(I, 'credit', 1, 2.5);
+      await sleep(.9); live(r);
+      tw(I, 'dot', .35, .5, easeOut); beat(); await sleep(1); live(r);
+      tw(I, 'dot', .65, .5, easeOut); beat(); for (let i = 0; i < 14; i++) spark(rand(-1, 1), rand(-.6, .6), 1, [255, 245, 230], { v: .05, life: 3 });
+      await sleep(1); live(r);
+      tw(I, 'dot', 1, .5, easeOut); beat(); for (let i = 0; i < 40; i++) spark(rand(-1.5, 1.5), rand(-.9, .9), 1, [255, 245, 230], { v: .04, life: 4 });
+      await narr('Before we understand the world outside…', '在我們開始理解外面的世界以前……', { ink: false, hold: .8 }); live(r);
+      await narr('something is already growing inside us.', '有些東西，早已在心裡悄悄長大。', { ink: false, hold: 1 }); live(r);
+      tw(I, 'credit', 0, 2);
+      mark('ch02');
+      /* CHAPTER 02｜THE INNER WORLD：穿進光點，裡面是一個柔軟的世界 */
+      Sound.sfx('swish'); Sound.whoosh(2.4); Sound.mood('cute');
+      tw(I, 'dot', 2.6, 1.4, easeIO); await sleep(.6); live(r);
+      tw(I, 'iris', 1, 2.2, easeIO); tw(I, 'dark', 0, 1.6);
+      plants.forEach((p, i) => tw(p, 'h', .55 + (i % 3) * .12, 2.6 + i * .15, easeOut));
+      for (let i = 0; i < 5; i++) orbs.push(orb(lerp(-VIS() + .25, VIS() - .25, i / 4) + rand(-.04, .04), GROUND - .3, { idle: true, nextHop: 1 + i * .7, c: [[255, 240, 220], [255, 226, 236], [226, 240, 255], [236, 255, 236], [255, 246, 214]][i] }));
+      await sleep(1.4); live(r); tw(I, 'dot', 0, .8);
+      for (let i = 0; i < 6; i++) bubbles.push({ x: rand(-1.3, 1.3), y: GROUND, r: rand(.025, .05), vy: -rand(.05, .12), c: [COL.pink, COL.calm, COL.joy][i % 3], t: 0, p: rand(0, TAU), life: 9 });
+      // 一顆小光球跑太快——BOING！撞到另一顆，兩顆一起彈出去
+      const runner = orb(-VIS() - .2, GROUND - .1, { c: [255, 214, 236], r: .075, free: true });
+      orbs.push(runner); runner.vx = 2.1; runner.sv = 2; setTimeout(() => { runner.free = false; }, 400);
+      const cap2 = narr('Inside everyone, there is a world no one else can see.', '每個人的心裡，都有一個別人看不見的世界。', { hold: 2.2 });
+      await sleep(3.2); live(r); runner.idle = true; runner.nextHop = T + 2;
+      await cap2; live(r);
+      mark('ch03');
+      /* CHAPTER 03｜EVERY DAY ENTERS US：生活片段一個一個掉進來 */
+      // 📱 訊息
+      drop({ kind: 'msg', x: -.85, vr: .4, h: .05, onLand: it => { items.splice(items.indexOf(it), 1); Sound.sfx('pop'); Sound.chime(.6); bubbles.push({ x: it.x, y: it.y, r: .06, vy: 0, bounce: true, c: COL.joy, t: 0, p: 0, life: 7 }); spark(it.x, it.y, 18, COL.joy); nearPlants(it.x, 2).forEach(p => tw(p, 'bloom', 1, 1.2, easeOut)); I.warm = .35; tw(I, 'warm', 0, 6); } });
+      Sound.sfx('ding');
+      await sleep(2.4); live(r);
+      // 🌧️ 一滴雨
+      drop({ kind: 'drop', x: .55, vy: .3, h: .02, onLand: it => { items.splice(items.indexOf(it), 1); Sound.sfx('drip'); ripples.push({ x: it.x, y: groundY(it.x), t: 0, c: [150, 190, 255] }); puddle.x = it.x; puddle.w = .2; tw(puddle, 'lvl', 1, 1.4, easeOut); } });
+      await sleep(2.2); live(r);
+      // 🎧 一段旋律
+      [0, .25, .5, .75, 1].forEach((d, i) => setTimeout(() => { if (r !== run) return; drop({ kind: 'note', ch: i % 2 ? '♫' : '♪', c: [[150, 120, 230], [255, 150, 190], [120, 190, 255]][i % 3], x: -.2 + i * .14, vr: rand(-1, 1), h: .02, onLand: it => { items.splice(items.indexOf(it), 1); Sound.note([523.25, 587.33, 659.25, 783.99, 880][i], { dur: 1.4, gain: .06 }); nearPlants(it.x, 1).forEach(p => { tw(p, 'h', 1, 1, easeOut); tw(p, 'bloom', 1, 1.2, easeOut); }); spark(it.x, it.y, 8, [255, 230, 250]); } }); }, d * 900));
+      await sleep(3.2); live(r);
+      // 📚 報告：砰！砰！砰！砰！
+      const cap3 = narr('Everything we experience leaves something behind.', '我們經歷的每一件事情，都會在心裡留下些什麼。', { hold: 4.2 });
+      for (let i = 0; i < 4; i++) {
+        drop({ kind: 'report', x: -.1 + i * .05, vy: .6, vr: rand(-2, 2), h: .03 + i * .045, c: ['#f3efe6', '#fff6e0', '#eef4ff', '#fff0f4'][i], tab: ['#ff9ab8', '#8ec5ff', '#ffd36e', '#a8e6c4'][i], life: 6, onLand: it => {
+          Sound.sfx('thud'); I.shake = .03; tw(I, 'shake', 0, .4);
+          nearPlants(it.x, 1).forEach(p => { p.sq = .35; p.sv = 0; setTimeout(() => { p.sv = 6; Sound.sfx('pop', { p: 1.4 }); }, 1800); });
+          orbs.forEach(o => { o.sym = '!'; o.symT = T; o.vx = rand(-1.4, 1.4); o.vy = -rand(.6, 1.1); o.sv -= 2; });
+        } });
+        await sleep(.42); live(r);
+      }
+      await sleep(.6); live(r);
+      makeRope(.6, -.1); rope.cx = .25; rope.cy = 0; rope.mode = 'run'; I.purple = .4;
+      await sleep(2.6); live(r);
+      rope.mode = 'ball'; tw(rope, 'ball', 1, 1.4, easeOut); Sound.sfx('boing', { gain: .6 });
+      await cap3; live(r); I.purple = 0;
+      mark('ch04');
+      /* CHAPTER 04｜FEELINGS HAVE SHAPES：情緒不是角色，而是會改變世界的天氣 */
+      Sound.mood('feel');
+      // JOY｜愉快：碰到哪裡，哪裡開花
+      const joy = orb(0, -.25, { ground: false, ty: -.25, tx: 0, c: COL.joy, r: .095, glow: 1 }); orbs.push(joy);
+      Sound.sfx('pop', { p: 1.2 }); Sound.chime(1);
+      buildCaption([{ tag: 'JOY ｜ 愉快', color: '#d89a1a' }], 0, 'ink');
+      tw(I, 'warm', 1, 1.2); plants.forEach(p => { tw(p, 'bloom', 1, 1.4, easeOut); tw(p, 'h', 1, 1.2); });
+      for (let i = 0; i < 16; i++) bubbles.push({ x: rand(-1.4, 1.4), y: GROUND, r: rand(.02, .045), vy: -rand(.2, .45), c: [COL.joy, COL.pink, COL.warm][i % 3], t: 0, p: rand(0, TAU), life: 5 });
+      spark(0, -.25, 40, COL.joy, { v: 1.2 });
+      await sleep(2.4); live(r); hideCaption(); joy.ty = -1.6; joy.spd = 1;
+      // SADNESS｜低落：不是變得可怕，只是下起很小很小的雨
+      buildCaption([{ tag: 'SADNESS ｜ 低落', color: '#4f78c8' }], 0, 'ink');
+      tw(I, 'warm', 0, 1.4); tw(I, 'blue', .9, 1.6); tw(I, 'rain', .8, 1.6); tw(I, 'droop', .6, 2);
+      puddle.w = .26; tw(puddle, 'lvl', 1, 1);
+      await sleep(2.8); live(r); hideCaption();
+      // ANXIETY｜焦慮：紫色的線越跑越快，不停打結，最後把自己綁住了
+      buildCaption([{ tag: 'ANXIETY ｜ 焦慮', color: '#8a5ad8' }], 0, 'ink');
+      tw(I, 'rain', 0, 1); tw(I, 'blue', .15, 1.4); tw(I, 'purple', 1, 1.2);
+      rope.mode = 'run'; tw(rope, 'ball', 0, .8); rope.cx = .1; rope.cy = -.05;
+      orbs.forEach(o => { o.sym = '!'; o.symT = T + rand(0, .6); });
+      await sleep(1.9); live(r);
+      rope.mode = 'ball'; tw(rope, 'ball', .55, .6);   // 不小心纏住自己
+      const tangled = orbs[2]; if (tangled) { tangled.sym = '……'; tangled.symT = T; }
+      await sleep(1.2); live(r); hideCaption();
+      // CALM｜平靜：一陣風，所有東西慢慢漂，打結的線一點一點鬆開
+      buildCaption([{ tag: 'CALM ｜ 平靜', color: '#3aa88a' }], 0, 'ink');
+      Sound.sfx('wind'); tw(I, 'wind', 1, 1.2); tw(I, 'purple', 0, 2.4); tw(I, 'mint', .8, 2); tw(I, 'droop', 0, 2.4); tw(I, 'blue', 0, 2);
+      rope.mode = 'loose'; tw(rope, 'ball', 0, 2.2);
+      await sleep(2.2); live(r); tw(I, 'wind', 0, 1.6); hideCaption();
+      await narr('Some feelings arrive softly.', '有些感受，輕輕地來。', { hold: .4 }); live(r);
+      await narr('Some arrive all at once.', '有些，卻一下子塞滿整個世界。', { hold: .4 }); live(r);
+      await narr('None of them are wrong.', '但它們都沒有錯。', { hold: 1.6 }); live(r);
+      tw(I, 'mint', 0, 3); tw(rope, 'ball', 0, .5); setTimeout(() => { if (r === run) rope = null; }, 600);
+      mark('ch05');
+      /* CHAPTER 05｜PERSONALITY SHAPES THE WORLD：但情緒，只是我們的一部分 */
+      Sound.mood('origin');
+      await narr('But feelings are only part of who we are.', '但情緒，只是我們的一部分。', { hold: .9 }); live(r);
+      orbs = orbs.filter(o => o !== joy);
+      // 開放性：看到門，馬上跑進去
+      doors = [-.62, 0, .62].map(x => x * Math.min(1, VIS() / .95)).map((x, i) => ({ x, a: 0, open: 0, c: [[255, 200, 230], [190, 230, 255], [220, 255, 210]][i] }));
+      doors.forEach((d, i) => tw(d, 'a', 1, .6 + i * .2));
+      const o1 = orbs[0]; o1.sym = '?'; o1.symT = T;
+      const capO = narr('We explore differently.', '我們探索世界的方式不同。', { hold: 1.1 });
+      await sleep(.8); live(r); o1.tx = doors[1].x; o1.spd = 1.4; Sound.sfx('swish');
+      await sleep(.9); live(r); tw(doors[1], 'open', 1, .5, easeOut); Sound.sfx('ding', { p: 1.2 });
+      await sleep(.4); live(r); tw(o1, 'r', .001, .4); spark(doors[1].x, GROUND - .1, 26, [255, 240, 200], { v: .9, e: '' });
+      for (let k = 0; k < 6; k++) fx.push({ x: doors[1].x, y: GROUND - .12, vx: rand(-.4, .4), vy: -rand(.3, .6), t: 0, life: 2.2, r: .014, c: [255, 255, 255], g: 0, e: ['🌱', '🌷', '✨', '🦋'][k % 4] });
+      await capO; live(r);
+      doors.forEach(d => tw(d, 'a', 0, .6)); orbs = orbs.filter(o => o !== o1);
+      // 盡責性：左邊排好、右邊排好，啪啪啪
+      blocks = Array.from({ length: 7 }, (_, i) => ({ x0: rand(-VIS() + .1, VIS() - .1), y0: rand(-.5, .2), x1: (-.6 + i * .2) * Math.min(1, VIS() / .8), y1: .1, r0: rand(-1, 1), k: 0, a: 1, p: rand(0, TAU), c: [COL.pink, COL.joy, COL.calm, COL.sad, COL.warm, COL.anx, [255, 255, 255]][i] }));
+      const capC = narr('We organize differently.', '我們整理生活的方式不同。', { hold: 1 });
+      for (let i = 0; i < blocks.length; i++) { await sleep(.28); live(r); tw(blocks[i], 'k', 1, .35, easeOut); Sound.sfx('tick'); }
+      const o2 = orbs[0]; if (o2) { o2.glow = 1.4; o2.sym = '✦'; o2.symT = T; Sound.chime(1); }
+      await capC; live(r); blocks.forEach(b => tw(b, 'a', 0, .5));
+      // 外向性：看到遠方另一顆，咻～飛過去，BOOP！
+      const A = orbs[0], B = orbs[orbs.length - 1];
+      const capE = narr('We connect differently.', '我們靠近別人的方式不同。', { hold: 1.1 });
+      if (A && B && A !== B) { A.sym = '!'; A.symT = T; await sleep(.5); live(r); A.tx = B.x - .12; A.spd = 1.8; A.vy = -.8; Sound.sfx('swish'); await sleep(1.1); live(r); A.tx = null; Sound.sfx('boop'); A.glow = B.glow = 1.6; spark((A.x + B.x) / 2, A.y, 24, [255, 236, 200]); }
+      await capE; live(r);
+      // 親和性：一顆摔倒了，另一顆停下來，把自己的光分一點給它
+      const fallen = orbs[1], helper = orbs[2];
+      const capA = narr('We care differently.', '我們在乎事情的方式不同。', { hold: 1.5 });
+      if (fallen && helper) {
+        fallen.vy = -.6; fallen.sv = 3; fallen.dim = .8; await sleep(.6); live(r); fallen.sq = .6; Sound.sfx('pop', { p: .6 });
+        helper.sym = '?'; helper.symT = T; await sleep(.5); live(r); helper.tx = fallen.x + .13; helper.spd = .5; await sleep(1.2); live(r); helper.tx = null;
+        for (let k = 0; k < 14; k++) setTimeout(() => { if (r === run) fx.push({ x: helper.x, y: helper.y - .02, vx: (fallen.x - helper.x) * 1.4, vy: -.05, t: 0, life: .7, r: .012, c: [255, 236, 180], g: 0 }); }, k * 60);
+        tw(fallen, 'dim', 0, 1.2); setTimeout(() => { if (r === run) { fallen.glow = 1; fallen.sym = '♡'; fallen.symT = T; Sound.chime(.8); } }, 900);
+      }
+      await capA; live(r);
+      // 情緒敏感：一滴雨，其他光球沒什麼反應，它整個大波紋，然後慢慢平靜
+      const sens = orbs[3] || orbs[0];
+      const capN = narr('And we feel differently.', '我們感受世界的方式，也不一樣。', { hold: 1.6 });
+      drop({ kind: 'drop', x: sens.x, vy: .4, h: .02, onLand: it => { items.splice(items.indexOf(it), 1); Sound.sfx('drip'); sens.sym = '！！！'; sens.symT = T; sens.sv = -5; ripples.push({ x: sens.x, y: sens.y, t: 0, life: 2.2, big: true, flat: false, c: [180, 160, 255] }); ripples.push({ x: sens.x, y: sens.y, t: -.3, life: 2.2, big: true, flat: false, c: [180, 160, 255] }); } });
+      await capN; live(r);
+      mark('ch06');
+      /* CHAPTER 06｜BILLIONS OF INNER WORLDS：拉遠——原來每個人都有一個 */
+      Sound.mood('origin');
+      worlds = [{}];
+      for (let i = 1; i < 700; i++) { const a = i * 2.39996, d = Math.sqrt(i) * .62; worlds.push({ x: Math.cos(a) * d, y: Math.sin(a) * d * .8, s: rand(.55, 1), kind: KINDS[(i * 7 + (i % 5)) % KINDS.length], d: d / 16, c: [[150, 200, 255], [170, 230, 190], [255, 200, 230], [210, 190, 255], [255, 220, 170]][i % 5] }); }
+      tw(I, 'sphere', 1, 3, easeIO); Sound.sfx('swish');
+      await sleep(3.2); live(r);
+      tw(I, 'many', 1, 9, t => t * t * (3 - 2 * t));
+      const counter = async (n, at) => { await sleep(at); live(r); I.count = n; I.countA = 0; tw(I, 'countA', 1, .4); Sound.sfx('ding', { p: .8 + n * .15 }); await sleep(1.4); tw(I, 'countA', 0, .5); };
+      counter(1, .8).catch(() => {}); counter(2, 3).catch(() => {}); counter(3, 5.2).catch(() => {});
+      await sleep(5.5); live(r);
+      await narr('No two inner worlds are exactly the same.', '世界上，沒有兩個完全一樣的內在世界。', { ink: false, hold: 2 }); live(r);
+      mark('ch07');
+      /* CHAPTER 07｜YOURS：只剩一顆空白的世界 */
+      Sound.mood('breathe');
+      tw(I, 'dim', 1, 2.2); tw(I, 'many', 0, 3, easeIO); tw(I, 'focus', 1, 3, easeIO); tw(I, 'empty', 1, 3);
+      await sleep(3); live(r);
+      await narr('So…', '那麼……', { ink: false, hold: .3 }); live(r);
+      await narr('What does your inner world look like?', '你的內在世界，會是什麼樣子？', { ink: false, hold: 2 }); live(r);
+      mark('ch08');
+      /* CHAPTER 08｜DISCOVER YOURSELF：五道很淡的光 */
+      tw(I, 'lights', 1, 2.4); tw(I, 'credit', 1, 2); Sound.chime(.4);
+      await sleep(1.2); live(r);
+      const go = $('innerGo'); go.querySelector('.ig-zh').hidden = LANG !== 'zh'; $('igStart').textContent = L('✦ 開始探索', '✦ Start exploring', { ja: '✦ 探索をはじめる', ko: '✦ 탐험 시작', vi: '✦ Bắt đầu khám phá' }); go.classList.add('on');
+      await new Promise(res => { $('igStart').onclick = () => { go.classList.remove('on'); Sound.gift(); res(); }; });
+      live(r); tw(I, 'credit', 0, 1);
+      // 先告訴宇宙你是誰（名字和生日是之後回來的鑰匙），再開始 10 個問題
+      tw(I, 'lights', 0, 1); await sleep(.6);
+      active = false;
+      await startTalk();
+    }
+
+    /* ---------- 測驗：每回答一題，空白的內在世界就長出一點東西 ---------- */
+    let selfOrb = null;
+    function quizStart() {
+      run++; active = true; reset();
+      plants.forEach(p => { p.h = 0; p.bloom = 0; }); clouds.forEach(c => { c.s *= .9; });
+      I.iris = 1; I.dark = 1; I.cloudA = 0; tw(I, 'dark', 0, 1.6);
+      selfOrb = orb(0, GROUND - .2, { idle: true, nextHop: 2, c: [255, 246, 230], r: .06 }); orbs.push(selfOrb);
+      document.body.classList.add('inner-bg');
+    }
+    function answer(n, k, v) {
+      if (!active) return;
+      const amt = (v - 1) / 4;   // 0～1：越同意，變化越大
+      I.cloudA = Math.min(1, (I.cloudA || 0) + .12);
+      Sound.chime(.3 + amt * .8);
+      if (k === 'O') {   // 一扇關著的門，喀，打開，飛出蝴蝶
+        const d = { x: (doors.length % 2 ? 1 : -1) * (VIS() - .2), a: 0, open: 0, c: [[255, 200, 230], [190, 230, 255]][doors.length % 2] }; doors.push(d);
+        tw(d, 'a', 1, .5); setTimeout(() => { tw(d, 'open', .4 + amt * .6, .6, easeOut); Sound.sfx('ding', { p: 1.3 }); for (let i = 0; i < 3 + Math.round(amt * 5); i++) fx.push({ x: d.x, y: GROUND - .12, vx: rand(-.3, .3), vy: -rand(.2, .5), t: 0, life: 2.6, r: .014, c: [255, 255, 255], g: 0, e: i % 2 ? '🦋' : '✨' }); }, 500);
+      } else if (k === 'E') {   // 遠方出現另一顆小光，自己的光慢慢靠過去
+        const o = orb((n % 2 ? 1 : -1) * (VIS() - .12), GROUND - .2, { c: [226, 240, 255], idle: true, nextHop: T + 3 }); orbs.push(o);
+        selfOrb.tx = lerp(selfOrb.x, o.x, .25 + amt * .5); selfOrb.spd = .5; setTimeout(() => { if (selfOrb) selfOrb.tx = null; }, 2000);
+      } else if (k === 'C') {   // 漂浮的星塵開始形成漂亮的軌道
+        const ring = { r: .16 + quizMarks.length * .03, n: 8 + Math.round(amt * 10), sp: .6 + Math.random() * .4, a: 0 };
+        tw(ring, 'a', 1, 1);
+        quizMarks.push({ draw() { if (!selfOrb) return; ctx.save(); ctx.globalCompositeOperation = 'lighter'; for (let i = 0; i < ring.n; i++) { const an = T * ring.sp + i / ring.n * TAU; softBlob(sx(selfOrb.x + Math.cos(an) * ring.r), sy(selfOrb.y + Math.sin(an) * ring.r * .45), S * .02, [255, 236, 190], .7 * ring.a); } ctx.restore(); } });
+      } else if (k === 'A') {   // 旁邊的植物長出第二朵花
+        const p = plants.filter(q => q.h < .1)[0] || plants[(n * 3) % plants.length];
+        tw(p, 'h', .8 + amt * .3, 1.2, easeOut); tw(p, 'bloom', 1, 1.6, easeOut); if (amt > .4) setTimeout(() => tw(p, 'flower2', 1, 1, easeOut), 900);
+      } else if (k === 'N') {   // 水面出現波紋，慢慢回到平靜
+        puddle.x = -.4; puddle.w = .22; tw(puddle, 'lvl', 1, 1);
+        for (let i = 0; i < 1 + Math.round(amt * 3); i++) ripples.push({ x: puddle.x, y: groundY(puddle.x), t: -i * .35, life: 2, c: [170, 200, 255], big: amt > .6 });
+      }
+      // 每一題都讓世界多長一點：草、雲、星塵
+      plants.forEach((p, i) => { if ((i + n) % 3 === 0 && p.h < .5) tw(p, 'h', Math.min(.5, p.h + .15), 1); });
+      if (n === BIG5.length - 1) { quizMarks.push({ draw() { softBlob(sx(1.2), sy(-.75), S * .2, [255, 248, 220], .5); ctx.font = `${Math.round(S * .12)}px serif`; ctx.textAlign = 'center'; ctx.fillText('🌙', sx(1.2), sy(-.72)); } }); }
+    }
+
+    /* ---------- CHAPTER 09～12：訊號 → 飛出內在世界 → INNERVERSE → 有一個小小的存在聽見了你 ---------- */
+    async function signal(score) {
+      const r = ++run; active = true; setState('signal'); document.body.classList.remove('inner-bg');
+      I.iris = 1; I.sphere = 0; I.empty = 0;
+      Sound.mood('origin');
+      // 五種光從世界各處飛過來，纏繞、融合
+      Sound.sfx('swish'); tw(I, 'ribbons', 1, 2.6, easeIO);
+      await sleep(2.6); live(r);
+      I.ribbons = 0; tw(I, 'signal', 1, .6, easeOut); Sound.gift(); spark(0, 0, 50, [255, 240, 220], { v: 1.4 });
+      await narr('This is not a label.', '這不是一個標籤。', { hold: .9 }); live(r);
+      await narr('It is a pattern.', '而是一種屬於你的排列。', { hold: .9 }); live(r);
+      await narr('A signal that feels a little more like you.', '一個，更接近你的訊號。', { hold: 1.6 }); live(r);
+      // 咻——飛出去：黑暗、光膜、城市、天空、雲、大氣層、地球、月亮、太陽系、星雲、銀河
+      Sound.whoosh(6); tw(I, 'sigUp', 1, .8, t => t * t);
+      await sleep(.7); live(r);
+      I.signal = 0; I.fly = .001; tw(I, 'fly', .999, 9.5, t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+      setTimeout(() => { if (r === run) Sound.whoosh(4); }, 3500);
+      await sleep(9.6); live(r);
+      // INNERVERSE（不是爆炸，是很柔軟的大和弦）
+      I.fly = 0; I.title = 0; Sound.sfx('chord'); Sound.boom();
+      tw(I, 'title', 1, 2.4, easeOut);
+      await sleep(3.4); live(r);
+      // 訊號經過不同的寵物：睡覺的、看一眼繼續玩的、躲起來的、耳朵動一下的⋯⋯
+      const mine = App.petIdx | 0, others = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].filter(i => i !== mine).sort(() => Math.random() - .5);
+      PT.decoys = ['sleep', 'play', 'hide', 'ear'].map((kind, i) => ({ i: others[i], kind }));
+      PT.x = -.05; PT.lit = 0; PT.turn = 0; PT.near = 0; PT.boop = 0; PT.mine = 0; PT.tilt = 0;
+      tw(I, 'petsA', 1, 1.6);
+      await sleep(.8); live(r);
+      tw(PT, 'x', .8, 6, t => t);
+      await sleep(6); live(r);
+      // 停下來。遠方，一隻背對著你的小生物，頭上的星星亮了
+      Sound.mood('end'); await sleep(.9); live(r);
+      Sound.mood('breathe'); Sound.sfx('ding', { p: 1.5 }); tw(PT, 'lit', 1, .8, easeOut);
+      await sleep(1.2); live(r);
+      tw(PT, 'turn', 1, 1.4, easeIO);   // 慢慢回頭
+      await sleep(1.6); live(r);
+      tw(PT, 'tilt', .2, .5); await sleep(.7); tw(PT, 'tilt', 0, .5);   // 歪頭：？
+      tw(PT, 'near', 1, 1.6, easeIO); await sleep(1.7); live(r);
+      PT.mine = 1; Sound.sfx('boop'); PT.boop = 1; tw(PT, 'boop', 0, 2.2);   // BOOP ✦
+      for (let i = 0; i < 50; i++) fx.push({ x: (W * lerp(.86, .62, 1) - W / 2) / S, y: (H * .58 - H / 2) / S, vx: rand(-1, 1), vy: rand(-1, .4), t: 0, life: rand(.8, 1.6), r: .012, c: [255, 240, 200], g: .3, e: '' });
+      await narr('Somewhere in the universe…', '在宇宙的某個地方……', { ink: false, hold: .9 }); live(r);
+      await narr('something heard you.', '有一個小小的存在，聽見了你。', { ink: false, hold: 1.8 }); live(r);
+      tw(I, 'petsA', 0, 1); tw(I, 'title', 0, 1); await sleep(1); live(r);
+      active = false; I.petsA = 0; I.title = 0;
+      Gift.companion();
+    }
+    if (/[?&]debug=1/.test(location.search)) window.__inner = () => ({ T: +T.toFixed(1), state, I: Object.assign({}, I) });
+    function stop() { run++; active = false; document.body.classList.remove('inner-bg'); $('innerGo').classList.remove('on'); }
+    return {
+      prologue, quizStart, answer, signal, stop, draw,
+      get active() { return active || state === 'inner' || state === 'signal' || (state === 'quiz' && document.body.classList.contains('inner-bg')); }
+    };
+  })();
+  // 前導動畫：原本的第 I～VI 幕改成《你心裡的世界》（舊的幾幕還留在程式裡，但不再播放）
+  const ACTS = [() => Inner.prologue()];
   let storyRun = 0;
   async function story(from = 1) {
     const run = ++storyRun;
@@ -5717,12 +6558,7 @@ function petSVG(i, opt = {}) {
      章節選單：不用看完前一幕，也能直接跳到想看的章節
      ================================================================ */
   const CHAPTERS = [
-    { n: 'I', zh: '迷失', en: 'Lost', d: L('有些時候，我們不知道自己怎麼了', 'Sometimes we don’t know what’s wrong') },
-    { n: 'II', zh: '情緒出現', en: 'Feel', d: L('五顆情緒星球，依序亮起', 'Five feeling-planets light up one by one') },
-    { n: 'III', zh: '靠近', en: 'Listen', d: L('觸碰一個你正在感受的情緒', 'Touch a feeling you have right now') },
-    { n: 'IV', zh: '釋放', en: 'Release', d: L('讓情緒們不再互相撞擊', 'Let the feelings stop colliding') },
-    { n: 'V', zh: '呼吸', en: 'Breathe', d: L('跟著光，一起呼吸三次', 'Breathe three times with the light') },
-    { n: 'VI', zh: '重生', en: 'Rebirth', d: L('你依然是一整座宇宙', 'You are still a whole universe') },
+    { n: '✦', zh: '你心裡的世界', en: 'The World Inside You', d: L('前導動畫｜致敬 Disney‧Pixar《腦筋急轉彎 2》：情緒像天氣，人格像地形', 'Prologue · homage to Disney·Pixar’s Inside Out 2 — emotions are the weather, personality is the landscape') },
     { n: '✦', zh: '與宇宙對話', en: 'Talk', full: 'Talk with the Universe', d: L('第一次來從這裡開始；回來玩也從這裡，輸入一樣的暱稱和生日', 'Start here the first time — and come back here later with the same nickname and birthday', { ja: 'はじめてならここから。また来たときも、ここで同じニックネームと誕生日を入れてね', ko: '처음이라면 여기서 시작하고, 다시 올 때도 여기서 같은 닉네임과 생일을 입력하세요', vi: 'Lần đầu hãy bắt đầu ở đây — quay lại cũng vào đây, nhập đúng biệt danh và ngày sinh' }), talk: true, back: true },
     { n: '❀', zh: '情緒', en: 'Feelings', full: 'Have You Seen a Feeling?', d: L('看看情緒的顏色、形狀和聲音', 'See the colors, shapes and sounds of feelings'), talk: true },
     { n: '☾', zh: '解決煩惱', en: 'Let It Go', full: 'Let Your Worry Go', d: L('說出煩惱，讓寵物陪你一起放下', 'Share a worry and let your pet help you set it down'), talk: true },
@@ -5731,12 +6567,7 @@ function petSVG(i, opt = {}) {
   ];
   // 每一幕開始時，世界應有的樣子（＝前面幾幕跑完後的參數）
   const ACT_START = [
-    { P: {}, light: 0, clarity: 0 },
-    { P: { orb: 0, nebula: .08, starAlpha: .35, starSpeed: .05, dust: 1 }, light: .07, clarity: 0 },
-    { P: { orb: 0, chaos: .55, nebula: .18, starAlpha: .7, starSpeed: .03, dust: 1 }, light: 1, clarity: 0 },
-    { P: { orb: 0, chaos: .4, nebula: .18, starAlpha: .7, starSpeed: .03, dust: 1 }, light: 1, clarity: .3 },
-    { P: { orb: 0, self: 1, orbit: 1, chaos: 0, soft: 1, lines: 1, nebula: .4, starAlpha: .9, starSpeed: .03, dust: 1 }, light: 1, clarity: .8 },
-    { P: { orb: 0, self: 1, orbit: 1, chaos: 0, soft: 1, lines: 1, nebula: .4, starAlpha: .9, starSpeed: .03, dust: 1, extra: 1 }, light: 1, clarity: .8 }
+    { P: { orb: 0, nebula: 0, starAlpha: 0, dust: 0 }, light: 0, clarity: 0 }
   ];
   const chapEl = $('chapters'), chList = $('chList');
   let paused = false;
@@ -5768,6 +6599,7 @@ function petSVG(i, opt = {}) {
   function jumpTo(n) {
     closeChapters();
     const fromIdle = state === 'idle';
+    Inner.stop();
     storyRun++;
     waiters.splice(0).forEach(w => w.rej(new Cancel()));
     tweens.length = 0;
@@ -5812,6 +6644,7 @@ function petSVG(i, opt = {}) {
   }, true);
 
   function resetWorld() {
+    Inner.stop();
     waiters.splice(0).forEach(w => w.rej(new Cancel()));
     tweens.length = 0;
     Object.assign(P, DEF);
@@ -5910,7 +6743,7 @@ function petSVG(i, opt = {}) {
     story();
   });
   leaveBtn.addEventListener('click', resetWorld);
-  window.addEventListener('keydown', e => { if (e.key === 'Escape' && state !== 'idle' && state !== 'end' && state !== 'talk' && state !== 'gift' && state !== 'quiz' && state !== 'result' && state !== 'feel' && state !== 'ritual' && state !== 'origin' && state !== 'wuxing' && state !== 'universe') resetWorld(); });
+  window.addEventListener('keydown', e => { if (e.key === 'Escape' && state !== 'idle' && state !== 'end' && state !== 'talk' && state !== 'gift' && state !== 'quiz' && state !== 'signal' && state !== 'result' && state !== 'feel' && state !== 'ritual' && state !== 'origin' && state !== 'wuxing' && state !== 'universe') resetWorld(); });
   sndBtn.addEventListener('click', () => {
     const m = sndBtn.getAttribute('aria-pressed') === 'true';
     sndBtn.setAttribute('aria-pressed', String(!m));
@@ -6756,7 +7589,8 @@ function petSVG(i, opt = {}) {
       App.petIdx = Math.max(0, PETS.findIndex(p => p.zh === data.bday.zodiac));
       App.petName = '';
       show('none');
-      Gift.start();
+      // 新的流程：先做 10 題（背景是你空白的內在世界，每答一題就長出一點東西），寵物在最後才「聽見你」
+      Inner.quizStart(); setState('quiz'); Quiz.start();
     }
     bSend.addEventListener('click', () => {
       if (CARE_RE.test(data.raw.worry) && !careShown) { careShown = true; show('care'); return; }
@@ -7266,9 +8100,32 @@ function petSVG(i, opt = {}) {
       const c = stageCenter(); emit(c.x, c.y, 50, SPARK_COLS, { speed: 160, life: 1.4 });
     }
     petOk.addEventListener('click', confirmName);
-    gGo.addEventListener('click', () => { if (phase === 'hello') Origin.start(); });
+    gGo.addEventListener('click', () => { if (phase !== 'hello') return; if (companion) { companion = false; Result.start(App.big5); } else Origin.start(); });
 
-    return { start, reset() { Voice.stop(); root.classList.remove('shake', 'lid-off', 'flash'); setPhase('wrap'); } };
+    // YOUR COMPANION：不是打開禮物，而是牠聽見了你的訊號，自己來找你
+    let companion = false;
+    async function meet() {
+      start(); companion = true;
+      root.classList.add('lid-off'); setPhase('reveal');
+      gCap.textContent = 'YOUR COMPANION';
+      gSub.textContent = L('牠不是因為一個標籤選擇你。牠只是認出了，屬於你的訊號。', 'It didn’t choose your label. It recognized your signal.', { ja: 'ラベルで選んだんじゃない。あなたの信号に気づいただけ。', ko: '꼬리표 때문에 고른 게 아니에요. 당신의 신호를 알아본 거예요.', vi: 'Nó không chọn bạn vì một cái nhãn. Nó chỉ nhận ra tín hiệu của bạn.' });
+      gSign.classList.add('on'); Sound.chime(.6);
+      const c = stageCenter(); emit(c.x, c.y, 90, SPARK_COLS, { speed: 200, life: 1.6 });
+      try { await sleep(3.4); } catch (e) { return; }
+      if (!companion) return;
+      setPhase('name'); swap(gCap, L('幫牠取個名字吧', 'Give it a name')); swap(gSub, '');
+    }
+    const origConfirm = confirmName;
+    petOk.addEventListener('click', () => { if (companion) setTimeout(afterName, 0); });
+    petIn.addEventListener('keydown', e => { if (e.key === 'Enter' && companion) setTimeout(afterName, 0); });
+    function afterName() {
+      if (!companion || phase !== 'hello') return;
+      gAsk.textContent = L(`${App.petName} 回頭看了看遠方的宇宙，又看看你。好像在說：「走啊。」`, `${App.petName} looks back at the vast universe, then at you — as if to say, “Let’s go.”`, { ja: `${App.petName} は遠くの宇宙をふり返って、あなたを見た。「行こう」って言ってるみたい。`, ko: `${App.petName}이(가) 먼 우주를 돌아보고, 당신을 봐요. “가자”라고 말하는 것 같아요.`, vi: `${App.petName} ngoảnh lại nhìn vũ trụ xa xăm, rồi nhìn bạn — như muốn nói: “Đi thôi.”` });
+      gGo.textContent = L('✦ 進入我的 INNERVERSE', '✦ ENTER MY INNERVERSE');
+    }
+    void origConfirm;
+
+    return { start, companion: () => { meet(); }, reset() { companion = false; gGo.textContent = L('讓我告訴你', 'Tell me'); Voice.stop(); root.classList.remove('shake', 'lid-off', 'flash'); setPhase('wrap'); } };
   })();
 
   /* ================================================================
@@ -7803,6 +8660,7 @@ function petSVG(i, opt = {}) {
       busy = true; ans[i] = v;
       Array.from(opts.children).forEach(b => b.classList.remove('sel')); btn.classList.add('sel');
       Sound.note([523.25, 587.33, 659.25, 783.99, 880][v - 1], { dur: 1.6, gain: .07 });
+      Inner.answer(i, BIG5[i].k, BIG5[i].rev ? 6 - v : v);
       setTimeout(() => { busy = false; i++; if (i >= BIG5.length) finish(); else render(); }, 420);
     }
 
@@ -7812,7 +8670,8 @@ function petSVG(i, opt = {}) {
       const score = {}; Object.keys(sum).forEach(k => { score[k] = Math.round(sum[k] / 2 * 10) / 10; });
       App.big5 = score;
       bar.style.width = '100%';
-      Result.start(score);
+      // 第十題完成：五種光融合成你的訊號 → 飛出內在世界 → INNERVERSE → 有一隻寵物聽見了你
+      Inner.signal(score).catch(e => { if (!(e instanceof Cancel)) { console.error(e); Gift.companion(); } });
     }
 
     back.addEventListener('click', () => { if (i > 0 && !busy) { i--; render(); } });
@@ -13773,10 +14632,10 @@ function petSVG(i, opt = {}) {
 
 
   /* ---------- 加速與跳過開場（敘事太長時，長按就快轉 ×4） ---------- */
-  const FF_ST = new Set(['act1', 'act2', 'act3', 'act4', 'act5', 'act6', 'end', 'origin', 'wuxing', 'feel', 'ritual']);
-  const FF_PASSIVE = new Set(['act1', 'act2', 'act6', 'end', 'origin']);   // 這幾段不用互動：在畫面任何地方長按也能加速
+  const FF_ST = new Set(['act1', 'act2', 'act3', 'act4', 'act5', 'act6', 'end', 'origin', 'wuxing', 'feel', 'ritual', 'inner', 'signal']);
+  const FF_PASSIVE = new Set(['act1', 'act2', 'act6', 'end', 'origin', 'inner', 'signal']);   // 這幾段不用互動：在畫面任何地方長按也能加速
   const FF = { hold: false, press: null };
-  const INTRO_ST = new Set(['act1', 'act2', 'act3', 'act4', 'act5', 'act6', 'end']);
+  const INTRO_ST = new Set(['act1', 'act2', 'act3', 'act4', 'act5', 'act6', 'end', 'inner']);
   const ffK = () => (FF.hold && FF_ST.has(state) ? 4 : 1) * (INTRO_ST.has(state) ? clamp(+CONFIG.INTRO_SPEED || 1, .5, 3) : 1);
   function ffSet(on) {
     on = !!on && FF_ST.has(state);
@@ -13802,7 +14661,7 @@ function petSVG(i, opt = {}) {
     addEventListener('keydown', e => { if ((e.key === 'f' || e.key === 'F') && !e.repeat && !/INPUT|TEXTAREA/.test((e.target || {}).tagName || '')) ffSet(true); });
     addEventListener('keyup', e => { if (e.key === 'f' || e.key === 'F') ffSet(false); });
     addEventListener('blur', () => ffSet(false));
-    $('ffSkip').addEventListener('click', e => { e.stopPropagation(); ffSet(false); jumpTo(ACTS.length + 1); });
+    $('ffSkip').addEventListener('click', e => { e.stopPropagation(); ffSet(false); if (state === 'signal') { Inner.stop(); waiters.splice(0).forEach(w => w.rej(new Cancel())); hideCaption(); Gift.companion(); } else jumpTo(ACTS.length + 1); });
   })();
 
   /* ---------- 主迴圈 ---------- */
@@ -13827,7 +14686,8 @@ function petSVG(i, opt = {}) {
     drawSkyNebula();
     drawStars(dt);
     if (state !== 'feel' && state !== 'ritual') { drawMeteors(dt); drawBokeh(dt); }
-    if (state === 'origin' || state === 'quiz') drawOrigin(dt);
+    if (Inner.active) { try { Inner.draw(dt); } catch (e) { console.warn('inner draw:', e); } }   // 前導動畫《你心裡的世界》（含測驗背景、訊號、寵物聽見你）
+    else if (state === 'origin' || state === 'quiz') drawOrigin(dt);
     if (state === 'feel') drawFeel(dt);
     if (state === 'ritual') drawRitual(dt);
     if (state === 'wuxing') drawWx(dt);

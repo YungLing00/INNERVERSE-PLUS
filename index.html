@@ -249,6 +249,7 @@
   .home.visit .hm-care, .home.visit .hm-ask { display: none !important; }
   .hm-ask { position: absolute; left: 50%; top: 40%; transform: translateX(-50%); display: none; gap: 6px; flex-wrap: wrap; justify-content: center; width: min(92vw, 460px); }
   .hm-ask.on { display: flex; animation: hmIn .5s ease both; }
+  @media (max-width: 600px) { .hm-ask { left: 10px; transform: none; width: calc(100vw - 96px); justify-content: flex-start; top: 36%; } .hm-ask.on { animation: none; } .hm-ask button { font-size: .74rem; padding: .4rem .65rem; } }
   .hm-ask button, .hm-chip { padding: .45rem .8rem; border-radius: 99px; border: 1px solid rgba(255,226,170,.4); background: rgba(20,14,46,.8); color: #fff3dc; font-family: var(--tc); font-size: .78rem; letter-spacing: .04em; cursor: pointer; }
   .hm-chip.on { background: rgba(255,226,170,.22); border-color: rgba(255,226,170,.9); }
   .hm-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: .6rem; justify-content: center; }

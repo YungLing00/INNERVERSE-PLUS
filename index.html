@@ -225,6 +225,7 @@
   }
   /* ✦ 星球家園與發現 */
   /* 陪伴者：照顧、提問、拜訪、睡前、記憶、INNERVERSE 卡 */
+  .hm-homage { font-size: .6rem !important; color: rgba(255,226,190,.55) !important; letter-spacing: .06em !important; }
   .hm-code { font-family: var(--latin); letter-spacing: .18em !important; color: rgba(255,226,170,.75) !important; }
   .hm-care { position: absolute; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 86px); display: flex; gap: 6px; overflow-x: auto; padding: 4px 10px; justify-content: center; scrollbar-width: none; }
   .hm-care::-webkit-scrollbar { display: none; }
@@ -266,7 +267,7 @@
   .mem-cap { position: absolute; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 12dvh); transform: translateX(-50%); width: min(90vw, 620px); text-align: center; color: #fff6e4; font-family: var(--tc); font-size: clamp(1rem, 4vw, 1.3rem); letter-spacing: .1em; line-height: 1.8; text-shadow: 0 2px 18px rgba(0,0,0,.9); opacity: 0; transition: opacity 1.2s ease; pointer-events: none; }
   .mem-cap.on { opacity: 1; }
   .mem-x { position: absolute; right: calc(env(safe-area-inset-right, 0px) + 12px); top: calc(env(safe-area-inset-top, 0px) + 12px); }
-  .iv-card { position: fixed; inset: 0; z-index: 58; display: none; place-items: center; padding: 14px; background: rgba(4,3,16,.82); overflow-y: auto; }
+  .iv-card { position: fixed; inset: 0; z-index: 58; display: none; place-items: center; padding: 14px; background: rgba(4,3,16,.95); overflow-y: auto; }
   .iv-card.on { display: grid; animation: ivIn .4s ease; }
   @keyframes ivIn { from { opacity: 0; } to { opacity: 1; } }
   .ivc-in { width: min(440px, 100%); display: grid; gap: 10px; justify-items: center; }
@@ -276,10 +277,31 @@
   .ivc-snd .hm-chip { font-size: .72rem; padding: .35rem .65rem; }
   .ivc-acts { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
   .ivc-msg { font-size: .76rem; color: #ffe2aa; min-height: 1em; }
+  /* 手機：卡片、聲音、按鈕要在同一個畫面裡放得下 */
+  .iv-card { padding: calc(env(safe-area-inset-top, 0px) + 10px) 12px calc(env(safe-area-inset-bottom, 0px) + 10px); }
+  .ivc-in img { max-height: calc(100dvh - 255px); width: auto; max-width: 100%; }
+  @media (max-width: 600px) {
+    .ivc-snd { max-height: 62px; }
+    .ivc-acts { display: grid; grid-template-columns: 1fr 1fr; width: 100%; gap: 6px; }
+    .ivc-acts button { padding: .55rem .5rem; font-size: .76rem; letter-spacing: .06em; }
+    .ivc-acts .main { grid-column: 1 / -1; }
+  }
   .pc-mine { margin: .6rem 0; font-family: var(--latin); letter-spacing: .14em; color: #ffe2aa; }
   #pcIn { text-transform: uppercase; letter-spacing: .14em; }
   .rs-card { margin: 1.6rem auto 0; display: block; }
   .rs-card + .rs-feel { margin-top: .7rem; }
+  /* 自己畫的圖示（取代 emoji） */
+  .ivi { display: inline-block; width: 1.22em; height: 1.22em; margin: 0 .03em; vertical-align: -.27em; background: center / contain no-repeat; transform-origin: 50% 70%; animation: 3.2s ease-in-out infinite; pointer-events: none; }
+  .ivi-bob { animation-name: iviBob; } .ivi-sway { animation-name: iviSway; } .ivi-pulse { animation-name: iviPulse; } .ivi-twinkle { animation-name: iviTw; animation-duration: 2.2s; }
+  .ivi-flicker { animation-name: iviFl; animation-duration: .9s; } .ivi-flap { animation-name: iviFlap; animation-duration: .7s; } .ivi-spin { animation-name: iviSpin; animation-duration: 9s; animation-timing-function: linear; transform-origin: 50% 50%; }
+  @keyframes iviBob { 50% { transform: translateY(-.1em); } }
+  @keyframes iviSway { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
+  @keyframes iviPulse { 50% { transform: scale(1.09); } }
+  @keyframes iviTw { 0%, 100% { transform: scale(.92) rotate(-6deg); opacity: .85; } 50% { transform: scale(1.1) rotate(6deg); opacity: 1; } }
+  @keyframes iviFl { 0%, 100% { transform: scale(1, 1); } 30% { transform: scale(.96, 1.07); } 60% { transform: scale(1.03, .97); } }
+  @keyframes iviFlap { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(.65); } }
+  @keyframes iviSpin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .ivi { animation: none !important; } }
   .home { position: fixed; inset: 0; z-index: 34; display: none; background: #0b0826; touch-action: none; -webkit-user-select: none; user-select: none; }
   .home.on { display: block; }
   .home canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -1464,7 +1486,7 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
 </div>
 <section class="home" id="home" aria-label="星球家園">
   <canvas id="hmCv"></canvas>
-  <div class="hm-top"><button class="hm-x" id="hmClose" type="button" aria-label="回到宇宙">×</button><div class="hm-h"><b id="hmName"></b><small id="hmTitle"></small><small class="hm-code" id="hmCode"></small></div></div>
+  <div class="hm-top"><button class="hm-x" id="hmClose" type="button" aria-label="回到宇宙">×</button><div class="hm-h"><b id="hmName"></b><small id="hmTitle"></small><small class="hm-code" id="hmCode"></small><small class="hm-homage">致敬 Disney《魔法滿屋》Encanto</small></div></div>
   <div class="hm-side"><button class="pill" id="hmBook" type="button">📖 圖鑑</button><button class="pill" id="hmSound" type="button">🎵 聲景</button><button class="pill" id="hmGift" type="button">🎁 送禮</button><button class="pill" id="hmTitleB" type="button">🏷️ 稱號</button><button class="pill" id="hmPal" type="button">🐾 牠</button><button class="pill" id="hmCardB" type="button">🪪 卡片</button><button class="pill" id="hmEdit" type="button">✏️ 擺放</button></div>
   <p class="hm-msg" id="hmMsg" role="status"></p>
   <div class="hm-care" id="hmCare"></div>
@@ -1534,6 +1556,325 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
 </div>
 
 <button class="g-mail" id="gMail" type="button" hidden aria-label="打開星星信件">💌<b>0</b></button>
+<script>
+/* ================================================================
+   INNERVERSE 圖示：全站不用 emoji，改用自己畫的向量圖示＋小動畫
+   ・canvas：攔截 fillText，遇到 emoji 就畫成圖示（會呼吸、搖擺、閃爍）
+   ・網頁文字：自動把 emoji 換成會動的圖示（保留 aria-label）
+   風格：柔和的漸層、圓潤的形狀、淡淡的光暈
+   ================================================================ */
+(() => {
+  'use strict';
+  const TAU = Math.PI * 2, PI = Math.PI;
+  /* ---------- 小工具（座標：-1..1，y 向下） ---------- */
+  const lg = (g, x0, y0, x1, y1, stops) => { const gr = g.createLinearGradient(x0, y0, x1, y1); stops.forEach((c, i) => gr.addColorStop(i / (stops.length - 1), c)); return gr; };
+  const rgd = (g, x, y, r, a, b) => { const gr = g.createRadialGradient(x - r * .35, y - r * .45, r * .05, x, y, r * 1.15); gr.addColorStop(0, a); gr.addColorStop(1, b); return gr; };
+  const fill = (g, f) => { g.fillStyle = f; g.fill(); };
+  const ball = (g, x, y, r, a, b) => { g.beginPath(); g.arc(x, y, r, 0, TAU); fill(g, rgd(g, x, y, r, a, b)); };
+  const ell = (g, x, y, rx, ry, rot, f) => { g.beginPath(); g.ellipse(x, y, rx, ry, rot || 0, 0, TAU); fill(g, f); };
+  const shine = (g, x, y, rx, ry, a = .55, rot = -.6) => { const s = g.shadowBlur; g.shadowBlur = 0; ell(g, x, y, rx, ry, rot, `rgba(255,255,255,${a})`); g.shadowBlur = s; };
+  const rr = (g, x, y, w, h, r) => { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); };
+  const line = (g, w, c, pts, close) => { g.beginPath(); pts.forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y)); if (close) g.closePath(); g.lineWidth = w; g.strokeStyle = c; g.lineCap = 'round'; g.lineJoin = 'round'; g.stroke(); };
+  const arcS = (g, x, y, r, a0, a1, w, c) => { g.beginPath(); g.arc(x, y, r, a0, a1); g.lineWidth = w; g.strokeStyle = c; g.lineCap = 'round'; g.stroke(); };
+  function starP(g, x, y, R, r, n = 5, rot = -PI / 2) { g.beginPath(); for (let i = 0; i < n * 2; i++) { const a = rot + i * PI / n, q = i % 2 ? r : R; i ? g.lineTo(x + Math.cos(a) * q, y + Math.sin(a) * q) : g.moveTo(x + Math.cos(a) * q, y + Math.sin(a) * q); } g.closePath(); }
+  function sparkP(g, x, y, R, k = .22) { g.beginPath(); for (let i = 0; i < 4; i++) { const a = -PI / 2 + i * PI / 2, b = a + PI / 4; g.lineTo(x + Math.cos(a) * R, y + Math.sin(a) * R); g.quadraticCurveTo(x, y, x + Math.cos(a + PI / 2) * R, y + Math.sin(a + PI / 2) * R); void b; } g.closePath(); void k; }
+  function heartP(g, x, y, s) { g.beginPath(); g.moveTo(x, y + s * .85); g.bezierCurveTo(x - s * 1.25, y + s * .05, x - s * .75, y - s * .95, x, y - s * .35); g.bezierCurveTo(x + s * .75, y - s * .95, x + s * 1.25, y + s * .05, x, y + s * .85); g.closePath(); }
+  function leafP(g, x0, y0, x1, y1, w) { const mx = (x0 + x1) / 2, my = (y0 + y1) / 2, dx = y1 - y0, dy = x0 - x1, L = Math.hypot(dx, dy) || 1; g.beginPath(); g.moveTo(x0, y0); g.quadraticCurveTo(mx + dx / L * w, my + dy / L * w, x1, y1); g.quadraticCurveTo(mx - dx / L * w, my - dy / L * w, x0, y0); g.closePath(); }
+  function cloudP(g, x, y, s) { g.beginPath(); g.arc(x - s * .45, y + s * .1, s * .38, PI * .5, PI * 1.5); g.arc(x - s * .1, y - s * .2, s * .45, PI, PI * 1.9); g.arc(x + s * .4, y - s * .02, s * .38, PI * 1.3, PI * .5); g.closePath(); }
+  function dropP(g, x, y, s) { g.beginPath(); g.moveTo(x, y - s); g.bezierCurveTo(x + s * .15, y - s * .55, x + s * .7, y - s * .1, x + s * .7, y + s * .35); g.arc(x, y + s * .35, s * .7, 0, PI); g.bezierCurveTo(x - s * .7, y - s * .1, x - s * .15, y - s * .55, x, y - s); g.closePath(); }
+  const face = (g, x, y, s, c = '#3a2a4a') => { g.save(); g.shadowBlur = 0; ell(g, x - s * .32, y, s * .1, s * .13, 0, c); ell(g, x + s * .32, y, s * .1, s * .13, 0, c); ell(g, x - s * .29, y - s * .04, s * .035, s * .04, 0, '#fff'); ell(g, x + s * .35, y - s * .04, s * .035, s * .04, 0, '#fff'); ell(g, x - s * .55, y + s * .2, s * .12, s * .07, 0, 'rgba(255,140,170,.55)'); ell(g, x + s * .55, y + s * .2, s * .12, s * .07, 0, 'rgba(255,140,170,.55)'); g.restore(); };
+  function flower(g, n, R, pr, a, b, ca, cb, rot = 0) { for (let i = 0; i < n; i++) { const an = rot + i * TAU / n; g.save(); g.translate(Math.cos(an) * R * .5, Math.sin(an) * R * .5); g.rotate(an); ell(g, 0, 0, pr * 1.1, pr * .78, 0, rgd(g, 0, 0, pr, a, b)); g.restore(); } ball(g, 0, 0, R * .3, ca, cb); }
+  const noteP = (g, x, y, s, c1, c2, two) => { g.save(); g.fillStyle = lg(g, 0, -s, 0, s, [c1, c2]); g.strokeStyle = c2; ell(g, x - s * .25, y + s * .55, s * .32, s * .24, -.35, g.fillStyle); if (two) ell(g, x + s * .65, y + s * .4, s * .32, s * .24, -.35, g.fillStyle); g.lineWidth = s * .13; g.lineCap = 'round'; g.beginPath(); g.moveTo(x + s * .04, y + s * .52); g.lineTo(x + s * .04, y - s * .7); if (two) { g.lineTo(x + s * .94, y - s * .85); g.lineTo(x + s * .94, y + s * .37); } else g.quadraticCurveTo(x + s * .55, y - s * .4, x + s * .45, y - s * .05); g.stroke(); g.restore(); };
+  // 手勢：手掌的形狀（張開、握拳、比 YA、捏、搖滾、捧）
+  function hand(g, kind) {
+    const skin = rgd(g, 0, .1, .9, '#ffe9d6', '#f2b38f'), fing = (x, y, len, rot, w = .2) => { g.save(); g.translate(x, y); g.rotate(rot); rr(g, -w / 2, -len, w, len + .05, w / 2); fill(g, skin); g.restore(); };
+    if (kind === 'cup') { g.beginPath(); g.moveTo(-.95, -.15); g.quadraticCurveTo(-.9, .8, 0, .8); g.quadraticCurveTo(.9, .8, .95, -.15); g.quadraticCurveTo(.5, .05, 0, .05); g.quadraticCurveTo(-.5, .05, -.95, -.15); fill(g, skin); for (let i = 0; i < 3; i++) line(g, .04, 'rgba(200,120,90,.45)', [[-.75 + i * .12, -.1 + i * .08], [-.6 + i * .12, .2 + i * .05]]); ball(g, 0, -.3, .3, '#fff6c8', '#ffc85a'); g.fillStyle = '#fff'; sparkP(g, .45, -.7, .2); g.fill(); return; }
+    if (kind === 'clap') { g.save(); g.rotate(-.3); fing(-.12, .7, 1.25, -.08, .55); g.restore(); g.save(); g.rotate(.3); fing(.12, .7, 1.25, .08, .55); g.restore(); line(g, .07, '#ffd27a', [[-.7, -.85], [-.55, -.65]]); line(g, .07, '#ffd27a', [[.7, -.85], [.55, -.65]]); line(g, .07, '#ffd27a', [[0, -1], [0, -.8]]); return; }
+    if (kind === 'shake') { g.save(); g.rotate(-.15); rr(g, -.95, -.15, 1.2, .5, .25); fill(g, skin); g.restore(); g.save(); g.rotate(.15); rr(g, -.25, -.25, 1.2, .5, .25); fill(g, rgd(g, .3, 0, .8, '#ffe0c4', '#e8a07a')); g.restore(); return; }
+    rr(g, -.48, -.15, .96, .95, .38); fill(g, skin);
+    const F = { open: [1, 1, 1, 1, 1], fist: [0, 0, 0, 0, 0], peace: [0, 1, 1, 0, 0], pinch: [2, 2, 0, 0, 0], rock: [1, 1, 0, 0, 1] }[kind] || [1, 1, 1, 1, 1];
+    const fx = [-.33, -.11, .11, .33], fl = [.62, .72, .68, .55];
+    for (let i = 0; i < 4; i++) { if (F[i + 1] === 1) fing(fx[i], -.05, fl[i], (i - 1.5) * .08); else { ell(g, fx[i], -.12, .12, .1, 0, skin); } }
+    if (F[0] === 1) fing(-.5, .25, .55, -.9, .22); else if (F[0] === 2) { fing(-.42, .2, .5, -.5, .22); fing(-.15, -.1, .45, .5, .2); ball(g, -.42, -.42, .08, '#fff', '#ffd27a'); } else ell(g, -.42, .2, .14, .2, -.5, skin);
+    shine(g, -.15, .1, .2, .1, .3);
+  }
+
+  /* ---------- 圖示 ---------- */
+  const I = {};
+  const def = (name, a, glow, d) => { I[name] = { a, glow, d }; };
+  // 光、星、月
+  def('sparkle', 'twinkle', '255,230,160', g => { g.fillStyle = rgd(g, 0, 0, 1, '#fffbe8', '#ffc85a'); sparkP(g, 0, 0, .95); g.fill(); g.fillStyle = rgd(g, .55, -.55, .3, '#fff', '#ffd9f0'); sparkP(g, .6, -.6, .32); g.fill(); g.fillStyle = '#fff3c0'; sparkP(g, -.62, .55, .24); g.fill(); });
+  def('star', 'twinkle', '255,220,120', g => { starP(g, 0, .05, .95, .45); fill(g, rgd(g, 0, 0, .95, '#fff8d0', '#ffb43c')); shine(g, -.2, -.25, .22, .12, .6); });
+  def('glowstar', 'twinkle', '255,210,120', g => { starP(g, 0, .08, .85, .4); fill(g, rgd(g, 0, 0, .85, '#fffef0', '#ffc24a')); shine(g, -.15, -.2, .18, .1, .7); g.fillStyle = '#fff6d0'; sparkP(g, .72, -.7, .26); g.fill(); sparkP(g, -.75, -.55, .18); g.fill(); sparkP(g, .7, .65, .15); g.fill(); });
+  def('shooting', 'bob', '255,220,150', g => { g.fillStyle = lg(g, -.9, .9, .3, -.3, ['rgba(255,190,240,0)', 'rgba(255,220,160,.9)']); g.beginPath(); g.moveTo(-.95, .75); g.lineTo(.15, -.35); g.lineTo(.42, -.05); g.closePath(); g.fill(); starP(g, .35, -.35, .55, .25); fill(g, rgd(g, .35, -.35, .55, '#fffbe0', '#ffb84a')); });
+  def('dizzy', 'spin', '255,220,160', g => { arcS(g, 0, 0, .7, .4, PI * 1.7, .13, '#ffd27a'); starP(g, .55, -.5, .38, .17); fill(g, rgd(g, .55, -.5, .38, '#fff', '#ffc24a')); });
+  def('moon', 'bob', '255,236,170', g => { g.beginPath(); g.arc(0, 0, .85, 0, TAU); g.arc(.38, -.28, .7, 0, TAU, true); fill(g, rgd(g, -.2, 0, .9, '#fffbe6', '#ffd36b')); g.save(); g.shadowBlur = 0; ell(g, -.45, .25, .08, .08, 0, 'rgba(230,180,90,.45)'); ell(g, -.2, .55, .06, .06, 0, 'rgba(230,180,90,.4)'); g.restore(); });
+  def('newmoon', 'pulse', '150,130,255', g => { ball(g, 0, 0, .85, '#5a4a9a', '#16102e'); g.beginPath(); g.arc(0, 0, .85, -1.2, 1.2); g.lineWidth = .1; g.strokeStyle = 'rgba(255,200,140,.85)'; g.stroke(); });
+  def('sun', 'spin', '255,210,120', g => { for (let i = 0; i < 10; i++) { const a = i * TAU / 10; g.save(); g.rotate(a); ell(g, 0, -.78, .1, .2, 0, '#ffcb5c'); g.restore(); } ball(g, 0, 0, .55, '#fff6c8', '#ffb43c'); face(g, 0, .02, .45); });
+  def('sunset', 'bob', '255,170,120', g => { g.save(); g.beginPath(); g.rect(-1, -1, 2, 1.2); g.clip(); ball(g, 0, .2, .65, '#fff0b8', '#ff8a5c'); g.restore(); for (let i = 0; i < 3; i++) line(g, .1, ['#ff9a7a', '#c88aff', '#7aa8ff'][i], [[-.85 + i * .12, .4 + i * .2], [.85 - i * .12, .4 + i * .2]]); });
+  def('rainbow', 'bob', '255,190,220', g => { ['#ff8aa8', '#ffc46b', '#fff08a', '#8fe3a8', '#8cc8ff', '#b9a4ff'].forEach((c, i) => arcS(g, 0, .45, .9 - i * .11, PI, TAU, .12, c)); ell(g, -.72, .5, .26, .17, 0, '#fff'); ell(g, .72, .5, .26, .17, 0, '#fff'); });
+  def('comet', 'bob', '190,210,255', g => { g.fillStyle = lg(g, -.9, -.9, .3, .3, ['rgba(160,190,255,0)', 'rgba(190,220,255,.9)']); g.beginPath(); g.moveTo(-.95, -.6); g.lineTo(.15, .05); g.lineTo(-.1, .35); g.closePath(); g.fill(); ball(g, .3, .3, .42, '#ffffff', '#8cb8ff'); });
+  def('galaxy', 'spin', '190,160,255', g => { for (let k = 0; k < 2; k++) { g.beginPath(); for (let i = 0; i <= 40; i++) { const a = i / 40 * PI * 1.6 + k * PI, r = .1 + i / 40 * .8; i ? g.lineTo(Math.cos(a) * r, Math.sin(a) * r * .7) : g.moveTo(Math.cos(a) * r, Math.sin(a) * r * .7); } g.lineWidth = .16; g.strokeStyle = k ? 'rgba(140,200,255,.85)' : 'rgba(220,160,255,.9)'; g.lineCap = 'round'; g.stroke(); } ball(g, 0, 0, .2, '#fff', '#ffd27a'); });
+  def('planet', 'spin', '200,170,255', g => { g.save(); g.rotate(-.35); ell(g, 0, 0, .98, .28, 0, 'rgba(255,214,150,.9)'); g.restore(); ball(g, 0, 0, .55, '#e6d4ff', '#8a6ad8'); g.save(); g.rotate(-.35); g.beginPath(); g.ellipse(0, 0, .98, .28, 0, 0, PI); g.lineWidth = .12; g.strokeStyle = '#ffd696'; g.stroke(); g.restore(); shine(g, -.2, -.25, .16, .09); });
+  def('globe', 'spin', '150,210,255', g => { ball(g, 0, 0, .85, '#bfe8ff', '#3a8ad8'); g.fillStyle = '#7fd69a'; g.beginPath(); g.ellipse(-.25, -.15, .3, .4, .4, 0, TAU); g.fill(); g.beginPath(); g.ellipse(.35, .3, .25, .2, -.3, 0, TAU); g.fill(); shine(g, -.3, -.4, .2, .1); });
+  def('hole', 'spin', '160,130,255', g => { for (let i = 0; i < 4; i++) arcS(g, 0, 0, .85 - i * .18, i, i + 4.2, .1, `rgba(${200 - i * 30},${170 - i * 20},255,${.9 - i * .15})`); ball(g, 0, 0, .25, '#2a1a4a', '#06030f'); });
+  // 天氣
+  def('cloud', 'bob', '220,230,255', g => { cloudP(g, 0, .15, 1); fill(g, rgd(g, 0, 0, 1, '#ffffff', '#c7d4f2')); });
+  def('raincloud', 'bob', '160,190,255', g => { cloudP(g, 0, -.1, .95); fill(g, rgd(g, 0, -.2, .9, '#f4f7ff', '#a9b6e0')); [[-.4, .55], [0, .75], [.4, .55]].forEach(([x, y]) => { dropP(g, x, y, .14); fill(g, '#7fb8ff'); }); });
+  def('fog', 'bob', '210,215,235', g => { [[-.5, .9, -.45], [-.7, .7, -.05], [-.4, .95, .35], [-.8, .5, .72]].forEach(([a, b, y], i) => line(g, .16, `rgba(220,228,250,${.95 - i * .12})`, [[a, y], [b, y]])); });
+  def('tornado', 'sway', '200,190,255', g => { for (let i = 0; i < 5; i++) ell(g, (i % 2 ? .08 : -.05) * i, -.7 + i * .35, .85 - i * .15, .13, 0, `rgba(${210 - i * 10},${200 - i * 6},255,.85)`); });
+  def('wave', 'sway', '130,200,255', g => { g.beginPath(); g.moveTo(-1, .9); g.lineTo(-1, .1); g.bezierCurveTo(-.6, -.9, .45, -.85, .5, -.15); g.bezierCurveTo(.2, -.45, -.15, -.2, .05, .15); g.bezierCurveTo(.3, .4, .7, .2, 1, .05); g.lineTo(1, .9); g.closePath(); fill(g, lg(g, 0, -.8, 0, .9, ['#cfefff', '#3a8ad8'])); arcS(g, .05, -.2, .3, PI, PI * 1.9, .07, '#fff'); });
+  def('drop', 'bob', '140,200,255', g => { dropP(g, 0, 0, .9); fill(g, rgd(g, 0, .2, .8, '#e6f6ff', '#4aa0ff')); shine(g, -.22, .15, .1, .2, .7, .2); });
+  def('bubbles', 'bob', '170,220,255', g => { [[-.35, .3, .45], [.45, -.2, .32], [.15, .65, .2], [-.15, -.6, .22]].forEach(([x, y, r]) => { ball(g, x, y, r, 'rgba(255,255,255,.3)', 'rgba(150,200,255,.35)'); g.beginPath(); g.arc(x, y, r, 0, TAU); g.lineWidth = .05; g.strokeStyle = 'rgba(200,230,255,.95)'; g.stroke(); shine(g, x - r * .35, y - r * .35, r * .25, r * .14, .9); }); });
+  def('zap', 'flicker', '255,220,90', g => { g.beginPath(); g.moveTo(.2, -1); g.lineTo(-.55, .12); g.lineTo(-.02, .12); g.lineTo(-.25, 1); g.lineTo(.6, -.2); g.lineTo(.05, -.2); g.closePath(); fill(g, lg(g, 0, -1, 0, 1, ['#fff8c0', '#ffb020'])); });
+  def('snow', 'spin', '220,240,255', g => { for (let i = 0; i < 6; i++) { g.save(); g.rotate(i * PI / 3); line(g, .1, '#e6f6ff', [[0, 0], [0, -.85]]); line(g, .08, '#e6f6ff', [[0, -.5], [-.18, -.68]]); line(g, .08, '#e6f6ff', [[0, -.5], [.18, -.68]]); g.restore(); } });
+  def('dash', 'sway', '220,230,255', g => { [-.4, 0, .4].forEach((y, i) => { line(g, .14, `rgba(230,240,255,${.95 - i * .2})`, [[-.85 + i * .2, y], [.4 - i * .1, y]]); arcS(g, .4 - i * .1, y - .15, .15, PI / 2, PI * 2, .12, `rgba(230,240,255,${.95 - i * .2})`); }); });
+  def('boom', 'pulse', '255,170,110', g => { starP(g, 0, 0, .95, .5, 8, 0); fill(g, rgd(g, 0, 0, .95, '#fff3b0', '#ff7a5a')); starP(g, 0, 0, .5, .28, 8, .2); fill(g, '#fffbe0'); });
+  def('fire', 'flicker', '255,150,90', g => { g.beginPath(); g.moveTo(0, -1); g.bezierCurveTo(.45, -.45, .85, -.05, .7, .45); g.bezierCurveTo(.6, .9, -.6, .95, -.7, .45); g.bezierCurveTo(-.8, 0, -.35, -.2, -.2, -.6); g.bezierCurveTo(-.05, -.35, .05, -.6, 0, -1); fill(g, lg(g, 0, -1, 0, .9, ['#ffe08a', '#ff7a4a', '#e8483a'])); g.beginPath(); g.moveTo(0, -.15); g.bezierCurveTo(.3, .1, .4, .4, .3, .6); g.bezierCurveTo(.15, .82, -.25, .82, -.32, .55); g.bezierCurveTo(-.4, .3, -.1, .15, 0, -.15); fill(g, lg(g, 0, -.1, 0, .8, ['#fffbe0', '#ffd25a'])); });
+  def('steam', 'sway', '255,220,200', g => { [-.4, 0, .4].forEach(x => { g.beginPath(); g.moveTo(x, .8); g.bezierCurveTo(x + .3, .4, x - .3, .1, x, -.3); g.bezierCurveTo(x + .3, -.6, x - .1, -.8, x, -.95); g.lineWidth = .14; g.strokeStyle = 'rgba(255,230,215,.9)'; g.lineCap = 'round'; g.stroke(); }); });
+  def('zzz', 'bob', '200,200,255', g => { [[-.45, .45, .34], [.12, 0, .26], [.55, -.42, .2]].forEach(([x, y, s]) => line(g, s * .38, '#dfe3ff', [[x - s, y - s], [x + s, y - s], [x - s, y + s], [x + s, y + s]])); });
+  // 心
+  def('heart', 'pulse', '255,150,190', g => { heartP(g, 0, .05, .95); fill(g, rgd(g, -.1, -.1, 1, '#ffd4e6', '#ff5a8f')); shine(g, -.38, -.3, .18, .1, .7); });
+  def('heart2', 'pulse', '255,160,200', g => { heartP(g, -.25, .2, .62); fill(g, rgd(g, -.3, 0, .7, '#ffd4e6', '#ff6a9a')); heartP(g, .35, -.25, .45); fill(g, rgd(g, .3, -.3, .5, '#ffe6f0', '#ff8ab4')); });
+  def('heartspark', 'pulse', '255,170,210', g => { heartP(g, 0, .1, .85); fill(g, rgd(g, -.1, 0, .9, '#ffe0ee', '#ff6aa0')); g.fillStyle = '#fff6c8'; sparkP(g, .6, -.6, .3); g.fill(); sparkP(g, -.65, -.5, .2); g.fill(); });
+  // 音樂、聲音
+  def('note', 'sway', '210,190,255', g => noteP(g, -.2, 0, .95, '#f3e9ff', '#9a7aff', false));
+  def('notes', 'sway', '210,190,255', g => noteP(g, -.5, .05, .8, '#f3e9ff', '#9a7aff', true));
+  def('bell', 'sway', '255,215,130', g => { g.beginPath(); g.moveTo(-.65, .45); g.bezierCurveTo(-.6, -.2, -.45, -.75, 0, -.75); g.bezierCurveTo(.45, -.75, .6, -.2, .65, .45); g.lineTo(.8, .6); g.lineTo(-.8, .6); g.closePath(); fill(g, rgd(g, -.2, -.3, 1, '#fff2c0', '#e8a83a')); ball(g, 0, .72, .16, '#fff0c0', '#d89030'); ball(g, 0, -.82, .1, '#fff0c0', '#d89030'); shine(g, -.3, -.25, .1, .25, .5, .2); });
+  def('piano', 'none', '230,220,255', g => { rr(g, -.95, -.55, 1.9, 1.1, .18); fill(g, '#fffaf2'); for (let i = 1; i < 6; i++) line(g, .04, '#c9bfe0', [[-.95 + i * .317, -.55], [-.95 + i * .317, .55]]); [0, 1, 3, 4].forEach(i => { rr(g, -.95 + (i + 1) * .317 - .09, -.55, .18, .62, .05); fill(g, '#3a2a5a'); }); });
+  def('headphones', 'pulse', '200,190,255', g => { arcS(g, 0, .15, .72, PI * 1.05, PI * 1.95, .16, '#b9a4ff'); rr(g, -.9, .05, .38, .65, .16); fill(g, rgd(g, -.7, .3, .5, '#f0e8ff', '#8a6ad8')); rr(g, .52, .05, .38, .65, .16); fill(g, rgd(g, .7, .3, .5, '#f0e8ff', '#8a6ad8')); });
+  def('radio', 'pulse', '255,200,160', g => { rr(g, -.9, -.4, 1.8, 1.15, .22); fill(g, lg(g, 0, -.4, 0, .75, ['#ffcfa8', '#e0805a'])); ball(g, -.38, .17, .3, '#fff6e8', '#c8a07a'); for (let i = 0; i < 3; i++) line(g, .06, '#fff3e0', [[.15, -.08 + i * .2], [.7, -.08 + i * .2]]); line(g, .07, '#c88a5a', [[-.5, -.4], [.35, -.9]]); ball(g, .35, -.9, .07, '#fff', '#ffd27a'); });
+  def('mic', 'pulse', '220,200,255', g => { rr(g, -.3, -.9, .6, 1, .3); fill(g, rgd(g, 0, -.5, .6, '#f4ecff', '#8a6ad8')); arcS(g, 0, -.1, .5, 0, PI, .1, '#b9a4ff'); line(g, .1, '#b9a4ff', [[0, .4], [0, .8]]); });
+  def('disco', 'spin', '220,200,255', g => { ball(g, 0, .1, .8, '#ffffff', '#9a8ad0'); g.save(); g.beginPath(); g.arc(0, .1, .8, 0, TAU); g.clip(); for (let i = -4; i <= 4; i++) { line(g, .03, 'rgba(90,70,150,.45)', [[-1, .1 + i * .2], [1, .1 + i * .2]]); line(g, .03, 'rgba(90,70,150,.45)', [[i * .2, -1], [i * .2, 1]]); } g.restore(); line(g, .06, '#c9bfe0', [[0, -.7], [0, -1]]); shine(g, -.3, -.2, .18, .1, .9); });
+  def('chime', 'sway', '200,240,255', g => { line(g, .05, '#c9d8f0', [[0, -1], [0, -.7]]); g.beginPath(); g.arc(0, -.3, .45, PI, TAU); g.closePath(); fill(g, rgd(g, 0, -.4, .5, '#ffffff', '#9fd0ff')); line(g, .04, '#c9d8f0', [[0, -.3], [0, .35]]); rr(g, -.15, .35, .3, .55, .08); fill(g, '#ffd6e8'); });
+  // 花草
+  def('sakura', 'sway', '255,180,215', g => { flower(g, 5, .95, .4, '#ffeef6', '#ff9ec7', '#fff6c8', '#ffc85a', -PI / 2); });
+  def('daisy', 'sway', '255,226,140', g => { flower(g, 8, .95, .3, '#fffbe6', '#ffd65a', '#fff0c0', '#e89a3a'); });
+  def('whiteflower', 'sway', '255,220,235', g => { flower(g, 6, .95, .36, '#ffffff', '#ffd6e8', '#ffeef6', '#ff9ec7'); });
+  def('tulip', 'sway', '255,170,200', g => { line(g, .12, '#5cbf7a', [[0, .2], [0, 1]]); leafP(g, 0, .9, -.5, .35, .18); fill(g, '#7fd69a'); g.beginPath(); g.moveTo(-.5, -.55); g.lineTo(-.25, -.25); g.lineTo(0, -.65); g.lineTo(.25, -.25); g.lineTo(.5, -.55); g.quadraticCurveTo(.6, .25, 0, .25); g.quadraticCurveTo(-.6, .25, -.5, -.55); fill(g, rgd(g, -.1, -.3, .7, '#ffe0ec', '#ff6a9a')); });
+  def('rose', 'sway', '255,140,170', g => { line(g, .12, '#5cbf7a', [[0, .2], [0, 1]]); leafP(g, 0, .75, .5, .45, .16); fill(g, '#7fd69a'); ball(g, 0, -.25, .55, '#ffc0d0', '#d8405a'); for (let i = 0; i < 3; i++) arcS(g, 0, -.25, .15 + i * .13, i, i + 4, .06, 'rgba(255,230,235,.8)'); });
+  def('sprout', 'sway', '160,240,170', g => { line(g, .12, '#5cbf7a', [[0, .9], [0, -.05]]); leafP(g, 0, 0, -.75, -.5, .3); fill(g, rgd(g, -.4, -.3, .6, '#d8ffd8', '#4cb86a')); leafP(g, 0, -.05, .7, -.7, .3); fill(g, rgd(g, .4, -.4, .6, '#e6ffe0', '#5cc87a')); ell(g, 0, .9, .45, .1, 0, 'rgba(160,110,80,.55)'); });
+  def('herb', 'sway', '160,240,170', g => { line(g, .09, '#4cae6a', [[0, 1], [0, -.9]]); for (let i = 0; i < 4; i++) { const y = .6 - i * .4, s = i % 2 ? 1 : -1; leafP(g, 0, y, s * .6, y - .35, .18); fill(g, rgd(g, s * .3, y - .2, .5, '#d8ffd8', '#4cb86a')); } });
+  def('leaf', 'sway', '170,240,180', g => { leafP(g, -.75, .75, .8, -.75, .45); fill(g, rgd(g, 0, 0, .9, '#e0ffd8', '#4cb86a')); line(g, .06, 'rgba(255,255,255,.6)', [[-.6, .6], [.6, -.6]]); });
+  def('pot', 'sway', '160,240,170', g => { g.beginPath(); g.moveTo(-.55, .15); g.lineTo(.55, .15); g.lineTo(.42, .95); g.lineTo(-.42, .95); g.closePath(); fill(g, lg(g, 0, .15, 0, .95, ['#ffb48a', '#d8704a'])); leafP(g, 0, .15, -.6, -.6, .25); fill(g, '#6ccf8a'); leafP(g, 0, .15, .55, -.75, .25); fill(g, '#5cbf7a'); leafP(g, 0, .15, 0, -.95, .2); fill(g, '#7fe0a0'); });
+  def('tree', 'sway', '150,230,170', g => { rr(g, -.12, .2, .24, .75, .08); fill(g, '#b07a52'); ball(g, -.35, -.05, .45, '#c8f5c8', '#4cae6a'); ball(g, .35, -.05, .45, '#c8f5c8', '#3c9e5a'); ball(g, 0, -.45, .55, '#dcffdc', '#5cbf7a'); });
+  def('pine', 'sway', '140,220,190', g => { rr(g, -.1, .55, .2, .4, .05); fill(g, '#9a6a4a'); [[.7, .05], [.55, -.35], [.38, -.7]].forEach(([w, y]) => { g.beginPath(); g.moveTo(0, y - .45); g.lineTo(w, y + .55); g.lineTo(-w, y + .55); g.closePath(); fill(g, lg(g, 0, y - .45, 0, y + .55, ['#bff0d8', '#3c9e7a'])); }); });
+  def('mushroom', 'bob', '255,170,170', g => { rr(g, -.22, -.05, .44, .9, .2); fill(g, '#fff3e6'); g.beginPath(); g.arc(0, 0, .85, PI, TAU); g.quadraticCurveTo(0, .15, -.85, 0); fill(g, rgd(g, -.2, -.4, .9, '#ffc0c0', '#e8505a')); [[-.4, -.35, .13], [.2, -.55, .1], [.45, -.2, .09]].forEach(([x, y, r]) => ball(g, x, y, r, '#fff', '#ffe6e6')); });
+  def('seed', 'bob', '230,190,140', g => { ell(g, 0, .1, .6, .78, .3, rgd(g, -.1, 0, .8, '#f2c89a', '#9a5a3a')); g.beginPath(); g.ellipse(0, -.5, .45, .2, .3, PI, TAU); fill(g, '#7a4a2a'); shine(g, -.2, .1, .1, .22, .45, .3); });
+  def('rock', 'none', '200,200,220', g => { g.beginPath(); g.moveTo(-.85, .6); g.lineTo(-.6, -.2); g.lineTo(-.1, -.55); g.lineTo(.5, -.35); g.lineTo(.85, .3); g.lineTo(.6, .65); g.closePath(); fill(g, rgd(g, -.2, -.2, 1, '#e6e4f0', '#8a88a0')); });
+  def('crystal', 'twinkle', '170,230,255', g => { g.beginPath(); g.moveTo(0, -.95); g.lineTo(.7, -.25); g.lineTo(0, .95); g.lineTo(-.7, -.25); g.closePath(); fill(g, lg(g, -.7, -.9, .7, .9, ['#ffffff', '#a8e4ff', '#7a9aff'])); line(g, .04, 'rgba(255,255,255,.8)', [[-.7, -.25], [.7, -.25]]); line(g, .04, 'rgba(255,255,255,.6)', [[0, -.95], [0, .95]]); });
+  // 生物
+  const critter = (g, body1, body2, extra) => { if (extra) extra(); ball(g, 0, .15, .72, body1, body2); face(g, 0, .15, .6); shine(g, -.3, -.2, .18, .1, .6); };
+  def('whale', 'bob', '130,190,255', g => { g.beginPath(); g.moveTo(-.95, .05); g.bezierCurveTo(-.95, -.65, .45, -.7, .7, -.05); g.lineTo(.98, -.4); g.lineTo(.92, .2); g.bezierCurveTo(.7, .6, -.8, .75, -.95, .05); fill(g, rgd(g, -.3, -.2, 1, '#cfe8ff', '#4a7ad8')); g.beginPath(); g.moveTo(-.85, .2); g.bezierCurveTo(-.5, .55, .4, .55, .75, .2); g.lineTo(.6, .45); g.bezierCurveTo(.1, .65, -.6, .55, -.85, .2); fill(g, '#e6f2ff'); ell(g, -.45, -.1, .07, .09, 0, '#2a2a4a'); [[-.2, -.75], [-.1, -.95], [.02, -.78]].forEach(([x, y]) => ball(g, x, y, .07, '#fff', '#a8d8ff')); });
+  def('fish', 'bob', '255,190,130', g => { g.beginPath(); g.moveTo(.95, -.45); g.lineTo(.6, 0); g.lineTo(.95, .45); g.closePath(); fill(g, '#ff9a5a'); ell(g, -.1, 0, .72, .52, 0, rgd(g, -.3, -.2, .8, '#ffe0b0', '#ff8a4a')); line(g, .12, '#fff', [[0, -.48], [0, .48]]); ell(g, -.5, -.08, .08, .1, 0, '#2a2a4a'); });
+  def('jelly', 'bob', '220,180,255', g => { for (let i = 0; i < 4; i++) { g.beginPath(); g.moveTo(-.45 + i * .3, .05); g.bezierCurveTo(-.55 + i * .3, .4, -.35 + i * .3, .6, -.45 + i * .3, .95); g.lineWidth = .08; g.strokeStyle = 'rgba(220,180,255,.85)'; g.stroke(); } g.beginPath(); g.arc(0, .05, .7, PI, TAU); g.quadraticCurveTo(0, .25, -.7, .05); fill(g, rgd(g, -.2, -.3, .8, '#fbe8ff', '#b07aff')); face(g, 0, -.2, .45); });
+  def('squid', 'bob', '255,170,210', g => { for (let i = 0; i < 5; i++) { g.beginPath(); g.moveTo(-.4 + i * .2, .2); g.quadraticCurveTo(-.5 + i * .25, .65, -.4 + i * .2 + Math.sin(i) * .1, .95); g.lineWidth = .12; g.strokeStyle = '#ff9ac0'; g.lineCap = 'round'; g.stroke(); } g.beginPath(); g.moveTo(0, -.95); g.bezierCurveTo(.6, -.6, .6, .1, .45, .3); g.lineTo(-.45, .3); g.bezierCurveTo(-.6, .1, -.6, -.6, 0, -.95); fill(g, rgd(g, -.2, -.4, .9, '#ffe0ee', '#ff7aa8')); face(g, 0, 0, .45); });
+  def('butterfly', 'flap', '255,210,120', g => { [[-1, '#ffe08a', '#ff9a3a'], [1, '#ffe08a', '#ff9a3a']].forEach(([s, a, b]) => { ell(g, s * .45, -.3, .45, .5, s * .5, rgd(g, s * .45, -.3, .5, a, b)); ell(g, s * .35, .35, .3, .35, -s * .4, rgd(g, s * .35, .35, .35, a, b)); }); ell(g, 0, 0, .1, .6, 0, '#4a3050'); line(g, .04, '#4a3050', [[0, -.55], [-.25, -.9]]); line(g, .04, '#4a3050', [[0, -.55], [.25, -.9]]); });
+  def('turtle', 'bob', '150,220,170', g => { ell(g, -.75, .2, .22, .18, 0, '#a8e0a8'); ell(g, .55, .55, .18, .14, 0, '#a8e0a8'); ell(g, -.45, .55, .18, .14, 0, '#a8e0a8'); g.beginPath(); g.arc(0, .35, .7, PI, TAU); g.closePath(); fill(g, rgd(g, -.2, -.1, .8, '#dff5c8', '#5aa86a')); for (let i = -1; i <= 1; i++) ell(g, i * .32, .05 - Math.abs(i) * -.05, .14, .12, 0, 'rgba(255,255,255,.35)'); ball(g, .85, .1, .22, '#d8f5d0', '#7ac88a'); ell(g, .92, .05, .04, .05, 0, '#2a2a4a'); });
+  def('bird', 'bob', '255,220,150', g => { ell(g, 0, .1, .7, .6, 0, rgd(g, -.2, -.1, .8, '#fff2c8', '#ffb84a')); leafP(g, -.25, .1, .45, -.25, .22); fill(g, '#ffd27a'); g.beginPath(); g.moveTo(.62, -.05); g.lineTo(.95, .05); g.lineTo(.62, .18); fill(g, '#ff8a4a'); ell(g, .35, -.15, .07, .09, 0, '#2a2a4a'); });
+  def('feather', 'sway', '230,220,255', g => { leafP(g, -.6, .85, .65, -.85, .35); fill(g, lg(g, -.6, .8, .6, -.8, ['#fff', '#d8c8ff'])); line(g, .05, '#b9a4ff', [[-.75, 1], [.6, -.75]]); });
+  def('shell', 'bob', '255,200,200', g => { g.beginPath(); g.moveTo(0, .8); for (let i = 0; i <= 6; i++) { const a = PI + i * PI / 6; g.lineTo(Math.cos(a) * .9, .2 + Math.sin(a) * .9); } g.closePath(); fill(g, rgd(g, 0, -.2, 1, '#fff0ee', '#ffa8a0')); for (let i = 1; i < 6; i++) { const a = PI + i * PI / 6; line(g, .05, 'rgba(230,140,140,.6)', [[0, .8], [Math.cos(a) * .85, .2 + Math.sin(a) * .85]]); } });
+  def('creature', 'bob', '190,170,255', g => critter(g, '#ece4ff', '#9a7aff', () => { ell(g, -.45, -.55, .14, .28, -.4, '#c8b4ff'); ell(g, .45, -.55, .14, .28, .4, '#c8b4ff'); }));
+  def('laugh', 'pulse', '255,220,140', g => { ball(g, 0, 0, .9, '#fff3b8', '#ffc24a'); line(g, .09, '#5a3a2a', [[-.5, -.2], [-.3, -.1], [-.5, 0]]); line(g, .09, '#5a3a2a', [[.5, -.2], [.3, -.1], [.5, 0]]); g.beginPath(); g.moveTo(-.45, .2); g.quadraticCurveTo(0, .85, .45, .2); g.closePath(); fill(g, '#ff7a8a'); });
+  def('zip', 'pulse', '200,220,255', g => { ball(g, 0, 0, .9, '#fff3b8', '#ffc24a'); ell(g, -.3, -.2, .08, .1, 0, '#5a3a2a'); ell(g, .3, -.2, .08, .1, 0, '#5a3a2a'); line(g, .1, '#8a7a9a', [[-.45, .3], [.45, .3]]); for (let i = -2; i <= 2; i++) line(g, .05, '#8a7a9a', [[i * .18, .2], [i * .18, .4]]); });
+  // 東西
+  def('letter', 'bob', '255,180,210', g => { rr(g, -.92, -.6, 1.84, 1.25, .16); fill(g, lg(g, 0, -.6, 0, .65, ['#fffaf4', '#ffe0ec'])); line(g, .07, '#ffb0cc', [[-.85, -.5], [0, .12], [.85, -.5]]); heartP(g, 0, .02, .3); fill(g, rgd(g, 0, 0, .3, '#ffd0e2', '#ff5a8f')); });
+  def('gift', 'bob', '255,180,200', g => { rr(g, -.75, -.15, 1.5, 1.05, .14); fill(g, lg(g, 0, -.15, 0, .9, ['#ffd6e6', '#ff8ab4'])); rr(g, -.85, -.4, 1.7, .35, .1); fill(g, '#ffb0cc'); g.fillStyle = '#fff3c0'; g.fillRect(-.1, -.4, .2, 1.3); ell(g, -.28, -.55, .28, .16, .5, '#ffe08a'); ell(g, .28, -.55, .28, .16, -.5, '#ffe08a'); ball(g, 0, -.48, .1, '#fff', '#ffd27a'); });
+  def('book', 'none', '200,190,255', g => { g.beginPath(); g.moveTo(0, -.55); g.quadraticCurveTo(-.5, -.8, -.95, -.6); g.lineTo(-.95, .65); g.quadraticCurveTo(-.5, .45, 0, .7); g.quadraticCurveTo(.5, .45, .95, .65); g.lineTo(.95, -.6); g.quadraticCurveTo(.5, -.8, 0, -.55); fill(g, lg(g, 0, -.7, 0, .7, ['#fffaf2', '#e8dcff'])); line(g, .05, '#b9a4ff', [[0, -.55], [0, .7]]); for (let i = 0; i < 3; i++) { line(g, .04, 'rgba(150,130,200,.5)', [[-.75, -.3 + i * .25], [-.2, -.25 + i * .25]]); line(g, .04, 'rgba(150,130,200,.5)', [[.2, -.25 + i * .25], [.75, -.3 + i * .25]]); } });
+  def('books', 'none', '200,190,255', g => { [['#ff9ec7', -.55], ['#8cc8ff', -.05], ['#ffd27a', .45]].forEach(([c, x], i) => { rr(g, x - .2, -.75 + i * .1, .4, 1.6 - i * .1, .06); fill(g, c); line(g, .04, 'rgba(255,255,255,.7)', [[x - .1, -.5 + i * .1], [x + .1, -.5 + i * .1]]); }); });
+  def('scroll', 'none', '255,220,170', g => { rr(g, -.65, -.75, 1.3, 1.5, .1); fill(g, lg(g, 0, -.75, 0, .75, ['#fff6e0', '#f2d6a8'])); ell(g, 0, -.75, .75, .14, 0, '#e8c088'); ell(g, 0, .75, .75, .14, 0, '#e8c088'); for (let i = 0; i < 3; i++) line(g, .05, 'rgba(160,110,70,.45)', [[-.4, -.35 + i * .3], [.4, -.35 + i * .3]]); });
+  def('key', 'sway', '255,215,120', g => { g.beginPath(); g.arc(-.45, -.35, .38, 0, TAU); g.arc(-.45, -.35, .16, 0, TAU, true); fill(g, rgd(g, -.5, -.4, .4, '#fff2c0', '#e8a83a')); line(g, .17, '#f0b84a', [[-.2, -.1], [.75, .85]]); line(g, .14, '#f0b84a', [[.45, .55], [.62, .4]]); line(g, .14, '#f0b84a', [[.6, .7], [.78, .55]]); });
+  def('tag', 'sway', '255,190,210', g => { g.beginPath(); g.moveTo(-.9, -.35); g.lineTo(.35, -.35); g.lineTo(.9, 0); g.lineTo(.35, .35); g.lineTo(-.9, .35); g.closePath(); fill(g, lg(g, -.9, 0, .9, 0, ['#ffe0ec', '#ff9ec7'])); ball(g, .4, 0, .1, '#fff', '#ffd6e6'); });
+  def('card', 'bob', '200,190,255', g => { rr(g, -.92, -.62, 1.84, 1.24, .18); fill(g, lg(g, -.9, -.6, .9, .6, ['#efe6ff', '#9a8ad0'])); ball(g, -.45, -.05, .25, '#fff6d0', '#ffc24a'); for (let i = 0; i < 3; i++) line(g, .07, 'rgba(255,255,255,.75)', [[-.05, -.25 + i * .2], [.65 - i * .1, -.25 + i * .2]]); });
+  def('ticket', 'bob', '255,210,160', g => { g.beginPath(); g.moveTo(-.9, -.45); g.lineTo(.9, -.45); g.lineTo(.9, -.12); g.arc(.9, 0, .12, -PI / 2, PI / 2, true); g.lineTo(.9, .45); g.lineTo(-.9, .45); g.lineTo(-.9, .12); g.arc(-.9, 0, .12, PI / 2, -PI / 2, true); g.closePath(); fill(g, lg(g, -.9, 0, .9, 0, ['#ffe6c0', '#ffb47a'])); line(g, .04, 'rgba(255,255,255,.8)', [[.4, -.38], [.4, .38]]); starP(g, -.2, 0, .2, .09); fill(g, '#fff'); });
+  def('puzzle', 'sway', '180,220,255', g => { g.beginPath(); g.moveTo(-.7, -.7); g.lineTo(-.15, -.7); g.arc(0, -.75, .17, PI, 0); g.lineTo(.7, -.7); g.lineTo(.7, -.15); g.arc(.75, 0, .17, -PI / 2, PI / 2); g.lineTo(.7, .7); g.lineTo(-.7, .7); g.closePath(); fill(g, rgd(g, -.2, -.2, 1, '#e0f2ff', '#5aa0e8')); shine(g, -.35, -.35, .2, .1, .5); });
+  def('search', 'sway', '200,220,255', g => { g.beginPath(); g.arc(-.15, -.15, .55, 0, TAU); fill(g, 'rgba(200,230,255,.45)'); arcS(g, -.15, -.15, .55, 0, TAU, .14, '#b9a4ff'); line(g, .2, '#9a7aff', [[.25, .25], [.8, .8]]); shine(g, -.35, -.35, .15, .08, .8); });
+  def('compass', 'sway', '255,215,150', g => { ball(g, 0, 0, .88, '#fff6e0', '#e8b06a'); ball(g, 0, 0, .68, '#ffffff', '#f2e6d0'); g.beginPath(); g.moveTo(0, -.55); g.lineTo(.15, 0); g.lineTo(0, .55); g.lineTo(-.15, 0); g.closePath(); g.save(); g.clip(); g.fillStyle = '#ff6a7a'; g.fillRect(-.2, -.6, .4, .6); g.fillStyle = '#7aa8ff'; g.fillRect(-.2, 0, .4, .6); g.restore(); });
+  def('broom', 'sway', '255,210,160', g => { line(g, .11, '#c08a5a', [[.7, -.9], [-.05, .15]]); g.beginPath(); g.moveTo(-.15, .05); g.lineTo(.12, .3); g.lineTo(-.35, .95); g.lineTo(-.9, .55); g.closePath(); fill(g, lg(g, 0, 0, -.6, .9, ['#ffe6a0', '#e8b04a'])); for (let i = 0; i < 3; i++) line(g, .03, 'rgba(160,110,40,.6)', [[-.1 - i * .12, .2 + i * .05], [-.45 - i * .15, .85 - i * .1]]); });
+  def('pencil', 'sway', '255,210,160', g => { g.save(); g.rotate(-PI / 4); rr(g, -.18, -.9, .36, 1.35, .06); fill(g, lg(g, -.18, 0, .18, 0, ['#ffd27a', '#ffb43c'])); rr(g, -.18, -.95, .36, .22, .08); fill(g, '#ff9ec7'); g.beginPath(); g.moveTo(-.18, .45); g.lineTo(.18, .45); g.lineTo(0, .85); g.closePath(); fill(g, '#ffe6c8'); g.beginPath(); g.moveTo(-.06, .72); g.lineTo(.06, .72); g.lineTo(0, .85); fill(g, '#5a4a6a'); g.restore(); });
+  def('palette', 'sway', '255,200,220', g => { g.beginPath(); g.ellipse(0, 0, .95, .78, 0, 0, TAU); g.arc(.35, .35, .17, 0, TAU, true); fill(g, rgd(g, -.2, -.2, 1, '#fff6e8', '#e8c8a8')); [['#ff8aa8', -.5, -.2], ['#ffd27a', -.15, -.45], ['#8fe3a8', .3, -.4], ['#8cc8ff', .55, -.05], ['#b9a4ff', -.45, .3]].forEach(([c, x, y]) => ball(g, x, y, .14, '#fff', c)); });
+  def('home', 'bob', '255,200,160', g => { g.beginPath(); g.moveTo(-.75, -.05); g.lineTo(0, -.8); g.lineTo(.75, -.05); g.closePath(); fill(g, lg(g, 0, -.8, 0, -.05, ['#ffb48a', '#e0704a'])); rr(g, -.6, -.1, 1.2, .95, .08); fill(g, lg(g, 0, -.1, 0, .85, ['#fff6ea', '#ffe0c8'])); rr(g, -.17, .3, .34, .55, .17); fill(g, '#7ac8c8'); rr(g, -.48, .05, .22, .22, .04); fill(g, '#ffe08a'); rr(g, .26, .05, .22, .22, .04); fill(g, '#ffe08a'); });
+  def('bed', 'bob', '200,190,255', g => { rr(g, -.95, .05, 1.9, .5, .12); fill(g, lg(g, 0, 0, 0, .6, ['#ffd6e6', '#ff9ec7'])); rr(g, -.9, -.4, .5, .45, .2); fill(g, '#fff'); rr(g, -.98, -.5, .14, 1.25, .06); fill(g, '#c8a07a'); rr(g, .84, -.15, .14, .9, .06); fill(g, '#c8a07a'); });
+  def('lamp', 'flicker', '255,200,120', g => { ball(g, 0, .05, .85, 'rgba(255,220,150,.5)', 'rgba(255,180,90,0)'); rr(g, -.4, -.6, .8, 1.15, .35); fill(g, rgd(g, 0, 0, .7, '#fff2c0', '#ff7a4a')); rr(g, -.25, -.8, .5, .2, .05); fill(g, '#c8503a'); rr(g, -.25, .55, .5, .2, .05); fill(g, '#c8503a'); line(g, .05, '#ffd27a', [[0, .75], [0, .98]]); });
+  def('telescope', 'sway', '200,210,255', g => { g.save(); g.rotate(-.5); rr(g, -.8, -.18, 1.4, .36, .14); fill(g, lg(g, 0, -.2, 0, .2, ['#e6ecff', '#7a8ad8'])); rr(g, .5, -.24, .3, .48, .1); fill(g, '#b9a4ff'); g.restore(); line(g, .08, '#9a8ab0', [[0, .1], [-.45, .95]]); line(g, .08, '#9a8ab0', [[0, .1], [.45, .95]]); starP(g, .7, -.8, .2, .09); fill(g, '#ffe08a'); });
+  def('sofa', 'none', '255,190,210', g => { rr(g, -.75, -.45, 1.5, .7, .25); fill(g, '#ffb8d0'); rr(g, -.95, -.05, 1.9, .6, .25); fill(g, lg(g, 0, -.05, 0, .55, ['#ffd6e6', '#ff8ab4'])); rr(g, -.98, -.15, .35, .7, .17); fill(g, '#ff9ec7'); rr(g, .63, -.15, .35, .7, .17); fill(g, '#ff9ec7'); });
+  def('fountain', 'bob', '150,210,255', g => { ell(g, 0, .65, .9, .25, 0, lg(g, 0, .4, 0, .9, ['#e6ecff', '#9aa8d8'])); ell(g, 0, .6, .7, .14, 0, '#7fc8ff'); rr(g, -.1, -.1, .2, .7, .06); fill(g, '#c8d0f0'); [[-1, 1]].forEach(() => { arcS(g, -.35, .1, .35, PI * 1.1, PI * 1.9, .08, '#a8dcff'); arcS(g, .35, .1, .35, PI * 1.1, PI * 1.9, .08, '#a8dcff'); }); ball(g, 0, -.25, .12, '#fff', '#a8dcff'); });
+  def('tent', 'none', '255,200,150', g => { g.beginPath(); g.moveTo(0, -.85); g.lineTo(.95, .75); g.lineTo(-.95, .75); g.closePath(); fill(g, lg(g, 0, -.85, 0, .75, ['#ffd6a0', '#e8805a'])); g.beginPath(); g.moveTo(0, -.2); g.lineTo(.3, .75); g.lineTo(-.3, .75); g.closePath(); fill(g, '#5a3a5a'); line(g, .05, '#fff3e0', [[0, -.85], [0, -1]]); });
+  def('rocket', 'bob', '255,190,170', g => { g.beginPath(); g.moveTo(0, -.95); g.bezierCurveTo(.45, -.6, .45, .1, .3, .45); g.lineTo(-.3, .45); g.bezierCurveTo(-.45, .1, -.45, -.6, 0, -.95); fill(g, lg(g, -.4, 0, .4, 0, ['#ffffff', '#d8d8f0'])); ball(g, 0, -.3, .16, '#bfe8ff', '#4a9ad8'); g.beginPath(); g.moveTo(-.3, .1); g.lineTo(-.6, .6); g.lineTo(-.3, .45); fill(g, '#ff7a8a'); g.beginPath(); g.moveTo(.3, .1); g.lineTo(.6, .6); g.lineTo(.3, .45); fill(g, '#ff7a8a'); g.beginPath(); g.moveTo(-.18, .48); g.quadraticCurveTo(0, 1.05, .18, .48); fill(g, '#ffc24a'); });
+  def('satellite', 'spin', '190,210,255', g => { rr(g, -.98, -.2, .5, .4, .05); fill(g, '#7aa8ff'); rr(g, .48, -.2, .5, .4, .05); fill(g, '#7aa8ff'); rr(g, -.3, -.3, .6, .6, .12); fill(g, rgd(g, 0, 0, .5, '#ffffff', '#b8c0e0')); line(g, .05, '#c9d0f0', [[0, -.3], [0, -.7]]); ball(g, 0, -.75, .08, '#fff', '#ffd27a'); });
+  def('train', 'bob', '190,200,255', g => { rr(g, -.8, -.75, 1.6, 1.3, .3); fill(g, lg(g, 0, -.75, 0, .55, ['#e6ecff', '#7a8ad8'])); rr(g, -.6, -.55, 1.2, .5, .12); fill(g, '#cfeaff'); ball(g, -.42, .25, .1, '#fff6c0', '#ffc24a'); ball(g, .42, .25, .1, '#fff6c0', '#ffc24a'); line(g, .08, '#9a8ab0', [[-.6, .62], [-.85, .95]]); line(g, .08, '#9a8ab0', [[.6, .62], [.85, .95]]); });
+  def('cup', 'none', '255,210,170', g => { g.beginPath(); g.moveTo(-.65, -.2); g.lineTo(.5, -.2); g.lineTo(.4, .6); g.quadraticCurveTo(-.08, .82, -.55, .6); g.closePath(); fill(g, lg(g, 0, -.2, 0, .7, ['#fffaf2', '#f2d6c0'])); arcS(g, .58, .15, .2, -PI / 2, PI / 2, .1, '#f2d6c0'); ell(g, -.08, -.2, .57, .12, 0, '#a86a4a'); [-.25, .1].forEach(x => { g.beginPath(); g.moveTo(x, -.4); g.bezierCurveTo(x + .15, -.6, x - .15, -.75, x, -.95); g.lineWidth = .07; g.strokeStyle = 'rgba(255,255,255,.75)'; g.lineCap = 'round'; g.stroke(); }); });
+  def('ribbon', 'sway', '255,170,200', g => { g.beginPath(); g.moveTo(0, 0); g.bezierCurveTo(-.4, -.6, -1, -.4, -.85, .1); g.bezierCurveTo(-.75, .4, -.3, .3, 0, 0); fill(g, rgd(g, -.4, -.2, .7, '#ffe0ec', '#ff6a9a')); g.beginPath(); g.moveTo(0, 0); g.bezierCurveTo(.4, -.6, 1, -.4, .85, .1); g.bezierCurveTo(.75, .4, .3, .3, 0, 0); fill(g, rgd(g, .4, -.2, .7, '#ffe0ec', '#ff6a9a')); line(g, .14, '#ff7aa8', [[-.05, .05], [-.35, .85]]); line(g, .14, '#ff7aa8', [[.05, .05], [.35, .85]]); ball(g, 0, 0, .17, '#ffd0e2', '#ff5a8f'); });
+  def('crown', 'twinkle', '255,215,120', g => { g.beginPath(); g.moveTo(-.85, .55); g.lineTo(-.85, -.4); g.lineTo(-.4, .05); g.lineTo(0, -.6); g.lineTo(.4, .05); g.lineTo(.85, -.4); g.lineTo(.85, .55); g.closePath(); fill(g, lg(g, 0, -.6, 0, .55, ['#fff2c0', '#f0a83a'])); [-.85, 0, .85].forEach((x, i) => ball(g, x, [-.45, -.65, -.45][i], .1, '#fff', '#ff7aa8')); ball(g, 0, .25, .12, '#fff', '#8cc8ff'); });
+  def('wings', 'flap', '220,230,255', g => { [-1, 1].forEach(s => { g.save(); g.scale(s, 1); g.beginPath(); g.moveTo(.05, .1); g.bezierCurveTo(.3, -.8, .95, -.8, .95, -.3); g.bezierCurveTo(.95, .1, .6, .3, .05, .2); fill(g, lg(g, 0, -.8, .9, .3, ['#ffffff', '#c8d8ff'])); g.restore(); }); });
+  def('lantern', 'flicker', '255,160,110', g => { ball(g, 0, .05, .9, 'rgba(255,180,120,.5)', 'rgba(255,120,80,0)'); ell(g, 0, .05, .62, .7, 0, rgd(g, -.1, -.1, .7, '#ffd6a0', '#e8483a')); for (let i = -1; i <= 1; i++) arcS(g, i * .3, .05, .62, -PI / 2, PI / 2, .03, 'rgba(255,230,190,.5)'); rr(g, -.25, -.78, .5, .14, .04); fill(g, '#8a3a3a'); rr(g, -.25, .68, .5, .14, .04); fill(g, '#8a3a3a'); });
+  def('umbrella', 'sway', '160,190,255', g => { g.beginPath(); g.arc(0, 0, .9, PI, TAU); for (let i = 3; i >= 0; i--) g.quadraticCurveTo(-.675 + i * .45 + .225, -.15, -.9 + i * .45, 0); g.closePath(); fill(g, lg(g, -.9, -.9, .9, 0, ['#c8d8ff', '#7a8aff'])); line(g, .08, '#8a7aa0', [[0, 0], [0, .75]]); arcS(g, -.15, .75, .15, 0, PI, .08, '#8a7aa0'); });
+  def('balloon', 'bob', '255,170,190', g => { ell(g, 0, -.2, .62, .72, 0, rgd(g, -.2, -.4, .8, '#ffe0e6', '#ff6a8a')); g.beginPath(); g.moveTo(0, .52); g.quadraticCurveTo(.2, .75, 0, 1); g.lineWidth = .04; g.strokeStyle = '#c8a0b0'; g.stroke(); shine(g, -.25, -.45, .14, .22, .6, .3); });
+  def('party', 'twinkle', '255,200,140', g => { g.beginPath(); g.moveTo(-.85, .9); g.lineTo(-.3, -.3); g.lineTo(.3, .3); g.closePath(); fill(g, lg(g, -.8, .8, 0, 0, ['#ff9ec7', '#ffd27a'])); [['#8cc8ff', .3, -.6], ['#ffd27a', .7, -.2], ['#ff8aa8', .55, -.85], ['#8fe3a8', .1, -.9]].forEach(([c, x, y]) => { rr(g, x - .07, y - .07, .14, .14, .03); fill(g, c); }); });
+  def('confetti', 'twinkle', '255,200,140', g => { ball(g, 0, .1, .6, '#ffe6f0', '#ff9ec7'); [['#8cc8ff', -.7, -.6], ['#ffd27a', .7, -.5], ['#8fe3a8', .6, .7], ['#b9a4ff', -.65, .65]].forEach(([c, x, y]) => { rr(g, x - .09, y - .09, .18, .18, .04); fill(g, c); }); });
+  def('camera', 'pulse', '200,210,255', g => { rr(g, -.92, -.45, 1.84, 1.2, .2); fill(g, lg(g, 0, -.45, 0, .75, ['#f0f2ff', '#a8b0d8'])); rr(g, -.35, -.65, .7, .25, .08); fill(g, '#a8b0d8'); ball(g, 0, .15, .42, '#bfe0ff', '#3a5a9a'); ball(g, 0, .15, .2, '#e6f6ff', '#5a8ad8'); ball(g, .6, -.25, .08, '#fff', '#ffd27a'); });
+  def('phone', 'none', '200,210,255', g => { rr(g, -.5, -.92, 1, 1.84, .2); fill(g, lg(g, 0, -.9, 0, .9, ['#e6e8ff', '#8a8ad8'])); rr(g, -.38, -.72, .76, 1.3, .08); fill(g, '#2a2a4a'); ball(g, 0, .75, .07, '#fff', '#c8c8f0'); });
+  def('window', 'none', '200,230,255', g => { rr(g, -.8, -.9, 1.6, 1.8, .7); fill(g, lg(g, 0, -.9, 0, .9, ['#bfe0ff', '#7a9ae0'])); line(g, .1, '#fff6ea', [[0, -.9], [0, .9]]); line(g, .1, '#fff6ea', [[-.8, .1], [.8, .1]]); g.beginPath(); rr(g, -.8, -.9, 1.6, 1.8, .7); g.lineWidth = .12; g.strokeStyle = '#fff6ea'; g.stroke(); });
+  def('speech', 'bob', '220,220,255', g => { rr(g, -.9, -.7, 1.8, 1.15, .45); fill(g, rgd(g, -.2, -.3, 1, '#ffffff', '#d8d4f8')); g.beginPath(); g.moveTo(-.35, .4); g.lineTo(-.55, .9); g.lineTo(0, .42); fill(g, '#dcd8f8'); [-.4, 0, .4].forEach(x => ball(g, x, -.12, .1, '#b9a4ff', '#8a6ad8')); });
+  def('hourglass', 'spin', '255,220,170', g => { rr(g, -.65, -.95, 1.3, .14, .05); fill(g, '#c8905a'); rr(g, -.65, .81, 1.3, .14, .05); fill(g, '#c8905a'); g.beginPath(); g.moveTo(-.5, -.8); g.lineTo(.5, -.8); g.lineTo(.08, 0); g.lineTo(.5, .8); g.lineTo(-.5, .8); g.lineTo(-.08, 0); g.closePath(); fill(g, 'rgba(220,240,255,.7)'); g.beginPath(); g.moveTo(-.35, .8); g.lineTo(.35, .8); g.lineTo(0, .4); fill(g, '#ffd27a'); });
+  def('timer', 'pulse', '200,220,255', g => { ball(g, 0, .1, .8, '#ffffff', '#c8d0f0'); rr(g, -.15, -.95, .3, .2, .05); fill(g, '#9aa8d8'); line(g, .1, '#7a6ad8', [[0, .1], [0, -.4]]); line(g, .1, '#ff7aa8', [[0, .1], [.35, .25]]); });
+  def('warn', 'pulse', '255,210,120', g => { g.beginPath(); g.moveTo(0, -.9); g.lineTo(.95, .8); g.lineTo(-.95, .8); g.closePath(); fill(g, lg(g, 0, -.9, 0, .8, ['#fff2c0', '#ffb43c'])); line(g, .14, '#6a4a3a', [[0, -.3], [0, .25]]); ball(g, 0, .52, .08, '#6a4a3a', '#6a4a3a'); });
+  def('check', 'pulse', '150,230,180', g => { ball(g, 0, 0, .9, '#d8ffe6', '#4cc87a'); line(g, .18, '#fff', [[-.42, .02], [-.1, .35], [.45, -.3]]); });
+  def('cross', 'pulse', '255,170,180', g => { ball(g, 0, 0, .9, '#ffe0e6', '#ff6a8a'); line(g, .18, '#fff', [[-.35, -.35], [.35, .35]]); line(g, .18, '#fff', [[.35, -.35], [-.35, .35]]); });
+  def('skip', 'none', '230,220,255', g => { [-.55, .05].forEach(x => { g.beginPath(); g.moveTo(x, -.55); g.lineTo(x + .55, 0); g.lineTo(x, .55); g.closePath(); fill(g, '#efe8ff'); }); rr(g, .62, -.55, .16, 1.1, .06); fill(g, '#efe8ff'); });
+  def('ff', 'none', '230,220,255', g => { [-.75, -.05].forEach(x => { g.beginPath(); g.moveTo(x, -.55); g.lineTo(x + .65, 0); g.lineTo(x, .55); g.closePath(); fill(g, '#efe8ff'); }); });
+  def('game', 'bob', '200,190,255', g => { rr(g, -.95, -.45, 1.9, .95, .45); fill(g, lg(g, 0, -.45, 0, .5, ['#ece4ff', '#8a6ad8'])); line(g, .12, '#fff', [[-.6, 0], [-.25, 0]]); line(g, .12, '#fff', [[-.42, -.18], [-.42, .18]]); ball(g, .35, -.1, .1, '#fff', '#ff9ec7'); ball(g, .6, .1, .1, '#fff', '#8cc8ff'); });
+  def('dancer', 'sway', '255,170,200', g => { ball(g, 0, -.65, .22, '#ffe9d6', '#f2b38f'); g.beginPath(); g.moveTo(-.1, -.4); g.lineTo(.1, -.4); g.lineTo(.75, .75); g.quadraticCurveTo(0, .95, -.75, .75); g.closePath(); fill(g, lg(g, 0, -.4, 0, .8, ['#ffb0cc', '#ff5a8f'])); line(g, .09, '#f2b38f', [[-.1, -.3], [-.65, -.75]]); line(g, .09, '#f2b38f', [[.1, -.3], [.55, .05]]); });
+  def('paw', 'bob', '255,200,220', g => { ell(g, 0, .3, .5, .42, 0, rgd(g, 0, .2, .55, '#ffe6f0', '#ff9ec7')); [[-.55, -.15], [-.2, -.5], [.2, -.5], [.55, -.15]].forEach(([x, y]) => ell(g, x, y, .18, .22, x * .4, rgd(g, x, y, .25, '#ffe6f0', '#ff9ec7'))); });
+  def('feet', 'bob', '255,210,190', g => { [[-.35, .2, -.2], [.35, -.25, .2]].forEach(([x, y, r]) => { ell(g, x, y + .2, .25, .35, r, rgd(g, x, y, .4, '#ffe6d6', '#f2a88a')); [-.15, 0, .15].forEach((dx, i) => ball(g, x + dx, y - .28 + (i === 1 ? -.05 : 0), .07, '#ffe6d6', '#f2a88a')); }); });
+  def('rice', 'bob', '230,240,255', g => { g.beginPath(); g.moveTo(0, -.85); g.quadraticCurveTo(.95, .55, .7, .75); g.lineTo(-.7, .75); g.quadraticCurveTo(-.95, .55, 0, -.85); fill(g, rgd(g, -.1, -.2, 1, '#ffffff', '#e0e6f2')); rr(g, -.35, .25, .7, .5, .06); fill(g, '#3a5a4a'); face(g, 0, -.05, .4); });
+  def('strawberry', 'bob', '255,150,170', g => { g.beginPath(); g.moveTo(0, .95); g.bezierCurveTo(-.9, .2, -.75, -.6, 0, -.5); g.bezierCurveTo(.75, -.6, .9, .2, 0, .95); fill(g, rgd(g, -.2, -.1, .9, '#ffc0c8', '#e8304a')); [[-.3, -.1], [.3, -.1], [0, .2], [-.2, .45], [.2, .45]].forEach(([x, y]) => ell(g, x, y, .04, .06, 0, '#fff3b0')); starP(g, 0, -.55, .4, .15, 5); fill(g, '#5cbf7a'); });
+  def('cookie', 'pulse', '230,190,140', g => { ball(g, 0, 0, .85, '#f2cc9a', '#c88a52'); [[-.35, -.25], [.3, -.35], [.05, .15], [-.3, .4], [.45, .3]].forEach(([x, y]) => ell(g, x, y, .1, .08, x, '#6a4030')); });
+  def('ball', 'bob', '220,255,140', g => { ball(g, 0, 0, .85, '#f6ffb0', '#b8e030'); arcS(g, -.9, 0, .75, -.75, .75, .07, '#fff'); arcS(g, .9, 0, .75, PI - .75, PI + .75, .07, '#fff'); });
+  def('egg', 'pulse', '255,230,200', g => { ell(g, 0, .08, .66, .86, 0, rgd(g, -.15, -.2, .9, '#fffaf2', '#f2d6b8')); [[-.25, .2, '#ffd0e2'], [.25, -.15, '#c8e8ff'], [.1, .5, '#ffe9a0']].forEach(([x, y, c]) => ell(g, x, y, .12, .08, .3, c)); shine(g, -.25, -.3, .13, .22, .6, .3); });
+  def('door', 'pulse', '255,210,150', g => { rr(g, -.55, -.9, 1.1, 1.8, .5); fill(g, lg(g, 0, -.9, 0, .9, ['#ffe6b0', '#e8a05a'])); ball(g, .3, .1, .08, '#fff', '#c8803a'); });
+  def('candle', 'flicker', '255,210,130', g => { rr(g, -.25, -.1, .5, 1, .08); fill(g, lg(g, -.25, 0, .25, 0, ['#fffaf0', '#f2e0c8'])); ball(g, 0, -.45, .45, 'rgba(255,220,150,.6)', 'rgba(255,180,90,0)'); g.beginPath(); g.moveTo(0, -.85); g.quadraticCurveTo(.25, -.4, 0, -.18); g.quadraticCurveTo(-.25, -.4, 0, -.85); fill(g, lg(g, 0, -.85, 0, -.2, ['#fff8d0', '#ff9a3a'])); });
+  def('swirl', 'spin', '200,190,255', g => { g.beginPath(); for (let i = 0; i <= 60; i++) { const a = i / 60 * PI * 4, r = .08 + i / 60 * .8; i ? g.lineTo(Math.cos(a) * r, Math.sin(a) * r) : g.moveTo(Math.cos(a) * r, Math.sin(a) * r); } g.lineWidth = .13; g.strokeStyle = '#c8b4ff'; g.lineCap = 'round'; g.stroke(); });
+  def('hand_open', 'sway', '255,220,200', g => hand(g, 'open'));
+  def('hand_fist', 'pulse', '255,220,200', g => hand(g, 'fist'));
+  def('hand_peace', 'sway', '255,220,200', g => hand(g, 'peace'));
+  def('hand_pinch', 'pulse', '255,220,200', g => hand(g, 'pinch'));
+  def('hand_rock', 'sway', '255,220,200', g => hand(g, 'rock'));
+  def('hand_cup', 'bob', '255,220,200', g => hand(g, 'cup'));
+  def('hand_clap', 'pulse', '255,220,200', g => hand(g, 'clap'));
+  def('hand_shake', 'pulse', '255,220,200', g => hand(g, 'shake'));
+  // 星座符號：用金色的字畫（強制文字樣式，不會變成彩色 emoji）
+  const ZOD = '♈♉♊♋♌♍♎♏♐♑♒♓';
+  [...ZOD].forEach(ch => def('z' + ch, 'twinkle', '255,220,150', g => { ball(g, 0, 0, .9, 'rgba(120,90,200,.55)', 'rgba(60,40,120,.2)'); g.save(); g.shadowBlur = 0; g.fillStyle = '#ffe2aa'; g.font = '1.2px "Noto Serif TC", serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; RAW.fill.call(g, ch + '︎', 0, .06); g.restore(); }));
+  // 文字符號在 canvas 裡也畫成小圖示（網頁文字裡保留原本的字）
+  def('t_heart', 'pulse', '255,160,200', g => { heartP(g, 0, .05, .9); fill(g, rgd(g, -.1, -.1, 1, '#ffe0ee', '#ff7aa8')); shine(g, -.35, -.3, .16, .09, .7); });
+  def('t_note', 'sway', '220,200,255', g => noteP(g, -.2, 0, .9, '#ffffff', '#c8b4ff', false));
+  def('t_notes', 'sway', '220,200,255', g => noteP(g, -.5, .05, .78, '#ffffff', '#c8b4ff', true));
+
+  /* ---------- emoji → 圖示 ---------- */
+  const MAP = {
+    '✨': 'sparkle', '💫': 'dizzy', '🌟': 'glowstar', '⭐': 'star', '🌠': 'shooting', '🌙': 'moon', '🌑': 'newmoon', '☀': 'sun', '🌅': 'sunset', '🌈': 'rainbow', '☄': 'comet', '🌌': 'galaxy', '🪐': 'planet', '🌎': 'globe', '🌐': 'globe', '🕳': 'hole',
+    '☁': 'cloud', '🌧': 'raincloud', '🌫': 'fog', '🌪': 'tornado', '🌊': 'wave', '💧': 'drop', '🫧': 'bubbles', '⚡': 'zap', '💨': 'dash', '💥': 'boom', '🔥': 'fire', '♨': 'steam', '💤': 'zzz',
+    '💖': 'heartspark', '💞': 'heart2', '❤': 'heart', '💗': 'heart', '💕': 'heart2',
+    '🎵': 'note', '🎼': 'notes', '🎶': 'notes', '🔔': 'bell', '🎹': 'piano', '🎧': 'headphones', '📻': 'radio', '🪩': 'disco', '🎐': 'chime', '🎤': 'mic',
+    '🌸': 'sakura', '🌼': 'daisy', '💮': 'whiteflower', '🌷': 'tulip', '🌹': 'rose', '🌱': 'sprout', '🌿': 'herb', '🍃': 'leaf', '🪴': 'pot', '🌳': 'tree', '🌲': 'pine', '🍄': 'mushroom', '🌰': 'seed', '🪨': 'rock', '💎': 'crystal',
+    '🐋': 'whale', '🐠': 'fish', '🪼': 'jelly', '🦑': 'squid', '🦋': 'butterfly', '🐢': 'turtle', '🐦': 'bird', '🪶': 'feather', '🐚': 'shell', '👾': 'creature', '😆': 'laugh', '🤐': 'zip',
+    '💌': 'letter', '✉': 'letter', '🎁': 'gift', '📖': 'book', '📚': 'books', '📜': 'scroll', '🔑': 'key', '🏷': 'tag', '🪪': 'card', '🎫': 'ticket', '🧩': 'puzzle', '🔍': 'search', '🧭': 'compass', '🧹': 'broom', '✏': 'pencil', '🎨': 'palette',
+    '🏠': 'home', '🛏': 'bed', '🏮': 'lantern', '🔭': 'telescope', '🛋': 'sofa', '⛲': 'fountain', '⛺': 'tent', '🚀': 'rocket', '🛰': 'satellite', '🚆': 'train', '☕': 'cup', '🎀': 'ribbon', '👑': 'crown', '🪽': 'wings',
+    '☂': 'umbrella', '🎈': 'balloon', '🎉': 'party', '🎊': 'confetti', '📷': 'camera', '📸': 'camera', '📱': 'phone', '🪟': 'window', '💬': 'speech', '⏳': 'hourglass', '⏱': 'timer', '⚠': 'warn', '✅': 'check', '❌': 'cross', '⏭': 'skip', '⏩': 'ff',
+    '🎮': 'game', '💃': 'dancer', '🐾': 'paw', '👣': 'feet', '🍙': 'rice', '🍓': 'strawberry', '🍪': 'cookie', '🎾': 'ball', '🥚': 'egg', '🚪': 'door', '🕯': 'candle', '🌀': 'swirl',
+    '🖐': 'hand_open', '✋': 'hand_open', '🤚': 'hand_open', '✊': 'hand_fist', '✌': 'hand_peace', '🤏': 'hand_pinch', '🤟': 'hand_rock', '🤲': 'hand_cup', '👏': 'hand_clap', '🤝': 'hand_shake', '👋': 'hand_open'
+  };
+  [...ZOD].forEach(ch => { MAP[ch] = 'z' + ch; });
+  const CANVAS_ONLY = { '♡': 't_heart', '♥': 't_heart', '♪': 't_note', '♫': 't_notes' };
+  const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const keys = Object.keys(MAP).sort((a, b) => b.length - a.length).map(esc).join('|');
+  const RE_DOM = new RegExp(`(${keys})[\\uFE0E\\uFE0F]?`, 'u'), RE_DOM_G = new RegExp(RE_DOM.source, 'gu');
+  const ckeys = keys + '|' + Object.keys(CANVAS_ONLY).map(esc).join('|');
+  const RE_CV = new RegExp(`(${ckeys})[\\uFE0E\\uFE0F]?`, 'u'), RE_CV_G = new RegExp(RE_CV.source, 'gu');
+  // 沒有對應圖示的 emoji：用一顆小星星代替，不讓彩色 emoji 出現
+  // 保留成文字的符號（★ ▶ ☾ 這類本來就很好看的字）
+  const RE_ANY = /(?![★▶〰☾©®™♀♂♡♥♪♫])\p{Extended_Pictographic}/u;
+  const nameOf = ch => { const c = ch.replace(/[\uFE0E\uFE0F]/g, ''); return MAP[c] || CANVAS_ONLY[c] || (RE_ANY.test(c) ? 'sparkle' : ''); };
+
+  /* ---------- 畫成圖片（快取） ---------- */
+  const RAW = { fill: CanvasRenderingContext2D.prototype.fillText, stroke: CanvasRenderingContext2D.prototype.strokeText, measure: CanvasRenderingContext2D.prototype.measureText };
+  const cache = new Map(), PAD = 1.3;
+  function raster(name, px) {
+    const b = px <= 24 ? 24 : px <= 40 ? 40 : px <= 64 ? 64 : px <= 96 ? 96 : px <= 144 ? 144 : px <= 200 ? 200 : 280, key = name + '|' + b;
+    let c = cache.get(key); if (c) return c;
+    const ic = I[name] || I.sparkle; c = document.createElement('canvas'); c.width = c.height = b;
+    const g = c.getContext('2d'); g.translate(b / 2, b / 2); g.scale(b / 2 / PAD, b / 2 / PAD);
+    g.shadowColor = `rgba(${ic.glow},.75)`; g.shadowBlur = b * .07;
+    try { ic.d(g); } catch (e) { /* 畫壞了就留空 */ }
+    cache.set(key, c); return c;
+  }
+  const dataCache = new Map();
+  const dataURL = name => { let u = dataCache.get(name); if (!u) { u = raster(name, 96).toDataURL(); dataCache.set(name, u); } return u; };
+
+  /* ---------- canvas：攔截 fillText ---------- */
+  const fsOf = g => { const m = /(\d+(?:\.\d+)?)px/.exec(g.font); return m ? +m[1] : 10; };
+  function drawIcon(g, name, cx, cy, fs) {
+    const ic = I[name] || I.sparkle, t = performance.now() / 1000, ph = (cx * .013 + cy * .007) % 6.28, s = fs * PAD * 1.05;
+    const pxScale = Math.hypot(g.getTransform ? g.getTransform().a : 1, g.getTransform ? g.getTransform().b : 0) || 1;
+    const img = raster(name, s * pxScale);
+    g.save(); g.translate(cx, cy);
+    switch (ic.a) {
+      case 'bob': g.translate(0, Math.sin(t * 2.2 + ph) * fs * .05); break;
+      case 'sway': g.translate(0, fs * .45); g.rotate(Math.sin(t * 1.7 + ph) * .1); g.translate(0, -fs * .45); break;
+      case 'pulse': { const k = 1 + Math.sin(t * 3 + ph) * .05; g.scale(k, k); break; }
+      case 'twinkle': { const k = 1 + Math.sin(t * 4 + ph) * .09; g.scale(k, k); g.rotate(Math.sin(t * 1.3 + ph) * .08); break; }
+      case 'flicker': g.translate(0, fs * .45); g.scale(1 - Math.sin(t * 11 + ph) * .03, 1 + Math.sin(t * 13 + ph) * .05 + Math.sin(t * 7 + ph) * .02); g.translate(0, -fs * .45); break;
+      case 'flap': g.scale(.7 + .3 * Math.abs(Math.sin(t * 7 + ph)), 1); break;
+      case 'spin': g.rotate(t * .5 + ph); break;
+      default: break;
+    }
+    g.drawImage(img, -s / 2, -s / 2, s, s);
+    g.restore();
+  }
+  function centerOf(g, x, y, w, fs) {
+    const al = g.textAlign, bl = g.textBaseline, rtl = g.direction === 'rtl';
+    let lx = x; if (al === 'center') lx = x - w / 2; else if (al === 'right' || (al === 'end' && !rtl) || (al === 'start' && rtl)) lx = x - w;
+    let cy = y; if (bl === 'middle') cy = y; else if (bl === 'top' || bl === 'hanging') cy = y + fs * .5; else if (bl === 'bottom' || bl === 'ideographic') cy = y - fs * .5; else cy = y - fs * .36;
+    return [lx, cy];
+  }
+  // 一段文字裡可能有字也有圖示：切開來，一段一段畫
+  function split(text) {
+    const out = []; let last = 0; RE_CV_G.lastIndex = 0; let m;
+    while ((m = RE_CV_G.exec(text))) { if (m.index > last) out.push([0, text.slice(last, m.index)]); out.push([1, nameOf(m[0])]); last = m.index + m[0].length; }
+    if (last < text.length) out.push([0, text.slice(last)]);
+    return out;
+  }
+  const P = CanvasRenderingContext2D.prototype;
+  P.fillText = function (text, x, y, maxW) {
+    if (typeof text !== 'string' || !(RE_CV.test(text) || RE_ANY.test(text))) return maxW === undefined ? RAW.fill.call(this, text, x, y) : RAW.fill.call(this, text, x, y, maxW);
+    const fs = fsOf(this); let parts = split(text);
+    // 沒列在表上的 emoji
+    parts = parts.flatMap(p => { if (p[0] || !RE_ANY.test(p[1])) return [p]; const r = []; let s = ''; for (const ch of p[1]) { if (RE_ANY.test(ch)) { if (s) r.push([0, s]); s = ''; r.push([1, 'sparkle']); } else if (ch !== '\uFE0F' && ch !== '\u200D') s += ch; } if (s) r.push([0, s]); return r; });
+    const iw = fs * 1.08, ws = parts.map(p => p[0] ? iw : RAW.measure.call(this, p[1]).width), w = ws.reduce((a, b) => a + b, 0);
+    const [lx, cy] = centerOf(this, x, y, w, fs);
+    if (parts.length === 1) { drawIcon(this, parts[0][1], lx + iw / 2, cy, fs); return; }
+    const al = this.textAlign; this.textAlign = 'left'; let cx = lx;
+    parts.forEach((p, i) => { if (p[0]) drawIcon(this, p[1], cx + iw / 2, cy, fs); else RAW.fill.call(this, p[1], cx, y); cx += ws[i]; });
+    this.textAlign = al;
+  };
+  P.strokeText = function (text, x, y, maxW) {
+    if (typeof text === 'string' && (RE_CV.test(text) || RE_ANY.test(text))) { const t = text.replace(RE_CV_G, '').replace(/(?![★▶〰☾©®™♀♂♡♥♪♫])\p{Extended_Pictographic}\uFE0F?/gu, ''); if (!t.trim()) return; return RAW.stroke.call(this, t, x, y); }
+    return maxW === undefined ? RAW.stroke.call(this, text, x, y) : RAW.stroke.call(this, text, x, y, maxW);
+  };
+
+  /* ---------- 網頁文字：emoji 換成會動的圖示 ---------- */
+  const SKIP = 'SCRIPT,STYLE,TEXTAREA,TITLE,OPTION,SELECT,INPUT,NOSCRIPT';
+  function convert(node) {
+    const tx = node.nodeValue; if (!tx || !(RE_DOM.test(tx) || RE_ANY.test(tx))) return;
+    const par = node.parentNode; if (!par || (par.closest && par.closest('[data-noico]')) || SKIP.includes(par.nodeName)) return;
+    const frag = document.createDocumentFragment(); let last = 0, m; const re = /((?![★▶〰☾©®™♀♂♡♥♪♫])\p{Extended_Pictographic}|[♈-♓])[\uFE0E\uFE0F]?(\u200D\p{Extended_Pictographic}\uFE0F?)*/gu;
+    while ((m = re.exec(tx))) {
+      const base = [...m[0].replace(/[\uFE0E\uFE0F]/g, '')][0], nmx = MAP[base] || 'sparkle';
+      if (m.index > last) frag.appendChild(document.createTextNode(tx.slice(last, m.index)));
+      const sp = document.createElement('span'); sp.className = 'ivi ivi-' + ((I[nmx] || I.sparkle).a); sp.setAttribute('role', 'img'); sp.setAttribute('aria-label', m[0]);
+      sp.style.backgroundImage = `url(${dataURL(nmx)})`; sp.style.animationDelay = `${-(Math.random() * 3).toFixed(2)}s`;
+      frag.appendChild(sp); last = m.index + m[0].length;
+    }
+    if (!last) return;
+    if (last < tx.length) frag.appendChild(document.createTextNode(tx.slice(last)));
+    par.replaceChild(frag, node);
+  }
+  function walk(root) {
+    if (root.nodeType === 3) { convert(root); return; }
+    if (root.nodeType !== 1 || SKIP.includes(root.nodeName)) return;
+    const tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), list = []; let n;
+    while ((n = tw.nextNode())) if (RE_ANY.test(n.nodeValue) || RE_DOM.test(n.nodeValue)) list.push(n);
+    list.forEach(convert);
+  }
+  const mo = new MutationObserver(ms => { for (const m of ms) { if (m.type === 'characterData') convert(m.target); else m.addedNodes.forEach(walk); } });
+  function start() { walk(document.body); mo.observe(document.body, { childList: true, subtree: true, characterData: true }); }
+  // 等主程式把靜態文字翻譯好（它是用原本含 emoji 的文字去比對）之後才開始換圖示
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else setTimeout(start, 0);
+  // 給程式用：畫一個圖示（家園的門、蝴蝶等）
+  window.IVIcon = { draw: drawIcon, raster, has: n => !!I[n], nameOf, dataURL };
+})();
+</script>
 <script>
 (() => {
   'use strict';
@@ -4206,6 +4547,7 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
     };
   // 陪伴者更新的靜態文字（日／韓／越）
   Object.assign(I18N, {
+    "Homage to Disney's Encanto": ['ディズニー『ミラベルと魔法だらけの家』へのオマージュ', '디즈니 〈엔칸토: 마법의 세계〉에 바치는 오마주', 'Tri ân Encanto của Disney'],
     '🐾 My pet': ['🐾 ペット', '🐾 내 펫', '🐾 Thú cưng'], '🪪 Card': ['🪪 カード', '🪪 카드', '🪪 Thẻ'], '🔑 Planet Code': ['🔑 星のコード', '🔑 행성 코드', '🔑 Mã hành tinh'],
     '🌙 Listen before sleep': ['🌙 ねる前にいっしょに聴く', '🌙 자기 전에 함께 듣기', '🌙 Cùng nghe trước khi ngủ'], 'Pick a few sounds and let the planet grow quiet.': ['いくつか音をえらんで、星をしずかにしよう。', '소리 몇 개를 골라 행성을 조용히 재워요.', 'Chọn vài âm thanh để hành tinh dần yên tĩnh.'], 'Done': ['おわる', '끝내기', 'Xong'],
     '✦ Share my INNERVERSE': ['✦ わたしの INNERVERSE をシェア', '✦ 나의 INNERVERSE 공유', '✦ Chia sẻ INNERVERSE của tôi'], 'Enter my planet': ['わたしの星へ', '내 행성으로', 'Vào hành tinh của tôi'], 'Save image': ['画像を保存', '이미지 저장', 'Lưu ảnh'], 'Close': ['とじる', '닫기', 'Đóng'],
@@ -4230,7 +4572,7 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
   const HTML_EN = {
     '長按加速': 'Hold to speed up', '跳過開場 ⏭': 'Skip intro ⏭',
     '✦ 開始探索': '✦ Start exploring',
-    '🐾 牠': '🐾 My pet', '🪪 卡片': '🪪 Card', '🔑 星球代碼': '🔑 Planet Code', '🌙 睡前一起聽': '🌙 Listen before sleep', '選幾個聲音，讓星球慢慢安靜下來。': 'Pick a few sounds and let the planet grow quiet.', '結束': 'Done',
+    '致敬 Disney《魔法滿屋》Encanto': "Homage to Disney's Encanto", '🐾 牠': '🐾 My pet', '🪪 卡片': '🪪 Card', '🔑 星球代碼': '🔑 Planet Code', '🌙 睡前一起聽': '🌙 Listen before sleep', '選幾個聲音，讓星球慢慢安靜下來。': 'Pick a few sounds and let the planet grow quiet.', '結束': 'Done',
     '✦ 分享我的 INNERVERSE': '✦ Share my INNERVERSE', '進入我的星球': 'Enter my planet', '存成圖片': 'Save image', '關閉': 'Close', '✦ 領取我的 INNERVERSE 卡': '✦ Get my INNERVERSE Card',
     '用星球代碼拜訪': 'Visit with a Planet Code', '輸入朋友的星球代碼，就能飛到他的星球。': "Enter a friend's Planet Code to fly to their planet.", '出發': 'Go', '複製我的代碼': 'Copy my code',
     '🏠 家園': '🏠 Home', '📖 圖鑑': '📖 Collection', '🎵 聲景': '🎵 Sounds', '🎁 送禮': '🎁 Give', '🏷️ 稱號': '🏷️ Titles', '✏️ 擺放': '✏️ Arrange',
@@ -6738,6 +7080,8 @@ function petSVG(i, opt = {}) {
   window.addEventListener('iv:universe', () => jumpTo(ACTS.length + 5));
   function jumpTo(n) {
     closeChapters();
+    // 換章節：上一章還開著的對話框（煩惱、信件、卡片⋯）一起收起來，不會蓋在下一章上面
+    document.querySelectorAll('.back-dlg.on, .iv-card.on').forEach(d => { if (d.id !== 'cosDlg') d.classList.remove('on'); });
     const fromIdle = state === 'idle';
     Inner.stop();
     storyRun++;
@@ -13261,6 +13605,7 @@ function petSVG(i, opt = {}) {
       $('hmTitle').textContent = d.title || '';
       ui(); cancelAnimationFrame(H.raf); H.on = true; H.last = performance.now(); H.raf = requestAnimationFrame(loop);
       H.bub = null; H.hunt = null; H.drift = null; H.guest = null; H.ball = null; H.sleep = null; H.breath = 0; H.idleT = 0; H.cache = 0;
+      CASA.greet = H.t + .3; CASA.wave = H.t + 1.4; CASA.butter = null;   // 小屋醒來：窗板一扇一扇打開、蝴蝶從蠟燭飛出來
       ['hmSleep', 'hmAsk'].forEach(id => $(id).classList.remove('on')); $('hmVisit').textContent = '';
       $('hmCode').textContent = visit ? (visit.pid ? planetCode(visit.pid) : '') : planetCode((Me.get() || {}).pid || Me.uid());
       if (!visit) {
@@ -13322,11 +13667,12 @@ function petSVG(i, opt = {}) {
       g.strokeStyle = `rgba(${sky[3].join(',')},.6)`; g.lineWidth = 3; g.beginPath(); g.arc(H.cx, H.cy, H.R, -Math.PI / 2 - H.span * 1.4, -Math.PI / 2 + H.span * 1.4); g.stroke();
       // 草地小點點
       for (let i = 0; i < 26; i++) { const [x, y] = posA(-1.25 + i * .1, -6); g.fillStyle = `rgba(${sky[3].join(',')},.35)`; g.beginPath(); g.arc(x, y, 3 + (i % 3), 0, TAU); g.fill(); }
+      drawCasita(dt, u);
       // 擺在地上的東西（由左到右）
       // 樹畫在最後面，其他東西由左到右
       const big = o => !!(o.sp || (C[o.k] && C[o.k].tree)), items = (d.placed || []).slice().sort((a, b) => (big(b) - big(a)) || a.a - b.a);
       for (const o of items) drawItem(o, u);
-      if (!H.visit) { palTick(dt); drawNight(); drawBreath(); drawDrift(u); drawHunt(dt, u); }
+      if (!H.visit) { palTick(dt); drawNight(); casitaNightGlow(); drawBreath(); drawDrift(u); drawHunt(dt, u); }
       drawPet(dt, d, u);
       drawGuest(dt, u);
       drawCreatures(dt, d, false);
@@ -13368,6 +13714,168 @@ function petSVG(i, opt = {}) {
       if (o.fn) { g.font = `${Math.round(u * .28)}px serif`; g.fillText('💌', u * .35 * sc, -u * .8 * sc); }
       g.restore();
       o._p = [x, y - u * sc * .5, u * sc * .6];
+    }
+    /* ================================================================
+       魔法小屋 Casita
+       致敬 Disney《魔法滿屋》（Encanto）：一棟會呼吸、會回應你的家——
+       窗板會拍手、屋瓦會跳舞、地磚會跟著寵物的腳步起伏、窗台上有一根永遠不滅的蠟燭，
+       每一扇發光的門，都通往你在這裡收藏的一部分（寵物、聲音、記憶、朋友、圖鑑）。
+       ================================================================ */
+    const CASA = { wave: -9, clap: -9, open: { k: '', t: -9 }, butter: null, greet: -9 };
+    // 門：位置（以房子寬度為單位，原點在房子底部中央）
+    const DOORS = [
+      { k: 'pal', ic: 'paw', x: -.27, y: -.47, w: .12, h: .25, c: ['#ffd6e6', '#e86a9a'] },
+      { k: 'sound', ic: 'note', x: .27, y: -.47, w: .12, h: .25, c: ['#e6dcff', '#8a6ad8'] },
+      { k: 'mem', ic: 'puzzle', x: -.34, y: 0, w: .13, h: .27, c: ['#d6f0ff', '#4a9ad8'] },
+      { k: 'book', ic: 'book', x: 0, y: 0, w: .19, h: .33, c: ['#ffe6b0', '#c8803a'], main: 1 },
+      { k: 'friend', ic: 'heart', x: .34, y: 0, w: .13, h: .27, c: ['#ffe0d0', '#e8704a'] }
+    ];
+    const WINS = [{ x: -.17, y: -.12, w: .085, h: .13 }, { x: .17, y: -.12, w: .085, h: .13 }, { x: 0, y: -.58, w: .15, h: .17, candle: 1 }];
+    const doorOn = k => {
+      if (H.visit) return k === 'book';
+      if (k === 'mem') return MEMS.some(m => ready(m) && !PL.memDone[m.k]) || Object.keys(PL.memDone).length > 0;
+      if (k === 'friend') return !!(hooks.friends && hooks.friends().length);
+      if (k === 'sound') return Object.values(C).some(x => x.c === 'sound' && has(x.k));
+      return true;
+    };
+    const doorHot = k => !H.visit && ((k === 'mem' && MEMS.some(m => ready(m) && !PL.memDone[m.k])) || (k === 'pal' && (H.stg | 0) >= 1) || (k === 'friend' && PL.news.length > 0));
+    function casaSize() { const W = clamp(Math.min(H.cw * .58, H.ch * .42), 190, 400); return W; }
+    function arch(gx, x, y, w, h) { gx.beginPath(); gx.moveTo(x - w / 2, y); gx.lineTo(x - w / 2, y - h + w / 2); gx.arc(x, y - h + w / 2, w / 2, Math.PI, 0); gx.lineTo(x + w / 2, y); gx.closePath(); }
+    function drawCasita(dt, u) {
+      const W = casaSize(), [bx, by0] = posA(0, 0), by = by0 + W * .015, t = H.t, X = v => bx + v * W, Y = v => by + v * W;
+      const night = isNight(), stg = H.visit ? 2 : (H.stg | 0), hop = (i, n) => { const k = (t - CASA.wave) * 5 - i / n * 2.2; return k > 0 && k < 1 ? -Math.sin(k * Math.PI) * W * .025 : 0; };
+      H.casa = { x0: X(-.56), x1: X(.56), y0: Y(-1.02), y1: Y(.02), W, bx, by };
+      g.save();
+      // 屋子後面的暖光
+      const halo = g.createRadialGradient(bx, Y(-.5), W * .1, bx, Y(-.5), W * .9); halo.addColorStop(0, `rgba(255,214,150,${night ? .32 : .18})`); halo.addColorStop(1, 'rgba(255,214,150,0)');
+      g.fillStyle = halo; g.fillRect(bx - W, Y(-1.4), W * 2, W * 1.5);
+      // 牆：一樓、二樓（灰泥，帶一點粉橘）
+      const wall = (x0, y0, x1, y1) => { const gr = g.createLinearGradient(0, Y(y0), 0, Y(y1)); gr.addColorStop(0, '#fff4e4'); gr.addColorStop(1, '#f2cfae'); g.fillStyle = gr; g.beginPath(); g.moveTo(X(x0), Y(y1)); g.lineTo(X(x0), Y(y0)); g.lineTo(X(x1), Y(y0)); g.lineTo(X(x1), Y(y1)); g.closePath(); g.fill(); };
+      wall(-.5, -.42, .5, 0); wall(-.4, -.8, .4, -.42);
+      // 牆角的陰影與磚線
+      g.fillStyle = 'rgba(190,120,90,.12)'; g.fillRect(X(-.5), Y(-.06), W, W * .06);
+      g.strokeStyle = 'rgba(200,140,110,.25)'; g.lineWidth = 1; [[-.45, -.33, -.38, -.33], [.3, -.36, .38, -.36], [-.32, -.7, -.25, -.7], [.22, -.74, .3, -.74]].forEach(([a, b, c, d]) => { g.beginPath(); g.moveTo(X(a), Y(b)); g.lineTo(X(c), Y(d)); g.stroke(); });
+      // 一樓的屋簷（陶瓦）
+      const eave = (x0, x1, y, n, base) => { for (let i = 0; i < n; i++) { const x = X(x0 + (x1 - x0) * (i + .5) / n), dy = hop(base + i, 30), r = (x1 - x0) * W / n * .55; g.fillStyle = i % 2 ? '#d8693f' : '#e47c4e'; g.beginPath(); g.ellipse(x, Y(y) + dy, r, r * .75, 0, 0, Math.PI); g.fill(); g.fillStyle = 'rgba(255,200,160,.35)'; g.beginPath(); g.ellipse(x - r * .3, Y(y) + dy + r * .15, r * .25, r * .15, 0, 0, Math.PI * 2); g.fill(); } };
+      g.fillStyle = '#c85a36'; g.fillRect(X(-.56), Y(-.44), W * 1.12, W * .03);
+      eave(-.56, -.4, -.42, 5, 0); eave(.4, .56, -.42, 5, 25);
+      // 二樓陽台（土耳其藍的木欄杆）
+      g.fillStyle = '#c87a4a'; g.fillRect(X(-.42), Y(-.43), W * .84, W * .025);
+      g.strokeStyle = '#3fb5a8'; g.lineWidth = Math.max(1.5, W * .008);
+      for (let i = 0; i <= 16; i++) { const x = X(-.4 + i * .05); g.beginPath(); g.moveTo(x, Y(-.43)); g.lineTo(x, Y(-.5)); g.stroke(); }
+      g.beginPath(); g.moveTo(X(-.41), Y(-.5)); g.lineTo(X(.41), Y(-.5)); g.lineWidth = W * .012; g.stroke();
+      // 大屋頂：一排一排的陶瓦，打招呼的時候會一片一片跳起來
+      const rows = 5;
+      for (let r = 0; r < rows; r++) {
+        const y = -.8 - r * .045, half = .47 - r * .085, n = Math.max(3, Math.round(half * 22));
+        for (let i = 0; i < n; i++) {
+          const x = -half + (i + .5) * (2 * half / n), dy = hop(i + r * 3, 40), rw = (2 * half / n) * W * .56;
+          const gr = g.createLinearGradient(0, Y(y) - rw, 0, Y(y) + rw); gr.addColorStop(0, '#f08a5a'); gr.addColorStop(1, '#b84a2a');
+          g.fillStyle = gr; g.beginPath(); g.ellipse(X(x), Y(y) + dy, rw, rw * .9, 0, Math.PI, 0); g.lineTo(X(x) + rw, Y(y) + dy + rw * .35); g.lineTo(X(x) - rw, Y(y) + dy + rw * .35); g.closePath(); g.fill();
+        }
+      }
+      // 煙囪＋小煙
+      g.fillStyle = '#e8b896'; g.fillRect(X(.22), Y(-1.0), W * .06, W * .12); g.fillStyle = '#c85a36'; g.fillRect(X(.21), Y(-1.01), W * .08, W * .02);
+      for (let i = 0; i < 3; i++) { const k = (t * .25 + i / 3) % 1, sx = X(.25) + Math.sin(k * 6 + i) * W * .02, sy = Y(-1.02) - k * W * .25, sr = W * (.025 + k * .035), sg = g.createRadialGradient(sx, sy, 0, sx, sy, sr); sg.addColorStop(0, `rgba(255,236,250,${.4 * (1 - k)})`); sg.addColorStop(1, 'rgba(255,236,250,0)'); g.fillStyle = sg; g.beginPath(); g.arc(sx, sy, sr, 0, Math.PI * 2); g.fill(); }   // 煙囪的煙：一團一團淡淡的
+      // 牆上的藤蔓與花（粉紅、洋紅、鵝黃）
+      const vine = (x, y0, y1, s) => { g.strokeStyle = '#4cae6a'; g.lineWidth = Math.max(1.2, W * .006); g.beginPath(); for (let i = 0; i <= 12; i++) { const yy = y0 + (y1 - y0) * i / 12, xx = x + Math.sin(i * .9 + t * .8) * .015 * s; i ? g.lineTo(X(xx), Y(yy)) : g.moveTo(X(xx), Y(yy)); } g.stroke(); for (let i = 1; i < 6; i++) { const yy = y0 + (y1 - y0) * i / 6, xx = x + Math.sin(i * 1.8 + t * .8) * .015 * s; const fc = ['#ff7ab0', '#ffd65a', '#ff9ec7', '#c88aff', '#ff8a6a'][i % 5], fr = W * .016 * (1 + .15 * Math.sin(t * 2 + i)); for (let p = 0; p < 5; p++) { const a = p * Math.PI * 2 / 5 + t * .3; g.fillStyle = fc; g.beginPath(); g.arc(X(xx) + Math.cos(a) * fr, Y(yy) + Math.sin(a) * fr, fr * .75, 0, Math.PI * 2); g.fill(); } g.fillStyle = '#fff3b0'; g.beginPath(); g.arc(X(xx), Y(yy), fr * .5, 0, Math.PI * 2); g.fill(); } };
+      vine(-.48, -.02, -.4, 1); vine(.48, -.02, -.4, -1); vine(-.38, -.44, -.78, 1);
+      // 窗戶＋會拍手的窗板
+      const clapK = t - CASA.clap;
+      WINS.forEach((w0, i) => {
+        const x = X(w0.x), y = Y(w0.y), w = w0.w * W, h = w0.h * W;
+        const glow = night ? .95 : .55;
+        g.fillStyle = `rgba(255,${night ? 210 : 230},${night ? 140 : 190},${glow})`; arch(g, x, y + h / 2, w, h); g.fill();
+        g.strokeStyle = '#fff6ea'; g.lineWidth = Math.max(1.5, W * .008); arch(g, x, y + h / 2, w, h); g.stroke();
+        if (w0.candle) {   // 窗台上的蠟燭：共鳴越深，火光越亮
+          const fl = .8 + .2 * Math.sin(t * 9) + .1 * Math.sin(t * 15), cg = g.createRadialGradient(x, y - h * .1, 0, x, y - h * .1, w * (1.4 + stg * .35));
+          cg.addColorStop(0, `rgba(255,220,140,${(.55 + stg * .12) * fl})`); cg.addColorStop(1, 'rgba(255,200,120,0)'); g.fillStyle = cg; g.beginPath(); g.arc(x, y - h * .1, w * (1.4 + stg * .35), 0, Math.PI * 2); g.fill();
+          IVIcon.draw(g, 'candle', x, y + h * .05, h * .75);
+        }
+        // 窗板：平常半開；拍手的時候「啪啪啪」開關
+        let o = .72 + .08 * Math.sin(t * .7 + i);
+        if (clapK > 0 && clapK < 1.6) o = .5 + .5 * Math.cos(clapK * 14 + i * .9);
+        if (t - CASA.greet < 2.4) o = clamp((t - CASA.greet - i * .25) / .8, 0, 1) * .75;
+        const sw = w / 2 * (1 - o * .82) + 1;
+        [-1, 1].forEach(sd => {
+          const ox = sd < 0 ? x - w / 2 - (w / 2) * o * .9 : x + w / 2 + (w / 2) * o * .9 - sw;
+          g.fillStyle = '#3fb5a8'; g.fillRect(ox, y - h / 2 + 1, sw, h - 2);
+          g.strokeStyle = 'rgba(20,90,90,.45)'; g.lineWidth = 1; for (let k = 1; k < 5; k++) { g.beginPath(); g.moveTo(ox + 1, y - h / 2 + h * k / 5); g.lineTo(ox + sw - 1, y - h / 2 + h * k / 5); g.stroke(); }
+        });
+        // 窗台的小花盆
+        g.fillStyle = '#d8704a'; g.fillRect(x - w * .55, y + h / 2, w * 1.1, W * .02);
+        for (let k = 0; k < 3; k++) { g.fillStyle = ['#ff7ab0', '#ffd65a', '#ff9ec7'][k]; g.beginPath(); g.arc(x - w * .35 + k * w * .35, y + h / 2 - W * .008, W * .012, 0, Math.PI * 2); g.fill(); }
+      });
+      // 門：每一扇都通往家裡的一部分
+      H.casa.doors = [];
+      DOORS.forEach((d, i) => {
+        const x = X(d.x), y = Y(d.y), w = d.w * W, h = d.h * W, on = doorOn(d.k), hot = doorHot(d.k);
+        const opening = CASA.open.k === d.k ? clamp((t - CASA.open.t) / .35) * clamp((CASA.open.t + 1.3 - t) / .4) : 0;
+        // 門框的光
+        if (on) { const gg = g.createRadialGradient(x, y - h * .5, w * .2, x, y - h * .5, w * (1.3 + (hot ? .5 + .25 * Math.sin(t * 3 + i) : 0))); gg.addColorStop(0, `rgba(255,226,160,${hot ? .55 : .25})`); gg.addColorStop(1, 'rgba(255,226,160,0)'); g.fillStyle = gg; g.beginPath(); g.arc(x, y - h * .5, w * 2, 0, Math.PI * 2); g.fill(); }
+        // 門後的光（開門的時候看得到）
+        g.fillStyle = `rgba(255,240,200,${.4 + opening * .6})`; arch(g, x, y, w, h); g.fill();
+        if (opening > 0) { g.save(); g.globalCompositeOperation = 'lighter'; for (let r = 0; r < 5; r++) { const a = -Math.PI / 2 + (r - 2) * .3; g.fillStyle = `rgba(255,230,170,${.18 * opening})`; g.beginPath(); g.moveTo(x, y - h * .4); g.lineTo(x + Math.cos(a - .08) * W * .6, y - h * .4 + Math.sin(a - .08) * W * .6); g.lineTo(x + Math.cos(a + .08) * W * .6, y - h * .4 + Math.sin(a + .08) * W * .6); g.closePath(); g.fill(); } g.restore(); }
+        // 門板：往旁邊轉開
+        const leaf = 1 - opening * .85;
+        g.save(); g.translate(x - w / 2, 0); g.scale(leaf, 1); g.translate(-(x - w / 2), 0);
+        const dg = g.createLinearGradient(x - w / 2, 0, x + w / 2, 0); dg.addColorStop(0, on ? d.c[0] : '#d8cfc8'); dg.addColorStop(1, on ? d.c[1] : '#9a8f88');
+        g.fillStyle = dg; arch(g, x, y, w, h); g.fill();
+        g.strokeStyle = on ? 'rgba(255,236,190,.95)' : 'rgba(255,255,255,.35)'; g.lineWidth = Math.max(1.5, W * (d.main ? .01 : .007)); arch(g, x, y, w, h); g.stroke();
+        g.strokeStyle = 'rgba(80,40,30,.25)'; g.lineWidth = 1; g.beginPath(); g.moveTo(x, y - h * .82); g.lineTo(x, y - 2); g.stroke();
+        g.fillStyle = '#fff3c0'; g.beginPath(); g.arc(x + w * .28, y - h * .42, Math.max(1.5, W * .007), 0, Math.PI * 2); g.fill();
+        g.restore();
+        // 門上的圖示（沒解鎖的門是安靜的）
+        g.save(); g.globalAlpha = on ? 1 : .45; IVIcon.draw(g, d.ic, x, y - h * .62, Math.min(w * .78, W * .085)); g.restore();
+        const pad = Math.max(0, 22 - w / 2);
+        H.casa.doors.push({ k: d.k, x0: x - w / 2 - pad, x1: x + w / 2 + pad, y0: y - h - pad, y1: y + 4, on });
+      });
+      // 屋前的彩色地磚：寵物走過、打招呼的時候會起伏
+      const tiles = 13;
+      for (let i = 0; i < tiles; i++) {
+        const tx = -.52 + (i + .5) * 1.04 / tiles, near = Math.abs(posA(H.pet.a, 0)[0] - X(tx)) < W * .07 ? 1 : 0;
+        const dy = hop(i, tiles) * 1.2 - near * W * .012 * Math.abs(Math.sin(t * 10));
+        g.fillStyle = ['#ffd65a', '#ff9ec7', '#7fd0c8', '#c8a8ff', '#ff8a6a'][i % 5];
+        g.beginPath(); g.roundRect ? g.roundRect(X(tx) - W * .033, Y(.012) + dy, W * .066, W * .03, W * .008) : g.rect(X(tx) - W * .033, Y(.012) + dy, W * .066, W * .03); g.fill();
+        g.fillStyle = 'rgba(255,255,255,.35)'; g.fillRect(X(tx) - W * .02, Y(.018) + dy, W * .02, W * .006);
+      }
+      g.restore();
+      drawButterflies(dt, W, bx, by);
+    }
+    // 金色的蝴蝶：從蠟燭飛出來，繞著房子
+    function drawButterflies(dt, W, bx, by) {
+      if (!CASA.butter) CASA.butter = Array.from({ length: 7 }, (_, i) => ({ ph: i * 0.9, r: rand(.45, .75), sp: rand(.25, .45) * (i % 2 ? 1 : -1), y: rand(-.95, -.25), burst: 0 }));
+      const t = H.t;
+      CASA.butter.forEach((b, i) => {
+        const a = t * b.sp + b.ph, k = clamp((t - CASA.greet) / 2.5), cx0 = bx, cy0 = by - W * .58;
+        let x = bx + Math.cos(a) * W * b.r, y = by + (b.y + Math.sin(a * 2 + i) * .05) * W;
+        if (k < 1) { x = cx0 + (x - cx0) * k; y = cy0 + (y - cy0) * k; }
+        IVIcon.draw(g, 'butterfly', x, y, W * .055 * (1 + .1 * Math.sin(t * 3 + i)));
+      });
+    }
+    // 晚上：窗戶和門的光蓋過夜色
+    function casitaNightGlow() {
+      if (!H.casa || !(isNight() || H.sleep)) return;
+      const { W } = H.casa; g.save(); g.globalCompositeOperation = 'lighter';
+      WINS.forEach(w0 => { const x = H.casa.bx + w0.x * W, y = H.casa.by + w0.y * W, gr = g.createRadialGradient(x, y, 0, x, y, W * .22); gr.addColorStop(0, 'rgba(255,200,120,.35)'); gr.addColorStop(1, 'rgba(255,180,100,0)'); g.fillStyle = gr; g.beginPath(); g.arc(x, y, W * .22, 0, Math.PI * 2); g.fill(); });
+      g.restore();
+    }
+    // 點房子：窗板拍手、屋瓦跳舞；點門：門打開，走進那個房間
+    function casaTap(x, y) {
+      const c = H.casa; if (!c) return false;
+      const d = (c.doors || []).find(d => x >= d.x0 && x <= d.x1 && y >= d.y0 && y <= d.y1);
+      if (d) {
+        if (!d.on) { CASA.clap = H.t; say(L('這扇門還在睡覺。多陪陪寵物、多收集一些東西，它就會醒來 ✦', 'This door is still asleep. Spend time with your pet and collect things to wake it ✦', { vi: 'Cánh cửa này vẫn đang ngủ. Ở bên thú cưng và sưu tầm thêm để đánh thức nó ✦' })); try { Sound.sfx('boop'); } catch (_) { /* ignore */ } return true; }
+        CASA.open = { k: d.k, t: H.t }; try { Sound.sfx('chord', { gain: .6 }); Sound.chime(.8); } catch (_) { /* ignore */ }
+        setTimeout(() => { if (!H.on) return; if (d.k === 'pal') palPanel(); else if (d.k === 'sound') sounds(); else if (d.k === 'mem') puzzle(); else if (d.k === 'friend') giftPanel(); else book(); }, 520);
+        return true;
+      }
+      if (x >= c.x0 && x <= c.x1 && y >= c.y0 && y <= c.y1) {
+        CASA.clap = H.t; CASA.wave = H.t; try { [0, 4, 7, 12].forEach((n, i) => setTimeout(() => Sound.sfx('pop', { p: 1 + n / 12 }), i * 90)); } catch (_) { /* ignore */ }
+        if (!H.visit) petSay(T3(pick([['小屋在跟你打招呼！', 'The house is waving at you!', 'Ngôi nhà đang chào bạn!'], ['它今天心情很好。', "It's in a good mood today.", 'Hôm nay nó vui lắm.'], ['你聽，屋瓦在唱歌。', 'Listen — the roof tiles are singing.', 'Nghe kìa, mái ngói đang hát.']])), 3.4);
+        return true;
+      }
+      return false;
     }
     // 寵物：到處走走，看到家具就去用它（床→睡覺、望遠鏡→看星星、音樂盒→跳舞⋯）
     const DANCE = {
@@ -13504,6 +14012,7 @@ function petSVG(i, opt = {}) {
       }
       const c = H.cr.find(c => hit(c._p, x, y));
       if (c) { H.sel = { pos: [c._p[0], c._p[1] - c._p[2]], txt: [nm(C[c.k]), '★'.repeat(C[c.k].r)] }; Sound.chime(1); return; }
+      if (!H.edit && !hit(H.petP, x, y) && casaTap(x, y)) return;
       if (hit(H.petP, x, y) && !H.visit && Math.random() < .5) { H.pet.mode = 'love'; H.pet.t = 0; petSay(T3(pick(LINES.idle)), 3.6); bond('pet'); Sound.chime(1.2); return; }
       if (hit(H.petP, x, y)) { H.pet.mode = 'dance'; H.pet.t = 0; const ds = d.dances || []; H.pet.dance = ds.length ? ds[(Math.random() * ds.length) | 0] : 'bounce'; H.fx.push({ e: '♡', x, y: y - 30, vx: 0, vy: -40, t: 0, life: 1.4, s: 26 }); if (!H.visit) discover('care'); Sound.chime(1.2); return; }
       H.sel = null;

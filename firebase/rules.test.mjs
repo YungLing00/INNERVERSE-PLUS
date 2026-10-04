@@ -117,6 +117,11 @@ await t('dance room can be created', assertSucceeds(update(ref(A), { [R2 + 'host
 await t('unknown mode rejected', assertFails(update(ref(B), { 'rooms/LMNPQ/host': 'bob', 'rooms/LMNPQ/createdAt': ts(), 'rooms/LMNPQ/mode': 'golf' })));
 await t('player sends emote and dance hits', assertSucceeds(set(ref(A, R2 + 's/alice'), { x: 600, y: 500, t: 1, em: 31, dn: 12 })));
 await t('negative emote rejected', assertFails(set(ref(A, R2 + 's/alice'), { x: 600, y: 500, t: 1, em: -1 })));
+// 手勢遊戲：共鳴之境、星星默劇；手勢放在 kn（次數×100＋手勢代碼）、方向放在 c
+const R3 = 'rooms/RSTUV/';
+await t('echo room can be created', assertSucceeds(update(ref(B), { [R3 + 'host']: 'bob', [R3 + 'createdAt']: ts(), [R3 + 'mode']: 'echo', [R3 + 'seed']: 5, [R3 + 'state']: 'wait', [R3 + 'open']: 'echo', [R3 + 'slots/0']: 'bob', [R3 + 'p/bob']: { slot: '0', petIdx: 1, at: ts() } })));
+await t('player sends a gesture', assertSucceeds(set(ref(B, R3 + 's/bob'), { x: 800, y: 480, t: 1, kn: 302, c: '1' })));
+await t('mime room can be created', assertSucceeds(update(ref(C), { 'rooms/WXYZ2/host': 'carol', 'rooms/WXYZ2/createdAt': ts(), 'rooms/WXYZ2/mode': 'mime', 'rooms/WXYZ2/seed': 2, 'rooms/WXYZ2/state': 'wait', 'rooms/WXYZ2/slots/0': 'carol', 'rooms/WXYZ2/p/carol': { slot: '0', petIdx: 3, at: ts() } })));
 await t('score +3 accepted', assertSucceeds(set(ref(A, R2 + 'del/alice'), { n: 3, tm: '0' })));
 await t('score +4 at once rejected', assertFails(set(ref(A, R2 + 'del/alice'), { n: 7, tm: '0' })));
 

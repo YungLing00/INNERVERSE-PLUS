@@ -224,6 +224,62 @@
     text-shadow: 0 0 18px rgba(5,4,15,.95);
   }
   /* ✦ 星球家園與發現 */
+  /* 陪伴者：照顧、提問、拜訪、睡前、記憶、INNERVERSE 卡 */
+  .hm-code { font-family: var(--latin); letter-spacing: .18em !important; color: rgba(255,226,170,.75) !important; }
+  .hm-care { position: absolute; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 86px); display: flex; gap: 6px; overflow-x: auto; padding: 4px 10px; justify-content: center; scrollbar-width: none; }
+  .hm-care::-webkit-scrollbar { display: none; }
+  @media (max-width: 720px) { .hm-care { justify-content: flex-start; } }
+  .hm-cb { flex: none; display: grid; justify-items: center; gap: 1px; min-width: 56px; padding: 6px 8px; border-radius: 14px; border: 1px solid rgba(255,255,255,.18); background: rgba(20,14,46,.66); color: #fff3dc; font-family: var(--tc); font-size: .66rem; letter-spacing: .04em; cursor: pointer; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); transition: transform .15s ease, border-color .2s ease; }
+  .hm-cb b { font-size: 1.15rem; font-weight: 400; line-height: 1.2; }
+  .hm-cb:active { transform: scale(.94); }
+  .hm-cb.hot { border-color: rgba(255,226,170,.8); box-shadow: 0 0 16px rgba(255,210,140,.35); }
+  .hm-cb:disabled { opacity: .4; cursor: default; }
+  .home.visit .hm-care, .home.visit .hm-ask { display: none !important; }
+  .hm-ask { position: absolute; left: 50%; top: 40%; transform: translateX(-50%); display: none; gap: 6px; flex-wrap: wrap; justify-content: center; width: min(92vw, 460px); }
+  .hm-ask.on { display: flex; animation: hmIn .5s ease both; }
+  .hm-ask button, .hm-chip { padding: .45rem .8rem; border-radius: 99px; border: 1px solid rgba(255,226,170,.4); background: rgba(20,14,46,.8); color: #fff3dc; font-family: var(--tc); font-size: .78rem; letter-spacing: .04em; cursor: pointer; }
+  .hm-chip.on { background: rgba(255,226,170,.22); border-color: rgba(255,226,170,.9); }
+  .hm-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: .6rem; justify-content: center; }
+  @keyframes hmIn { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+  .hm-visit { display: none; position: absolute; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); justify-content: center; gap: 8px; flex-wrap: wrap; padding: 0 10px; }
+  .home.visit .hm-visit { display: flex; }
+  .hm-sleep { position: absolute; left: 0; right: 0; bottom: 0; display: none; justify-items: center; padding: 18px 14px calc(env(safe-area-inset-bottom, 0px) + 18px); background: linear-gradient(to top, rgba(3,2,14,.92), rgba(3,2,14,0)); color: #e9e4ff; text-align: center; z-index: 2; }
+  .hm-sleep.on { display: grid; }
+  .home.sleeping .hm-care, .home.sleeping .hm-tray, .home.sleeping .hm-side { display: none; }
+  @media (max-width: 600px) { .hm-msg { left: 10px; transform: none; width: calc(100vw - 132px); top: 118px; text-align: left; } }
+  .hm-slc { width: min(560px, 100%); }
+  .hm-slt { font-size: 1rem; letter-spacing: .14em; } .hm-sls { font-size: .76rem; color: var(--dim); margin-top: .3rem; }
+  .hm-sleep .ghost { margin-top: .8rem; }
+  .hm-pal { text-align: center; margin: .6rem 0 .4rem; } .hm-st { display: block; font-weight: 400; font-size: 1.05rem; letter-spacing: .2em; color: #ffe2aa; } .hm-res { display: block; margin-top: .3rem; font-size: .9rem; letter-spacing: .2em; color: #fff3dc; }
+  .hm-puz { display: grid; grid-template-columns: 34px 1fr auto; gap: 8px; align-items: center; margin-top: 10px; padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,.05); font-size: .82rem; }
+  .hm-puz > b { font-size: 1.3rem; font-weight: 400; text-align: center; }
+  .hm-puz .hm-slots { grid-column: 1 / 3; }
+  .hm-puz button { grid-row: 1 / 3; grid-column: 3; padding: .5rem .8rem; font-size: .76rem; }
+  .hm-slots { display: flex; gap: 6px; }
+  .hm-slots span { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; border: 1px dashed rgba(255,226,170,.35); color: var(--dim); font-size: .9rem; }
+  .hm-slots span.on { border-style: solid; border-color: rgba(255,226,170,.8); background: rgba(255,226,170,.12); font-size: 1.15rem; animation: slotIn .4s ease; }
+  .hm-slots.big { justify-content: center; margin: .8rem 0; } .hm-slots.big span { width: 56px; height: 56px; font-size: 1.6rem; }
+  @keyframes slotIn { from { transform: scale(.5); } to { transform: scale(1); } }
+  .mem-scene { position: fixed; inset: 0; z-index: 60; display: none; background: #000; }
+  .mem-scene.on { display: block; }
+  .mem-scene canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .mem-cap { position: absolute; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 12dvh); transform: translateX(-50%); width: min(90vw, 620px); text-align: center; color: #fff6e4; font-family: var(--tc); font-size: clamp(1rem, 4vw, 1.3rem); letter-spacing: .1em; line-height: 1.8; text-shadow: 0 2px 18px rgba(0,0,0,.9); opacity: 0; transition: opacity 1.2s ease; pointer-events: none; }
+  .mem-cap.on { opacity: 1; }
+  .mem-x { position: absolute; right: calc(env(safe-area-inset-right, 0px) + 12px); top: calc(env(safe-area-inset-top, 0px) + 12px); }
+  .iv-card { position: fixed; inset: 0; z-index: 58; display: none; place-items: center; padding: 14px; background: rgba(4,3,16,.82); overflow-y: auto; }
+  .iv-card.on { display: grid; animation: ivIn .4s ease; }
+  @keyframes ivIn { from { opacity: 0; } to { opacity: 1; } }
+  .ivc-in { width: min(440px, 100%); display: grid; gap: 10px; justify-items: center; }
+  .ivc-in img { width: 100%; max-height: 62dvh; object-fit: contain; border-radius: 18px; box-shadow: 0 18px 60px rgba(0,0,0,.6), 0 0 40px rgba(180,150,255,.2); }
+  .ivc-t { font-size: .76rem; color: var(--dim); text-align: center; letter-spacing: .04em; }
+  .ivc-snd { margin-top: 0; max-height: 92px; overflow-y: auto; }
+  .ivc-snd .hm-chip { font-size: .72rem; padding: .35rem .65rem; }
+  .ivc-acts { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .ivc-msg { font-size: .76rem; color: #ffe2aa; min-height: 1em; }
+  .pc-mine { margin: .6rem 0; font-family: var(--latin); letter-spacing: .14em; color: #ffe2aa; }
+  #pcIn { text-transform: uppercase; letter-spacing: .14em; }
+  .rs-card { margin: 1.6rem auto 0; display: block; }
+  .rs-card + .rs-feel { margin-top: .7rem; }
   .home { position: fixed; inset: 0; z-index: 34; display: none; background: #0b0826; touch-action: none; -webkit-user-select: none; user-select: none; }
   .home.on { display: block; }
   .home canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -1294,6 +1350,7 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
       <p class="rs-mock" id="rsMock"></p>
       <button class="ghost" id="rsRetry" type="button" hidden>再試一次</button>
     </div>
+    <button class="main rs-card" id="rsCard" type="button">✦ 領取我的 INNERVERSE 卡</button>
     <button class="main rs-feel" id="rsFeel" type="button">接下來，你看過情緒嗎？</button>
     <button class="ghost rs-alt" id="rsRitual" type="button" hidden>接下來，讓寵物陪你</button>
     <p class="rs-foot">這不是診斷，只是一個溫柔的座標。</p>
@@ -1348,7 +1405,7 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
   <div class="uv-title"><h2>✦ OUR UNIVERSE ✦</h2><p class="uv-demo" id="uvDemo" hidden>示範宇宙：真實旅人還不多，先用示範星球陪你逛逛</p></div>
   <p class="uv-hint" id="uvHint"></p>
   <div class="uv-ev" id="uvEvent" hidden><p class="ev-t" id="evTitle"></p><p class="ev-s" id="evSub"></p><div class="ev-bar"><i id="evBar"></i></div><div class="ev-row"><span class="ev-n" id="evN"></span><button class="main ev-go" id="evGo" type="button"></button></div></div>
-  <div class="uv-tools"><button class="pill" id="uvHand" type="button">🖐️ 手勢控制</button><button class="pill" id="uvAll" type="button">✦ 看見整座宇宙</button><button class="pill uv-mail" id="uvMail" type="button" hidden>💌</button><button class="pill" id="uvFriends" type="button" hidden>✦</button><button class="pill uv-play" id="uvPlay" type="button" hidden>🎮 一起玩</button><button class="pill" id="uvMyHome" type="button" hidden>🏠 家園</button></div>
+  <div class="uv-tools"><button class="pill" id="uvHand" type="button">🖐️ 手勢控制</button><button class="pill" id="uvAll" type="button">✦ 看見整座宇宙</button><button class="pill uv-mail" id="uvMail" type="button" hidden>💌</button><button class="pill" id="uvFriends" type="button" hidden>✦</button><button class="pill uv-play" id="uvPlay" type="button" hidden>🎮 一起玩</button><button class="pill" id="uvMyHome" type="button" hidden>🏠 家園</button><button class="pill" id="uvCode" type="button" hidden>🔑 星球代碼</button></div>
   <div class="uv-gest" id="uvGest"><span>🖐️ 張開手掌移動：旋轉宇宙</span><span>🖐️ 手掌靠近／遠離鏡頭：放大／縮小</span><span>✌️ 兩指或三指移動：平移</span><span>🤏 捏合：選擇星球</span><span>✊ 握拳：回到整個宇宙</span></div>
   <aside class="uv-card" id="uvCard" aria-live="polite">
     <button class="uv-x" id="uvcClose" type="button" aria-label="回到宇宙">×</button>
@@ -1407,12 +1464,29 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
 </div>
 <section class="home" id="home" aria-label="星球家園">
   <canvas id="hmCv"></canvas>
-  <div class="hm-top"><button class="hm-x" id="hmClose" type="button" aria-label="回到宇宙">×</button><div class="hm-h"><b id="hmName"></b><small id="hmTitle"></small></div></div>
-  <div class="hm-side"><button class="pill" id="hmBook" type="button">📖 圖鑑</button><button class="pill" id="hmSound" type="button">🎵 聲景</button><button class="pill" id="hmGift" type="button">🎁 送禮</button><button class="pill" id="hmTitleB" type="button">🏷️ 稱號</button><button class="pill" id="hmEdit" type="button">✏️ 擺放</button></div>
+  <div class="hm-top"><button class="hm-x" id="hmClose" type="button" aria-label="回到宇宙">×</button><div class="hm-h"><b id="hmName"></b><small id="hmTitle"></small><small class="hm-code" id="hmCode"></small></div></div>
+  <div class="hm-side"><button class="pill" id="hmBook" type="button">📖 圖鑑</button><button class="pill" id="hmSound" type="button">🎵 聲景</button><button class="pill" id="hmGift" type="button">🎁 送禮</button><button class="pill" id="hmTitleB" type="button">🏷️ 稱號</button><button class="pill" id="hmPal" type="button">🐾 牠</button><button class="pill" id="hmCardB" type="button">🪪 卡片</button><button class="pill" id="hmEdit" type="button">✏️ 擺放</button></div>
   <p class="hm-msg" id="hmMsg" role="status"></p>
+  <div class="hm-care" id="hmCare"></div>
+  <div class="hm-ask" id="hmAsk"></div>
+  <div class="hm-visit" id="hmVisit"></div>
+  <div class="hm-sleep" id="hmSleep"><div class="hm-slc"><p class="hm-slt">🌙 睡前一起聽</p><p class="hm-sls" id="hmSlSub">選幾個聲音，讓星球慢慢安靜下來。</p><div class="hm-chips" id="hmSlList"></div><div class="hm-chips" id="hmSlTime"></div><button class="ghost" id="hmSlEnd" type="button">結束</button></div></div>
   <div class="hm-tray" id="hmTray"></div>
   <div class="hm-panel" id="hmPanel"><div class="hm-pcard"><button class="hm-x" id="hmPClose" type="button" aria-label="關閉">×</button><h3 id="hmPTitle"></h3><div id="hmPBody"></div></div></div>
 </section>
+<div class="iv-card" id="ivCard" role="dialog" aria-modal="true" aria-label="INNERVERSE CARD"><div class="ivc-in"><img id="ivcImg" alt="MY INNERVERSE"><p class="ivc-t" id="ivcSndT"></p><div class="hm-chips ivc-snd" id="ivcSnd"></div><div class="ivc-acts"><button class="main" id="ivcShare" type="button">✦ 分享我的 INNERVERSE</button><button class="ghost" id="ivcEnter" type="button">進入我的星球</button><button class="ghost" id="ivcSave" type="button">存成圖片</button><button class="ghost" id="ivcClose" type="button">關閉</button></div><p class="ivc-msg" id="ivcMsg" role="status"></p></div></div>
+<div class="back-dlg" id="codeDlg" role="dialog" aria-modal="true" aria-labelledby="pcTitle">
+  <div class="bd-card">
+    <p class="bd-star" aria-hidden="true">🔑</p>
+    <h3 id="pcTitle">用星球代碼拜訪</h3>
+    <p class="bd-sub">輸入朋友的星球代碼，就能飛到他的星球。</p>
+    <p class="pc-mine" id="pcMine"></p>
+    <div class="un-row"><input id="pcIn" type="text" maxlength="11" autocomplete="off" autocapitalize="characters" placeholder="INNER-7F29"><button class="main" id="pcGo" type="button">出發</button></div>
+    <p class="gm-msg" id="pcMsg" role="status"></p>
+    <div class="bd-acts"><button class="ghost" id="pcCopy" type="button">複製我的代碼</button><button class="ghost" id="pcClose" type="button">關閉</button></div>
+  </div>
+</div>
+<div class="mem-scene" id="memScene" role="dialog" aria-modal="true"><canvas id="memCv"></canvas><p class="mem-cap" id="memCap"></p><button class="hm-x mem-x" id="memX" type="button" aria-label="關閉">×</button></div>
 <div class="back-dlg cos-dlg" id="cosDlg" role="dialog" aria-modal="true" aria-labelledby="cdName">
   <div class="bd-card cd-card">
     <p class="cd-head" id="cdHead"></p>
@@ -4130,6 +4204,14 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
     "SONG NGƯ"
     ]
     };
+  // 陪伴者更新的靜態文字（日／韓／越）
+  Object.assign(I18N, {
+    '🐾 My pet': ['🐾 ペット', '🐾 내 펫', '🐾 Thú cưng'], '🪪 Card': ['🪪 カード', '🪪 카드', '🪪 Thẻ'], '🔑 Planet Code': ['🔑 星のコード', '🔑 행성 코드', '🔑 Mã hành tinh'],
+    '🌙 Listen before sleep': ['🌙 ねる前にいっしょに聴く', '🌙 자기 전에 함께 듣기', '🌙 Cùng nghe trước khi ngủ'], 'Pick a few sounds and let the planet grow quiet.': ['いくつか音をえらんで、星をしずかにしよう。', '소리 몇 개를 골라 행성을 조용히 재워요.', 'Chọn vài âm thanh để hành tinh dần yên tĩnh.'], 'Done': ['おわる', '끝내기', 'Xong'],
+    '✦ Share my INNERVERSE': ['✦ わたしの INNERVERSE をシェア', '✦ 나의 INNERVERSE 공유', '✦ Chia sẻ INNERVERSE của tôi'], 'Enter my planet': ['わたしの星へ', '내 행성으로', 'Vào hành tinh của tôi'], 'Save image': ['画像を保存', '이미지 저장', 'Lưu ảnh'], 'Close': ['とじる', '닫기', 'Đóng'],
+    '✦ Get my INNERVERSE Card': ['✦ INNERVERSE カードを受け取る', '✦ INNERVERSE 카드 받기', '✦ Nhận thẻ INNERVERSE của tôi'], 'Visit with a Planet Code': ['星のコードで訪ねる', '행성 코드로 방문하기', 'Ghé thăm bằng mã hành tinh'],
+    "Enter a friend's Planet Code to fly to their planet.": ['友だちの星のコードを入れると、その星へ飛べます。', '친구의 행성 코드를 입력하면 그 행성으로 날아가요.', 'Nhập mã hành tinh của bạn bè để bay đến đó.'], 'Go': ['出発', '출발', 'Đi'], 'Copy my code': ['自分のコードをコピー', '내 코드 복사', 'Sao chép mã của tôi']
+  });
   const LI = { ja: 0, ko: 1, vi: 2 }[LANG];
   const EN = LANG !== 'zh';          // 非中文介面（英／日／韓／越）
   const tr = s => (LI === undefined || typeof s !== 'string' || !I18N[s]) ? s : I18N[s][LI];
@@ -4148,6 +4230,9 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
   const HTML_EN = {
     '長按加速': 'Hold to speed up', '跳過開場 ⏭': 'Skip intro ⏭',
     '✦ 開始探索': '✦ Start exploring',
+    '🐾 牠': '🐾 My pet', '🪪 卡片': '🪪 Card', '🔑 星球代碼': '🔑 Planet Code', '🌙 睡前一起聽': '🌙 Listen before sleep', '選幾個聲音，讓星球慢慢安靜下來。': 'Pick a few sounds and let the planet grow quiet.', '結束': 'Done',
+    '✦ 分享我的 INNERVERSE': '✦ Share my INNERVERSE', '進入我的星球': 'Enter my planet', '存成圖片': 'Save image', '關閉': 'Close', '✦ 領取我的 INNERVERSE 卡': '✦ Get my INNERVERSE Card',
+    '用星球代碼拜訪': 'Visit with a Planet Code', '輸入朋友的星球代碼，就能飛到他的星球。': "Enter a friend's Planet Code to fly to their planet.", '出發': 'Go', '複製我的代碼': 'Copy my code',
     '🏠 家園': '🏠 Home', '📖 圖鑑': '📖 Collection', '🎵 聲景': '🎵 Sounds', '🎁 送禮': '🎁 Give', '🏷️ 稱號': '🏷️ Titles', '✏️ 擺放': '✏️ Arrange',
     '🎮 一起玩': '🎮 Play together', '現在開始': 'Start now', '邀請朋友': 'Invite friends', '離開': 'Leave', '再玩一次': 'Play again', '回到宇宙': 'Back to the universe',
     '友情星圖': 'Friendship Constellation', '在 INNERVERSE，每一段友情，都從一支舞開始。': 'In INNERVERSE, friendship begins with a dance.', '留下一句話（只有星球主人看得到）': 'Leave a few words (only the owner can see)', '想對牠的主人說些什麼？': 'Anything you want to tell the owner?', '送出': 'Send',
@@ -5144,9 +5229,10 @@ function petSVG(i, opt = {}) {
         else if (name === 'chord') { [130.81, 196, 261.63, 329.63, 392, 523.25].forEach((f, i) => { const o2 = ac.createOscillator(), gg = ac.createGain(), g = outChain((i - 2.5) * .2); o2.type = i % 2 ? 'triangle' : 'sine'; o2.frequency.value = f; o2.connect(gg); gg.connect(g); gg.gain.setValueAtTime(0, t); gg.gain.linearRampToValueAtTime(.07 * k, t + 1.2); gg.gain.exponentialRampToValueAtTime(.0001, t + 7); o2.start(t); o2.stop(t + 7.1); }); }
       },
       // 我的宇宙聲景：玩家收集到的聲音一層一層疊起來（mix：每一層 0～1；null＝關掉）
-      scape(mix) {
+      scape(mix, inner) {
         if (!ac) return;
         const S = this._sc || (this._sc = { L: {}, t: 0 });
+        if (!inner && S.tasting) { clearTimeout(S.tasteT); S.tasting = false; S.keep = null; }   // 玩家自己換聲景：試聽就停
         const want = mix || {}, now = ac.currentTime;
         const layer = (k, make) => { if (!S.L[k] && want[k] > 0) S.L[k] = make(); return S.L[k]; };
         const out = g => { g.connect(dry); g.connect(rev); return g; };
@@ -5167,6 +5253,40 @@ function petSVG(i, opt = {}) {
           const os = [110, 164.81, 220, 277.18].map((fr, i) => { const o = ac.createOscillator(); o.type = 'sawtooth'; o.frequency.value = fr; o.detune.value = (i - 1.5) * 6; o.connect(f); o.start(); return o; });
           return { g, stop() { os.forEach(o => o.stop()); } };
         });
+        // 風：慢慢移動的濾波噪音
+        const wind = layer('wind', () => {
+          const src = ac.createBufferSource(); src.buffer = noiseBuf(4); src.loop = true;
+          const f = ac.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 520; f.Q.value = .8;
+          const lfo = ac.createOscillator(); lfo.frequency.value = .07; const lg = ac.createGain(); lg.gain.value = 320; lfo.connect(lg); lg.connect(f.frequency);
+          const g = out(ac.createGain()); g.gain.value = 0; src.connect(f); f.connect(g); src.start(); lfo.start(); return { g, stop() { src.stop(); lfo.stop(); } };
+        });
+        // 低低的轟聲：營火、火車共用一種做法（頻率不同）
+        const rumble = (k, fr) => layer(k, () => {
+          const src = ac.createBufferSource(); src.buffer = noiseBuf(3); src.loop = true;
+          const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = fr;
+          const g = out(ac.createGain()); g.gain.value = 0; src.connect(f); f.connect(g); src.start(); return { g, stop() { src.stop(); } };
+        });
+        const fire = rumble('fire', 260), train = rumble('train', 150);
+        // 咖啡廳：遠遠的人聲（中頻噪音＋忽大忽小）
+        const cafe = layer('cafe', () => {
+          const src = ac.createBufferSource(); src.buffer = noiseBuf(4); src.loop = true;
+          const f = ac.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 480; f.Q.value = 1.4;
+          const f2 = ac.createBiquadFilter(); f2.type = 'lowpass'; f2.frequency.value = 1400;
+          const g = out(ac.createGain()); g.gain.value = 0;
+          const lfo = ac.createOscillator(); lfo.frequency.value = .4; const lg = ac.createGain(); lg.gain.value = 0; lfo.connect(lg); lg.connect(g.gain);
+          src.connect(f); f.connect(f2); f2.connect(g); src.start(); lfo.start(); return { g, lg, stop() { src.stop(); lfo.stop(); } };
+        });
+        // 舊收音機：沙沙的雜訊
+        const radio = layer('radio', () => {
+          const src = ac.createBufferSource(); src.buffer = noiseBuf(3); src.loop = true;
+          const f = ac.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 2600; f.Q.value = .9;
+          const g = out(ac.createGain()); g.gain.value = 0; src.connect(f); f.connect(g); src.start(); return { g, stop() { src.stop(); } };
+        });
+        if (wind) ramp(wind.g.gain, (want.wind || 0) * .1, 2);
+        if (fire) ramp(fire.g.gain, (want.fire || 0) * .09, 2);
+        if (train) ramp(train.g.gain, (want.train || 0) * .14, 2);
+        if (cafe) { ramp(cafe.g.gain, (want.cafe || 0) * .045, 2); ramp(cafe.lg.gain, (want.cafe || 0) * .02, 2); }
+        if (radio) ramp(radio.g.gain, (want.radio || 0) * .012, 2);
         if (ocean) { ramp(ocean.g.gain, (want.ocean || 0) * .16, 2); ramp(ocean.lg.gain, (want.ocean || 0) * .1, 2); }
         if (rain) ramp(rain.g.gain, (want.rain || 0) * .05, 2);
         if (pad) ramp(pad.g.gain, (want.pad || 0) * .022, 3);
@@ -5186,7 +5306,27 @@ function petSVG(i, opt = {}) {
             g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.05 * m.whale, t + .8); g.gain.exponentialRampToValueAtTime(.0001, t + 5);
             o.connect(g); o.start(t); o.stop(t + 5.1);
           }
+          if (m.birds > 0 && Math.random() < .16 * m.birds) chirp({ pan: Math.random() * 1.6 - .8 });
+          if (m.fire > 0) for (let k = 0; k < 3; k++) if (Math.random() < .35 * m.fire) setTimeout(crackle, k * 120 + Math.random() * 100);
+          if (m.train > 0 && (S.tick = (S.tick || 0) + 1) % 3 === 0) { woodblock({ f: 180, gain: .05 * m.train, pan: -.2 }); woodblock({ f: 160, gain: .045 * m.train, delay: .17, pan: .2 }); }
+          if (m.cafe > 0 && Math.random() < .05 * m.cafe) bell(1250 + Math.random() * 450, { gain: .012 * m.cafe, dur: 1.2, pan: Math.random() - .5 });   // 杯子輕輕碰到的聲音
+          if (m.radio > 0 && Math.random() < .08 * m.radio) {   // 遠方的人聲：聽不清楚的音節
+            const t = ac.currentTime, n = 3 + (Math.random() * 4 | 0), f0 = 150 + Math.random() * 90;
+            const o = ac.createOscillator(), bp = ac.createBiquadFilter(), g = out(ac.createGain()); o.type = 'sawtooth'; bp.type = 'bandpass'; bp.frequency.value = 900; bp.Q.value = 3;
+            o.frequency.setValueAtTime(f0, t); g.gain.setValueAtTime(0, t);
+            for (let k = 0; k < n; k++) { const a = t + k * .19; o.frequency.linearRampToValueAtTime(f0 * (.85 + Math.random() * .35), a + .1); g.gain.linearRampToValueAtTime(.014 * m.radio, a + .04); g.gain.linearRampToValueAtTime(.002, a + .17); bp.frequency.setValueAtTime(600 + Math.random() * 900, a); }
+            g.gain.linearRampToValueAtTime(0, t + n * .19 + .1); o.connect(bp); bp.connect(g); o.start(t); o.stop(t + n * .19 + .2);
+          }
         }, 400);
+      },
+      // 試聽一個聲音幾秒（不會改掉玩家自己的聲景）
+      taste(k, sec = 4.5) {
+        if (!ac || !k) return;
+        const S = this._sc || (this._sc = { L: {}, t: 0 });
+        if (!S.tasting) S.keep = Object.assign({}, S.mix || {});
+        S.tasting = true; clearTimeout(S.tasteT);
+        this.scape(Object.assign({}, S.keep, { [k]: 1 }), true);
+        S.tasteT = setTimeout(() => { S.tasting = false; const kp = S.keep || {}; S.keep = null; this.scape(Object.keys(kp).some(x => kp[x] > 0) ? kp : null, true); }, sec * 1000);
       },
       galaxy(mix = [3, 3, 3, 3, 3], sec = 16) {
         if (!ac) return;
@@ -9377,6 +9517,7 @@ function petSVG(i, opt = {}) {
     $('flNext').addEventListener('click', () => { endCard.classList.remove('on'); Ritual.start(); });
     homeB.addEventListener('click', () => resetWorld());
     $('rsFeel').addEventListener('click', () => { if (state === 'result') start(); });
+    $('rsCard').addEventListener('click', () => IVCard.open());
 
     return { start, reset() { endCard.classList.remove('on'); skip.hidden = true; monoOn = false; Object.assign(FL, FL0()); } };
   })();
@@ -12769,6 +12910,12 @@ function petSVG(i, opt = {}) {
      Play → Discover → Collect → Change Your Universe
      玩 → 遇見東西 → 收藏回憶 → 宇宙慢慢變成自己的樣子（沒有抽卡、沒有排行榜、不用花錢）
      ================================================================ */
+  // 星球代碼：INNER-7F29（由公開的 pid 算出來，同一顆星球永遠是同一組）
+  function planetCode(pid) {
+    let h = 2166136261; const t = String(pid || '');
+    for (let i = 0; i < t.length; i++) { h ^= t.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return 'INNER-' + ((h >>> 0) & 0xffff).toString(16).toUpperCase().padStart(4, '0');
+  }
   const Cosmos = (() => {
     const KEY = 'iv_cosmos';
     // 圖鑑七大類
@@ -12821,6 +12968,14 @@ function petSVG(i, opt = {}) {
     def('sPiano', 'sound', '🎹', '月光鋼琴', 'Moon Piano', 2, { mix: 'piano' });
     def('sPad', 'sound', '🌌', '星雲和弦', 'Nebula Pad', 2, { mix: 'pad' });
     def('sWhale', 'sound', '🐋', '鯨魚之歌', 'Whale Voice', 3, { mix: 'whale' });
+    def('sWind', 'sound', '🍃', '林間的風', 'Forest Wind', 1, { mix: 'wind' });
+    def('sBirds', 'sound', '🐦', '清晨鳥鳴', 'Morning Birds', 1, { mix: 'birds' });
+    def('sFire', 'sound', '🔥', '營火', 'Campfire', 2, { mix: 'fire' });
+    def('sTrain', 'sound', '🚆', '夜班火車', 'Night Train', 2, { mix: 'train' });
+    def('sCafe', 'sound', '☕', '午後咖啡廳', 'Afternoon Café', 2, { mix: 'cafe' });
+    def('sRadio', 'sound', '📻', '遠方的收音機', 'Distant Radio', 3, { mix: 'radio' });
+    // 聲音也是一樣「東西」：可以擺在星球上，點一下就會響
+    Object.values(C).forEach(x => { if (x.c === 'sound') x.place = 1; });
     // 地方：不寫「LV20 解鎖」，而是神秘的條件；解鎖後家園的天空會換成那裡的樣子
     const P = (k, e, zh, en, hz, he, cond, sky) => def(k, 'place', e, zh, en, 3, { hz, he, cond, sky });
     P('pHome', '🌎', '家園星球', 'Home Planet', '一開始就在這裡', 'Where it all begins', () => true, ['#0b0826', '#2a1d5c', '#5b3f8a', [110, 90, 190], [60, 150, 120]]);
@@ -12936,6 +13091,11 @@ function petSVG(i, opt = {}) {
       });
       S.st.titles = S.st.titles || {}; TITLES.forEach(t => { if (!S.st.titles[t[0]]) S.st.titles[t[0]] = Date.now(); });
       S.st.eggs = Math.max(1, S.st.eggs || 0);
+      if (S.pal) {   // 陪伴者：回憶都拼好、聲音的痕跡、選好的聲音
+        MEMS.forEach(m => { S.pal.frag[m.k] = [1, 1, 1, 1]; if (!S.pal.memDone[m.k]) S.pal.memDone[m.k] = Date.now(); });
+        if (!S.pal.core) S.pal.core = 'sOcean'; if ((S.pal.listen.ocean || 0) < 900) S.pal.listen.ocean = 900;
+        ['explore', 'listen', 'meet', 'find', 'play'].forEach(k => { S.pal.acts[k] = Math.max(S.pal.acts[k] || 0, 10); });
+      }
       if (!S.demoHome) {
         S.demoHome = 1; S.th = 'pDream'; S.title = 'maker';
         const tree = (sp, a) => S.placed.push({ id: ++S.uid, k: 'seed', a, at: Date.now(), g: 8, sp });
@@ -13033,6 +13193,8 @@ function petSVG(i, opt = {}) {
         const t = TITLES.find(x => x[0] === it.t); e = t[1]; h = L('你得到了一個新的稱號', 'You earned a new title'); n = L(t[2], t[3]); s = L('稱號不是強弱，而是你是什麼樣的旅人。可以在家園換上它。', 'Titles aren\'t about being strong — they show what kind of traveler you are. Wear it from your home.');
       } else if (it.kind === 'hatch') {
         const x = C[it.k]; e = x.e; h = L('🥚 蛋裂開了⋯！', '🥚 The egg is hatching…!'); n = nm(x); s = L('牠會住在你的星球上。', 'It will live on your planet.') + '　' + '★'.repeat(x.r);
+      } else if (it.kind === 'custom') {
+        e = it.e; h = it.h; n = it.n; s = it.s || '';
       } else if (it.kind === 'gift') {
         const x = C[it.k]; e = x ? x.e : '🎁'; h = L(`${it.from} 在你的宇宙留下了一樣東西`, `${it.from} left something in your universe`); n = nm(x); s = L(`From ${it.from} · ${fmtDate(it.at)}　已經放在你的星球上了`, `From ${it.from} · ${fmtDate(it.at)} — it's on your planet now`);
       }
@@ -13042,8 +13204,13 @@ function petSVG(i, opt = {}) {
       try { Sound.chime(.4); setTimeout(() => Sound.chime(1), 260); if (dlg.classList.contains('rare')) setTimeout(() => Sound.gift(), 500); } catch (_) { /* ignore */ }
       go.textContent = canPlace ? L('放到我的星球', 'Put it on my planet') : q.length ? L('下一個 ✦', 'Next ✦') : L('收下 ✦', 'Keep it ✦');
       go.onclick = () => { if (canPlace && (S.inv[it.k] || 0) > 0) placeItem(it.k); next(); };
-      home.hidden = !!(H.on && !H.visit);
+      home.hidden = !!(H.on && !H.visit); home.textContent = L('去我的星球家園', 'Go to my planet home');
       home.onclick = () => { if (canPlace && (S.inv[it.k] || 0) > 0) placeItem(it.k); q.length = 0; showing = false; dlg.classList.remove('on'); open(); };
+      if (it.kind === 'custom') {
+        if (it.goT) go.textContent = it.goT;
+        go.onclick = () => { if (it.go) it.go(); if (H.on && !H.visit) ui(); next(); };
+        if (it.altT) { home.hidden = false; home.textContent = it.altT; home.onclick = () => { if (it.alt) it.alt(); if (!it.keep) next(); }; }
+      }
     }
 
     /* ---------- 擺東西、孵蛋、收禮物 ---------- */
@@ -13060,8 +13227,10 @@ function petSVG(i, opt = {}) {
     }
     // 朋友送來的東西：直接種在你的星球上，點它會看到是誰送的
     function receive(g) {
-      if (!C[g.k]) return;
       const from = (g.from && g.from.name) || L('一位旅人', 'A traveler');
+      if (receiveSound(g, from)) return;
+      if (!C[g.k]) return;
+      news(`${from} 在你的星球留下了一樣東西。`, `${from} left something on your planet.`, `${from} đã để lại một món quà trên hành tinh của bạn.`);
       add(g.k);
       if (C[g.k].place) placeItem(g.k, { fn: from, at: Number(g.at) || Date.now() });
       memory('🎁', `${from} 送了你一個「${C[g.k].zh}」`, `${from} gave you a ${C[g.k].en}`, from);
@@ -13091,11 +13260,21 @@ function petSVG(i, opt = {}) {
       $('hmName').textContent = visit ? L(`${visit.name} 的星球家園`, `${visit.name}'s planet home`) : L('我的星球家園', 'My Planet Home');
       $('hmTitle').textContent = d.title || '';
       ui(); cancelAnimationFrame(H.raf); H.on = true; H.last = performance.now(); H.raf = requestAnimationFrame(loop);
+      H.bub = null; H.hunt = null; H.drift = null; H.guest = null; H.ball = null; H.sleep = null; H.breath = 0; H.idleT = 0; H.cache = 0;
+      ['hmSleep', 'hmAsk'].forEach(id => $(id).classList.remove('on')); $('hmVisit').textContent = '';
+      $('hmCode').textContent = visit ? (visit.pid ? planetCode(visit.pid) : '') : planetCode((Me.get() || {}).pid || Me.uid());
+      if (!visit) {
+        careBar();
+        if (PL.adv) { if (Date.now() >= PL.adv.until) advReturn(); else { H.pet.mode = 'away'; } }
+        setTimeout(() => { if (H.on && !H.visit) greet(); }, 900);
+      } else meetStart();
       if (!visit && Object.keys(S.mix).some(k => S.mix[k] > 0) && S.mixOn !== false) Sound.scape(S.mix);
       if (!visit) { checkUnlocks(); if (pending.length) reveal(pending.splice(0)); }
       try { Sound.chime(.8); } catch (_) { /* ignore */ }
     }
     function close() {
+      (H.sayT || []).forEach(clearTimeout); H.sleep = null; root.classList.remove('sleeping'); ['hmSleep', 'hmAsk'].forEach(id => $(id).classList.remove('on'));
+      if (!H.visit) { PL.lastSeen = Date.now(); save(); }
       H.on = false; cancelAnimationFrame(H.raf); root.classList.remove('on'); $('hmPanel').classList.remove('on'); Sound.scape(null);
     }
     async function visit(p) {
@@ -13103,7 +13282,7 @@ function petSVG(i, opt = {}) {
       try {
         const j = await apiGet({ action: 'home', id: p.pid }, 12000), h = (j && j.home) || {};
         let list = []; try { list = JSON.parse(h.p || '[]'); } catch (_) { list = []; }
-        open({ placed: list.filter(o => !o.cr && C[o.k] || o.k === 'egg'), cr: list.filter(o => o.cr && C[o.k]).map(o => o.k), th: C[h.th] ? h.th : 'pHome', petIdx: Number(p.petIdx) || 0, petName: p.petName || '', dances: ['bounce', 'swing'], title: h.t || '', name: p.name || '' });
+        open({ placed: list.filter(o => !o.cr && C[o.k] || o.k === 'egg'), cr: list.filter(o => o.cr && C[o.k]).map(o => o.k), th: C[h.th] ? h.th : 'pHome', petIdx: Number(p.petIdx) || 0, petName: p.petName || '', dances: ['bounce', 'swing'], title: h.t || '', name: p.name || '', pid: p.pid });
       } catch (e) { console.warn('visit home:', e); }
     }
     function ui() {
@@ -13147,7 +13326,9 @@ function petSVG(i, opt = {}) {
       // 樹畫在最後面，其他東西由左到右
       const big = o => !!(o.sp || (C[o.k] && C[o.k].tree)), items = (d.placed || []).slice().sort((a, b) => (big(b) - big(a)) || a.a - b.a);
       for (const o of items) drawItem(o, u);
+      if (!H.visit) { palTick(dt); drawNight(); drawBreath(); drawDrift(u); drawHunt(dt, u); }
       drawPet(dt, d, u);
+      drawGuest(dt, u);
       drawCreatures(dt, d, false);
       // 粒子
       for (let i = H.fx.length - 1; i >= 0; i--) {
@@ -13204,19 +13385,64 @@ function petSVG(i, opt = {}) {
       const p = H.pet, t = H.t, im = PET_IMG[d.petIdx | 0];
       p.t += dt;
       const furn = (d.placed || []).filter(o => C[o.k] && C[o.k].use);
+      // 出門探險／回家
+      if (p.mode === 'leave' || p.mode === 'back') {
+        const dir = Math.sign(p.ta - p.a); p.f = dir || p.f; p.a += dir * Math.min(Math.abs(p.ta - p.a), dt * .38);
+        if (Math.abs(p.ta - p.a) < .005) { if (p.mode === 'leave') p.mode = 'away'; else { p.mode = 'idle'; p.t = 0; advFind(); } }
+      }
+      if (p.mode === 'away') { H.petP = null; if (H.bub) drawBubble(posA(PL.adv ? PL.adv.dir * .9 : 0, u)[0], posA(0, u * 2)[1], dt); return; }
+      if ((H.cache = (H.cache || 0) - dt) <= 0) { H.cache = 2; H.stg = stage(); H.aff = soundAff(); }   // 都是「我的」寵物的狀態（拜訪時畫在客人身上）
       if (p.mode === 'idle' && p.t > 2 + Math.random() * 3) {
         p.t = 0;
-        if (furn.length && Math.random() < .65) { const f = furn[(Math.random() * furn.length) | 0]; p.ta = f.a; p.use = f; p.mode = 'walk'; }
+        const ln = H.visit ? '' : lean(), r = Math.random();
+        if (!H.visit && isNight() && r < .4) p.mode = 'nap';
+        else if (ln === 'O' && r < .3) { p.ta = clamp(p.a + rand(-.9, .9), -.95, .95); p.mode = 'walk'; p.use = null; p.sniff = 1; }
+        else if (ln === 'E' && r < .3) p.mode = 'wave';
+        else if (ln === 'C' && r < .25 && (d.placed || []).length) { p.mode = 'tidy'; p.tidy = (d.placed || []).slice().sort(() => Math.random() - .5).slice(0, 3).map(o => o.a); }
+        else if (ln === 'A' && r < .3) p.mode = 'love';
+        else if (ln === 'N' && r < .3 && furn.some(o => ['sleep', 'glow', 'sit'].includes(C[o.k].use))) { const f = furn.find(o => ['sleep', 'glow', 'sit'].includes(C[o.k].use)); p.ta = f.a; p.use = f; p.mode = 'walk'; }
+        else if (furn.length && Math.random() < .65) { const f = furn[(Math.random() * furn.length) | 0]; p.ta = f.a; p.use = f; p.mode = 'walk'; }
         else if ((d.dances || []).length && Math.random() < .5) { p.mode = 'dance'; p.dance = d.dances[(Math.random() * d.dances.length) | 0]; p.use = null; }
         else { p.ta = clamp(p.a + rand(-.6, .6), -.95, .95); p.use = null; p.mode = 'walk'; }
       }
       if (p.mode === 'walk') {
         const dir = Math.sign(p.ta - p.a); p.f = dir || p.f; p.a += dir * Math.min(Math.abs(p.ta - p.a), dt * .22);
-        if (Math.abs(p.ta - p.a) < .005) { p.mode = p.use ? 'use' : 'idle'; p.t = 0; }
+        if (Math.abs(p.ta - p.a) < .005) { p.mode = p.use ? 'use' : p.sniff ? 'sniff' : 'idle'; p.t = 0; p.sniff = 0; }
       }
-      if ((p.mode === 'use' && p.t > 6) || (p.mode === 'dance' && p.t > 5)) { p.mode = 'idle'; p.t = 0; }
+      // 整理：一樣一樣走過去
+      if (p.mode === 'tidy') {
+        const tg = (p.tidy || [])[0];
+        if (tg === undefined) { p.mode = 'idle'; p.t = 0; }
+        else { const dir = Math.sign(tg - p.a); p.f = dir || p.f; p.a += dir * Math.min(Math.abs(tg - p.a), dt * .5); if (Math.abs(tg - p.a) < .01) { p.tidy.shift(); H.fx.push({ e: '✨', x: posA(p.a, u)[0], y: posA(p.a, u)[1], vx: 0, vy: -30, t: 0, life: 1, s: u * .35 }); } }
+      }
+      // 玩球
+      if (p.mode === 'chase') {
+        const b = H.ball;
+        if (!b) { p.mode = 'idle'; p.t = 0; }
+        else {
+          b.vh -= u * 14 * dt; b.h += b.vh * dt; b.a += b.va * dt;
+          if (b.a > .95 || b.a < -.95) { b.a = clamp(b.a, -.95, .95); b.va *= -1; }
+          if (b.h <= 0) { b.h = 0; b.vh = Math.abs(b.vh) * .45; b.va *= .7; if (b.vh < u * .8) b.vh = 0; }
+          const dir = Math.sign(b.a - p.a); p.f = dir || p.f; p.a += dir * Math.min(Math.abs(b.a - p.a), dt * .55);
+          if (Math.abs(b.a - p.a) < .04 && b.h < u * .9) {
+            b.n++; try { Sound.sfx('boing'); } catch (_) { /* ignore */ }
+            if (b.n >= 4) { H.ball = null; p.mode = 'dance'; p.dance = 'bounce'; p.t = 2.5; }
+            else { b.va = (Math.random() < .5 ? -1 : 1) * rand(.35, .7); b.vh = u * rand(5, 7); }
+          }
+        }
+      }
+      const END = { use: 6, dance: 5, nap: 10, wave: 2.6, love: 3, listen: 12, sniff: 1.6 };
+      if (END[p.mode] && p.t > END[p.mode] && !(p.mode === 'nap' && H.sleep)) { p.mode = 'idle'; p.t = 0; }
       let hop = p.mode === 'walk' ? Math.abs(Math.sin(t * 10)) * u * .12 : Math.sin(t * 2) * u * .03, rot = 0, sy = 1, dx = 0, alpha = 1, extra = '';
       const use = p.mode === 'use' && p.use ? C[p.use.k].use : '';
+      if (p.mode === 'nap' || p.mode === 'listen' || p.mode === 'wave' || p.mode === 'love' || p.mode === 'sniff') {
+        if (p.mode === 'nap') { rot = -.5; hop = -u * .05; alpha = .9; if (Math.random() < dt * 1.2) H.fx.push({ e: 'z', x: posA(p.a, u)[0], y: posA(p.a, u)[1], vx: 10, vy: -30, t: 0, life: 2, s: u * .35 }); }
+        if (p.mode === 'listen') { rot = Math.sin(t * 1.8) * .14; if (Math.random() < dt * 1.5) H.fx.push({ e: Math.random() < .5 ? '♪' : '♫', x: posA(p.a, u * 1.3)[0] + rand(-20, 20), y: posA(p.a, u * 1.3)[1], vx: rand(-10, 10), vy: -30, t: 0, life: 1.6, s: u * .35 }); }
+        if (p.mode === 'wave') { hop = Math.abs(Math.sin(t * 8)) * u * .22; sy = 1 + Math.sin(t * 16) * .04; if (Math.random() < dt * 2) H.fx.push({ e: '!', x: posA(p.a, u * 1.6)[0], y: posA(p.a, u * 1.6)[1], vx: 0, vy: -30, t: 0, life: 1, s: u * .35 }); }
+        if (p.mode === 'love' && Math.random() < dt * 2.4) H.fx.push({ e: '♡', x: posA(p.a, u * 1.4)[0] + rand(-16, 16), y: posA(p.a, u * 1.4)[1], vx: 0, vy: -36, t: 0, life: 1.4, s: u * .35 });
+        if (p.mode === 'sniff') { rot = Math.sin(t * 12) * .08 + .25; if (Math.random() < dt * 2) H.fx.push({ e: '?', x: posA(p.a, u * 1.5)[0], y: posA(p.a, u * 1.5)[1], vx: 0, vy: -24, t: 0, life: 1, s: u * .32 }); }
+      }
+      if (p.mode === 'chase' || p.mode === 'tidy' || p.mode === 'back') hop = Math.abs(Math.sin(t * 12)) * u * .16;
       if (use === 'sleep') { rot = -.5; hop = -u * .05; alpha = .85; if (Math.random() < dt * 1.5) H.fx.push({ e: 'z', x: posA(p.a, u)[0], y: posA(p.a, u)[1], vx: 10, vy: -30, t: 0, life: 2, s: u * .35 }); }
       if (use === 'look') { rot = -.25; if (Math.random() < dt * 2) H.fx.push({ e: '✦', x: posA(p.a, u * 1.8)[0] + rand(-30, 30), y: posA(p.a, u * 2.2)[1], vx: 0, vy: -20, t: 0, life: 1.4, s: u * .3 }); }
       if (use === 'dance' || p.mode === 'dance') { const fn = DANCE[p.mode === 'dance' ? p.dance : (d.dances || [])[0] || 'bounce'] || DANCE.bounce, r = fn(p.t, u); hop += r.hop || 0; rot += r.rot || 0; sy = r.sy || 1; dx = r.dx || 0; if (Math.random() < dt * 3) H.fx.push({ e: Math.random() < .5 ? '♪' : '♫', x: posA(p.a, u)[0] + rand(-20, 20), y: posA(p.a, u * 1.2)[1], vx: rand(-10, 10), vy: -40, t: 0, life: 1.6, s: u * .32 }); if (r.glow) extra = 'glow'; if (r.dark) alpha = .75; }
@@ -13232,9 +13458,16 @@ function petSVG(i, opt = {}) {
       if (imgOK(im)) g.drawImage(im, -s / 2, -s, s, s); else { g.fillStyle = (PETS[d.petIdx | 0] || PETS[0]).c || '#fff'; g.beginPath(); g.arc(0, -s / 2, s * .35, 0, TAU); g.fill(); }
       g.restore();
       H.petP = [x, y - s / 2, s * .5];
+      if (!H.visit) {
+        drawTrait(g, x + dx, y, s, t, H.stg | 0, H.aff || '', dt, H.fx);
+        if (p.mode === 'listen') { g.font = `${Math.round(s * .3)}px serif`; g.textAlign = 'center'; g.fillText('🎧', x + dx, y - s * .95); }
+        if (p.mode === 'tidy') { g.font = `${Math.round(s * .3)}px serif`; g.textAlign = 'center'; g.fillText('🧹', x + dx + s * .4 * (p.f || 1), y - s * .2); }
+      }
+      if (H.ball) { const [bx, by] = posA(H.ball.a, H.ball.h + u * .2); g.font = `${Math.round(u * .45)}px serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('🎾', bx, by); g.textBaseline = 'alphabetic'; }
       // 名字和稱號
       g.font = `12px ${bodyFont}`; g.textAlign = 'center'; g.fillStyle = 'rgba(255,243,220,.9)';
       const [nx, ny] = posA(p.a, hop + s * 1.15); g.fillText(`${d.petName || ''}${d.title ? '　' + d.title : ''}`, nx, ny);
+      if (!H.visit) drawBubble(nx, ny - 8, dt);
     }
     function drawCreatures(dt, d, sky) {
       const t = H.t, u = U0(), { cw, ch } = H;
@@ -13258,17 +13491,20 @@ function petSVG(i, opt = {}) {
     const hit = (p, x, y) => p && Math.hypot(p[0] - x, p[1] - y) < Math.max(26, p[2]);
     cv.addEventListener('pointerdown', e => {
       const x = e.clientX, y = e.clientY, d = data();
+      if (!H.visit && !H.edit && (huntTap(x, y) || driftTap(x, y))) return;
       const o = (d.placed || []).slice().reverse().find(o => hit(o._p, x, y));
       if (o && H.edit && !H.visit) { H.drag = { o, x0: x, a0: o.a, moved: false }; cv.setPointerCapture && cv.setPointerCapture(e.pointerId); return; }
       if (o) {
         if (o.k === 'egg' && !H.visit && (o.w || 0) >= 3) { hatch(o); return; }
         const x0 = C[o.k] || {}, lines = [o.k === 'egg' ? L('一顆溫暖的蛋', 'A warm egg') : o.k === 'seed' ? (o.sp ? nm(C[o.sp]) : L(`星之種子（成長 ${Math.min(100, Math.round((o.g || 0) / 8 * 100))}%）`, `Star Seed (${Math.min(100, Math.round((o.g || 0) / 8 * 100))}% grown)`)) : nm(x0)];
         if (o.k === 'egg') lines.push((o.w || 0) >= 3 ? L('牠在動了！點一下 ✦', 'It\'s moving! Tap it ✦') : L(`溫度 ${'●'.repeat(Math.floor(o.w || 0))}${'○'.repeat(3 - Math.floor(o.w || 0))}　和朋友一起玩會變暖`, `Warmth ${'●'.repeat(Math.floor(o.w || 0))}${'○'.repeat(3 - Math.floor(o.w || 0))} — play with friends to warm it`));
+        if (x0.c === 'sound') { lines.push('▶'); try { Sound.taste(x0.mix, 5); } catch (_) { /* ignore */ } if (!H.visit) { PL.listen[x0.mix] = (PL.listen[x0.mix] || 0) + 5; } }
         if (o.fn) lines.push(`From ${o.fn} · ${fmtDate(o.at)}`); else if (o.at) lines.push(fmtDate(o.at));
         H.sel = { pos: [o._p[0], o._p[1] - o._p[2]], txt: lines, t: H.t }; Sound.chime(.5); return;
       }
       const c = H.cr.find(c => hit(c._p, x, y));
       if (c) { H.sel = { pos: [c._p[0], c._p[1] - c._p[2]], txt: [nm(C[c.k]), '★'.repeat(C[c.k].r)] }; Sound.chime(1); return; }
+      if (hit(H.petP, x, y) && !H.visit && Math.random() < .5) { H.pet.mode = 'love'; H.pet.t = 0; petSay(T3(pick(LINES.idle)), 3.6); bond('pet'); Sound.chime(1.2); return; }
       if (hit(H.petP, x, y)) { H.pet.mode = 'dance'; H.pet.t = 0; const ds = d.dances || []; H.pet.dance = ds.length ? ds[(Math.random() * ds.length) | 0] : 'bounce'; H.fx.push({ e: '♡', x, y: y - 30, vx: 0, vy: -40, t: 0, life: 1.4, s: 26 }); if (!H.visit) discover('care'); Sound.chime(1.2); return; }
       H.sel = null;
     });
@@ -13304,7 +13540,7 @@ function petSVG(i, opt = {}) {
         const list = Object.values(C).filter(x => x.c === tab && !(x.hidden && !has(x.k)));
         const n = list.filter(x => has(x.k)).length;
         grid.appendChild(el('p', 'hm-count', `${n} / ${list.length}${tab === 'creature' ? L('　（只會從宇宙蛋孵出來）', ' (they only hatch from cosmic eggs)') : ''}`));
-        if (tab === 'pet') { const lv = hooks.bondLevel ? hooks.bondLevel() : 1; grid.appendChild(el('p', 'hm-count', L(`👾 ${data().petName || '寵物'} 的親密度 Lv.${lv}`, `👾 ${data().petName || 'Pet'} · affection Lv.${lv}`))); }
+        if (tab === 'pet') { const lv = hooks.bondLevel ? hooks.bondLevel() : 1; grid.appendChild(el('p', 'hm-count', `👾 ${petNm()} · ${stageName()}　${L('共鳴', 'Resonance', { vi: 'Cộng hưởng' })} ${'✦'.repeat(lv)}${'○'.repeat(Math.max(0, 7 - lv))}`)); }
         list.forEach(x => {
           const ok = has(x.k), card = el('button', 'hm-card' + (ok ? '' : ' locked') + (x.c === 'place' && S.th === x.k ? ' on' : '')); card.type = 'button';
           card.append(el('b', '', ok ? x.e : '？'), el('span', '', ok ? nm(x) : '???'), el('small', '', ok ? (x.c === 'place' ? (S.th === x.k ? L('目前的天空', 'Current sky') : L('點一下換成這片天空', 'Tap to use this sky')) : (S.inv[x.k] > 1 ? `×${S.inv[x.k]}　` : '') + '★'.repeat(x.r)) : x.c === 'place' ? L(x.hz, x.he) : '★'.repeat(x.r)));
@@ -13332,6 +13568,7 @@ function petSVG(i, opt = {}) {
         if (!(FB && FB.on())) { body.appendChild(el('p', 'hm-empty', L('需要連上宇宙（Firebase）才能送禮物。', 'Gifts need the universe connection (Firebase).'))); return; }
         if (!k) {
           const items = Object.keys(S.inv).filter(x => S.inv[x] > 0 && C[x] && C[x].place);
+          const sm = el('button', 'hm-friend', ''); sm.type = 'button'; sm.append(el('b', '', '🎵'), el('span', '', L('改傳一段聲音（不會用掉你的收藏）', 'Send a sound instead (you keep your collection)', { vi: 'Gửi một âm thanh (không mất bộ sưu tập)' }))); sm.addEventListener('click', () => soundMsg()); body.appendChild(sm);
           body.appendChild(el('p', 'hm-count', L('選一樣你找到的東西。朋友下次來的時候，牠的寵物會抱著它跑過來。', 'Pick something you found. Next time your friend comes, their pet will run over holding it.')));
           if (!items.length) body.appendChild(el('p', 'hm-empty', L('先把東西收起來（拖到最下面），或玩遊戲找到新的東西，才能送人。', 'Store something first (drag it to the bottom), or find new things by playing.')));
           const grid = el('div', 'hm-grid'); body.appendChild(grid);
@@ -13368,23 +13605,816 @@ function petSVG(i, opt = {}) {
         });
       });
     }
+
+    /* ================================================================
+       陪伴者：寵物＝陪伴＋引導＋遊戲角色＋情緒的樣子
+       ・共鳴（Resonance）：一起度過的時光，不是分數；不用每天簽到，多久回來都不會被責怪
+       ・四個階段：幼年期 → 熟悉期 → 陪伴期 → 獨特形態
+       ・Big Five 決定初始傾向，互動習慣決定牠會長成什麼樣子
+       ・常聽的聲音（或你選的「有意義的聲音」）會慢慢長在牠身上
+       ================================================================ */
+    S.pal = S.pal || {};
+    const PL = S.pal;
+    ['listen', 'acts', 'frag', 'memDone', 'met'].forEach(k => { PL[k] = PL[k] || {}; });
+    PL.mood = PL.mood || []; PL.news = PL.news || [];
+    const T3 = a => L(a[0], a[1], { vi: a[2] });
+    const petNm = () => data().petName || (Me.get() || {}).petName || L('寵物', 'Pet', { vi: 'Thú cưng' });
+    const lvl = () => (hooks.bondLevel ? hooks.bondLevel() : 1);
+    const STAGES = [
+      ['幼年期', 'Baby', 'Sơ sinh', '剛來到你身邊，還在認識這個世界。', 'Just arrived — still getting to know this world.', 'Vừa mới đến bên bạn, vẫn đang làm quen với thế giới này.'],
+      ['熟悉期', 'Familiar', 'Thân quen', '開始有自己的習慣、喜歡的角落，也記得你常聽的聲音。', 'It has its own habits, a favorite spot, and remembers the sounds you play.', 'Bắt đầu có thói quen riêng, góc yêu thích, và nhớ những âm thanh bạn hay nghe.'],
+      ['陪伴期', 'Companion', 'Đồng hành', '牠記得你們一起經歷的事，身上帶著一樣屬於你們的東西。', 'It remembers what you lived through together and carries something that is yours.', 'Nó nhớ những gì hai bạn đã trải qua và mang theo một món đồ của riêng hai bạn.'],
+      ['獨特形態', 'Unique Form', 'Hình dạng riêng', '世界上只有這一隻：牠長成了你們一起走過的樣子。', 'There is only one like it — shaped by the journey you shared.', 'Chỉ có một mình nó trên đời: được tạo nên từ hành trình của hai bạn.']
+    ];
+    const stage = () => { const l = lvl(); return l >= 7 ? 3 : l >= 5 ? 2 : l >= 3 ? 1 : 0; };
+    const stageName = (i = stage()) => L(STAGES[i][0], STAGES[i][1], { vi: STAGES[i][2] });
+    const dots = () => { const l = lvl(); return '✦'.repeat(l) + '○'.repeat(Math.max(0, 7 - l)); };
+    // 聲音長在寵物身上的樣子
+    const TRAIT = {
+      rain: { e: '☂️', p: '💧', c: '140,180,255', zh: '雨', en: 'Rain', vi: 'Mưa' },
+      ocean: { e: '🐚', p: '🫧', c: '110,210,255', zh: '海', en: 'Ocean', vi: 'Biển' },
+      bell: { e: '🔔', p: '✦', c: '255,226,150', zh: '鈴', en: 'Bell', vi: 'Chuông' },
+      piano: { e: '🎼', p: '♪', c: '230,220,255', zh: '琴', en: 'Piano', vi: 'Đàn' },
+      pad: { e: '🌌', p: '✧', c: '190,160,255', zh: '星雲', en: 'Nebula', vi: 'Tinh vân' },
+      whale: { e: '🐋', p: '🫧', c: '120,170,255', zh: '鯨', en: 'Whale', vi: 'Cá voi' },
+      wind: { e: '🍃', p: '🍃', c: '170,255,200', zh: '風', en: 'Wind', vi: 'Gió' },
+      birds: { e: '🐦', p: '🪶', c: '255,240,180', zh: '鳥', en: 'Birdsong', vi: 'Chim hót' },
+      fire: { e: '🏮', p: '✶', c: '255,160,100', zh: '火', en: 'Ember', vi: 'Lửa' },
+      train: { e: '🎫', p: '☁️', c: '220,215,240', zh: '旅', en: 'Journey', vi: 'Hành trình' },
+      cafe: { e: '☕', p: '♨', c: '235,195,150', zh: '咖啡', en: 'Café', vi: 'Cà phê' },
+      radio: { e: '📻', p: '〰', c: '200,255,220', zh: '電波', en: 'Radio', vi: 'Sóng' }
+    };
+    const sndOf = mix => Object.values(C).find(x => x.c === 'sound' && x.mix === mix);
+    // 牠被哪一個聲音塑造：你選的「有意義的聲音」＋平常聽最久的聲音
+    function soundAff() {
+      const sc = Object.assign({}, PL.listen), core = C[PL.core];
+      if (core) sc[core.mix] = (sc[core.mix] || 0) + 600;
+      let best = '', v = 0; for (const k in sc) if (TRAIT[k] && sc[k] > v) { v = sc[k]; best = k; }
+      return v >= 120 ? best : '';
+    }
+    const traitName = k => k ? L(`${TRAIT[k].zh}之形`, `${TRAIT[k].en} Form`, { vi: `Dáng ${TRAIT[k].vi}` }) : '';
+    // 個性：Big Five 是起點，玩的方式決定牠會變成什麼樣子
+    const big5 = () => (Me.get() || {}).big5 || App.big5 || null;
+    function lean() {
+      const b = big5(); if (!b) return 'A';
+      const top = ['O', 'E', 'C', 'A'].sort((x, y) => b[y] - b[x])[0];
+      return b.N >= 3.8 && b.N > b[top] ? 'N' : top;
+    }
+    const LEAN = {
+      O: ['🧭', '好奇的探險家', 'Curious explorer', 'Nhà thám hiểm tò mò', '喜歡探索、會找到奇怪的東西，對新的聲音特別有反應。', 'Loves exploring, finds unusual things and reacts strongly to new sounds.'],
+      E: ['🎈', '熱情的小太陽', 'Little sunshine', 'Mặt trời nhỏ', '喜歡互動、喜歡拜訪別的星球，也喜歡寄東西給朋友。', 'Seeks interaction, loves visiting planets and sending things to friends.'],
+      C: ['🧹', '細心的整理家', 'Tidy keeper', 'Người ngăn nắp', '喜歡整理東西、完成小任務，也會注意到星球的變化。', 'Likes tidying, finishing little quests, and notices changes on the planet.'],
+      A: ['🌷', '溫柔的守護者', 'Gentle guardian', 'Người bảo vệ dịu dàng', '總是待在你旁邊，會用小小的方式安慰你。', 'Stays close and comforts you in small ways.'],
+      N: ['🌙', '敏感的小心靈', 'Tender heart', 'Trái tim nhạy cảm', '對聲音和氣氛很敏感，有你在旁邊就會安心。', 'Sensitive to sounds and moods; feels safe when you are near.']
+    };
+    const GROW = [['explore', 5, '🧭', '愛冒險', 'Adventurous', 'Thích phiêu lưu'], ['listen', 6, '🎧', '愛聽聲音', 'Loves listening', 'Thích lắng nghe'], ['meet', 3, '🤝', '愛交朋友', 'Friendly', 'Thân thiện'],
+      ['clean', 5, '🧹', '愛整理', 'Tidy', 'Ngăn nắp'], ['rest', 5, '💤', '慢慢來', 'Unhurried', 'Thong thả'], ['play', 8, '🎾', '調皮', 'Playful', 'Tinh nghịch'], ['find', 4, '🔍', '眼睛很尖', 'Sharp-eyed', 'Tinh mắt'], ['feed', 8, '🍙', '愛吃', 'Foodie', 'Ham ăn']];
+    const grown = () => GROW.filter(g => (PL.acts[g[0]] || 0) >= g[1]);
+
+    /* ---------- 牠會說的話 ---------- */
+    const LINES = {
+      morning: [['早安。一起看看你的星球今天發生了什麼吧。', "Good morning. Let's see what's happening on your planet.", 'Chào buổi sáng. Cùng xem hôm nay hành tinh có gì nhé.'], ['昨晚好像有些東西改變了。', 'Something changed overnight.', 'Hình như tối qua có gì đó đã thay đổi.'], ['你今天想探索什麼？', 'What do you want to explore today?', 'Hôm nay bạn muốn khám phá gì?']],
+      day: [['要不要一起散散步？', 'Want to take a walk?', 'Đi dạo cùng nhau không?'], ['今天的聲音好像有點不一樣。', 'Something sounds different today.', 'Hôm nay âm thanh có vẻ hơi khác.'], ['我剛剛還在想你去哪裡了。', 'I was wondering where you went.', 'Mình vừa nghĩ không biết bạn đi đâu.']],
+      evening: [['天色慢慢變柔軟了。', 'The sky is getting softer.', 'Bầu trời đang dịu dần.'], ['今天過得怎麼樣都沒關係，你回來了就好。', 'However today went, I\'m glad you\'re back.', 'Hôm nay thế nào cũng được, bạn về là tốt rồi.']],
+      night: [['星球開始變得安靜了。', 'The planet is getting quiet.', 'Hành tinh đang dần yên tĩnh.'], ['睡覺之前，要不要一起聽一會兒？', 'Would you like to listen before you sleep?', 'Trước khi ngủ, mình nghe một chút nhé?']],
+      idle: [['你來了，我很開心。', "I'm happy you're here.", 'Bạn đến rồi, mình vui lắm.'], ['我喜歡和你一起待在這裡。', 'I like spending time with you.', 'Mình thích ở đây cùng bạn.'], ['你不用做任何事情，我們可以就待在這裡。', "You don't have to do anything. We can just stay here.", 'Bạn không cần làm gì cả. Mình cứ ở đây thôi.'], ['我想玩……', 'I want to play…', 'Mình muốn chơi…'], ['我們一起聽一下吧。', "Let's listen together.", 'Mình cùng nghe một chút nhé.'], ['我很想你。', 'I missed you a lot.', 'Mình nhớ bạn lắm.']],
+      O: [['那邊好像有什麼在發光……', 'Something is glowing over there…', 'Đằng kia hình như có gì đang phát sáng…'], ['要不要一起去沒去過的地方？', 'Want to go somewhere new?', 'Mình đi đến nơi chưa từng đến nhé?']],
+      E: [['好想去別人的星球玩！', 'I want to visit other planets!', 'Mình muốn đi chơi hành tinh khác!'], ['我們寄一個聲音給朋友好不好？', 'Shall we send a sound to a friend?', 'Mình gửi một âm thanh cho bạn bè nhé?']],
+      C: [['我把東西排整齊了一點。', 'I tidied things up a little.', 'Mình đã sắp xếp lại một chút.'], ['我注意到星球有一點點不一樣。', 'I noticed the planet changed a tiny bit.', 'Mình để ý hành tinh hơi khác một chút.']],
+      A: [['你今天也辛苦了。', 'You did well today.', 'Hôm nay bạn cũng vất vả rồi.'], ['我會一直在這裡。', "I'll always be here.", 'Mình sẽ luôn ở đây.']],
+      N: [['剛剛有一點點聲音，我嚇了一跳。', 'A tiny sound startled me just now.', 'Vừa có tiếng động nhỏ, mình giật mình.'], ['你在旁邊，我就安心了。', "I feel safe when you're near.", 'Có bạn bên cạnh, mình thấy yên tâm.']]
+    };
+    const pick = a => a[(Math.random() * a.length) | 0];
+    const partOfDay = () => { const h = new Date().getHours(); return h >= 5 && h < 11 ? 'morning' : h < 18 ? 'day' : h < 22 ? 'evening' : 'night'; };
+    const isNight = () => partOfDay() === 'night' || new Date().getHours() >= 21;
+    function petSay(t, sec = 4.6) { if (H.sleep) return; H.bub = { t, life: sec, age: 0 }; }
+    function sayQ(list, gap = 4.4) { (H.sayT || []).forEach(clearTimeout); H.sayT = list.map((t, i) => setTimeout(() => { if (H.on && !H.visit) petSay(t, gap + .2); }, i * gap * 1000)); }
+    function news(zh, en, vi) { PL.news.push({ zh, en, vi, at: Date.now() }); PL.news = PL.news.slice(-6); save(); }
+    // 打開家園：依時間打招呼，有人留東西給你就告訴你；不管多久回來都只說「歡迎回來」
+    function greet() {
+      const part = partOfDay(), first = PL.gDay !== day(), away = PL.lastSeen ? Date.now() - PL.lastSeen : 0, out = [];
+      if (PL.lastSeen && away > 6 * 3600e3) out.push(T3(['歡迎回來。', 'Welcome back.', 'Chào mừng bạn trở lại.']));
+      out.push(T3(first ? LINES[part][0] : pick(LINES[part])));
+      const nw = PL.news.splice(0);
+      if (nw.length) out.push(nw.length > 1 ? L(`今天有 ${nw.length} 件事想告訴你！`, `I have ${nw.length} things to tell you today!`, { vi: `Hôm nay mình có ${nw.length} chuyện muốn kể!` }) : '', ...nw.map(n => L(n.zh, n.en, { vi: n.vi })));
+      // 「這個聲音讓我想起昨天」：上次一起聽的聲音
+      if (PL.ls && PL.ls.day !== day() && S.mix[PL.ls.k] > 0 && S.mixOn !== false) out.push(L('這個聲音讓我想起昨天。', 'This sound reminds me of yesterday.', { vi: 'Âm thanh này làm mình nhớ hôm qua.' }));
+      sayQ(out.filter(Boolean));
+      if (first) {
+        PL.gDay = day();
+        setTimeout(() => { if (H.on && !H.visit) ask(); }, out.length * 4400 + 600);
+        // 昨晚漂來的東西：寵物會跑過去指給你看
+        H.drift = { a: rand(-.8, .8), t: 0 }; if (Math.abs(H.drift.a - H.pet.a) < .2) H.drift.a = -H.drift.a || .5;
+      }
+      PL.lastSeen = Date.now(); save();
+    }
+    // 「你今天感覺怎麼樣？」——不分析、不給建議，只是陪著
+    const MOODS = [['☀️', '還不錯', 'Pretty good', 'Khá ổn'], ['☁️', '普普通通', 'So-so', 'Bình thường'], ['🌧️', '有點累', 'A bit tired', 'Hơi mệt'], ['🌪️', '有點亂', 'A bit messy', 'Hơi rối'], ['🤐', '不想說', "I'd rather not say", 'Không muốn nói']];
+    const MOOD_REPLY = [
+      ['那我也跟著開心了。要不要一起做點什麼？', "Then I'm happy too. Want to do something together?", 'Vậy mình cũng vui theo. Mình làm gì đó cùng nhau nhé?'],
+      ['普通的日子也很好。我們慢慢來。', 'Ordinary days are good too. Let\'s take it slow.', 'Ngày bình thường cũng tốt mà. Mình cứ từ từ.'],
+      ['辛苦了。要不要聽一點你喜歡的聲音？', 'You worked hard. Want to listen to a sound you like?', 'Bạn vất vả rồi. Nghe một chút âm thanh bạn thích nhé?'],
+      ['亂亂的也沒關係。我們先一起深呼吸一下。', "Messy is okay. Let's take a slow breath together.", 'Rối cũng không sao. Mình cùng hít thở chậm nhé.'],
+      ['好，我們就待在這裡。你不用做任何事情。', "Okay. We can just stay here. You don't have to do anything.", 'Được, mình cứ ở đây thôi. Bạn không cần làm gì cả.']
+    ];
+    function ask() {
+      const box = $('hmAsk'); box.textContent = '';
+      petSay(L('你今天感覺怎麼樣？', 'How do you feel today?', { vi: 'Hôm nay bạn thấy thế nào?' }), 30);
+      MOODS.forEach((m, i) => {
+        const b = el('button', '', `${m[0]} ${L(m[1], m[2], { vi: m[3] })}`); b.type = 'button';
+        b.addEventListener('click', () => {
+          box.classList.remove('on'); PL.mood.unshift({ d: day(), m: i }); PL.mood = PL.mood.slice(0, 30); PL.acts.talk = (PL.acts.talk || 0) + 1; save();
+          petSay(T3(MOOD_REPLY[i]), 6); bond('talk');
+          if (i === 0) { H.pet.mode = 'dance'; H.pet.t = 0; H.pet.dance = 'bounce'; }
+          if (i === 2) setTimeout(() => { if (H.on) listenWith(); }, 1800);
+          if (i === 3) setTimeout(() => { if (H.on) breathe(); }, 1500);
+        });
+        box.appendChild(b);
+      });
+      box.classList.add('on');
+    }
+    function breathe() {
+      const steps = [['吸——', 'Breathe in…', 'Hít vào…'], ['停一下', 'Hold…', 'Giữ…'], ['吐——', 'Breathe out…', 'Thở ra…']];
+      let i = 0; H.breath = H.t;
+      const tick = () => { if (!H.on || i >= 6) { H.breath = 0; if (H.on) petSay(L('好一點了嗎？我都在。', 'A little better? I\'m right here.', { vi: 'Đỡ hơn chút chưa? Mình vẫn ở đây.' })); return; } petSay(T3(steps[i % 3]), 3.2); i++; setTimeout(tick, 3300); };
+      tick();
+    }
+    // 互動都算進「共鳴」：沒有懲罰、沒有扣分
+    function bond(k) {
+      PL.acts[k] = (PL.acts[k] || 0) + 1;
+      const st0 = stage(), r = hooks.bondAct ? hooks.bondAct(k) : null; save();
+      if (r && r.up) {
+        H.fx.push({ x: H.pet.a, burst: 1, t: 0 }); try { Sound.gift(); } catch (_) { /* ignore */ }
+        const st = stage();
+        setTimeout(() => {
+          if (st > st0) { petSay(L(`我好像長大了一點……（${stageName(st)}）`, `I think I grew a little… (${stageName(st)})`, { vi: `Hình như mình lớn thêm một chút… (${stageName(st)})` }), 6); reveal([{ kind: 'custom', e: '🌱', h: L('✦ 你們的共鳴變深了', '✦ Your resonance deepened', { vi: '✦ Sự cộng hưởng sâu hơn' }), n: `${petNm()} · ${stageName(st)}`, s: L(STAGES[st][3], STAGES[st][4], { vi: STAGES[st][5] }) }]); }
+          else petSay(L('和你在一起的感覺，好像更清楚了。', 'Being with you feels a little clearer now.', { vi: 'Cảm giác ở bên bạn rõ ràng hơn rồi.' }), 5);
+        }, 700);
+      }
+      return r;
+    }
+
+    /* ---------- 照顧寵物：餵食、玩耍、休息、探險、整理、一起聽 ---------- */
+    const CARE = [
+      ['feed', '🍙', '餵食', 'Feed', 'Cho ăn'], ['play', '🎾', '玩耍', 'Play', 'Chơi'], ['rest', '💤', '休息', 'Rest', 'Nghỉ'], ['explore', '🧭', '探險', 'Explore', 'Khám phá'],
+      ['clean', '🧹', '整理', 'Tidy', 'Dọn dẹp'], ['listen', '🎧', '一起聽', 'Listen', 'Cùng nghe'], ['hunt', '🔍', '找聲音', 'Find sounds', 'Tìm âm thanh'], ['puzzle', '🧩', '記憶拼圖', 'Memories', 'Ghép ký ức'], ['sleep', '🌙', '睡前', 'Bedtime', 'Trước khi ngủ']
+    ];
+    function careBar() {
+      const box = $('hmCare'); box.textContent = '';
+      CARE.forEach(([k, ic, zh, en, vi]) => {
+        const b = el('button', 'hm-cb'); b.type = 'button'; b.dataset.k = k; b.append(el('b', '', ic), L(zh, en, { vi }));
+        b.addEventListener('click', () => care(k)); box.appendChild(b);
+      });
+      careState();
+    }
+    function careState() {
+      const box = $('hmCare'); if (!box.children.length) return;
+      box.querySelectorAll('.hm-cb').forEach(b => {
+        const k = b.dataset.k;
+        b.classList.toggle('hot', (k === 'sleep' && isNight()) || (k === 'puzzle' && MEMS.some(m => ready(m) && !PL.memDone[m.k])) || (k === 'explore' && !!PL.adv && Date.now() >= PL.adv.until));
+        b.disabled = (k === 'explore' && !!PL.adv && Date.now() < PL.adv.until) || (!!PL.adv && ['feed', 'play', 'rest', 'listen'].includes(k));
+      });
+    }
+    const away = () => !!PL.adv && (H.pet.mode === 'away' || H.pet.mode === 'leave');
+    function care(k) {
+      if (H.visit) return;
+      if (away() && ['feed', 'play', 'rest', 'listen', 'clean'].includes(k)) { say(L(`${petNm()} 去探險了，等牠回來吧`, `${petNm()} is out exploring — wait for it to come back`, { vi: `${petNm()} đang đi khám phá, đợi nó về nhé` })); return; }
+      const p = H.pet, u = U0();
+      if (k === 'feed') {
+        const [x, y] = posA(p.a, u * 4.5); H.fx.push({ e: pick(['🍙', '🍓', '🌟', '🍪']), x, y, vx: 0, vy: u * 2.6, t: 0, life: 1.1, s: u * .7 });
+        setTimeout(() => { if (!H.on) return; p.mode = 'dance'; p.dance = 'bounce'; p.t = 3.3; for (let i = 0; i < 3; i++) setTimeout(() => { const [hx, hy] = posA(p.a, u * 1.8); H.fx.push({ e: '♡', x: hx + rand(-20, 20), y: hy, vx: 0, vy: -40, t: 0, life: 1.4, s: u * .4 }); }, i * 200); try { Sound.sfx('pop'); } catch (_) { /* ignore */ } petSay(T3(pick([['好好吃！', 'Yummy!', 'Ngon quá!'], ['謝謝你～', 'Thank you~', 'Cảm ơn bạn~'], ['肚子暖暖的。', 'My tummy feels warm.', 'Bụng ấm áp ghê.']]))); }, 1100);
+        bond('feed');
+      } else if (k === 'play') {
+        const dir = p.f || 1; H.ball = { a: p.a, h: u * .8, va: dir * .55, vh: u * 6, n: 0 }; p.mode = 'chase'; p.t = 0;
+        try { Sound.sfx('boing'); } catch (_) { /* ignore */ }
+        petSay(T3(pick([['接住了！再一次！', 'Got it! Again!', 'Bắt được rồi! Lần nữa!'], ['好好玩！', 'This is fun!', 'Vui quá!']])), 3.5); bond('play');
+      } else if (k === 'rest') {
+        const bed = (S.placed || []).find(o => C[o.k] && C[o.k].use === 'sleep');
+        if (bed) { p.ta = bed.a; p.use = bed; p.mode = 'walk'; } else { p.mode = 'nap'; p.t = 0; }
+        petSay(T3(['我休息一下下……你也是喔。', "I'll rest a little… you too.", 'Mình nghỉ một chút… bạn cũng vậy nhé.']));
+        [0, 2, 4, 7].forEach((d, i) => setTimeout(() => { try { Sound.note([392, 440, 523.25, 587.33, 659.25, 783.99, 880, 987.77][d], { dur: 2.4, gain: .04 }); } catch (_) { /* ignore */ } }, i * 700));
+        bond('rest');
+      } else if (k === 'explore') {
+        if (PL.adv && Date.now() < PL.adv.until) return;
+        if (PL.adv) { advReturn(); return; }
+        PL.adv = { until: Date.now() + (Demo.on() ? 15e3 : 45e3), dir: Math.random() < .5 ? -1 : 1 }; save();
+        p.mode = 'leave'; p.ta = PL.adv.dir * 1.3; p.use = null;
+        petSay(T3(pick([['我去那邊看看！等我一下～', "I'll go take a look! Wait for me~", 'Mình đi xem bên kia! Đợi mình nhé~'], ['好像有聲音在叫我……我去看看！', 'Something is calling me… be right back!', 'Hình như có gì gọi mình… mình đi xem!']])));
+        careState();
+      } else if (k === 'clean') {
+        // 東西太擠的地方輕輕分開；細心的寵物還會把歪掉的東西擺正
+        const items = (S.placed || []).slice().sort((a, b) => a.a - b.a);
+        for (let i = 1; i < items.length; i++) if (items[i].a - items[i - 1].a < .07) items[i].a = Math.min(1, items[i - 1].a + .07);
+        items.forEach((o, i) => setTimeout(() => { if (H.on) H.fx.push({ x: o.a, burst: 1, t: .4 }); }, i * 90));
+        p.mode = 'tidy'; p.t = 0; p.tidy = items.map(o => o.a);
+        try { Sound.sfx('swish'); } catch (_) { /* ignore */ }
+        petSay(T3(lean() === 'C' ? ['整整齊齊，好舒服！', 'Neat and tidy — feels nice!', 'Gọn gàng, dễ chịu quá!'] : ['我幫你整理一下～', "Let me tidy up a bit~", 'Để mình dọn một chút~'])); save(); bond('clean');
+      } else if (k === 'listen') listenWith();
+      else if (k === 'hunt') huntStart();
+      else if (k === 'puzzle') puzzle();
+      else if (k === 'sleep') sleepMode();
+    }
+    // 一起聽：你選的聲音，或牠最喜歡的聲音
+    function listenWith(k) {
+      const own = Object.values(C).filter(x => x.c === 'sound' && has(x.k));
+      const x = C[k] || C[PL.core] || (soundAff() && sndOf(soundAff())) || own[(Math.random() * own.length) | 0];
+      if (!x || !has(x.k)) { say(L('還沒有收集到聲音：試試「🔍 找聲音」', 'No sounds yet — try "🔍 Find sounds"', { vi: 'Chưa có âm thanh nào — thử "🔍 Tìm âm thanh"' })); return; }
+      try { Sound.taste(x.mix, 12); } catch (_) { /* ignore */ }
+      PL.listen[x.mix] = (PL.listen[x.mix] || 0) + 12; PL.ls = { k: x.mix, day: day() };
+      H.pet.mode = 'listen'; H.pet.t = 0;
+      petSay(L(`我們一起聽「${x.zh}」吧。`, `Let's listen to ${x.en} together.`, { vi: `Mình cùng nghe "${x.en}" nhé.` }), 5);
+      bond('listen');
+    }
+
+    /* ---------- 寵物探險：自己出去，帶東西回來 ---------- */
+    function advReturn() {
+      if (!PL.adv) return;
+      const p = H.pet; p.a = PL.adv.dir * 1.3; p.ta = PL.adv.dir * .45; p.mode = 'back'; p.use = null; p.f = -PL.adv.dir;
+    }
+    function advFind() {
+      const ln = lean(), w = { frag: 30, sound: 22, nature: 24, pet: 16, egg: 3 };
+      if (ln === 'O') { w.frag += 15; w.sound += 12; } else if (ln === 'C') { w.nature += 10; w.pet += 12; } else if (ln === 'E') { w.frag += 8; w.egg += 3; } else if (ln === 'N') w.sound += 10; else w.nature += 8;
+      let it = null; const c = pickCat(w);
+      if (c === 'frag') it = giveFrag();
+      else if (c === 'egg') it = Object.assign(egg(), { pet: 1 });
+      if (!it) { const k = roll(c === 'egg' || c === 'frag' ? 'nature' : c, { maxR: 2 }); if (k) it = { kind: 'item', k, first: add(k), pet: 1 }; }
+      PL.adv = null; save();
+      petSay(T3(pick([['我發現了一個東西！', 'I found something!', 'Mình tìm được một thứ!'], ['你看你看！', 'Look, look!', 'Nhìn này nhìn này!']])), 4);
+      bond('explore'); careState();
+      if (it) setTimeout(() => { checkUnlocks(); save(); reveal([it].concat(pending.splice(0))); }, 1200);
+    }
+
+    /* ---------- 星球探索：找出藏起來的聲音 ---------- */
+    const HUNT = [['🐚', 'ocean'], ['🌳', 'wind'], ['📻', 'radio'], ['🔔', 'bell'], ['☁️', 'rain'], ['🐦', 'birds'], ['🔥', 'fire'], ['🚆', 'train'], ['☕', 'cafe'], ['🐋', 'whale'], ['🎹', 'piano'], ['🌌', 'pad']];
+    function huntStart() {
+      if (H.hunt) { say(L(`還有 ${H.hunt.items.filter(i => !i.found).length} 個聲音藏在星球上`, `${H.hunt.items.filter(i => !i.found).length} sounds are still hiding`, { vi: `Còn ${H.hunt.items.filter(i => !i.found).length} âm thanh đang trốn` })); return; }
+      // 還沒收集到的聲音優先藏起來
+      const pool = HUNT.slice().sort((a, b) => (has(sndOf(a[1]).k) - has(sndOf(b[1]).k)) || Math.random() - .5).slice(0, 4).sort(() => Math.random() - .5);
+      const slots = [-.78, -.3, .22, .7].sort(() => Math.random() - .5);
+      H.hunt = { items: pool.map(([e, mix], i) => ({ e, mix, a: slots[i] + rand(-.08, .08), h: i % 2 ? rand(.15, .45) : rand(1.7, 3), found: 0, ft: 0 })), n: 0, t: 0 };
+      petSay(T3(['我好像聽到什麼聲音……一起找找看？', 'I think I hear something… shall we look?', 'Hình như mình nghe thấy gì đó… cùng tìm nhé?']), 4.5);
+      try { Sound.sfx('ding'); } catch (_) { /* ignore */ }
+    }
+    function huntTap(x, y) {
+      const hu = H.hunt; if (!hu) return false;
+      const u = U0(), it = hu.items.find(i => !i.found && Math.hypot(i._x - x, i._y - y) < Math.max(34, u * .7));
+      if (!it) return false;
+      it.found = 1; it.ft = 0; hu.n++; PL.score = (PL.score || 0) + 1;
+      try { Sound.taste(it.mix, 4.5); Sound.sfx('pop', { p: 1 + hu.n * .12 }); } catch (_) { /* ignore */ }
+      PL.listen[it.mix] = (PL.listen[it.mix] || 0) + 4;
+      const x0 = sndOf(it.mix), first = x0 && !has(x0.k); if (first) add(x0.k);
+      say(L(`找到 ${hu.n}／${hu.items.length}　+1 ✦${first ? '　新的聲音：' + x0.zh : ''}`, `Found ${hu.n}/${hu.items.length}  +1 ✦${first ? '  New sound: ' + x0.en : ''}`, { vi: `Tìm được ${hu.n}/${hu.items.length}  +1 ✦${first ? '  Âm thanh mới: ' + x0.en : ''}` }), 3);
+      H.pet.ta = it.a; H.pet.mode = 'walk'; H.pet.use = null;
+      if (hu.n >= hu.items.length) {
+        setTimeout(() => {
+          H.hunt = null; petSay(T3(['全部找到了！星球聽起來更豐富了。', 'We found them all! The planet sounds richer now.', 'Tìm được hết rồi! Hành tinh nghe phong phú hơn.']), 5);
+          bond('find'); const out = [];
+          if (Math.random() < .55) { const f = giveFrag(); if (f) out.push(f); }
+          checkUnlocks(); save(); if (out.length || pending.length) reveal(out.concat(pending.splice(0)));
+        }, 1600);
+      }
+      save(); return true;
+    }
+    function drawHunt(dt, u) {
+      const hu = H.hunt; if (!hu) return;
+      hu.t += dt;
+      for (const it of hu.items) {
+        const [x, y] = posA(it.a, it.h * u); it._x = x; it._y = y - u * .3;
+        if (it.found) {
+          it.ft += dt; const k = Math.min(1, it.ft / .35), sc = 1 + Math.sin(k * Math.PI) * .5;
+          g.save(); g.globalAlpha = Math.max(.25, 1 - Math.max(0, it.ft - 2.5) / 2); g.font = `${Math.round(u * .9 * sc)}px serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(it.e, x, y - u * .3);
+          if (it.ft < 1) { g.strokeStyle = `rgba(255,236,190,${1 - it.ft})`; g.lineWidth = 2; g.beginPath(); g.arc(x, y - u * .3, u * (.4 + it.ft * 1.4), 0, TAU); g.stroke(); }
+          g.restore(); continue;
+        }
+        // 藏起來的聲音：淡淡的閃光；越久沒找到越亮，寵物也會跑過去聞
+        const hint = clamp((hu.t - 6) / 10), a = .22 + .18 * Math.sin(H.t * 3 + it.a * 7) + hint * .3;
+        const gr = g.createRadialGradient(x, y - u * .3, 0, x, y - u * .3, u * .7); gr.addColorStop(0, `rgba(255,245,210,${a})`); gr.addColorStop(1, 'rgba(255,245,210,0)');
+        g.fillStyle = gr; g.beginPath(); g.arc(x, y - u * .3, u * .7, 0, TAU); g.fill();
+        g.save(); g.globalAlpha = a + .15; g.fillStyle = '#fff6dc'; g.font = `${Math.round(u * .32)}px serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('✧', x + Math.sin(H.t * 2 + it.a) * 3, y - u * .3); g.restore();
+      }
+      // 提示：寵物跑到最近一個沒找到的地方
+      if (hu.t > 8 && H.pet.mode === 'idle' && Math.random() < dt * .4) { const left = hu.items.filter(i => !i.found); if (left.length) { const t = left[(Math.random() * left.length) | 0]; H.pet.ta = clamp(t.a, -.95, .95); H.pet.mode = 'walk'; H.pet.use = null; H.pet.sniff = 1; } }
+    }
+    // 每天第一次來：昨晚漂來的東西
+    function drawDrift(u) {
+      const d = H.drift; if (!d) return;
+      const [x, y] = posA(d.a, u * .3); d._x = x; d._y = y - u * .4;
+      const a = .5 + .3 * Math.sin(H.t * 3);
+      const gr = g.createRadialGradient(x, y - u * .4, 0, x, y - u * .4, u); gr.addColorStop(0, `rgba(190,230,255,${a})`); gr.addColorStop(1, 'rgba(190,230,255,0)');
+      g.fillStyle = gr; g.beginPath(); g.arc(x, y - u * .4, u, 0, TAU); g.fill();
+      g.save(); g.font = `${Math.round(u * .6)}px serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('🫧', x, y - u * .4 + Math.sin(H.t * 2) * 4); g.restore();
+    }
+    function driftTap(x, y) {
+      const d = H.drift; if (!d || Math.hypot(d._x - x, d._y - y) > Math.max(36, U0() * .8)) return false;
+      H.drift = null; H.fx.push({ x: d.a, burst: 1, t: 0 }); try { Sound.sfx('pop'); } catch (_) { /* ignore */ }
+      const f = Math.random() < .5 ? giveFrag() : null, k = f ? null : roll(pickCat({ sound: 40, nature: 40, pet: 20 }), { maxR: 2 });
+      const it = f || (k ? { kind: 'item', k, first: add(k) } : null);
+      petSay(T3(['昨晚漂過來的，送給你。', 'It drifted here last night — for you.', 'Nó trôi đến đêm qua, tặng bạn.']));
+      checkUnlocks(); save(); if (it) reveal([it].concat(pending.splice(0)));
+      return true;
+    }
+
+    /* ---------- 記憶拼圖：碎片拼起來，會變成一段有聲音的回憶 ---------- */
+    const MEMS = [
+      { k: 'mTrain', e: '🚆', zh: '雨天的火車窗', en: 'Rainy Train Window', vi: 'Cửa sổ tàu ngày mưa', mix: { rain: .8, train: .7, piano: .5 }, snd: ['sRain', 'sTrain', 'sPiano'],
+        f: [['🪟', '一扇起霧的車窗', 'A misty window'], ['🌧️', '一顆雨滴', 'A raindrop'], ['🎹', '一小段旋律', 'A little melody'], ['📜', '一句話', 'A line of words']],
+        story: [['那天的車窗上，有一道慢慢滑下來的雨痕。', 'On the window that day, a raindrop slid slowly down.', 'Hôm ấy, trên cửa sổ tàu, một giọt mưa trượt xuống thật chậm.'], ['車廂裡很安靜，只有軌道的聲音。', 'The carriage was quiet — only the sound of the rails.', 'Toa tàu yên lặng, chỉ có tiếng đường ray.'], ['不知道要去哪裡，但好像也沒關係。', "Not sure where we were going — and that was okay.", 'Không biết sẽ đi đâu, nhưng hình như cũng không sao.']] },
+      { k: 'mSea', e: '🌅', zh: '海邊的傍晚', en: 'Seaside Dusk', vi: 'Hoàng hôn bên biển', mix: { ocean: .9, birds: .5, bell: .35 }, snd: ['sOcean', 'sBirds', 'sBell'],
+        f: [['🐚', '一個貝殼', 'A seashell'], ['🌅', '一片晚霞', 'A piece of sunset'], ['🐦', '一聲鳥叫', 'A birdcall'], ['📜', '一句話', 'A line of words']],
+        story: [['浪一次一次地回來，像在說「沒關係」。', 'The waves kept coming back, as if saying "it\'s okay".', 'Sóng cứ quay lại, như đang nói "không sao đâu".'], ['天空慢慢變成橘色，又變成紫色。', 'The sky turned orange, then slowly purple.', 'Bầu trời chuyển cam, rồi tím dần.'], ['有些時候，只要坐著看就夠了。', 'Sometimes, just sitting and watching is enough.', 'Có những lúc, chỉ ngồi nhìn thôi là đủ.']] },
+      { k: 'mCafe', e: '☕', zh: '下午的咖啡廳', en: 'Afternoon Café', vi: 'Quán cà phê buổi chiều', mix: { cafe: .8, piano: .55, rain: .3 }, snd: ['sCafe', 'sPiano', 'sRain'],
+        f: [['☕', '一杯熱可可', 'A warm cup'], ['📖', '一本沒看完的書', 'An unfinished book'], ['🪴', '窗邊的小盆栽', 'A little window plant'], ['📜', '一句話', 'A line of words']],
+        story: [['窗外下著小雨，杯子還是暖的。', 'Light rain outside; the cup was still warm.', 'Ngoài trời mưa lất phất, cốc vẫn còn ấm.'], ['旁邊的人在小聲聊天，沒有人催你。', 'People chatted softly. No one was rushing you.', 'Mọi người trò chuyện khẽ, chẳng ai giục bạn.'], ['你可以一個人，但不孤單。', 'You can be alone without being lonely.', 'Bạn có thể một mình mà không cô đơn.']] },
+      { k: 'mFire', e: '🔥', zh: '星空下的營火', en: 'Campfire Under Stars', vi: 'Lửa trại dưới bầu sao', mix: { fire: .9, wind: .45, pad: .4 }, snd: ['sFire', 'sWind', 'sPad'],
+        f: [['🔥', '一點火光', 'A spark of fire'], ['⛺', '一頂小帳篷', 'A little tent'], ['🌌', '一片星空', 'A sky of stars'], ['📜', '一句話', 'A line of words']],
+        story: [['火光一跳一跳的，把影子拉得很長。', 'The fire flickered and stretched our shadows long.', 'Ánh lửa bập bùng kéo dài những chiếc bóng.'], ['風從很遠的地方吹過來，帶著星星的味道。', 'Wind came from far away, smelling of stars.', 'Gió thổi từ rất xa, mang theo mùi của những vì sao.'], ['我們不用說話，也知道彼此在這裡。', "We didn't need words to know we were here together.", 'Không cần nói gì, ta vẫn biết có nhau ở đây.']] }
+    ];
+    const memN = m => L(m.zh, m.en, { vi: m.vi });
+    const frags = m => PL.frag[m.k] || (PL.frag[m.k] = [0, 0, 0, 0]);
+    const ready = m => frags(m).every(Boolean);
+    function giveFrag() {
+      const m = MEMS.find(x => !ready(x)); if (!m) return null;
+      const fs = frags(m), miss = fs.map((v, i) => v ? -1 : i).filter(i => i >= 0), i = miss[(Math.random() * miss.length) | 0];
+      fs[i] = 1; save(); const pc = m.f[i], n = fs.filter(Boolean).length;
+      return { kind: 'custom', e: pc[0], h: L('🧩 你找到一片記憶碎片', '🧩 You found a memory fragment', { vi: '🧩 Bạn tìm được một mảnh ký ức' }), n: L(pc[1], pc[2]),
+        s: n >= 4 ? L(`「${m.zh}」的碎片都找齊了！到「🧩 記憶拼圖」把它拼起來吧`, `All pieces of "${m.en}" are found! Put them together in 🧩 Memories`, { vi: `Đã đủ mảnh "${m.vi}"! Vào 🧩 Ghép ký ức để ghép lại nhé` }) : L(`「${m.zh}」 ${n}／4`, `"${m.en}" ${n}/4`, { vi: `"${m.vi}" ${n}/4` }) };
+    }
+    function puzzle() {
+      showPanel(L('🧩 記憶拼圖', '🧩 Memory Puzzles', { vi: '🧩 Ghép ký ức' }), body => {
+        body.appendChild(el('p', 'hm-count', L('寵物探險、找聲音、遇見別的寵物時，會撿到記憶的碎片。四片拼起來，就會變成一段有聲音的回憶。', 'Your pet finds memory fragments while exploring, finding sounds and meeting other pets. Four pieces make a memory you can hear.', { vi: 'Thú cưng nhặt được mảnh ký ức khi khám phá, tìm âm thanh và gặp thú cưng khác. Đủ bốn mảnh sẽ thành một ký ức có âm thanh.' })));
+        MEMS.forEach(m => {
+          const fs = frags(m), row = el('div', 'hm-puz'), slots = el('div', 'hm-slots');
+          m.f.forEach((pc, i) => slots.appendChild(el('span', fs[i] ? 'on' : '', fs[i] ? pc[0] : '？')));
+          row.append(el('b', '', PL.memDone[m.k] ? m.e : '🧩'), el('span', '', PL.memDone[m.k] || ready(m) ? memN(m) : '？？？'), slots);
+          if (PL.memDone[m.k]) { const b = el('button', 'ghost', L('▶ 再看一次', '▶ Watch again', { vi: '▶ Xem lại' })); b.type = 'button'; b.addEventListener('click', () => { panel.classList.remove('on'); playMem(m); }); row.appendChild(b); }
+          else if (ready(m)) { const b = el('button', 'main', L('拼起來 ✦', 'Put it together ✦', { vi: 'Ghép lại ✦' })); b.type = 'button'; b.addEventListener('click', () => assemble(m)); row.appendChild(b); }
+          body.appendChild(row);
+        });
+      });
+    }
+    // 拼起來：把碎片一片一片放回去
+    function assemble(m) {
+      showPanel(memN(m), body => {
+        body.appendChild(el('p', 'hm-count', L('依你覺得對的順序，點一下每一片碎片。', 'Tap each fragment in the order that feels right to you.', { vi: 'Chạm vào từng mảnh theo thứ tự bạn thấy đúng.' })));
+        const slots = el('div', 'hm-slots big'), tray = el('div', 'hm-grid'); let n = 0;
+        m.f.forEach(() => slots.appendChild(el('span', '', '')));
+        body.append(slots, tray);
+        m.f.map((pc, i) => [pc, i]).sort(() => Math.random() - .5).forEach(([pc]) => {
+          const c = el('button', 'hm-card'); c.type = 'button'; c.append(el('b', '', pc[0]), el('span', '', L(pc[1], pc[2])));
+          c.addEventListener('click', () => {
+            c.disabled = true; c.classList.add('locked'); const s = slots.children[n++]; s.textContent = pc[0]; s.className = 'on';
+            try { Sound.note([523.25, 659.25, 783.99, 1046.5][n - 1], { dur: 2, gain: .06 }); } catch (_) { /* ignore */ }
+            if (n >= 4) setTimeout(() => {
+              PL.memDone[m.k] = Date.now(); m.snd.forEach(k => add(k));
+              S.mem.unshift({ e: m.e, zh: `拼好了回憶「${m.zh}」`, en: `Put together the memory "${m.en}"`, w: '', at: Date.now() });
+              checkUnlocks(); save(); bond('puzzle'); panel.classList.remove('on'); playMem(m);
+            }, 700);
+          });
+          tray.appendChild(c);
+        });
+      });
+    }
+    // 回憶的場景：畫面＋三種聲音＋三句話
+    function playMem(m) {
+      const box = $('memScene'), mc = $('memCv'), cap = $('memCap'), gx = mc.getContext('2d');
+      box.classList.add('on'); cap.textContent = ''; cap.classList.remove('on');
+      const keep = S.mixOn !== false ? S.mix : null; try { Sound.scape(m.mix); } catch (_) { /* ignore */ }
+      const im = PET_IMG[data().petIdx | 0], drops = Array.from({ length: 70 }, () => ({ x: Math.random(), y: Math.random(), v: rand(.04, .12), r: rand(1.5, 4) })), stars = Array.from({ length: 140 }, () => ({ x: Math.random(), y: Math.random() * .7, r: Math.random() * 1.6 + .3, p: Math.random() * 6 }));
+      let t = 0, last = performance.now(), raf = 0, done = false, li = -1;
+      const DUR = 26;
+      const end = () => { if (done) return; done = true; cancelAnimationFrame(raf); box.classList.remove('on'); try { Sound.scape(keep); } catch (_) { /* ignore */ } PL.listen[Object.keys(m.mix)[0]] = (PL.listen[Object.keys(m.mix)[0]] || 0) + t; save(); if (H.on) petSay(L('這段回憶，我會一直記得。', "I'll always remember this one.", { vi: 'Ký ức này, mình sẽ nhớ mãi.' }), 5); };
+      $('memX').onclick = end;
+      const frame = now => {
+        if (done) return;
+        const dt = Math.min(.05, (now - last) / 1000); last = now; t += dt;
+        const d = Math.min(devicePixelRatio || 1, 2), w = innerWidth, h = innerHeight;
+        if (mc.width !== Math.round(w * d)) { mc.width = Math.round(w * d); mc.height = Math.round(h * d); }
+        gx.setTransform(d, 0, 0, d, 0, 0); drawMem(gx, m, t, w, h, dt, { im, drops, stars });
+        const fade = clamp(t / 2) * clamp((DUR - t) / 2.5); gx.fillStyle = `rgba(0,0,0,${1 - fade})`; gx.fillRect(0, 0, w, h);
+        const k = Math.floor((t - 3) / 7);
+        if (k !== li && k >= 0 && k < 3) { li = k; cap.classList.remove('on'); setTimeout(() => { cap.textContent = T3(m.story[k]); cap.classList.add('on'); }, 450); }
+        if (t > DUR - 3) cap.classList.remove('on');
+        if (t >= DUR) { end(); return; }
+        raf = requestAnimationFrame(frame);
+      };
+      raf = requestAnimationFrame(frame);
+    }
+    function drawMem(gx, m, t, w, h, dt, o) {
+      const s = Math.min(w, h), pet = (x, y, sz, a = 1) => { if (imgOK(o.im)) { gx.save(); gx.globalAlpha = a; gx.drawImage(o.im, x - sz / 2, y - sz, sz, sz); gx.restore(); } };
+      const grad = (cs) => { const g2 = gx.createLinearGradient(0, 0, 0, h); cs.forEach((c, i) => g2.addColorStop(i / (cs.length - 1), c)); gx.fillStyle = g2; gx.fillRect(0, 0, w, h); };
+      const bokeh = (n, col, sp, yy) => { for (let i = 0; i < n; i++) { const x = ((i * 137.5 + t * sp * (1 + i % 3)) % (w + 200)) - 100, y = yy + Math.sin(i * 2.1) * h * .08, r = 8 + (i * 7) % 26; const g2 = gx.createRadialGradient(x, y, 0, x, y, r); g2.addColorStop(0, `rgba(${col},.55)`); g2.addColorStop(1, `rgba(${col},0)`); gx.fillStyle = g2; gx.beginPath(); gx.arc(x, y, r, 0, TAU); gx.fill(); } };
+      if (m.k === 'mTrain') {
+        grad(['#0b1430', '#1a2a52', '#2c3d6b']);
+        bokeh(26, '255,214,150', 120, h * .45); bokeh(18, '160,200,255', 70, h * .6);
+        // 車窗框
+        const fx = w * .08, fy = h * .14, fw = w * .84, fh = h * .56;
+        gx.fillStyle = 'rgba(8,10,24,.92)'; gx.fillRect(0, 0, w, fy); gx.fillRect(0, fy + fh, w, h - fy - fh); gx.fillRect(0, fy, fx, fh); gx.fillRect(fx + fw, fy, w - fx - fw, fh);
+        gx.strokeStyle = 'rgba(190,200,230,.35)'; gx.lineWidth = 6; gx.beginPath(); gx.roundRect ? gx.roundRect(fx, fy, fw, fh, 26) : gx.rect(fx, fy, fw, fh); gx.stroke();
+        // 玻璃上的雨滴：慢慢滑下來，留下一道水痕
+        for (const d of o.drops) { d.y += d.v * dt * (d.r > 3 ? 1.6 : .5); if (d.y > 1) { d.y = 0; d.x = Math.random(); } const x = fx + d.x * fw, y = fy + d.y * fh; gx.strokeStyle = 'rgba(200,220,255,.18)'; gx.lineWidth = d.r * .6; gx.beginPath(); gx.moveTo(x, y - d.r * 8 * d.v * 10); gx.lineTo(x, y); gx.stroke(); gx.fillStyle = 'rgba(220,235,255,.55)'; gx.beginPath(); gx.arc(x, y, d.r, 0, TAU); gx.fill(); }
+        gx.fillStyle = 'rgba(30,26,60,.95)'; gx.fillRect(0, h * .78, w, h * .22);
+        pet(w * .72, h * .8, s * .26, .95);
+      } else if (m.k === 'mSea') {
+        const k = clamp(t / 24); grad([`rgb(${60 + 40 * k | 0},${40 + 10 * k | 0},${110 + 20 * k | 0})`, `rgb(${250 - 60 * k | 0},${150 - 40 * k | 0},${120 + 20 * k | 0})`, '#ffcf9a']);
+        const sy = h * (.42 + k * .12), sr = s * .09; const sg = gx.createRadialGradient(w * .5, sy, 0, w * .5, sy, sr * 3); sg.addColorStop(0, 'rgba(255,240,200,1)'); sg.addColorStop(.3, 'rgba(255,200,140,.7)'); sg.addColorStop(1, 'rgba(255,170,120,0)'); gx.fillStyle = sg; gx.beginPath(); gx.arc(w * .5, sy, sr * 3, 0, TAU); gx.fill();
+        const sea = h * .58; const g2 = gx.createLinearGradient(0, sea, 0, h); g2.addColorStop(0, '#5a4a8a'); g2.addColorStop(1, '#1d1a40'); gx.fillStyle = g2; gx.fillRect(0, sea, w, h - sea);
+        for (let i = 0; i < 14; i++) { const y = sea + (i / 14) ** 1.6 * (h - sea); gx.strokeStyle = `rgba(255,220,180,${.35 - i * .02})`; gx.lineWidth = 1.5; gx.beginPath(); for (let x = 0; x <= w; x += 12) { const yy = y + Math.sin(x * .02 + t * (1 + i * .1) + i) * (2 + i * .4); x ? gx.lineTo(x, yy) : gx.moveTo(x, yy); } gx.stroke(); }
+        gx.fillStyle = 'rgba(255,230,190,.8)'; gx.fillRect(w * .5 - sr * .9, sea + 6, sr * 1.8, 2);
+        gx.strokeStyle = 'rgba(40,30,60,.75)'; gx.lineWidth = 2;
+        for (let i = 0; i < 5; i++) { const bx = ((t * 40 + i * 140) % (w + 200)) - 100, by = h * .25 + Math.sin(i * 3) * 40 + Math.sin(t + i) * 6, f = Math.sin(t * 6 + i) * 6; gx.beginPath(); gx.moveTo(bx - 12, by + f); gx.quadraticCurveTo(bx - 6, by - 4, bx, by); gx.quadraticCurveTo(bx + 6, by - 4, bx + 12, by + f); gx.stroke(); }
+        gx.fillStyle = '#2a2040'; gx.beginPath(); gx.ellipse(w * .3, h * .98, w * .5, h * .12, 0, 0, TAU); gx.fill();
+        pet(w * .3, h * .9, s * .24);
+      } else if (m.k === 'mCafe') {
+        grad(['#3a2418', '#5a3a26', '#2a1a12']);
+        const wx = w * .1, wy = h * .1, ww = w * .8, wh = h * .45; gx.fillStyle = '#6f8fb0'; gx.fillRect(wx, wy, ww, wh);
+        bokeh(14, '255,230,180', 10, wy + wh * .5);
+        for (const d of o.drops) { d.y += d.v * dt * 2.2; if (d.y > 1) d.y = 0; gx.strokeStyle = 'rgba(230,240,255,.35)'; gx.lineWidth = 1; gx.beginPath(); gx.moveTo(wx + d.x * ww, wy + d.y * wh); gx.lineTo(wx + d.x * ww - 3, wy + d.y * wh + 12); gx.stroke(); }
+        gx.strokeStyle = '#2a1a12'; gx.lineWidth = 10; gx.strokeRect(wx, wy, ww, wh); gx.beginPath(); gx.moveTo(wx + ww / 2, wy); gx.lineTo(wx + ww / 2, wy + wh); gx.stroke();
+        const lg = gx.createRadialGradient(w * .5, h * .55, 0, w * .5, h * .55, s * .7); lg.addColorStop(0, 'rgba(255,200,130,.28)'); lg.addColorStop(1, 'rgba(255,200,130,0)'); gx.fillStyle = lg; gx.fillRect(0, 0, w, h);
+        gx.fillStyle = '#8a5a3a'; gx.fillRect(0, h * .68, w, h * .32);
+        gx.font = `${Math.round(s * .1)}px serif`; gx.textAlign = 'center'; gx.textBaseline = 'bottom'; gx.fillText('☕', w * .38, h * .72); gx.fillText('📖', w * .58, h * .72); gx.fillText('🪴', w * .14, h * .62);
+        for (let i = 0; i < 3; i++) { gx.strokeStyle = `rgba(255,255,255,${.25 + .1 * Math.sin(t + i)})`; gx.lineWidth = 2; gx.beginPath(); const bx = w * .38 + (i - 1) * 10; for (let y = 0; y < s * .14; y += 4) { const x = bx + Math.sin(y * .08 + t * 2 + i) * 6; y ? gx.lineTo(x, h * .64 - y) : gx.moveTo(x, h * .64 - y); } gx.stroke(); }
+        pet(w * .8, h * .74, s * .24);
+      } else {
+        grad(['#03030f', '#0e1030', '#1b1a3a']);
+        for (const st of o.stars) { gx.globalAlpha = .4 + .6 * Math.abs(Math.sin(t * .8 + st.p)); gx.fillStyle = '#fff'; gx.beginPath(); gx.arc(st.x * w, st.y * h, st.r, 0, TAU); gx.fill(); } gx.globalAlpha = 1;
+        const au = gx.createLinearGradient(0, h * .1, w, h * .4); au.addColorStop(0, 'rgba(120,255,200,0)'); au.addColorStop(.5, `rgba(140,200,255,${.12 + .06 * Math.sin(t * .5)})`); au.addColorStop(1, 'rgba(200,140,255,0)'); gx.fillStyle = au; gx.fillRect(0, h * .05, w, h * .4);
+        gx.fillStyle = '#0a0a18'; gx.beginPath(); gx.moveTo(0, h * .78); for (let x = 0; x <= w; x += 40) gx.lineTo(x, h * .76 + Math.sin(x * .01) * 14); gx.lineTo(w, h); gx.lineTo(0, h); gx.fill();
+        gx.fillStyle = '#1a1830'; gx.beginPath(); gx.moveTo(w * .14, h * .8); gx.lineTo(w * .26, h * .58); gx.lineTo(w * .38, h * .8); gx.fill();
+        const fx = w * .55, fy = h * .8, fl = gx.createRadialGradient(fx, fy - 20, 0, fx, fy - 20, s * .4); fl.addColorStop(0, `rgba(255,170,90,${.45 + .1 * Math.sin(t * 9)})`); fl.addColorStop(1, 'rgba(255,120,60,0)'); gx.fillStyle = fl; gx.fillRect(0, 0, w, h);
+        for (let i = 0; i < 6; i++) { const fh = s * (.08 + .04 * Math.sin(t * 7 + i * 2)); gx.fillStyle = i % 2 ? 'rgba(255,200,90,.85)' : 'rgba(255,120,60,.8)'; gx.beginPath(); gx.moveTo(fx - 18 + i * 7, fy); gx.quadraticCurveTo(fx - 22 + i * 7, fy - fh * .6, fx - 14 + i * 7 + Math.sin(t * 5 + i) * 4, fy - fh); gx.quadraticCurveTo(fx - 6 + i * 7, fy - fh * .5, fx - 10 + i * 7, fy); gx.fill(); }
+        for (let i = 0; i < 18; i++) { const k = (t * .25 + i * .13) % 1; gx.fillStyle = `rgba(255,${180 - k * 80 | 0},90,${1 - k})`; gx.beginPath(); gx.arc(fx + Math.sin(i * 7 + t) * 20 * k, fy - k * h * .4, 2, 0, TAU); gx.fill(); }
+        pet(w * .74, h * .84, s * .24);
+      }
+    }
+
+    /* ---------- 睡前：一起聽，慢慢變暗 ---------- */
+    function sleepMode() {
+      const box = $('hmSleep'), list = $('hmSlList'), tm = $('hmSlTime'); list.textContent = ''; tm.textContent = '';
+      const own = Object.values(C).filter(x => x.c === 'sound' && has(x.k));
+      const sel0 = new Set(Object.keys(S.mix).filter(k => S.mix[k] > 0));
+      if (!sel0.size) { const x = C[PL.core] || own[0]; if (x) sel0.add(x.mix); }
+      const apply = () => { const mx = {}; sel0.forEach(k => { mx[k] = .7; }); try { Sound.scape(sel0.size ? mx : null); } catch (_) { /* ignore */ } };
+      own.forEach(x => { const b = el('button', 'hm-chip' + (sel0.has(x.mix) ? ' on' : ''), `${x.e} ${nm(x)}`); b.type = 'button'; b.addEventListener('click', () => { if (sel0.has(x.mix)) sel0.delete(x.mix); else sel0.add(x.mix); b.classList.toggle('on'); apply(); }); list.appendChild(b); });
+      if (!own.length) list.appendChild(el('p', 'hm-empty', L('還沒有收集到聲音。', 'No sounds collected yet.', { vi: 'Chưa có âm thanh nào.' })));
+      [15, 30, 60].forEach(mn => { const b = el('button', 'hm-chip', L(`${mn} 分鐘`, `${mn} min`, { vi: `${mn} phút` })); b.type = 'button'; b.addEventListener('click', () => { [...tm.children].forEach(c => c.classList.remove('on')); b.classList.add('on'); H.sleepEnd = Date.now() + mn * 60e3; }); tm.appendChild(b); });
+      H.sleep = { t: 0, sel: sel0 }; H.sleepEnd = 0; box.classList.add('on'); root.classList.add('sleeping'); apply();
+      H.pet.mode = 'nap'; H.pet.t = 0; H.bub = null; (H.sayT || []).forEach(clearTimeout);
+      $('hmSlSub').textContent = T3(['晚安。我會在這裡陪你。選幾個聲音，讓星球慢慢安靜下來。', "Good night. I'll be right here. Pick a few sounds and let the planet grow quiet.", 'Chúc ngủ ngon. Mình ở đây với bạn. Chọn vài âm thanh để hành tinh dần yên tĩnh.']);
+      bond('rest');
+    }
+    function sleepEnd() {
+      if (!H.sleep) return; H.sleep = null; H.sleepEnd = 0; $('hmSleep').classList.remove('on'); root.classList.remove('sleeping');
+      try { Sound.scape(S.mixOn !== false && Object.keys(S.mix).some(k => S.mix[k] > 0) ? S.mix : null); } catch (_) { /* ignore */ }
+      H.pet.mode = 'idle'; H.pet.t = 0;
+    }
+    $('hmSlEnd').addEventListener('click', sleepEnd);
+
+    /* ---------- 每一幀：寵物的聲音特徵、說話泡泡、夜晚、聆聽時間 ---------- */
+    let listenSave = 0;
+    function palTick(dt) {
+      if (H.visit) return;
+      // 聆聽時間：聲景開著、睡前模式
+      const mix = H.sleep ? Object.fromEntries([...H.sleep.sel].map(k => [k, .7])) : (S.mixOn !== false ? S.mix : {});
+      let any = false; for (const k in mix) if (mix[k] > 0 && TRAIT[k]) { PL.listen[k] = (PL.listen[k] || 0) + dt * mix[k]; any = true; PL.ls = { k, day: day() }; }
+      if (any && (listenSave += dt) > 15) { listenSave = 0; save(); }
+      if (H.sleep) { H.sleep.t += dt; if (H.sleepEnd && Date.now() > H.sleepEnd) sleepEnd(); }
+      // 探險回來
+      if (PL.adv && Date.now() >= PL.adv.until && H.pet.mode === 'away') advReturn();
+      // 偶爾說說話（個性不同，說的話也不同）
+      H.idleT = (H.idleT || 0) + dt;
+      if (H.idleT > 32 && !H.bub && !H.hunt && !H.sleep && !panel.classList.contains('on') && !$('hmAsk').classList.contains('on') && !away()) {
+        H.idleT = 0; const ln = lean(), r = Math.random();
+        petSay(T3(r < .4 ? pick(LINES[ln]) : r < .55 ? pick(LINES[partOfDay()]) : pick(LINES.idle)));
+        if (ln === 'O' && Math.random() < .3 && !PL.adv) setTimeout(() => { if (H.on && !H.hunt) huntStart(); }, 4800);
+      }
+      if ((H.cs = (H.cs || 0) + dt) > 2) { H.cs = 0; careState(); }
+    }
+    // 寵物身上的聲音特徵：熟悉期開始出現，陪伴期帶著東西，獨特形態會發光、留下腳印
+    function drawTrait(gx, x, y, s, t, st, k, dt, fxList) {
+      if (!k || st < 1) return;
+      const tr = TRAIT[k];
+      if (st >= 3) {   // 獨特形態：顏色光暈、環繞的光
+        const gr = gx.createRadialGradient(x, y - s * .45, s * .1, x, y - s * .45, s * .95); gr.addColorStop(0, `rgba(${tr.c},.38)`); gr.addColorStop(1, `rgba(${tr.c},0)`);
+        gx.fillStyle = gr; gx.beginPath(); gx.arc(x, y - s * .45, s * .95, 0, TAU); gx.fill();
+        gx.strokeStyle = `rgba(${tr.c},.55)`; gx.lineWidth = 1.5; gx.beginPath(); gx.ellipse(x, y - s * .05, s * .48, s * .12, 0, 0, TAU); gx.stroke();
+        for (let i = 0; i < 3; i++) { const a = t * 1.3 + i * TAU / 3; gx.fillStyle = `rgba(${tr.c},.9)`; gx.beginPath(); gx.arc(x + Math.cos(a) * s * .5, y - s * .5 + Math.sin(a) * s * .18, 2.4, 0, TAU); gx.fill(); }
+      }
+      if (st >= 2) {   // 陪伴期：帶著一樣東西
+        gx.save(); gx.font = `${Math.round(s * .28)}px serif`; gx.textAlign = 'center'; gx.textBaseline = 'middle';
+        gx.fillText(tr.e, x + s * .42, y - s * .22 + Math.sin(t * 2.4) * 3); gx.restore();
+      }
+      // 熟悉期：小小的粒子
+      if (fxList && Math.random() < dt * (st >= 3 ? 2.2 : 1)) fxList.push({ e: tr.p, x: x + rand(-s * .4, s * .4), y: y - s * rand(.5, 1), vx: rand(-8, 8), vy: k === 'rain' ? 40 : -26, t: 0, life: 1.6, s: s * .2 });
+    }
+    function drawBubble(x, y, dt) {
+      const b = H.bub; if (!b) return;
+      b.age += dt; if (b.age > b.life) { H.bub = null; return; }
+      const a = clamp(b.age / .25) * clamp((b.life - b.age) / .4);
+      g.save(); g.globalAlpha = a; g.font = `14px ${bodyFont}`;
+      const maxW = Math.min(260, H.cw * .7), words = [...b.t], lines = []; let cur = '';
+      for (const ch of words) { const tt = cur + ch; if (g.measureText(tt).width > maxW && cur) { lines.push(cur); cur = ch; } else cur = tt; } if (cur) lines.push(cur);
+      const w = Math.max(...lines.map(l => g.measureText(l).width)) + 24, hh = lines.length * 20 + 14;
+      const bx = clamp(x - w / 2, 8, H.cw - w - 8), by = Math.max(70, y - hh - 14);
+      g.fillStyle = 'rgba(255,250,240,.95)'; g.beginPath(); g.roundRect ? g.roundRect(bx, by, w, hh, 14) : g.rect(bx, by, w, hh); g.fill();
+      g.beginPath(); g.moveTo(clamp(x, bx + 14, bx + w - 14) - 7, by + hh - 1); g.lineTo(clamp(x, bx + 14, bx + w - 14), by + hh + 9); g.lineTo(clamp(x, bx + 14, bx + w - 14) + 7, by + hh - 1); g.fill();
+      g.fillStyle = '#3a2a5a'; g.textAlign = 'center'; g.textBaseline = 'top'; lines.forEach((l, i) => g.fillText(l, bx + w / 2, by + 8 + i * 20));
+      g.restore(); g.textBaseline = 'alphabetic';
+    }
+    function drawNight() {
+      if (!isNight() && !H.sleep) return;
+      const k = H.sleep ? .55 : .3; g.fillStyle = `rgba(4,3,20,${k})`; g.fillRect(0, 0, H.cw, H.ch);
+      if (H.breath) { const p = (Math.sin((H.t - H.breath) * TAU / 9.9 - Math.PI / 2) + 1) / 2; g.strokeStyle = `rgba(200,220,255,${.3 + p * .3})`; g.lineWidth = 2; g.beginPath(); g.arc(H.cx, H.ch * .38, 30 + p * 50, 0, TAU); g.stroke(); }
+    }
+    function drawBreath() {
+      if (!H.breath || isNight()) return;
+      const p = (Math.sin((H.t - H.breath) * TAU / 9.9 - Math.PI / 2) + 1) / 2;
+      g.strokeStyle = `rgba(255,240,220,${.25 + p * .35})`; g.lineWidth = 2; g.beginPath(); g.arc(H.cx, H.ch * .38, 30 + p * 50, 0, TAU); g.stroke();
+    }
+
+    /* ---------- 寵物的頁面：階段、共鳴、個性、聲音、牠記得的事 ---------- */
+    function palPanel() {
+      showPanel(`🐾 ${petNm()}`, body => {
+        const st = stage(), k = soundAff(), ln = LEAN[lean()];
+        const top = el('div', 'hm-pal');
+        top.append(el('b', 'hm-st', stageName(st)), el('span', 'hm-res', `${L('共鳴', 'Resonance', { vi: 'Cộng hưởng' })}　${dots()}`), el('p', 'hm-count', L(STAGES[st][3], STAGES[st][4], { vi: STAGES[st][5] })));
+        body.appendChild(top);
+        const row = (ic, a, b) => { const r = el('div', 'hm-mem'); r.append(el('b', '', ic), el('span', '', a), el('small', '', b || '')); body.appendChild(r); };
+        row(ln[0], `${L('個性', 'Personality', { vi: 'Tính cách' })}：${L(ln[1], ln[2], { vi: ln[3] })}`, '');
+        body.appendChild(el('p', 'hm-count', L(ln[4], ln[5])));
+        const gw = grown(); if (gw.length) row('🌱', `${L('慢慢長出來的樣子', 'Grew into', { vi: 'Dần trở nên' })}：${gw.map(x => `${x[2]} ${L(x[3], x[4], { vi: x[5] })}`).join('　')}`);
+        else body.appendChild(el('p', 'hm-count', L('多一起探險、聽聲音、拜訪朋友，牠會慢慢長出自己的個性。', 'Explore, listen and visit friends together — it will grow its own personality.', { vi: 'Cùng khám phá, nghe và thăm bạn bè — nó sẽ dần có cá tính riêng.' })));
+        row(k ? TRAIT[k].e : '🎵', `${L('聲音的痕跡', 'Sound trace', { vi: 'Dấu vết âm thanh' })}：${k ? traitName(k) : L('還在聆聽中', 'Still listening', { vi: 'Vẫn đang lắng nghe' })}`, st < 1 && k ? L('熟悉期以後會出現', 'appears from Familiar', { vi: 'xuất hiện từ giai đoạn Thân quen' }) : '');
+        // 有意義的聲音
+        body.appendChild(el('p', 'hm-count', L('選一個對你有意義的聲音。它會慢慢長在牠身上。', 'Choose a sound that means something to you. It will slowly grow on your pet.', { vi: 'Chọn một âm thanh có ý nghĩa với bạn. Nó sẽ dần hiện trên thú cưng.' })));
+        const chips = el('div', 'hm-chips');
+        Object.values(C).filter(x => x.c === 'sound').forEach(x => {
+          const b = el('button', 'hm-chip' + (PL.core === x.k ? ' on' : ''), `${x.e} ${nm(x)}`); b.type = 'button';
+          b.addEventListener('click', () => { PL.core = x.k; add(x.k); save(); try { Sound.taste(x.mix, 4); } catch (_) { /* ignore */ } palPanel(); });
+          chips.appendChild(b);
+        });
+        body.appendChild(chips);
+        const memList = S.mem.slice(0, 4);
+        if (memList.length) { body.appendChild(el('p', 'hm-count', L('牠記得的事', 'Things it remembers', { vi: 'Những điều nó nhớ' }))); memList.forEach(m => row(m.e, L(m.zh, m.en), fmtDate(m.at))); }
+        const code = planetCode((Me.get() || {}).pid || Me.uid());
+        row('🔑', `${L('星球代碼', 'Planet Code', { vi: 'Mã hành tinh' })}：${code}`, L(`發現點數 ${PL.score || 0}`, `Discovery points ${PL.score || 0}`, { vi: `Điểm khám phá ${PL.score || 0}` }));
+        const cb = el('button', 'main', L('🪪 我的 INNERVERSE 卡', '🪪 My INNERVERSE Card', { vi: '🪪 Thẻ INNERVERSE của tôi' })); cb.type = 'button'; cb.style.marginTop = '12px';
+        cb.addEventListener('click', () => { panel.classList.remove('on'); IVCard.open(); }); body.appendChild(cb);
+      });
+    }
+
+    /* ---------- 拜訪別人的星球：兩隻寵物見面 ---------- */
+    function meetStart() {
+      const v = H.visit; if (!v) return;
+      const my = Me.get() || {};
+      H.guest = { a: -1.3, ta: -.35, mode: 'enter', t: 0, f: 1, idx: my.petIdx | 0, name: my.petName || '' };
+      const n = (PL.met[v.pid] || 0);
+      setTimeout(() => { if (H.visit === v) petSay(L(`${H.guest.name || '我的寵物'} 好像很喜歡這裡。`, `${H.guest.name || 'My pet'} seems to like it here.`, { vi: `${H.guest.name || 'Thú cưng'} có vẻ thích nơi này.` }), 5); }, 2600);
+      visitBar(n);
+    }
+    function visitBar() {
+      const v = H.visit, box = $('hmVisit'); box.textContent = ''; if (!v || !v.pid) return;
+      const mk = (ic, zh, en, vi, fn) => { const b = el('button', 'pill', `${ic} ${L(zh, en, { vi })}`); b.type = 'button'; b.addEventListener('click', fn); box.appendChild(b); return b; };
+      mk('🐾', '一起玩', 'Play together', 'Chơi cùng nhau', () => { if (!H.guest) return; H.guest.mode = 'play'; H.guest.t = 0; H.pet.mode = 'dance'; H.pet.t = 0; H.pet.dance = 'bounce'; try { Sound.sfx('boing'); } catch (_) { /* ignore */ } });
+      const ex = mk('🎁', '交換小東西', 'Swap a little thing', 'Trao đổi quà nhỏ', () => meetSwap(ex));
+      if ((PL.metDay || {})[v.pid] === day()) ex.disabled = true;
+      if (FB && FB.on()) mk('🎵', '留下一段聲音', 'Leave a sound', 'Để lại một âm thanh', () => soundMsg({ pid: v.pid, name: v.name }));
+    }
+    async function meetSwap(btn) {
+      const v = H.visit; if (!v || !H.guest || btn.disabled) return;
+      btn.disabled = true; PL.metDay = PL.metDay || {}; PL.metDay[v.pid] = day(); PL.met[v.pid] = (PL.met[v.pid] || 0) + 1;
+      H.guest.mode = 'swap'; H.guest.t = 0;
+      const out = [], f = Math.random() < .4 ? giveFrag() : null;
+      if (f) out.push(f); else { const k = roll(pickCat({ nature: 60, pet: 40 }), { maxR: 2 }); if (k) out.push({ kind: 'item', k, first: add(k), pet: 1 }); }
+      if (PL.met[v.pid] === 3) out.push(memory('📸', `${H.guest.name} 和 ${v.name} 的 ${v.petName} 拍了一張合照`, `${H.guest.name} took a photo with ${v.name}'s ${v.petName}`, v.name));
+      bond('meet'); checkUnlocks(); save();
+      // 也留一顆星之種子在對方的星球上
+      if (FB && FB.on() && v.pid) apiPost(CONFIG.DATA_ENDPOINT, { action: 'gift', to: v.pid, k: 'seed' }, 12000).then(() => { if (hooks.ping) hooks.ping(v.pid); }).catch(e => console.warn('swap gift:', e));
+      setTimeout(() => { if (out.length) reveal(out.concat(pending.splice(0))); }, 1600);
+    }
+    function drawGuest(dt, u) {
+      const gp = H.guest; if (!gp || !H.visit) return;
+      gp.t += dt; const host = H.pet, ln = lean();
+      if (gp.mode === 'play') gp.a = clamp(gp.a, -.95, .95);
+      const sep = Math.max(.12, 100 / (H.R * H.span));   // 兩隻寵物之間大約 100px
+      if (gp.mode === 'enter') { gp.a += Math.sign(gp.ta - gp.a) * Math.min(Math.abs(gp.ta - gp.a), dt * .35); gp.f = 1; if (Math.abs(gp.ta - gp.a) < .01) { gp.mode = 'meet'; gp.t = 0; host.mode = 'idle'; host.f = -1; } }
+      else if (gp.mode === 'meet' || gp.mode === 'swap') {
+        const near = host.a - sep < -.9 ? host.a + sep : host.a - sep; gp.a += (near - gp.a) * Math.min(1, dt * (ln === 'N' ? .6 : 2)); gp.f = 1;
+        gp.f = host.a > gp.a ? 1 : -1;
+        if (gp.t > (gp.mode === 'swap' ? 3 : 6)) { gp.mode = 'follow'; gp.t = 0; }
+      } else if (gp.mode === 'play') { gp.a = host.a + Math.cos(gp.t * 2.4) * sep; gp.f = Math.sin(gp.t * 2.4) > 0 ? -1 : 1; if (gp.t > 5) { gp.mode = 'follow'; gp.t = 0; } }
+      else { let tgt = host.a - sep * (host.f || 1); if (Math.abs(tgt) > .9) tgt = host.a + sep * (host.f || 1); gp.a += (tgt - gp.a) * Math.min(1, dt * 1.2); gp.f = host.a > gp.a ? 1 : -1; }
+      let hop = Math.abs(Math.sin(H.t * (gp.mode === 'play' ? 9 : 5))) * u * (gp.mode === 'enter' || gp.mode === 'play' ? .14 : .03), rot = 0;
+      // 第一次見面：外向的跑過去繞圈、溫柔的送愛心、好奇的到處聞、害羞的躲起來偷看
+      if (gp.mode === 'meet') {
+        if (ln === 'E' || ln === 'O') { hop += Math.abs(Math.sin(gp.t * 8)) * u * .25; rot = Math.sin(gp.t * 8) * .2; }
+        if (ln === 'N' && gp.t < 3) { rot = -.2; hop = 0; }
+        if (Math.random() < dt * 3) H.fx.push({ e: ln === 'A' ? '♡' : ln === 'N' ? '…' : ln === 'O' ? '?' : '!', x: posA(gp.a, u * 1.6)[0], y: posA(gp.a, u * 1.6)[1], vx: 0, vy: -30, t: 0, life: 1.2, s: u * .35 });
+      }
+      if (gp.mode === 'swap' && gp.t < 1.5 && Math.random() < dt * 4) H.fx.push({ e: '✨', x: posA((gp.a + host.a) / 2, u * 1.2)[0], y: posA((gp.a + host.a) / 2, u * 1.2)[1], vx: rand(-20, 20), vy: -30, t: 0, life: 1, s: u * .3 });
+      const [x, y, th] = posA(gp.a, hop + u * .05), s = u * 1.2, im = PET_IMG[gp.idx];
+      g.save(); g.translate(x, y); g.rotate(th + rot); g.scale(gp.f < 0 ? -1 : 1, 1);
+      if (imgOK(im)) g.drawImage(im, -s / 2, -s, s, s); else { g.fillStyle = (PETS[gp.idx] || PETS[0]).c || '#fff'; g.beginPath(); g.arc(0, -s / 2, s * .35, 0, TAU); g.fill(); }
+      g.restore();
+      g.font = `12px ${bodyFont}`; g.textAlign = 'center'; g.fillStyle = 'rgba(255,243,220,.9)'; const [nx, ny] = posA(gp.a, hop + s * 1.15); g.fillText(gp.name, nx, ny);
+      drawTrait(g, x, y, s, H.t, H.stg | 0, H.aff || '', dt, H.fx);
+      drawBubble(nx, ny - 8, dt);
+    }
+
+    /* ---------- 聲音訊息：傳一段聲音給朋友，對方可以放進自己的星球 ---------- */
+    const SMSG = [['這個聲音讓我想起你。', 'This reminded me of you.', 'Âm thanh này làm mình nhớ đến bạn.'], ['今天聽到這個，想和你分享。', 'I heard this today and wanted to share it.', 'Hôm nay nghe thấy cái này, muốn chia sẻ với bạn.'], ['睡前聽聽看。', 'Listen to this before you sleep.', 'Nghe thử trước khi ngủ nhé.'], ['希望你今天過得還好。', 'Hope you are doing okay today.', 'Mong hôm nay bạn vẫn ổn.']];
+    const SM_L = 'ABCD';
+    function soundMsg(to, k, li) {
+      showPanel(L('🎵 傳一段聲音', '🎵 Send a sound', { vi: '🎵 Gửi một âm thanh' }), body => {
+        if (!(FB && FB.on())) { body.appendChild(el('p', 'hm-empty', L('需要連上宇宙（Firebase）才能傳聲音。', 'Sending sounds needs the universe connection (Firebase).'))); return; }
+        if (!k) {
+          body.appendChild(el('p', 'hm-count', L('不用想要說什麼。選一個聲音，就是一句話。', "You don't need words. A sound can say it.", { vi: 'Không cần nghĩ nên nói gì. Một âm thanh cũng là một lời.' })));
+          const grid = el('div', 'hm-grid'); body.appendChild(grid);
+          Object.values(C).filter(x => x.c === 'sound' && has(x.k)).forEach(x => { const c = el('button', 'hm-card'); c.type = 'button'; c.append(el('b', '', x.e), el('span', '', nm(x)), el('small', '', '▶')); c.addEventListener('click', () => { try { Sound.taste(x.mix, 4); } catch (_) { /* ignore */ } soundMsg(to, x.k); }); grid.appendChild(c); });
+          return;
+        }
+        if (li === undefined) {
+          body.appendChild(el('p', 'hm-count', `${C[k].e} ${nm(C[k])}`));
+          SMSG.forEach((m, i) => { const b = el('button', 'hm-friend'); b.type = 'button'; b.append(el('b', '', '💬'), el('span', '', T3(m))); b.addEventListener('click', () => soundMsg(to, k, i)); body.appendChild(b); });
+          return;
+        }
+        const fr = to ? [to] : (hooks.friends ? hooks.friends() : []);
+        body.appendChild(el('p', 'hm-count', `${C[k].e} 「${T3(SMSG[li])}」`));
+        if (!fr.length) body.appendChild(el('p', 'hm-empty', L('還沒有朋友。到宇宙裡邀請別人的寵物跳一支舞，或用星球代碼拜訪別人吧 ✦', 'No friends yet. Invite someone\'s pet to dance, or visit with a Planet Code ✦')));
+        fr.forEach(f => {
+          const b = el('button', 'hm-friend'); b.type = 'button'; b.append(el('b', '', f.glyph || '✦'), el('span', '', `${f.name}${f.petName ? '・' + f.petName : ''}`));
+          b.addEventListener('click', async () => {
+            b.disabled = true;
+            try {
+              await apiPost(CONFIG.DATA_ENDPOINT, { action: 'gift', to: f.pid, k: 'snd' + SM_L[li] + k }, 12000);
+              S.st.giftsSent = (S.st.giftsSent || 0) + 1; memory('🎵', `傳了「${C[k].zh}」給 ${f.name}`, `Sent ${C[k].en} to ${f.name}`, f.name);
+              checkUnlocks(); save(); if (hooks.ping) hooks.ping(f.pid);
+              panel.classList.remove('on'); say(L(`聲音寄出去了 ✦ ${f.name} 打開星球就會聽到`, `Sound sent ✦ ${f.name} will hear it on their planet`, { vi: `Đã gửi âm thanh ✦ ${f.name} sẽ nghe thấy` }), 4); Sound.gift(); bond('talk');
+              if (pending.length) reveal(pending.splice(0));
+            } catch (e) { console.warn('sound msg:', e); b.disabled = false; say(L('星星信差暫時迷路了，等一下再試試。', 'The star courier got lost. Try again in a moment.')); }
+          });
+          body.appendChild(b);
+        });
+      });
+    }
+    // 收到的聲音訊息
+    function receiveSound(g0, from) {
+      const m = /^snd([ABCD])(s[A-Za-z]+)$/.exec(g0.k || ''); if (!m || !C[m[2]]) return false;
+      const x = C[m[2]], line = T3(SMSG[SM_L.indexOf(m[1])]);
+      memory('🎵', `${from} 傳了「${x.zh}」給你：${SMSG[SM_L.indexOf(m[1])][0]}`, `${from} sent you ${x.en}: ${SMSG[SM_L.indexOf(m[1])][1]}`, from);
+      news(`${from} 傳了一段聲音給你。`, `${from} sent you a sound.`, `${from} đã gửi cho bạn một âm thanh.`);
+      save();
+      reveal([{ kind: 'custom', e: x.e, h: L(`🎵 ${from} 傳了一段聲音給你`, `🎵 ${from} sent you a sound`, { vi: `🎵 ${from} gửi cho bạn một âm thanh` }), n: `「${line}」`, s: `${nm(x)} · ${fmtDate(g0.at)}`,
+        goT: L('放進我的星球 ✦', 'Put it on my planet ✦', { vi: 'Đặt vào hành tinh ✦' }), go: () => { add(x.k); placeItem(x.k, { fn: from, at: Number(g0.at) || Date.now() }); save(); },
+        altT: L('▶ 先聽聽看', '▶ Listen first', { vi: '▶ Nghe thử' }), alt: () => { try { Sound.taste(x.mix, 6); } catch (_) { /* ignore */ } }, keep: 1 }]);
+      return true;
+    }
     $('hmClose').addEventListener('click', () => close());
     $('hmBook').addEventListener('click', () => book());
     $('hmSound').addEventListener('click', () => sounds());
     $('hmGift').addEventListener('click', () => giftPanel());
     $('hmTitleB').addEventListener('click', () => titles());
+    $('hmPal').addEventListener('click', () => palPanel());
+    $('hmCardB').addEventListener('click', () => IVCard.open());
     $('hmEdit').addEventListener('click', () => { H.edit = !H.edit; ui(); say(H.edit ? L('拖曳東西換位置，拖到最下面可以收起來', 'Drag things to move them, or to the bottom to store them') : L('完成擺放 ✦', 'Done ✦')); });
     $('hmPClose').addEventListener('click', () => panel.classList.remove('on'));
     $('cdHome').textContent = L('去我的星球家園', 'Go to my planet home');
 
     const hooks = {};
     // 自動測試用
-    if (/[?&]debug=1/.test(location.search)) window.__cos = { S: () => S, add, discover, activity, open, placeItem, receive, C };
+    if (/[?&]debug=1/.test(location.search)) window.__cos = { S: () => S, add, discover, activity, open, placeItem, receive, C, H: () => H, care, huntStart, playMem, MEMS, giveFrag, receiveSound, sleepMode, palPanel, advFind };
     return {
       discover, receive, open, close, visit, grantAll, bind(h) { Object.assign(hooks, h); },
-      get on() { return H.on; }, title: () => titleOf(S.title), stats, mixOn: () => Object.keys(S.mix).some(k => S.mix[k] > 0)
+      get on() { return H.on; }, title: () => titleOf(S.title), stats, mixOn: () => Object.keys(S.mix).some(k => S.mix[k] > 0),
+      // INNERVERSE 卡用：有意義的聲音（選了就收進聲音收藏）
+      core(k) { if (k && C[k] && C[k].c === 'sound') { PL.core = k; add(k); save(); } return PL.core || ''; },
+      sound: k => C[k] || null, sounds: () => Object.values(C).filter(x => x.c === 'sound'),
+      stage: () => stageName(), soundMsg
     };
   })();
+  /* ================================================================
+     INNERVERSE CARD：不是測驗結果，是「這是我的 Innerverse」
+     一張可以收藏、可以分享的卡：人格的名字、星球、寵物、代表的聲音、五行與音、星球代碼
+     ================================================================ */
+  const IVCard = (() => {
+    const T = {
+      E_hi: ['閃耀的小太陽', 'The Radiant Spark', 'Tia sáng rực rỡ', '你走到哪裡，哪裡就會亮一點。', 'Wherever you go, things get a little brighter.', 'Bạn đi đến đâu, nơi đó sáng hơn một chút.'],
+      E_lo: ['安靜的觀月者', 'The Quiet Moonwatcher', 'Người ngắm trăng lặng lẽ', '你在安靜裡，聽見別人聽不見的聲音。', 'In the quiet, you hear what others miss.', 'Trong yên lặng, bạn nghe được điều người khác bỏ lỡ.'],
+      A_hi: ['溫暖的港灣', 'The Warm Harbor', 'Bến cảng ấm áp', '有你在的地方，大家都會比較放心。', 'Where you are, people feel safe.', 'Ở đâu có bạn, mọi người thấy yên lòng.'],
+      A_lo: ['誠實的羅盤', 'The Honest Compass', 'La bàn chân thật', '你說真話，也讓人找到方向。', 'You speak true, and help others find their way.', 'Bạn nói thật, và giúp người khác tìm hướng đi.'],
+      C_hi: ['穩定的軌道', 'The Steady Orbit', 'Quỹ đạo vững vàng', '你一步一步，把世界排得剛剛好。', 'Step by step, you put the world in its place.', 'Từng bước một, bạn sắp xếp thế giới vừa vặn.'],
+      C_lo: ['自在的流雲', 'The Drifting Cloud', 'Áng mây tự do', '你知道，有些美好是不用計畫的。', 'You know some good things need no plan.', 'Bạn biết có những điều đẹp chẳng cần kế hoạch.'],
+      N_hi: ['細膩的潮汐', 'The Tender Tide', 'Thủy triều dịu dàng', '你感受得很深，所以也懂得很多。', 'You feel deeply, so you understand deeply.', 'Bạn cảm nhận sâu, nên cũng thấu hiểu nhiều.'],
+      N_lo: ['平靜的湖', 'The Still Lake', 'Mặt hồ phẳng lặng', '風來的時候，你還是可以很安靜。', 'When the wind comes, you can still be calm.', 'Khi gió đến, bạn vẫn có thể bình yên.'],
+      O_hi: ['安靜的探險家', 'The Quiet Explorer', 'Nhà thám hiểm lặng lẽ', '你總能在小小的時刻裡找到意義。', 'You tend to find meaning in small moments.', 'Bạn luôn tìm thấy ý nghĩa trong những khoảnh khắc nhỏ.'],
+      O_lo: ['踏實的守護者', 'The Grounded Keeper', 'Người giữ gìn vững chãi', '你珍惜熟悉的東西，也讓它們一直都在。', 'You cherish what is familiar, and keep it close.', 'Bạn trân trọng những điều quen thuộc và giữ chúng bên mình.'],
+      BAL: ['溫柔的調音師', 'The Gentle Tuner', 'Người lên dây dịu dàng', '你能在不同的節奏之間，找到剛好的那一個。', 'Between different rhythms, you find the one that fits.', 'Giữa những nhịp điệu khác nhau, bạn tìm được nhịp vừa vặn.']
+    };
+    const DEF_SND = { water: 'sRain', wood: 'sWind', fire: 'sFire', metal: 'sBell', earth: 'sOcean' };
+    const root = $('ivCard'), img = $('ivcImg'), msg = $('ivcMsg');
+    let cv = null, url = '';
+    function info() {
+      const me = Me.get() || {}, u = App.user || {}, key = (App.type && App.type.key) || me.typeKey || 'BAL';
+      const idx = Number.isInteger(App.petIdx) ? App.petIdx : (me.petIdx | 0), pet = PETS[idx] || PETS[0];
+      const el = elementOf(u.birthday) || me.element || 'wood';
+      const core = Cosmos.core() || DEF_SND[el] || 'sRain';
+      return {
+        key, t: T[key] || T.BAL, name: u.name || me.name || '', idx,
+        planet: (App.type && App.type.planet) || me.planetName || (PLANET_NAMES[key] || BALANCE).planet,
+        pet: App.petName || me.petName || pet.en, el, core, snd: Cosmos.sound(core),
+        code: planetCode(me.pid || Me.uid())
+      };
+    }
+    // 1080×1500 的卡片
+    function draw(d) {
+      cv = cv || document.createElement('canvas'); cv.width = 1080; cv.height = 1500;
+      const g = cv.getContext('2d'), W = 1080, H = 1500, wx = WXD[d.el] || WXD.wood, st = PSTYLE[d.key] || PSTYLE.BAL;
+      const serif = '"Cormorant Garamond", "Noto Serif TC", Georgia, serif', tc = '"Noto Serif TC", "Cormorant Garamond", serif';
+      const bg = g.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, '#0d0a2a'); bg.addColorStop(.55, '#231a54'); bg.addColorStop(1, '#120c30'); g.fillStyle = bg; g.fillRect(0, 0, W, H);
+      const gl = g.createRadialGradient(540, 430, 40, 540, 430, 620); gl.addColorStop(0, `rgba(${st.glow.join(',')},.35)`); gl.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gl; g.fillRect(0, 0, W, H);
+      const eg = g.createRadialGradient(540, 1500, 40, 540, 1500, 900); eg.addColorStop(0, `rgba(${wx.c.join(',')},.22)`); eg.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = eg; g.fillRect(0, 0, W, H);
+      for (let i = 0; i < 220; i++) { const x = hs(i * 3 + 1) * W, y = hs(i * 3 + 2) * H, r = hs(i * 3 + 3) * 1.8 + .4; g.globalAlpha = .25 + hs(i + 9) * .6; g.fillStyle = '#fff'; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill(); }
+      g.globalAlpha = 1;
+      // 邊框
+      g.strokeStyle = 'rgba(255,226,170,.55)'; g.lineWidth = 2; g.beginPath(); g.roundRect ? g.roundRect(36, 36, W - 72, H - 72, 40) : g.rect(36, 36, W - 72, H - 72); g.stroke();
+      g.strokeStyle = 'rgba(255,226,170,.18)'; g.lineWidth = 1; g.beginPath(); g.roundRect ? g.roundRect(52, 52, W - 104, H - 104, 30) : g.rect(52, 52, W - 104, H - 104); g.stroke();
+      g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+      g.fillStyle = 'rgba(255,236,200,.85)'; g.font = `400 34px ${serif}`; g.letterSpacing = '12px'; g.fillText('MY INNERVERSE', 540, 128); g.letterSpacing = '0px';
+      // 星球＋寵物
+      drawBody(g, 540, 420, 190, st, 1.4, {});
+      const im = PET_IMG[d.idx]; if (imgOK(im)) { g.save(); g.shadowColor = 'rgba(0,0,0,.45)'; g.shadowBlur = 30; g.drawImage(im, 640, 430, 250, 250); g.restore(); }
+      // 名字
+      const main = L(d.t[0], d.t[1], { vi: d.t[2] }), sub = LANG === 'zh' ? d.t[1] : LANG === 'en' ? d.t[0] : d.t[1];
+      g.fillStyle = '#fff6e4'; g.font = `400 ${main.length > 14 ? 58 : 72}px ${LANG === 'zh' ? tc : serif}`; g.fillText(main, 540, 780);
+      g.fillStyle = 'rgba(255,226,170,.85)'; g.font = `italic 300 38px ${serif}`; g.fillText(sub, 540, 836);
+      if (d.name) { g.fillStyle = 'rgba(255,240,220,.7)'; g.font = `300 30px ${tc}`; g.fillText(d.name, 540, 690 + 0); }
+      // 資料
+      const rows = [
+        [L('星球', 'Planet', { vi: 'Hành tinh' }), d.planet],
+        [L('陪伴者', 'Companion', { vi: 'Bạn đồng hành' }), d.pet],
+        [L('代表的聲音', 'Core Sound', { vi: 'Âm thanh' }), d.snd ? `${d.snd.e} ${L(d.snd.zh, d.snd.en)}` : '—'],
+        [L('五行', 'Element', { vi: 'Ngũ hành' }), `${wx.icon} ${L(wx.zh, wx.en)}`],
+        [L('五行之音', 'Element Tone', { vi: 'Âm' }), `${wx.tone} · ${wx.toneEn}`]
+      ];
+      g.strokeStyle = 'rgba(255,226,170,.25)'; g.beginPath(); g.moveTo(200, 890); g.lineTo(880, 890); g.stroke();
+      rows.forEach(([k, v], i) => {
+        const y = 960 + i * 66;
+        g.textAlign = 'left'; g.fillStyle = 'rgba(255,226,170,.7)'; g.font = `300 28px ${LANG === 'zh' ? tc : serif}`; g.fillText(k.toUpperCase(), 200, y);
+        g.textAlign = 'right'; g.fillStyle = '#fff3dc'; g.font = `400 34px ${tc}`; g.fillText(String(v).slice(0, 22), 880, y);
+      });
+      g.textAlign = 'center';
+      g.strokeStyle = 'rgba(255,226,170,.25)'; g.beginPath(); g.moveTo(200, 1290); g.lineTo(880, 1290); g.stroke();
+      // 一句話
+      const q = L(d.t[3], d.t[4], { vi: d.t[5] }); g.fillStyle = 'rgba(255,246,228,.92)'; g.font = `italic 300 ${LANG === 'zh' ? 36 : 38}px ${LANG === 'zh' ? tc : serif}`;
+      g.fillText(`“${q}”`, 540, 1352, 900);
+      // 星球代碼
+      g.fillStyle = '#ffe2aa'; g.font = `400 40px ${serif}`; g.letterSpacing = '8px'; g.fillText(d.code, 540, 1418); g.letterSpacing = '0px';
+      g.fillStyle = 'rgba(255,236,210,.45)'; g.font = `300 22px ${serif}`; g.fillText('yungling00.github.io/INNERVERSE-PLUS', 540, 1452);
+      return cv;
+    }
+    function render() { const d = info(); draw(d); try { if (url) URL.revokeObjectURL(url); } catch (_) { /* ignore */ } url = ''; img.src = cv.toDataURL('image/png'); return d; }
+    function chips(d) {
+      const box = $('ivcSnd'); box.textContent = '';
+      $('ivcSndT').textContent = L('選一個對你有意義的聲音（寵物也會慢慢記住它）', 'Pick a sound that means something to you (your pet will remember it)', { vi: 'Chọn một âm thanh có ý nghĩa với bạn (thú cưng sẽ nhớ nó)' });
+      Cosmos.sounds().forEach(x => {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'hm-chip' + (x.k === d.core ? ' on' : ''); b.textContent = `${x.e} ${L(x.zh, x.en)}`;
+        b.addEventListener('click', () => { Cosmos.core(x.k); try { Sound.taste(x.mix, 4); } catch (_) { /* ignore */ } const nd = render(); chips(nd); });
+        box.appendChild(b);
+      });
+    }
+    function open() {
+      loadPetImages(); const d = render(); chips(d); msg.textContent = '';
+      root.classList.add('on');
+      // 寵物圖片還在載入：等一下再畫一次
+      setTimeout(() => { if (root.classList.contains('on')) render(); }, 700);
+    }
+    const close = () => root.classList.remove('on');
+    async function share() {
+      const d = info(); draw(d);
+      const site = 'https://yungling00.github.io/INNERVERSE-PLUS/', text = L(`這是我的 Innerverse：${d.t[0]}｜星球代碼 ${d.code}`, `This is my Innerverse: ${d.t[1]} | Planet Code ${d.code}`, { vi: `Đây là Innerverse của mình: ${d.t[1]} | Mã hành tinh ${d.code}` });
+      const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+      const file = blob && new File([blob], 'my-innerverse.png', { type: 'image/png' });
+      try {
+        if (file && navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'MY INNERVERSE', text: `${text}\n${site}` }); return; }
+        if (navigator.share) { await navigator.share({ title: 'MY INNERVERSE', text, url: site }); return; }
+      } catch (e) { if (e && e.name === 'AbortError') return; console.warn('share:', e); }
+      save(); try { await navigator.clipboard.writeText(`${text}\n${site}`); } catch (_) { /* ignore */ }
+      msg.textContent = L('卡片存好了，分享文字也複製了 ✦', 'Card saved and caption copied ✦', { vi: 'Đã lưu thẻ và sao chép lời chia sẻ ✦' });
+    }
+    function save() {
+      draw(info());
+      const a = document.createElement('a'); a.download = 'my-innerverse.png'; a.href = cv.toDataURL('image/png'); document.body.appendChild(a); a.click(); a.remove();
+      msg.textContent = L('卡片存好了 ✦', 'Card saved ✦', { vi: 'Đã lưu thẻ ✦' });
+    }
+    $('ivcShare').addEventListener('click', share);
+    $('ivcSave').addEventListener('click', save);
+    $('ivcClose').addEventListener('click', close);
+    $('ivcEnter').addEventListener('click', () => { close(); if (!Me.get() && App.user && App.user.name) Me.build(); Cosmos.open(); });
+    root.addEventListener('click', e => { if (e.target === root) close(); });
+    return { open, close, info };
+  })();
+
+
   /* ================================================================
      OUR UNIVERSE：多人星球宇宙
      拖曳旋轉、滾輪／雙指縮放、點選飛過去、手勢控制、留下星光
@@ -14263,10 +15293,11 @@ function petSVG(i, opt = {}) {
       function checkIn() {
         roll(); const t = dayKey(new Date()); if (b.last === t) return null;
         b.streak = b.last === dayKey(new Date(Date.now() - 864e5)) ? b.streak + 1 : 1; b.last = t;
-        const lv0 = level(), gain = 10 + Math.min(10, (b.streak - 1) * 2); b.xp += gain; save();
+        const lv0 = level(), gain = 12; b.xp += gain; save();   // 回來就好：不因為連續天數多給，也不因為中斷少給
         return { streak: b.streak, gain, up: level() > lv0 };
       }
-      const XP = { pet: 2, dance: 6, feed: 3, sing: 4, gift: 2 }, CAP = { pet: 5, dance: 3, feed: 5, sing: 3, gift: 5 };
+      // 一起做的事都算共鳴；每天每件事有上限，但不做也不會少
+      const XP = { pet: 2, dance: 6, feed: 3, sing: 4, gift: 2, play: 3, rest: 2, explore: 5, clean: 2, listen: 3, find: 5, puzzle: 12, meet: 6, talk: 2 }, CAP = { pet: 5, dance: 3, feed: 5, sing: 3, gift: 5, play: 5, rest: 3, explore: 4, clean: 3, listen: 5, find: 4, puzzle: 3, meet: 5, talk: 3 };
       const TASKS = ['pet', 'dance', 'gift'];
       function act(k) {
         roll(); const n = (b.done[k] || 0) + 1; b.done[k] = n;
@@ -14325,21 +15356,22 @@ function petSVG(i, opt = {}) {
         [0, 2, 4, 2, 0, 4, 3, 0].forEach((d, i) => setTimeout(() => { Sound.note(base[(o + d) % 5] * (d > 2 ? 2 : 1), { dur: 1.1, gain: .07 }); if (sel === p && p.petX) note(p.petX + rand(-30, 30), p.petY - p.petS * .35, i % 2 ? '♫' : '♪', '#e6dcff'); }, i * 330));
       }
       const r = Bond.act(k); fillBond(); Cosmos.discover('care');
-      if (r.task) setTimeout(() => toast(L(`今日小任務完成！${nm} 好開心 ✦ 親密度 +15`, `Today's tasks done! ${nm} is so happy ✦ +15 affection`, { ja: `今日のミッション達成！${nm} 大よろこび ✦ 親密度 +15`, ko: `오늘의 미션 완료! ${nm}이(가) 정말 기뻐해요 ✦ 친밀도 +15`, vi: `Hoàn thành nhiệm vụ hôm nay! ${nm} vui lắm ✦ +15 thân thiết` }), 4.2), 900);
-      if (r.up) setTimeout(() => { const l = Bond.level(); toast(L(`${nm} 的親密度升到 Lv.${l}！解鎖了 ${accName(l)}`, `${nm} reached affection Lv.${l}! Unlocked ${accName(l)}`, { ja: `${nm} の親密度が Lv.${l} に！${accName(l)} を手に入れた`, ko: `${nm}의 친밀도가 Lv.${l}! ${accName(l)} 획득`, vi: `${nm} đạt thân thiết Lv.${l}! Mở khóa ${accName(l)}` }), 4.5); if (sel && sel.petX) emit(sel.petX, sel.petY, 50, ['255,236,190', '255,200,235', '255,255,255'], { speed: 160, life: 1.5 }); Sound.gift(); }, r.task ? 4800 : 600);
+      if (r.task) setTimeout(() => toast(L(`今天一起做了好多事，${nm} 好開心 ✦`, `You did so much together today — ${nm} is so happy ✦`, { ja: `今日はいっしょにたくさん過ごせたね。${nm} 大よろこび ✦`, ko: `오늘 함께 많은 걸 했어요. ${nm}이(가) 정말 기뻐해요 ✦`, vi: `Hôm nay làm được nhiều việc cùng nhau, ${nm} vui lắm ✦` }), 4.2), 900);
+      if (r.up) setTimeout(() => { const l = Bond.level(); toast(L(`你和 ${nm} 的共鳴變深了 ✦ 解鎖了 ${accName(l)}`, `Your resonance with ${nm} deepened ✦ Unlocked ${accName(l)}`, { ja: `${nm} との共鳴が深まった ✦ ${accName(l)} を手に入れた`, ko: `${nm}와(과)의 공명이 깊어졌어요 ✦ ${accName(l)} 획득`, vi: `Cộng hưởng với ${nm} sâu hơn ✦ Mở khóa ${accName(l)}` }), 4.5); if (sel && sel.petX) emit(sel.petX, sel.petY, 50, ['255,236,190', '255,200,235', '255,255,255'], { speed: 160, life: 1.5 }); Sound.gift(); }, r.task ? 4800 : 600);
     }
     function fillBond() {
       const box = $('uvcPet'); if (!sel || !sel.me) { box.hidden = true; return; }
       box.hidden = false;
       const bd = Bond.get(), lv = Bond.level(), nm = sel.petName || ((Me.get() || {}).petName) || 'Pet';
-      $('upLv').textContent = L(`${nm} 的親密度 Lv.${lv}`, `${nm} · affection Lv.${lv}`, { ja: `${nm} の親密度 Lv.${lv}`, ko: `${nm} 친밀도 Lv.${lv}`, vi: `${nm} · thân thiết Lv.${lv}` });
-      $('upStreak').textContent = bd.streak ? L(`🔥 連續陪伴 ${bd.streak} 天`, `🔥 ${bd.streak}-day streak`, { ja: `🔥 ${bd.streak} 日連続`, ko: `🔥 ${bd.streak}일 연속`, vi: `🔥 ${bd.streak} ngày liên tiếp` }) : '';
+      // 共鳴：不顯示分數，用光點和階段表示「一起經歷了多少事」
+      const stg = lv >= 7 ? 3 : lv >= 5 ? 2 : lv >= 3 ? 1 : 0, SN = [['幼年期', 'Baby', 'Sơ sinh'], ['熟悉期', 'Familiar', 'Thân quen'], ['陪伴期', 'Companion', 'Đồng hành'], ['獨特形態', 'Unique Form', 'Hình dạng riêng']][stg];
+      $('upLv').textContent = `${nm} · ${L(SN[0], SN[1], { vi: SN[2] })}`;
+      $('upStreak').textContent = `${L('共鳴', 'Resonance', { ja: '共鳴', ko: '공명', vi: 'Cộng hưởng' })} ${'✦'.repeat(lv)}${'○'.repeat(Math.max(0, 7 - lv))}`;
       $('upBar').style.width = `${Math.round(Bond.progress() * 100)}%`;
-      const nx = Bond.toNext();
-      $('upNext').textContent = nx > 0 ? L(`再 ${nx} 點親密度 → 解鎖 ${accName(lv + 1)}`, `${nx} more → unlock ${accName(lv + 1)}`, { ja: `あと ${nx} で ${accName(lv + 1)} を解放`, ko: `${nx} 더 모으면 ${accName(lv + 1)} 해금`, vi: `Thêm ${nx} nữa → mở khóa ${accName(lv + 1)}` }) : L('所有配件都解鎖了 ✦', 'All accessories unlocked ✦', { ja: 'アクセサリーをぜんぶ解放 ✦', ko: '모든 장식을 해금했어요 ✦', vi: 'Đã mở khóa mọi phụ kiện ✦' });
+      $('upNext').textContent = lv < 7 ? L(`多陪牠一下，牠會慢慢長成只屬於你的樣子（下一個：${accName(lv + 1)}）`, `Spend time together and it will grow into a form that's only yours (next: ${accName(lv + 1)})`, { ja: `いっしょに過ごすほど、あなただけの姿に育っていく（次：${accName(lv + 1)}）`, ko: `함께 시간을 보내면 당신만의 모습으로 자라요 (다음: ${accName(lv + 1)})`, vi: `Ở bên nhau nhiều hơn, nó sẽ lớn thành dáng vẻ chỉ của riêng bạn (tiếp theo: ${accName(lv + 1)})` }) : L('世界上只有這一隻 ✦', 'There is only one like it ✦', { ja: '世界にひとつだけ ✦', ko: '세상에 하나뿐 ✦', vi: 'Chỉ có một trên đời ✦' });
       const T = { pet: L('摸摸寵物', 'Pat your pet', { ja: 'ペットをなでる', ko: '펫 쓰다듬기', vi: 'Vuốt ve thú cưng' }), dance: L('一起跳一支舞', 'Dance together', { ja: 'いっしょにダンス', ko: '함께 춤추기', vi: 'Cùng nhảy một điệu' }), gift: L('送星光給別的旅人', 'Leave starlight for another traveler', { ja: 'ほかの旅人に星の光を贈る', ko: '다른 여행자에게 별빛 남기기', vi: 'Để lại ánh sao cho lữ khách khác' }) };
       const mb = $('upMail'); mb.hidden = !Fr.queue.length; mb.textContent = L(`💌 打開信件（${Fr.queue.length}）`, `💌 Open letters (${Fr.queue.length})`, { ja: `💌 手紙をひらく（${Fr.queue.length}）`, ko: `💌 편지 열기(${Fr.queue.length})`, vi: `💌 Mở thư (${Fr.queue.length})` });
-      $('upTaskT').textContent = L('今日小任務（全部完成 +15）', "Today's little tasks (all done: +15)", { ja: '今日のミッション（ぜんぶで +15）', ko: '오늘의 작은 미션(모두 완료 +15)', vi: 'Nhiệm vụ nhỏ hôm nay (xong hết +15)' });
+      $('upTaskT').textContent = L('今天可以一起做的事（不做也沒關係）', 'Things you could do together today (no pressure)', { ja: '今日いっしょにできること（しなくても大丈夫）', ko: '오늘 함께 할 수 있는 일 (안 해도 괜찮아요)', vi: 'Việc có thể làm cùng nhau hôm nay (không làm cũng không sao)' });
       const ul = $('upTasks'); ul.textContent = '';
       Bond.tasks().forEach(([k, ok]) => { const li = document.createElement('li'); li.className = ok ? 'ok' : ''; li.textContent = `${ok ? '✓' : '○'} ${T[k]}`; ul.appendChild(li); });
     }
@@ -14369,9 +15401,29 @@ function petSVG(i, opt = {}) {
     $('uvFriends').addEventListener('click', () => openFriends());
     $('uvPlay').addEventListener('click', () => { if (sel) back(); Arena.openLobby(); });
     $('uvMyHome').addEventListener('click', () => Cosmos.open());
+    // 星球代碼：輸入朋友的代碼，飛過去
+    const myCode = () => planetCode((Me.get() || {}).pid || Me.uid());
+    $('uvCode').addEventListener('click', () => {
+      $('pcMine').textContent = Me.get() ? L(`你的星球代碼：${myCode()}`, `Your Planet Code: ${myCode()}`, { vi: `Mã hành tinh của bạn: ${myCode()}` }) : '';
+      $('pcCopy').hidden = !Me.get(); $('pcMsg').textContent = ''; $('pcIn').value = ''; $('codeDlg').classList.add('on'); setTimeout(() => $('pcIn').focus(), 60);
+    });
+    async function goCode() {
+      const raw = $('pcIn').value.toUpperCase().replace(/[^0-9A-F]/g, ''), hex = raw.replace(/^INNER/, '').slice(-4);
+      if (hex.length !== 4) { $('pcMsg').textContent = L('代碼長得像 INNER-7F29 喔', 'A code looks like INNER-7F29', { vi: 'Mã có dạng INNER-7F29' }); return; }
+      const code = `INNER-${hex}`; await data(); const p = planetsW.find(x => x.pid && planetCode(x.pid) === code);
+      if (!p) { $('pcMsg').textContent = L('宇宙裡還找不到這顆星球。確認一下代碼，或請朋友先進入宇宙一次。', "Couldn't find that planet yet. Check the code, or ask your friend to enter the universe once.", { vi: 'Chưa tìm thấy hành tinh này. Kiểm tra lại mã, hoặc nhờ bạn vào vũ trụ một lần.' }); return; }
+      $('codeDlg').classList.remove('on');
+      if (p.me) { toast(L('這是你自己的星球 ✦', "That's your own planet ✦", { vi: 'Đây là hành tinh của bạn ✦' }), 3); }
+      if (sel) back(); setTimeout(() => select(p), sel ? 900 : 0);
+    }
+    $('pcGo').addEventListener('click', goCode);
+    $('pcIn').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); goCode(); } });
+    $('pcClose').addEventListener('click', () => $('codeDlg').classList.remove('on'));
+    $('pcCopy').addEventListener('click', async () => { try { await navigator.clipboard.writeText(myCode()); $('pcMsg').textContent = L('複製好了，傳給朋友吧 ✦', 'Copied — send it to a friend ✦', { vi: 'Đã sao chép, gửi cho bạn bè nhé ✦' }); } catch (_) { $('pcMsg').textContent = myCode(); } });
     $('uvcHome').addEventListener('click', () => { if (!sel) return; if (sel.me) Cosmos.open(); else Cosmos.visit(sel); });
     Cosmos.bind({
       bondLevel: () => Bond.level(),
+      bondAct: k => { const r = Bond.act(k); fillBond(); return r; },
       busy: () => !!Fr.D || (!!sel && state === 'universe' && !Arena.on) || /INPUT|TEXTAREA/.test((document.activeElement || {}).tagName || '') || ['gmDlg', 'mailDlg', 'frDlg', 'backDlg', 'worryDlg'].some(id => { const e = $(id); return e && e.classList.contains('on'); }) || (Arena.on && !$('arEnd').classList.contains('on')),
       friends: () => [...Fr.friends.values()].filter(f => f.partner && f.partner.pid).map(f => ({ pid: f.partner.pid, name: f.partner.name, petName: f.partner.petName, glyph: petOf(f.partner).glyph }))
     });
@@ -14448,7 +15500,7 @@ function petSVG(i, opt = {}) {
       const btn = $('uvcGifts').querySelector(`[data-k="${k}"]`);
       if (gv[k]) { btn.classList.remove('shake'); void btn.offsetWidth; btn.classList.add('shake'); return; }
       gv[k] = true; btn.classList.add('done');
-      { const rb = Bond.act('gift'); if (rb.task) setTimeout(() => toast(L('今日小任務完成！親密度 +15 ✦', "Today's tasks done! +15 affection ✦", { ja: '今日のミッション達成！親密度 +15 ✦', ko: '오늘의 미션 완료! 친밀도 +15 ✦', vi: 'Hoàn thành nhiệm vụ hôm nay! +15 thân thiết ✦' })), 2600); }
+      { const rb = Bond.act('gift'); if (rb.task) setTimeout(() => toast(L('今天一起做了好多事 ✦', 'You did so much together today ✦', { ja: '今日はいっしょにたくさん過ごせたね ✦', ko: '오늘 함께 많은 걸 했어요 ✦', vi: 'Hôm nay làm được nhiều việc cùng nhau ✦' })), 2600); }
       const g = UV_GIFTS.find(x => x.k === k), r = btn.getBoundingClientRect();
       gifts.push({ icon: g.icon, x0: r.left + r.width / 2, y0: r.top + r.height / 2, p: sel, t: 0 });
       Sound.chime(UV_GIFTS.indexOf(g) * .3);
@@ -14553,7 +15605,8 @@ function petSVG(i, opt = {}) {
           setTimeout(() => toast(L('有光圈的那一顆，是你的星球。', 'The one with the halo is your planet.')), 1200);
           // 每天回來：寵物想你了＋連續天數
           const ck = Bond.checkIn(), nm = me.petName || 'Pet';
-          if (ck) setTimeout(() => { if (my === token) toast(ck.streak > 1 ? L(`${nm} 好想你！連續陪伴第 ${ck.streak} 天 ✦ 親密度 +${ck.gain}`, `${nm} missed you! Day ${ck.streak} in a row ✦ +${ck.gain} affection`, { ja: `${nm} はさみしかったよ！${ck.streak} 日連続 ✦ 親密度 +${ck.gain}`, ko: `${nm}이(가) 보고 싶었대요! ${ck.streak}일 연속 ✦ 친밀도 +${ck.gain}`, vi: `${nm} nhớ bạn lắm! Ngày thứ ${ck.streak} liên tiếp ✦ +${ck.gain} thân thiết` }) : L(`${nm} 在等你。點你的星球，和牠一起玩吧 ✦ 親密度 +${ck.gain}`, `${nm} is waiting. Tap your planet to play together ✦ +${ck.gain} affection`, { ja: `${nm} が待ってるよ。自分の星をタップしていっしょに遊ぼう ✦ +${ck.gain}`, ko: `${nm}이(가) 기다려요. 내 행성을 눌러 함께 놀아요 ✦ +${ck.gain}`, vi: `${nm} đang đợi. Chạm vào hành tinh của bạn để chơi cùng ✦ +${ck.gain}` }), 5); }, 5200);
+          // 不提連續天數、不給數字：多久回來都只說歡迎回來
+          if (ck) setTimeout(() => { if (my === token) toast(L(`歡迎回來 ✦ ${nm} 在星球家園等你`, `Welcome back ✦ ${nm} is waiting at your planet home`, { ja: `おかえり ✦ ${nm} が星の家で待ってるよ。いそがなくていいよ`, ko: `어서 와요 ✦ ${nm}이(가) 행성 집에서 기다려요. 서두르지 않아도 돼요`, vi: `Chào mừng trở lại ✦ ${nm} đang đợi ở nhà hành tinh, không cần vội` }), 5); }, 5200);
           // 寵物每天會自己出去旅行一趟，帶點東西回來（一天一次）
           setTimeout(() => { if (my !== token || Arena.on) return; const others = list.filter(q => !q.me && q.petName); const o = others.length ? others[(Math.random() * others.length) | 0] : null; Cosmos.discover('daily', { petName: nm, other: o && { name: o.name, petName: o.petName } }); }, ck ? 10500 : 6000);
         }
@@ -14562,7 +15615,7 @@ function petSVG(i, opt = {}) {
         if (Fr.openOnArrive) { Fr.openOnArrive = false; setTimeout(() => { if (my === token) openMail(); }, 600); }
         evPoll(); clearInterval(EV.t); EV.t = setInterval(evPoll, 5000);
         // 3V3 小遊戲：有 Firebase 才開；朋友傳來的 ?play=房間代碼 直接加入
-        $('uvPlay').hidden = !FB.on(); $('uvMyHome').hidden = !Me.get();
+        $('uvPlay').hidden = !FB.on(); $('uvMyHome').hidden = !Me.get(); $('uvCode').hidden = false;
         const pc = (location.search.match(/[?&]play=([A-Za-z0-9]{5})/) || [])[1];
         if (pc && FB.on() && !start.played) { start.played = true; Arena.join(pc); }
       } catch (e) { if (!(e instanceof Cancel)) throw e; }

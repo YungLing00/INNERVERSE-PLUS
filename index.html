@@ -974,7 +974,7 @@
   .gm-priv { display: flex; gap: 8px; align-items: center; justify-content: center; margin-top: .8rem; font-size: .72rem; color: var(--dim); letter-spacing: .04em; cursor: pointer; }
   .gm-join { margin-top: .7rem; } .gm-join input { text-transform: uppercase; letter-spacing: .2em; }
   .gm-msg { min-height: 1.2em; margin-top: .5rem; font-size: .76rem; color: #ffd6e8; letter-spacing: .04em; }
-  @media (orientation: landscape) and (max-height: 520px) { .ar-wait .ar-ws { display: none; } .ar-ab { width: 64px; height: 64px; } }
+  @media (orientation: landscape) and (max-height: 520px) { .ar-wait .ar-ws { font-size: .68rem; line-height: 1.5; margin-top: .3rem; } .ar-ab { width: 64px; height: 64px; } }
   @media (max-width: 480px) { .ar-top { left: 58px; right: 10px; transform: none; justify-content: center; gap: 8px; } .ar-tn, .ar-life { display: none; } }
 
   /* ===== 章節選單 ===== */
@@ -1226,6 +1226,99 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
   .wd-text:focus { outline: 2px solid var(--ice); outline-offset: 2px; border-color: transparent; }
   .bd-acts { margin-top: 1.2rem; display: flex; flex-direction: column; gap: 10px; align-items: center; }
   .bd-acts .main, .bd-acts .ghost { width: min(280px, 100%); }
+
+  /* ===== 新手教學（Coach）：把按鈕打亮＋旁邊一張說明卡 ===== */
+  .coach { position: fixed; inset: 0; z-index: 400; display: none; }
+  .coach.on { display: block; }
+  .coach-hole { position: fixed; border-radius: 20px; box-shadow: 0 0 0 200vmax rgba(5,4,20,.74), 0 0 0 2px rgba(255,226,170,.95), 0 0 26px 6px rgba(255,214,150,.55); transition: left .35s ease, top .35s ease, width .35s ease, height .35s ease; cursor: pointer; animation: coachPulse 1.8s ease-in-out infinite; }
+  .coach.center .coach-hole { box-shadow: 0 0 0 200vmax rgba(5,4,20,.78); animation: none; }
+  @keyframes coachPulse { 50% { box-shadow: 0 0 0 200vmax rgba(5,4,20,.74), 0 0 0 3px rgba(255,236,190,1), 0 0 38px 10px rgba(255,214,150,.7); } }
+  .coach-tip { position: fixed; padding: 1rem 1.05rem .9rem; border-radius: 20px; color: var(--ink); text-align: left;
+    background: linear-gradient(160deg, rgba(52,38,112,.97), rgba(18,13,48,.98)); border: 1px solid rgba(255,226,170,.45); box-shadow: 0 14px 40px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.18); transition: left .35s ease, top .35s ease; }
+  .coach-tip.in { animation: coachIn .35s ease both; }
+  @keyframes coachIn { from { opacity: 0; transform: translateY(6px) scale(.98); } }
+  .coach-n { font-family: var(--latin); font-size: .68rem; letter-spacing: .2em; color: rgba(255,226,170,.8); }
+  .coach-tip h4 { margin-top: .25rem; font-weight: 400; font-size: 1.02rem; letter-spacing: .08em; color: #fff3dc; }
+  .coach-d { margin-top: .4rem; font-size: .82rem; line-height: 1.7; letter-spacing: .03em; color: rgba(236,230,255,.88); }
+  .coach-row { display: flex; align-items: center; gap: 8px; margin-top: .85rem; }
+  .coach-row .coach-b { min-height: 40px; padding: .45rem 1rem; font-size: .8rem; }
+  .coach-row .main { margin-left: auto; }
+  .coach-skip { background: none; border: 0; color: var(--dim); font-family: var(--tc); font-size: .74rem; letter-spacing: .06em; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: .4rem .2rem; }
+  @media (prefers-reduced-motion: reduce) { .coach-hole, .coach-tip { transition: none; animation: none !important; } }
+
+  /* ===== 家園：乾淨的畫面＋下面一排分頁 ===== */
+  .home .hm-code { display: none; }
+  .hm-top { right: calc(env(safe-area-inset-right, 0px) + 10px); }
+  .hm-h { flex: 1; min-width: 0; } .hm-h b, .hm-h small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hm-help { pointer-events: auto; flex: none; margin-left: auto; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-family: var(--latin); font-size: 1.1rem; color: #fff3dc;
+    background: linear-gradient(165deg, rgba(92,70,170,.5), rgba(24,16,56,.62)); border: 1px solid rgba(255,230,190,.35); box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 6px 16px rgba(0,0,0,.28); }
+  .home.visit .hm-help { display: none; }
+  .hm-dock { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 10px); width: min(520px, calc(100vw - 20px)); display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 6px;
+    border-radius: 24px; background: linear-gradient(165deg, rgba(64,48,130,.72), rgba(16,11,40,.82)); border: 1px solid rgba(255,230,190,.28); box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 10px 30px rgba(0,0,0,.4);
+    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); z-index: 3; }
+  .hm-tab { position: relative; display: grid; justify-items: center; align-content: center; gap: 2px; min-height: 56px; padding: 4px 2px; border-radius: 18px; border: 0; background: none; cursor: pointer;
+    color: rgba(255,240,215,.82); font-family: var(--tc); font-size: .7rem; letter-spacing: .06em; transition: background .25s ease, transform .15s ease; }
+  .hm-tab .hm-ti { font-style: normal; font-size: 1.3rem; line-height: 1; } .hm-tab .hm-ti .ivi { width: 28px; height: 28px; margin: 0; }
+  .hm-tab span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hm-tab:active { transform: scale(.94); }
+  .hm-tab.on { color: #1a1238; background: linear-gradient(135deg, #ffe3a8, #ffd6e8); }
+  .hm-tab.dot::after { content: ''; position: absolute; top: 6px; right: calc(50% - 20px); width: 9px; height: 9px; border-radius: 50%; background: #ff9ab8; box-shadow: 0 0 8px #ff9ab8; }
+  .home.visit .hm-dock, .home.sleeping .hm-dock, .home.editing .hm-dock { display: none; }
+  /* 抽屜 */
+  .hm-sheet { position: absolute; inset: 0; z-index: 4; display: flex; align-items: flex-end; justify-content: center; padding: 0 10px calc(env(safe-area-inset-bottom, 0px) + 10px); background: rgba(6,4,20,.35); opacity: 0; pointer-events: none; transition: opacity .25s ease; }
+  .hm-sheet.on { opacity: 1; pointer-events: auto; }
+  .hm-shc { width: min(520px, 100%); max-height: min(72dvh, 560px); overflow-y: auto; padding: .9rem .9rem 1rem; border-radius: 24px; transform: translateY(18px); transition: transform .3s ease;
+    background: linear-gradient(160deg, rgba(48,34,106,.97), rgba(16,11,40,.98)); border: 1px solid rgba(255,230,190,.3); box-shadow: 0 -10px 40px rgba(0,0,0,.4); }
+  .hm-sheet.on .hm-shc { transform: none; }
+  .hm-shh { display: flex; align-items: center; justify-content: space-between; gap: 10px; } .hm-shh b { font-weight: 400; font-size: 1.02rem; letter-spacing: .12em; color: #fff3dc; }
+  .hm-shs { margin: .35rem 0 .7rem; font-size: .76rem; line-height: 1.6; color: var(--dim); letter-spacing: .03em; }
+  .hm-sheet .hm-care { position: static; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0; overflow: visible; justify-content: stretch; }
+  .hm-sheet .hm-cb { min-width: 0; padding: 10px 6px 9px; gap: 3px; font-size: .78rem; }
+  .hm-sheet .hm-cb .ivi { width: 34px; height: 34px; }
+  .hm-cbn { font-size: .8rem; letter-spacing: .06em; color: #fff3dc; }
+  .hm-cbd { font-size: .62rem; line-height: 1.45; color: rgba(236,230,255,.66); letter-spacing: .02em; text-align: center; }
+  .hm-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 58px; margin-top: 8px; padding: 8px 12px; border-radius: 16px; cursor: pointer; text-align: left; color: var(--ink); font-family: var(--tc);
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,230,190,.2); }
+  .hm-row:active { transform: scale(.98); } .hm-row:hover { background: rgba(255,226,170,.1); }
+  .hm-ri { font-style: normal; font-size: 1.4rem; flex: none; width: 36px; text-align: center; } .hm-ri .ivi { width: 32px; height: 32px; margin: 0; }
+  .hm-rt { display: grid; gap: 2px; min-width: 0; flex: 1; } .hm-rt b { font-weight: 400; font-size: .88rem; letter-spacing: .08em; color: #fff3dc; } .hm-rt small { font-size: .7rem; color: var(--dim); line-height: 1.45; }
+  .hm-rgo { font-style: normal; color: rgba(255,226,170,.7); font-size: 1.2rem; }
+  /* 擺放模式 */
+  .hm-editbar { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 96px); width: min(520px, calc(100vw - 20px)); display: none; align-items: center; gap: 10px; padding: 8px 10px 8px 14px; border-radius: 18px;
+    background: rgba(20,14,46,.88); border: 1px solid rgba(255,226,170,.4); z-index: 3; }
+  .hm-editbar p { flex: 1; font-size: .74rem; line-height: 1.55; color: #fff3dc; letter-spacing: .03em; } .hm-editbar .main { flex: none; min-height: 40px; padding: .4rem 1.1rem; }
+  .home.editing .hm-editbar { display: flex; }
+  .home.editing .hm-ask { display: none !important; }
+  .home:not(.editing) .hm-tray { display: none; }
+  .hm-tray { z-index: 3; }
+  /* 拿掉旁邊的按鈕之後：訊息和心情問題置中 */
+  .home .hm-ask { z-index: 2; top: calc(env(safe-area-inset-top, 0px) + 76px); left: 50%; transform: translateX(-50%); width: min(560px, calc(100vw - 24px)); justify-content: center; }
+  .home .hm-msg { top: calc(env(safe-area-inset-top, 0px) + 150px); left: 50%; transform: translateX(-50%); width: min(90vw, 420px); text-align: center; }
+
+  /* ===== 宇宙：下面一排有圖示、有字的選單 ===== */
+  .uv-tools { left: 50%; right: auto; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 10px); width: min(560px, calc(100vw - 16px)); padding: 6px; gap: 4px; flex-wrap: nowrap;
+    border-radius: 24px; background: linear-gradient(165deg, rgba(56,42,120,.6), rgba(14,10,38,.78)); border: 1px solid rgba(255,230,190,.24); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+  .uv-tools .pill { flex: 1 1 0; min-width: 0; min-height: 58px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 5px 2px; border-radius: 18px; border: 0; background: none;
+    font-size: .66rem; letter-spacing: .04em; line-height: 1.25; text-align: center; white-space: normal; color: rgba(255,240,215,.85); }
+  .uv-tools .pill[hidden] { display: none; }
+  .uv-tools .pill .ivi { width: 26px; height: 26px; margin: 0; vertical-align: 0; }
+  .uv-tools .pill:hover { background: rgba(255,226,170,.1); }
+  .uv-tools .pill.on, .uv.g-on #uvHand { color: #1a1238; background: linear-gradient(135deg, #ffe3a8, #ffd6e8); }
+  .uv-tools .uv-play { color: #fff3dc; background: rgba(255,214,150,.14); box-shadow: inset 0 0 0 1px rgba(255,214,150,.45); }
+  .uv-tools .uv-mail { order: -1; color: #fff3dc; background: rgba(255,154,184,.18); box-shadow: inset 0 0 0 1px rgba(255,154,184,.6); }
+  #uvMyHome { order: -1; } #uvPlay { order: 0; } #uvFriends { order: 1; } #uvCode { order: 2; } #uvAll { order: 3; } #uvHand { order: 4; } #uvHelp { order: 5; }
+  .uv-hint { bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); font-size: .72rem; }
+  .uv-toast, .uv.ev-on .uv-toast { top: auto; bottom: calc(env(safe-area-inset-bottom, 0px) + 110px); }
+  @media (max-width: 380px) { .uv-tools .pill { font-size: .6rem; } .uv-tools .pill .ivi { width: 23px; height: 23px; } }
+  @media (orientation: landscape) and (max-height: 520px) { .uv-tools .pill { min-height: 48px; } .uv-hint { bottom: calc(env(safe-area-inset-bottom, 0px) + 70px); } }
+  @media (orientation: landscape) and (max-height: 520px) {
+    .hm-dock { left: auto; right: calc(env(safe-area-inset-right, 0px) + 8px); transform: none; top: calc(env(safe-area-inset-top, 0px) + 58px); bottom: calc(env(safe-area-inset-bottom, 0px) + 8px); width: 78px; grid-template-columns: 1fr; grid-auto-rows: 1fr; align-content: stretch; }
+    .hm-tab { min-height: 0; font-size: .6rem; padding: 2px; } .hm-tab .hm-ti .ivi { width: 22px; height: 22px; }
+    .hm-sheet { justify-content: center; padding: 8px; } .hm-shc { max-height: calc(100dvh - 16px); }
+    .hm-sheet .hm-care { grid-template-columns: repeat(5, 1fr); } .hm-sheet .hm-cbd { display: none; }
+    .hm-editbar { bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); }
+    .home .hm-ask { right: 96px; left: 12px; transform: none; width: auto; top: calc(env(safe-area-inset-top, 0px) + 62px); }
+  }
 </style>
 </head>
 <body data-state="idle">
@@ -1493,7 +1586,7 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
   <div class="uv-title"><h2>✦ OUR UNIVERSE ✦</h2><p class="uv-demo" id="uvDemo" hidden>示範宇宙：真實旅人還不多，先用示範星球陪你逛逛</p></div>
   <p class="uv-hint" id="uvHint"></p>
   <div class="uv-ev" id="uvEvent" hidden><p class="ev-t" id="evTitle"></p><p class="ev-s" id="evSub"></p><div class="ev-bar"><i id="evBar"></i></div><div class="ev-row"><span class="ev-n" id="evN"></span><button class="main ev-go" id="evGo" type="button"></button></div></div>
-  <div class="uv-tools"><button class="pill" id="uvHand" type="button">🖐️ 手勢控制</button><button class="pill" id="uvAll" type="button">✦ 看見整座宇宙</button><button class="pill uv-mail" id="uvMail" type="button" hidden>💌</button><button class="pill" id="uvFriends" type="button" hidden>✦</button><button class="pill uv-play" id="uvPlay" type="button" hidden>🎮 一起玩</button><button class="pill" id="uvMyHome" type="button" hidden>🏠 家園</button><button class="pill" id="uvCode" type="button" hidden>🔑 星球代碼</button></div>
+  <div class="uv-tools"><button class="pill" id="uvHand" type="button">🖐️ 手勢</button><button class="pill" id="uvAll" type="button">🌌 全景</button><button class="pill uv-mail" id="uvMail" type="button" hidden>💌</button><button class="pill" id="uvFriends" type="button" hidden>✦</button><button class="pill uv-play" id="uvPlay" type="button" hidden>🎮 一起玩</button><button class="pill" id="uvMyHome" type="button" hidden>🏠 家園</button><button class="pill" id="uvCode" type="button" hidden>🔑 代碼</button><button class="pill" id="uvHelp" type="button">❓ 教學</button></div>
   <div class="uv-gest" id="uvGest"><span>🖐️ 張開手掌移動：旋轉宇宙</span><span>🖐️ 手掌靠近／遠離鏡頭：放大／縮小</span><span>✌️ 兩指或三指移動：平移</span><span>🤏 捏合：選擇星球</span><span>✊ 握拳：回到整個宇宙</span></div>
   <aside class="uv-card" id="uvCard" aria-live="polite">
     <button class="uv-x" id="uvcClose" type="button" aria-label="回到宇宙">×</button>
@@ -4671,6 +4764,11 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
   // 陪伴者更新的靜態文字（日／韓／越）
   Object.assign(I18N, {
     '🖐️ Gestures': ['🖐️ ジェスチャー', '🖐️ 제스처', '🖐️ Cử chỉ'], "Homage to Disney's Encanto": ['ディズニー『ミラベルと魔法だらけの家』へのオマージュ', '디즈니 〈엔칸토: 마법의 세계〉에 바치는 오마주', 'Tri ân Encanto của Disney'],
+    '🎮 Play together': ['🎮 いっしょにあそぶ', '🎮 함께 놀기', '🎮 Chơi cùng'],
+    'My Planet Home': ['わたしの星の家', '나의 행성 집', 'Ngôi nhà hành tinh của tôi'], 'New Traveler': ['あたらしい旅人', '새로 온 여행자', 'Lữ khách mới'], 'Star Gardener': ['星の庭師', '별의 정원사', 'Người làm vườn sao'],
+    'Sound Collector': ['音のコレクター', '소리 수집가', 'Nhà sưu tầm âm thanh'], 'Cosmic Dancer': ['宇宙のダンサー', '우주의 댄서', 'Vũ công vũ trụ'], 'Dream Explorer': ['夢の探検家', '꿈의 탐험가', 'Nhà thám hiểm giấc mơ'],
+    'Constellation Maker': ['星座をあむ人', '별자리를 엮는 사람', 'Người dệt chòm sao'], 'Night Wanderer': ['夜の旅人', '밤의 여행자', 'Lữ khách đêm'], 'Warm Companion': ['あたたかい仲間', '따뜻한 동반자', 'Người bạn ấm áp'], 'Six Souls': ['六つの魂の光', '여섯 영혼의 빛', 'Ánh sáng sáu linh hồn'],
+    '🌌 Overview': ['🌌 ぜんたい', '🌌 전체 보기', '🌌 Toàn cảnh'], '🔑 Code': ['🔑 コード', '🔑 코드', '🔑 Mã'], '❓ Help': ['❓ つかいかた', '❓ 도움말', '❓ Hướng dẫn'],
     '🐾 My pet': ['🐾 ペット', '🐾 내 펫', '🐾 Thú cưng'], '🪪 Card': ['🪪 カード', '🪪 카드', '🪪 Thẻ'], '🔑 Planet Code': ['🔑 星のコード', '🔑 행성 코드', '🔑 Mã hành tinh'],
     '🌙 Listen before sleep': ['🌙 ねる前にいっしょに聴く', '🌙 자기 전에 함께 듣기', '🌙 Cùng nghe trước khi ngủ'], 'Pick a few sounds and let the planet grow quiet.': ['いくつか音をえらんで、星をしずかにしよう。', '소리 몇 개를 골라 행성을 조용히 재워요.', 'Chọn vài âm thanh để hành tinh dần yên tĩnh.'], 'Done': ['おわる', '끝내기', 'Xong'],
     '✦ Share my INNERVERSE': ['✦ わたしの INNERVERSE をシェア', '✦ 나의 INNERVERSE 공유', '✦ Chia sẻ INNERVERSE của tôi'], 'Enter my planet': ['わたしの星へ', '내 행성으로', 'Vào hành tinh của tôi'], 'Save image': ['画像を保存', '이미지 저장', 'Lưu ảnh'], 'Close': ['とじる', '닫기', 'Đóng'],
@@ -4730,7 +4828,7 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
     '我還好，繼續': 'I’m okay, continue', '再來一次': 'Once more', '再看一次': 'Watch again',
     '✦ 進入宇宙': '✦ Enter the universe', '✦ 繼續旅程': '✦ Continue the journey', '繼續旅程 ›': 'Continue the journey ›', '✦ 前往宇宙': '✦ Enter the universe',
     '示範宇宙：真實旅人還不多，先用示範星球陪你逛逛': 'Demo universe: not many real travelers yet, so sample planets are keeping you company',
-    '🖐️ 手勢控制': '🖐️ Hand control', '✦ 看見整座宇宙': '✦ See the whole universe',
+    '🌌 全景': '🌌 Overview', '🔑 代碼': '🔑 Code', '❓ 教學': '❓ Help',
     '🖐️ 張開手掌移動：旋轉宇宙': '🖐️ Move an open palm: turn the universe', '🖐️ 手掌靠近／遠離鏡頭：放大／縮小': '🖐️ Palm toward / away from the camera: zoom in / out', '✌️ 兩指或三指移動：平移': '✌️ Move two or three fingers: pan', '🤏 捏合：選擇星球': '🤏 Pinch: choose a planet', '✊ 握拳：回到整個宇宙': '✊ Make a fist: back to the whole universe',
     '回到宇宙': 'Back to the universe', '這是你的星球': 'This is your planet', '人格星圖': 'Personality star chart', '留下一點星光': 'Leave a little starlight',
     '繼續探索': 'Keep exploring',
@@ -14225,6 +14323,12 @@ function petSVG(i, opt = {}) {
       $('gmPrivL').textContent = L('建立私人房間（只有拿到代碼的朋友能加入）', 'Private room (only friends with the code can join)');
       $('gmCode').placeholder = L('朋友給的房間代碼', 'Room code from a friend'); $('gmJoin').textContent = L('加入', 'Join'); $('gmClose').textContent = L('回到宇宙', 'Back to the universe');
       dlg.classList.add('on');
+      // 第一次打開：教你怎麼開始一場遊戲
+      if (!Coach.seen('lobby') && !/[?&]notour=1/.test(location.search)) setTimeout(() => { if (dlg.classList.contains('on')) Coach.run('lobby', [
+        { el: '.gm-mode', t: L('選一個遊戲', 'Pick a game', { ja: 'ゲームをえらぶ', ko: '게임 고르기', vi: 'Chọn một trò chơi' }), d: L('點一下就會自動幫你找隊友。人不夠的時候，星靈會來補位，一個人也能玩。', "Tap one and we'll find teammates for you. Star Sprites fill empty spots, so you can play solo too.", { ja: 'タップすると仲間をさがします。人数が足りないときは星の精が入るので、ひとりでも遊べます。', ko: '누르면 팀원을 찾아 줘요. 사람이 부족하면 별의 정령이 채워 주니 혼자서도 할 수 있어요.', vi: 'Chạm để tìm đồng đội. Thiếu người thì Tinh linh sao sẽ vào thay, chơi một mình cũng được.' }) },
+        { el: '.gm-priv', t: L('只想和朋友玩？', 'Just with friends?', { ja: '友だちとだけ遊びたい？', ko: '친구하고만 놀고 싶다면?', vi: 'Chỉ chơi với bạn bè?' }), d: L('先勾這裡，再選遊戲，就會開一間私人房間，把代碼傳給朋友。', 'Tick this first, then pick a game to open a private room and share its code.', { ja: 'ここにチェックしてからゲームをえらぶと、プライベートルームができます。', ko: '여기를 먼저 체크하고 게임을 고르면 비공개 방이 열려요.', vi: 'Đánh dấu ở đây rồi chọn trò chơi để mở phòng riêng.' }) },
+        { el: '.gm-join', t: L('朋友給了你代碼？', 'Got a code from a friend?', { ja: '友だちからコードをもらった？', ko: '친구에게 코드를 받았나요?', vi: 'Bạn bè gửi mã cho bạn?' }), d: L('在這裡輸入 5 個字的房間代碼，按「加入」。', 'Type the 5-character room code here and press Join.', { ja: '5文字のルームコードを入れて「参加」。', ko: '5자리 방 코드를 입력하고 참가를 눌러요.', vi: 'Nhập mã phòng 5 ký tự và nhấn Tham gia.' }) }
+      ]); }, 450);
     }
     function lobbyErr(e) {
       const m = e && e.code === 'no_planet' ? L('完成測驗、有了自己的星球之後，就能一起玩喔。', 'Once you have your own planet, you can play too.')
@@ -14306,6 +14410,88 @@ function petSVG(i, opt = {}) {
     for (let i = 0; i < t.length; i++) { h ^= t.charCodeAt(i); h = Math.imul(h, 16777619); }
     return 'INNER-' + ((h >>> 0) & 0xffff).toString(16).toUpperCase().padStart(4, '0');
   }
+  /* ================================================================
+     新手教學（Coach）：一步一步把畫面上的按鈕「打亮」，旁邊寫這是做什麼的
+     Coach.auto(key, steps)：第一次來才會出現；Coach.run(key, steps)：隨時重看（右上角的 ？）
+     step = { el: '#id' | () => 元素或 {x,y,w,h} | null（置中卡片）, t: 標題, d: 說明 }
+     ================================================================ */
+  const Coach = (() => {
+    const KEY = 'iv_tour';
+    let seen = {}; try { seen = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (_) { seen = {}; }
+    const mark = k => { seen[k] = Date.now(); try { localStorage.setItem(KEY, JSON.stringify(seen)); } catch (_) { /* ignore */ } };
+    const root = document.createElement('div'); root.className = 'coach'; root.setAttribute('role', 'dialog'); root.setAttribute('aria-modal', 'true');
+    const hole = document.createElement('div'); hole.className = 'coach-hole';
+    const tip = document.createElement('div'); tip.className = 'coach-tip';
+    const nEl = document.createElement('p'); nEl.className = 'coach-n';
+    const tEl = document.createElement('h4'); const dEl = document.createElement('p'); dEl.className = 'coach-d';
+    const row = document.createElement('div'); row.className = 'coach-row';
+    const skip = document.createElement('button'); skip.type = 'button'; skip.className = 'coach-skip';
+    const back = document.createElement('button'); back.type = 'button'; back.className = 'ghost coach-b';
+    const next = document.createElement('button'); next.type = 'button'; next.className = 'main coach-b';
+    row.append(skip, back, next); tip.append(nEl, tEl, dEl, row); root.append(hole, tip);
+    let cur = null, i = 0, raf = 0, done = null;
+    const rectOf = st => {
+      let e = typeof st.el === 'function' ? st.el() : st.el ? document.querySelector(st.el) : null;
+      if (!e) return null;
+      if (e.getBoundingClientRect) { if (e.hidden || e.closest('[hidden]')) return null; const r = e.getBoundingClientRect(); if (r.width < 2 || r.height < 2) return null; e = { x: r.left, y: r.top, w: r.width, h: r.height }; }
+      const pad = st.pad === undefined ? 6 : st.pad; return { x: e.x - pad, y: e.y - pad, w: e.w + pad * 2, h: e.h + pad * 2 };
+    };
+    const usable = st => !st.el || !!rectOf(st);
+    function place() {
+      if (!cur) return;
+      const st = cur[i], r = st.el ? rectOf(st) : null, vw = innerWidth, vh = innerHeight;
+      root.classList.toggle('center', !r);
+      if (r) Object.assign(hole.style, { left: r.x + 'px', top: r.y + 'px', width: r.w + 'px', height: r.h + 'px', borderRadius: Math.min(26, r.h / 2) + 'px' });
+      else Object.assign(hole.style, { left: vw / 2 + 'px', top: vh / 2 + 'px', width: '0px', height: '0px' });
+      const tw = Math.min(330, vw - 24), th = tip.offsetHeight || 160;
+      let x = r ? r.x + r.w / 2 - tw / 2 : vw / 2 - tw / 2, y;
+      if (!r) y = vh / 2 - th / 2;
+      else if (r.y + r.h + 14 + th < vh - 10) y = r.y + r.h + 14;
+      else if (r.y - 14 - th > 10) y = r.y - 14 - th;
+      else y = Math.max(10, vh - th - 10);
+      x = Math.max(12, Math.min(vw - tw - 12, x));
+      Object.assign(tip.style, { width: tw + 'px', left: x + 'px', top: y + 'px' });
+    }
+    function show() {
+      const st = cur[i], n = cur.length;
+      nEl.textContent = `${i + 1} / ${n}`; tEl.textContent = st.t; dEl.textContent = st.d || '';
+      back.hidden = i === 0; back.textContent = L('上一步', 'Back', { ja: 'もどる', ko: '이전', vi: 'Quay lại' });
+      next.textContent = i === n - 1 ? L('開始吧 ✦', "Let's go ✦", { ja: 'はじめよう ✦', ko: '시작하기 ✦', vi: 'Bắt đầu ✦' }) : L('下一步', 'Next', { ja: 'つぎへ', ko: '다음', vi: 'Tiếp' });
+      skip.textContent = L('跳過教學', 'Skip', { ja: 'スキップ', ko: '건너뛰기', vi: 'Bỏ qua' }); skip.hidden = i === n - 1;
+      tip.classList.remove('in'); void tip.offsetWidth; tip.classList.add('in');
+      if (typeof st.el === 'string') { const e = document.querySelector(st.el); if (e && e.scrollIntoView) try { e.scrollIntoView({ block: 'center', inline: 'nearest' }); } catch (_) { /* ignore */ } }
+      place(); requestAnimationFrame(place);
+      try { next.focus({ preventScroll: true }); } catch (_) { /* ignore */ }
+    }
+    function end() { root.classList.remove('on'); cancelAnimationFrame(raf); const f = done; cur = null; done = null; if (f) f(); }
+    const go = d => { let j = i + d; while (j >= 0 && j < cur.length && !usable(cur[j])) j += d; if (j < 0) return; if (j >= cur.length) { end(); return; } i = j; show(); };
+    next.addEventListener('click', () => go(1)); back.addEventListener('click', () => go(-1)); skip.addEventListener('click', end);
+    hole.addEventListener('click', () => go(1));
+    window.addEventListener('keydown', e => { if (!cur) return; if (e.key === 'Escape') { e.preventDefault(); end(); } else if (e.key === 'ArrowRight' || e.key === 'Enter') { e.preventDefault(); e.stopImmediatePropagation(); go(1); } else if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); } }, true);
+    window.addEventListener('resize', () => place());
+    // 按鈕會動（例如淡入）：教學開著時一直跟著
+    const follow = () => { place(); raf = requestAnimationFrame(follow); };
+    function run(key, steps, cb) {
+      if (!steps || !steps.length) return;
+      if (!root.isConnected) document.body.appendChild(root);
+      mark(key); cur = steps; done = cb || null; i = 0; while (i < cur.length - 1 && !usable(cur[i])) i++;
+      root.classList.add('on'); show(); cancelAnimationFrame(raf); raf = requestAnimationFrame(follow);
+    }
+    // 第一次：等畫面上沒有其他對話框再開始（最多等一分鐘）
+    function auto(key, steps, ready) {
+      if (seen[key] || /[?&]notour=1/.test(location.search)) return;
+      let tries = 0;
+      const wait = () => {
+        if (seen[key] || cur) return;
+        const busy = document.querySelector('.back-dlg.on, .iv-card.on, .hm-panel.on, .mem-scene.on, .coach.on') || (ready && !ready());
+        if (!busy) { run(key, typeof steps === 'function' ? steps() : steps); return; }
+        if (++tries < 60) setTimeout(wait, 1000);
+      };
+      setTimeout(wait, 900);
+    }
+    return { run, auto, get on() { return !!cur; }, seen: k => !!seen[k], close: end, reset() { seen = {}; try { localStorage.removeItem(KEY); } catch (_) { /* ignore */ } } };
+  })();
+
   const Cosmos = (() => {
     const KEY = 'iv_cosmos';
     // 圖鑑七大類
@@ -14647,7 +14833,7 @@ function petSVG(i, opt = {}) {
       loadPetImages(); H.visit = visit || null; H.edit = false; H.sel = null;
       root.classList.add('on'); root.classList.toggle('visit', !!visit); size();
       const d = data(); creatures(d.cr || []); H.pet.a = 0; H.pet.mode = 'idle'; H.pet.t = 0;
-      $('hmName').textContent = visit ? L(`${visit.name} 的星球家園`, `${visit.name}'s planet home`) : L('我的星球家園', 'My Planet Home');
+      $('hmName').textContent = visit ? L(`${visit.name} 的星球家園`, `${visit.name}'s planet home`, { ja: `${visit.name} の星の家`, ko: `${visit.name}의 행성 집`, vi: `Ngôi nhà hành tinh của ${visit.name}` }) : L('我的星球家園', 'My Planet Home');
       $('hmTitle').textContent = d.title || '';
       ui(); cancelAnimationFrame(H.raf); H.on = true; H.last = performance.now(); H.raf = requestAnimationFrame(loop);
       H.bub = null; H.hunt = null; H.drift = null; H.guest = null; H.ball = null; H.sleep = null; H.breath = 0; H.idleT = 0; H.cache = 0;
@@ -14658,6 +14844,7 @@ function petSVG(i, opt = {}) {
         careBar();
         if (PL.adv) { if (Date.now() >= PL.adv.until) advReturn(); else { H.pet.mode = 'away'; } }
         setTimeout(() => { if (H.on && !H.visit) greet(); }, 900);
+        tourHome();
       } else meetStart();
       if (!visit && Object.keys(S.mix).some(k => S.mix[k] > 0) && S.mixOn !== false) Sound.scape(S.mix);
       if (!visit) { checkUnlocks(); if (pending.length) reveal(pending.splice(0)); }
@@ -14667,7 +14854,7 @@ function petSVG(i, opt = {}) {
       (H.sayT || []).forEach(clearTimeout); H.sleep = null; root.classList.remove('sleeping');
       if (root.classList.contains('gx')) { GX.stop(); root.classList.remove('gx'); } quietOff(); GH.freeze = false; GH.held = null; ['hmSleep', 'hmAsk'].forEach(id => $(id).classList.remove('on'));
       if (!H.visit) { PL.lastSeen = Date.now(); save(); }
-      H.on = false; cancelAnimationFrame(H.raf); root.classList.remove('on'); $('hmPanel').classList.remove('on'); Sound.scape(null);
+      H.on = false; cancelAnimationFrame(H.raf); root.classList.remove('on', 'editing'); H.edit = false; $('hmPanel').classList.remove('on'); sheetClose(); if (Coach.on) Coach.close(); Sound.scape(null);
     }
     async function visit(p) {
       if (!(FB && FB.on()) || !p || !p.pid) return;
@@ -14687,7 +14874,7 @@ function petSVG(i, opt = {}) {
         tray.appendChild(b);
       });
       if (!tray.children.length) { const p = document.createElement('p'); p.className = 'hm-empty'; p.textContent = L('玩遊戲、和朋友跳舞、參加活動，都可能遇見可以放在這裡的東西 ✦', 'Play games, dance with friends and join events to find things to put here ✦'); tray.appendChild(p); }
-      $('hmEdit').classList.toggle('on', H.edit);
+      $('hmEdit').classList.toggle('on', H.edit); root.classList.toggle('editing', !!H.edit && !H.visit);
     }
     let sayT = 0;
     function say(t, sec = 3) { const m = $('hmMsg'); m.textContent = t; m.classList.add('on'); clearTimeout(sayT); sayT = setTimeout(() => m.classList.remove('on'), sec * 1000); }
@@ -15588,11 +15775,19 @@ function petSVG(i, opt = {}) {
       ['feed', '🍙', '餵食', 'Feed', 'Cho ăn'], ['play', '🎾', '玩耍', 'Play', 'Chơi'], ['rest', '💤', '休息', 'Rest', 'Nghỉ'], ['explore', '🧭', '探險', 'Explore', 'Khám phá'],
       ['clean', '🧹', '整理', 'Tidy', 'Dọn dẹp'], ['listen', '🎧', '一起聽', 'Listen', 'Cùng nghe'], ['hunt', '🔍', '找聲音', 'Find sounds', 'Tìm âm thanh'], ['puzzle', '🧩', '記憶拼圖', 'Memories', 'Ghép ký ức'], ['sleep', '🌙', '睡前', 'Bedtime', 'Trước khi ngủ']
     ];
+    // 每個照顧動作一句話說明（新手看得懂要做什麼）
+    const CARE_D = {
+      feed: ['給牠一點星星點心', 'Give it a starry snack', { vi: 'Cho nó một món ăn vặt' }], play: ['陪牠玩一下球', 'Play ball together', { vi: 'Cùng chơi bóng' }],
+      rest: ['讓牠躺下來充電', 'Let it lie down and recharge', { vi: 'Cho nó nằm nghỉ' }], explore: ['牠會出門，帶回小東西', "It heads out and brings things back", { vi: 'Nó đi xa và mang quà về' }],
+      clean: ['把星球整理乾淨', 'Tidy up the planet', { vi: 'Dọn dẹp hành tinh' }], listen: ['一起聽你選的聲音', 'Listen to your sounds together', { vi: 'Cùng nghe âm thanh' }],
+      hunt: ['找出藏起來的聲音', 'Find the hidden sounds', { vi: 'Tìm âm thanh bị giấu' }], puzzle: ['拼回一段回憶', 'Piece a memory back together', { vi: 'Ghép lại một ký ức' }],
+      sleep: ['睡前一起慢慢安靜', 'Wind down before sleep', { vi: 'Cùng thư giãn trước khi ngủ' }]
+    };
     function careBar() {
       const box = $('hmCare'); box.textContent = '';
       CARE.forEach(([k, ic, zh, en, vi]) => {
-        const b = el('button', 'hm-cb'); b.type = 'button'; b.dataset.k = k; b.append(el('b', '', ic), L(zh, en, { vi }));
-        b.addEventListener('click', () => care(k)); box.appendChild(b);
+        const b = el('button', 'hm-cb'); b.type = 'button'; b.dataset.k = k; b.append(el('b', '', ic), el('span', 'hm-cbn', L(zh, en, { vi })), el('small', 'hm-cbd', CARE_D[k] ? L(...CARE_D[k]) : ''));
+        b.addEventListener('click', () => { sheetClose(); care(k); }); box.appendChild(b);
       });
       careState();
     }
@@ -15603,6 +15798,7 @@ function petSVG(i, opt = {}) {
         b.classList.toggle('hot', (k === 'sleep' && isNight()) || (k === 'puzzle' && MEMS.some(m => ready(m) && !PL.memDone[m.k])) || (k === 'explore' && !!PL.adv && Date.now() >= PL.adv.until));
         b.disabled = (k === 'explore' && !!PL.adv && Date.now() < PL.adv.until) || (!!PL.adv && ['feed', 'play', 'rest', 'listen'].includes(k));
       });
+      const tc = $('hmTabCare'); if (tc) tc.classList.toggle('dot', !!box.querySelector('.hm-cb.hot'));
     }
     const away = () => !!PL.adv && (H.pet.mode === 'away' || H.pet.mode === 'leave');
     function care(k) {
@@ -16241,8 +16437,74 @@ function petSVG(i, opt = {}) {
     $('hmPal').addEventListener('click', () => palPanel());
     $('hmGest').addEventListener('click', () => gesturePanel());
     $('hmCardB').addEventListener('click', () => IVCard.open());
-    $('hmEdit').addEventListener('click', () => { H.edit = !H.edit; ui(); say(H.edit ? L('拖曳東西換位置，拖到最下面可以收起來', 'Drag things to move them, or to the bottom to store them') : L('完成擺放 ✦', 'Done ✦')); });
+    $('hmEdit').addEventListener('click', () => { H.edit = !H.edit; ui(); if (!H.edit) say(L('完成擺放 ✦', 'Done ✦')); else $('hmAsk').classList.remove('on'); });
     $('hmPClose').addEventListener('click', () => panel.classList.remove('on'));
+
+    /* ---------- 家園介面：下面五個分頁＋抽屜，畫面上只留寵物和小屋 ---------- */
+    const sheet = el('div', 'hm-sheet'); sheet.id = 'hmSheet';
+    const shCard = el('div', 'hm-shc'), shHead = el('div', 'hm-shh'), shT = el('b', '', ''), shX = el('button', 'hm-x', '×'); shX.type = 'button'; shX.setAttribute('aria-label', L('關閉', 'Close'));
+    shHead.append(shT, shX); const shBody = el('div', 'hm-shb'); shCard.append(shHead, shBody); sheet.appendChild(shCard); root.appendChild(sheet);
+    const secCare = el('div', 'hm-sec'), secMore = el('div', 'hm-sec');
+    secCare.append(el('p', 'hm-shs', L('想陪牠做什麼？選一個就好，沒有對錯。', 'What would you like to do together? Pick any — there is no wrong choice.', { vi: 'Bạn muốn làm gì cùng nó? Chọn bất kỳ — không có lựa chọn sai.' })), $('hmCare'));
+    shBody.append(secCare, secMore);
+    // 「更多」：每一行都寫清楚是什麼
+    const ROWS = [
+      ['hmPal', '🐾', ['牠的成長', 'Growth', { vi: 'Sự trưởng thành' }], ['成長階段、個性、星球代碼', 'Stage, personality, Planet Code', { vi: 'Giai đoạn, tính cách, mã hành tinh' }]],
+      ['hmGest', '🖐️', ['手勢', 'Gestures', { vi: 'Cử chỉ' }], ['打開相機，用手和牠說話', 'Turn on the camera and talk with your hands', { vi: 'Bật camera và nói chuyện bằng tay' }]],
+      ['hmGift', '🎁', ['送禮', 'Give', { vi: 'Tặng quà' }], ['把收藏送給朋友', 'Send something to a friend', { vi: 'Gửi quà cho bạn bè' }]],
+      ['hmTitleB', '🏷️', ['稱號', 'Titles', { vi: 'Danh hiệu' }], ['選一個顯示在星球上的稱號', 'Choose the title shown on your planet', { vi: 'Chọn danh hiệu hiển thị' }]],
+      ['hmCardB', '🪪', ['INNERVERSE 卡', 'INNERVERSE Card', { vi: 'Thẻ INNERVERSE' }], ['分享你的星球卡片', 'Share your planet card', { vi: 'Chia sẻ thẻ hành tinh' }]],
+      ['hmHelpRow', '❓', ['新手教學', 'Tutorial', { vi: 'Hướng dẫn' }], ['再看一次每個按鈕在做什麼', 'See what each button does again', { vi: 'Xem lại các nút làm gì' }]]
+    ];
+    ROWS.forEach(([id, ic, t, d]) => {
+      const b = $(id) || el('button'); b.id = id; b.type = 'button'; b.className = 'hm-row'; b.textContent = '';
+      const tx = el('span', 'hm-rt'); tx.append(el('b', '', L(...t)), el('small', '', L(...d)));
+      b.append(el('i', 'hm-ri', ic), tx, el('em', 'hm-rgo', '›')); secMore.appendChild(b);
+      b.addEventListener('click', () => sheetClose());
+    });
+    const side = root.querySelector('.hm-side'); if (side) { const eb = $('hmEdit'); eb.hidden = true; root.appendChild(eb); side.remove(); }
+    function sheetOpen(k) {
+      if (sheet.classList.contains('on') && sheet.dataset.k === k) { sheetClose(); return; }
+      sheet.dataset.k = k; secCare.hidden = k !== 'care'; secMore.hidden = k !== 'more';
+      shT.textContent = k === 'care' ? L('照顧牠', 'Care', { vi: 'Chăm sóc' }) : L('更多', 'More', { vi: 'Thêm' });
+      if (k === 'care') careState();
+      sheet.classList.add('on'); dock.querySelectorAll('.hm-tab').forEach(t => t.classList.toggle('on', t.dataset.k === k)); Sound.ding(.3);
+    }
+    function sheetClose() { sheet.classList.remove('on'); dock.querySelectorAll('.hm-tab').forEach(t => t.classList.remove('on')); }
+    shX.addEventListener('click', sheetClose);
+    sheet.addEventListener('click', e => { if (e.target === sheet) sheetClose(); });
+    // 下面的分頁列
+    const dock = el('nav', 'hm-dock'); dock.id = 'hmDock'; dock.setAttribute('aria-label', L('家園選單', 'Home menu'));
+    const TABS = [
+      ['care', 'hmTabCare', '🐾', ['照顧', 'Care', { vi: 'Chăm sóc' }], () => sheetOpen('care')],
+      ['edit', 'hmTabEdit', '✏️', ['擺放', 'Arrange', { vi: 'Sắp xếp' }], () => { sheetClose(); $('hmEdit').click(); }],
+      ['sound', 'hmTabSound', '🎵', ['聲景', 'Sounds', { vi: 'Âm thanh' }], () => { sheetClose(); sounds(); }],
+      ['book', 'hmTabBook', '📖', ['收藏', 'Collection', { vi: 'Bộ sưu tập' }], () => { sheetClose(); book(); }],
+      ['more', 'hmTabMore', '✦', ['更多', 'More', { vi: 'Thêm' }], () => sheetOpen('more')]
+    ];
+    TABS.forEach(([k, id, ic, t, fn]) => { const b = el('button', 'hm-tab'); b.type = 'button'; b.id = id; b.dataset.k = k; b.append(el('i', 'hm-ti', ic), el('span', '', L(...t))); b.addEventListener('click', fn); dock.appendChild(b); });
+    root.appendChild(dock);
+    // 擺放模式：上面一句說明＋「完成」
+    const editBar = el('div', 'hm-editbar'); const editTip = el('p', '', L('點下面的東西放到星球上；拖曳星球上的東西換位置，拖到最下面收起來。', 'Tap an item below to place it. Drag things on the planet to move them, or to the bottom to store them.', { vi: 'Chạm vật phẩm bên dưới để đặt. Kéo đồ trên hành tinh để di chuyển, kéo xuống dưới cùng để cất.' }));
+    const editDone = el('button', 'main', L('完成', 'Done', { vi: 'Xong' })); editDone.type = 'button'; editDone.addEventListener('click', () => { if (H.edit) $('hmEdit').click(); });
+    editBar.append(editTip, editDone); root.appendChild(editBar);
+    // 右上角的 ？：隨時重看教學
+    const help = el('button', 'hm-help', '?'); help.type = 'button'; help.id = 'hmHelp'; help.setAttribute('aria-label', L('新手教學', 'Tutorial', { vi: 'Hướng dẫn' }));
+    root.querySelector('.hm-top').appendChild(help);
+    const homeTour = () => [
+      { el: null, t: L('這是你和寵物的家 ✦', 'This is home for you and your pet ✦', { vi: 'Đây là nhà của bạn và thú cưng ✦' }), d: L('牠會在這裡生活、長大。不用每天來，想到的時候回來看看就好。', "Your pet lives and grows here. No need to come every day — drop by whenever you think of it.", { vi: 'Thú cưng sống và lớn lên ở đây. Không cần ghé mỗi ngày — lúc nào nhớ thì ghé.' }) },
+      { el: () => H.petP && !H.visit ? { x: H.petP[0] - H.petP[2] * 1.3, y: H.petP[1] - H.petP[2] * 1.3, w: H.petP[2] * 2.6, h: H.petP[2] * 2.6 } : null, t: L('這是你的寵物', 'This is your pet', { vi: 'Đây là thú cưng của bạn' }), d: L('點牠一下，牠會回應你、跟你說話。', 'Tap it and it will respond and talk to you.', { vi: 'Chạm vào nó, nó sẽ đáp lại và nói chuyện với bạn.' }) },
+      { el: () => { const c = cv.getBoundingClientRect(), x = H.cw / 2; return { x: c.left + x - H.cw * .2, y: c.top + H.ch * .42, w: H.cw * .4, h: H.ch * .3 }; }, t: L('魔法小屋', 'The magic house', { vi: 'Ngôi nhà phép thuật' }), d: L('點門和窗戶看看——門後面藏著不同的地方。', 'Tap the doors and windows — each one opens somewhere different.', { vi: 'Chạm vào cửa và cửa sổ — mỗi cánh dẫn tới một nơi khác.' }) },
+      { el: '#hmTabCare', t: L('照顧', 'Care', { vi: 'Chăm sóc' }), d: L('餵食、玩耍、休息、探險、找聲音、拼回憶⋯⋯陪牠做一件小事。', 'Feed, play, rest, explore, find sounds, rebuild memories — do one small thing together.', { vi: 'Cho ăn, chơi, nghỉ, khám phá, tìm âm thanh, ghép ký ức — cùng làm một việc nhỏ.' }) },
+      { el: '#hmTabEdit', t: L('擺放', 'Arrange', { vi: 'Sắp xếp' }), d: L('把收集到的花、生物、裝飾放到星球上，拖曳就能換位置。', 'Place the flowers, creatures and decorations you collect — drag to move them.', { vi: 'Đặt hoa, sinh vật, đồ trang trí bạn sưu tầm — kéo để di chuyển.' }) },
+      { el: '#hmTabSound', t: L('聲景', 'Sounds', { vi: 'Âm thanh' }), d: L('混出屬於你的星球聲音：海浪、雨、營火、火車⋯⋯', 'Mix your planet\'s soundscape: waves, rain, campfire, a night train…', { vi: 'Tạo âm thanh riêng cho hành tinh: sóng, mưa, lửa trại, tàu đêm…' }) },
+      { el: '#hmTabBook', t: L('收藏', 'Collection', { vi: 'Bộ sưu tập' }), d: L('看看你已經遇見的所有東西，還有哪些還沒找到。', "See everything you've found — and what's still waiting.", { vi: 'Xem mọi thứ bạn đã tìm thấy — và những gì còn chờ.' }) },
+      { el: '#hmTabMore', t: L('更多', 'More', { vi: 'Thêm' }), d: L('寵物的成長、手勢、送禮、稱號和 INNERVERSE 卡都在這裡。', 'Growth, gestures, gifts, titles and your INNERVERSE Card live here.', { vi: 'Sự trưởng thành, cử chỉ, quà, danh hiệu và thẻ INNERVERSE ở đây.' }) },
+      { el: '#hmHelp', t: L('忘記了也沒關係', "Forgot? That's okay", { vi: 'Quên cũng không sao' }), d: L('隨時點右上角的 ？ 再看一次。', 'Tap ? at the top right any time to see this again.', { vi: 'Chạm ? ở góc trên bên phải để xem lại.' }) }
+    ];
+    help.addEventListener('click', () => { sheetClose(); Coach.run('home', homeTour()); });
+    $('hmHelpRow').addEventListener('click', () => Coach.run('home', homeTour()));
+    const tourHome = () => { if (!H.visit) Coach.auto('home', homeTour, () => H.on && !H.visit && !!H.petP && !H.sleep); };
     $('cdHome').textContent = L('去我的星球家園', 'Go to my planet home');
 
     const hooks = {};
@@ -16887,7 +17149,7 @@ function petSVG(i, opt = {}) {
       mb.hidden = !n; mb.textContent = `💌 ${n}`;
       gm.hidden = !n || state === 'universe'; gm.querySelector('b').textContent = n;
       if (sel && sel.me) { const mb2 = $('upMail'); mb2.hidden = !n; mb2.textContent = L(`💌 打開信件（${n}）`, `💌 Open letters (${n})`, { ja: `💌 手紙をひらく（${n}）`, ko: `💌 편지 열기(${n})`, vi: `💌 Mở thư (${n})` }); }
-      fb.hidden = !Fr.friends.size; fb.textContent = L(`✦ 友情星圖 ${Fr.friends.size}`, `✦ Friends ${Fr.friends.size}`, { ja: `✦ 友情星図 ${Fr.friends.size}`, ko: `✦ 우정 별자리 ${Fr.friends.size}`, vi: `✦ Bạn bè ${Fr.friends.size}` });
+      fb.hidden = !Fr.friends.size; fb.textContent = L(`🤝 朋友 ${Fr.friends.size}`, `🤝 Friends ${Fr.friends.size}`, { ja: `🤝 ともだち ${Fr.friends.size}`, ko: `🤝 친구 ${Fr.friends.size}`, vi: `🤝 Bạn bè ${Fr.friends.size}` });
     }
     function openMail() {
       const q = Fr.queue.find(x => x.kind !== 'outcome'); if (!q || Fr.D) return;
@@ -17382,6 +17644,19 @@ function petSVG(i, opt = {}) {
     $('evGo').addEventListener('click', () => evGo());
     $('upMail').addEventListener('click', () => openMail());
     $('uvFriends').addEventListener('click', () => openFriends());
+    // 宇宙的新手教學：第一次來會自動出現；之後點「教學」重看
+    const uvTour = () => [
+      { el: null, t: L('歡迎來到 INNERVERSE 宇宙 ✦', 'Welcome to the INNERVERSE ✦', { ja: 'INNERVERSE の宇宙へようこそ ✦', ko: 'INNERVERSE 우주에 온 걸 환영해요 ✦', vi: 'Chào mừng đến vũ trụ INNERVERSE ✦' }), d: L('每一顆星球都是一位旅人的內心。標著 YOU 的那一顆是你的——點它可以看你的資料。', "Every planet is a traveler's inner world. The one marked YOU is yours — tap it to see your details.", { ja: 'ひとつひとつの星は、旅人の心。YOU と書かれた星があなたのもの。タップすると詳しく見られます。', ko: '모든 행성은 한 여행자의 마음이에요. YOU라고 표시된 행성이 당신의 것 — 눌러서 정보를 볼 수 있어요.', vi: 'Mỗi hành tinh là thế giới nội tâm của một lữ khách. Hành tinh ghi YOU là của bạn — chạm để xem.' }) },
+      { el: null, t: L('怎麼移動？', 'How to move around', { ja: 'うごかしかた', ko: '움직이는 방법', vi: 'Cách di chuyển' }), d: L('一根手指拖曳：旋轉宇宙；兩根手指：放大縮小；點一顆星球：飛過去看看。', 'Drag with one finger to turn the universe, pinch with two to zoom, and tap a planet to fly there.', { ja: '1本指でドラッグして回す、2本指で拡大・縮小、星をタップして飛んでいく。', ko: '한 손가락으로 드래그해 회전, 두 손가락으로 확대·축소, 행성을 누르면 날아가요.', vi: 'Kéo một ngón để xoay, hai ngón để phóng to/thu nhỏ, chạm hành tinh để bay tới.' }) },
+      { el: '#uvMyHome', t: L('家園', 'Home', { ja: 'わたしの家', ko: '내 집', vi: 'Nhà' }), d: L('你的寵物住在這裡。照顧牠、佈置你的星球。', 'Your pet lives here. Care for it and decorate your planet.', { ja: 'ペットが住んでいる場所。お世話をしたり、星をかざったり。', ko: '펫이 사는 곳. 돌봐 주고 행성을 꾸며요.', vi: 'Thú cưng sống ở đây. Chăm sóc và trang trí hành tinh.' }) },
+      { el: '#uvPlay', t: L('一起玩', 'Play together', { ja: 'いっしょにあそぶ', ko: '함께 놀기', vi: 'Chơi cùng nhau' }), d: L('和其他旅人一起玩小遊戲：舞蹈、共鳴之境、星星默劇、星球球⋯⋯', 'Play mini-games with other travelers: dance, Echo, Star Mime, Star Ball…', { ja: 'ほかの旅人とミニゲーム：ダンス、共鳴、スターマイム、スターボール…', ko: '다른 여행자와 미니게임: 댄스, 공명, 별빛 마임, 스타볼…', vi: 'Chơi minigame với lữ khách khác: nhảy, Cộng hưởng, Kịch câm, Bóng sao…' }) },
+      { el: '#uvFriends', t: L('朋友', 'Friends', { ja: 'ともだち', ko: '친구', vi: 'Bạn bè' }), d: L('一起跳過舞的人會變成朋友，星星之間會連起一條線。', 'People you dance with become friends, joined by a line of stars.', { ja: 'いっしょに踊った人は友だちに。星と星が線でつながります。', ko: '함께 춤춘 사람은 친구가 되고, 별과 별이 선으로 이어져요.', vi: 'Người cùng nhảy sẽ thành bạn bè, nối bằng một đường sao.' }) },
+      { el: '#uvCode', t: L('星球代碼', 'Planet Code', { ja: '星のコード', ko: '행성 코드', vi: 'Mã hành tinh' }), d: L('把你的代碼給朋友，或輸入朋友的代碼飛去他的星球。', "Share your code with friends, or enter theirs to fly to their planet.", { ja: 'コードを友だちに教えたり、友だちのコードでその星へ飛んだり。', ko: '코드를 친구에게 알려 주거나, 친구 코드로 그 행성에 날아가요.', vi: 'Chia sẻ mã của bạn, hoặc nhập mã bạn bè để bay tới.' }) },
+      { el: '#uvAll', t: L('全景', 'Overview', { ja: 'ぜんたい', ko: '전체 보기', vi: 'Toàn cảnh' }), d: L('一鍵拉遠，看見整座宇宙。', 'Zoom all the way out to see the whole universe.', { ja: 'ボタンひとつで宇宙ぜんたいを見わたす。', ko: '한 번에 멀리서 우주 전체를 봐요.', vi: 'Thu nhỏ để thấy cả vũ trụ.' }) },
+      { el: '#uvHand', t: L('手勢', 'Gestures', { ja: 'ジェスチャー', ko: '제스처', vi: 'Cử chỉ' }), d: L('打開相機，用手掌轉動宇宙（不想用也完全沒關係）。', "Turn on the camera and steer with your palm (totally optional).", { ja: 'カメラをつけて、手のひらで宇宙を回す（使わなくても大丈夫）。', ko: '카메라를 켜고 손바닥으로 우주를 돌려요(선택 사항).', vi: 'Bật camera và xoay vũ trụ bằng lòng bàn tay (không bắt buộc).' }) },
+      { el: '#uvHelp', t: L('忘記了也沒關係', "Forgot? That's okay", { ja: 'わすれても大丈夫', ko: '잊어도 괜찮아요', vi: 'Quên cũng không sao' }), d: L('隨時點「教學」再看一次。', 'Tap Help any time to see this again.', { ja: 'いつでも「つかいかた」でもう一度。', ko: '언제든 도움말을 눌러 다시 볼 수 있어요.', vi: 'Chạm Hướng dẫn bất cứ lúc nào để xem lại.' }) }
+    ];
+    $('uvHelp').addEventListener('click', () => Coach.run('uv', uvTour()));
     $('uvPlay').addEventListener('click', () => { if (sel) back(); Arena.openLobby(); });
     $('uvMyHome').addEventListener('click', () => Cosmos.open());
     // 星球代碼：輸入朋友的代碼，飛過去
@@ -17519,10 +17794,10 @@ function petSVG(i, opt = {}) {
 
     /* ---------- 手勢 ---------- */
     handB.addEventListener('click', async () => {
-      if (hand.on) { Hand.stop(); hand.on = false; root.classList.remove('g-on'); handB.textContent = L('🖐️ 手勢控制', '🖐️ Hand control'); return; }
-      handB.disabled = true; handB.textContent = L('開啟相機中…', 'Starting camera…');
-      try { await Hand.start(); hand.on = true; root.classList.add('g-on'); handB.textContent = L('關閉手勢', 'Turn off hand control'); toast(L('🖐️ 張開手掌移動，就能轉動宇宙', '🖐️ Move an open palm to turn the universe')); }
-      catch (e) { console.error('hand:', e); toast(L('相機暫時無法使用，可以用滑鼠或手指操作。', 'Camera unavailable — use your mouse or finger instead.')); handB.textContent = L('🖐️ 手勢控制', '🖐️ Hand control'); }
+      if (hand.on) { Hand.stop(); hand.on = false; root.classList.remove('g-on'); handB.textContent = L('🖐️ 手勢', '🖐️ Gestures'); return; }
+      handB.disabled = true; handB.textContent = L('開啟中…', 'Starting…', { ja: '起動中…', ko: '켜는 중…', vi: 'Đang mở…' });
+      try { await Hand.start(); hand.on = true; root.classList.add('g-on'); handB.textContent = L('🖐️ 關閉', '🖐️ Stop', { ja: '🖐️ やめる', ko: '🖐️ 끄기', vi: '🖐️ Tắt' }); toast(L('🖐️ 張開手掌移動，就能轉動宇宙', '🖐️ Move an open palm to turn the universe')); }
+      catch (e) { console.error('hand:', e); toast(L('相機暫時無法使用，可以用滑鼠或手指操作。', 'Camera unavailable — use your mouse or finger instead.')); handB.textContent = L('🖐️ 手勢', '🖐️ Gestures'); }
       handB.disabled = false;
     });
     function handStep(dt) {
@@ -17599,6 +17874,7 @@ function petSVG(i, opt = {}) {
         evPoll(); clearInterval(EV.t); EV.t = setInterval(evPoll, 5000);
         // 3V3 小遊戲：有 Firebase 才開；朋友傳來的 ?play=房間代碼 直接加入
         $('uvPlay').hidden = !FB.on(); $('uvMyHome').hidden = !Me.get(); $('uvCode').hidden = false;
+        Coach.auto('uv', uvTour, () => my === token && root.classList.contains('h-on') && !root.classList.contains('c-on') && !Cosmos.on && !Arena.on);
         const pc = (location.search.match(/[?&]play=([A-Za-z0-9]{5})/) || [])[1];
         if (pc && FB.on() && !start.played) { start.played = true; Arena.join(pc); }
       } catch (e) { if (!(e instanceof Cancel)) throw e; }
@@ -17651,7 +17927,7 @@ function petSVG(i, opt = {}) {
       clearInterval(EV.t); EV.going = false; EV.carry = 0; EV.frags = []; EV.beams = []; EV.dance = 0; EV.data = null; $('uvEvent').hidden = true; toastQ.length = 0; clearTimeout(toastT); toastBusy = false; toastEl.classList.remove('on'); ['mailDlg', 'frDlg'].forEach(id => $(id).classList.remove('on'));
       root.className = 'uv'; finEl.classList.remove('on'); $('uvFinBtns').classList.remove('on');
       UVS.a = 0; UVS.allGlow = 0; UVS.wave = -1; UVS.petPeek = 0;
-      if (hand.on) { Hand.stop(); hand.on = false; handB.textContent = L('🖐️ 手勢控制', '🖐️ Hand control'); }
+      if (hand.on) { Hand.stop(); hand.on = false; handB.textContent = L('🖐️ 手勢', '🖐️ Gestures'); }
       canvas.style.cursor = '';
       if (!keep) { visited = new Set(); finaleDone = false; }
     }

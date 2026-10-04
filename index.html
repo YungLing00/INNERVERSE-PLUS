@@ -235,6 +235,7 @@
   .hm-cb { background: linear-gradient(165deg, rgba(92,70,170,.5), rgba(24,16,56,.66)) !important; border-color: rgba(255,230,190,.28) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.2), inset 0 -8px 14px rgba(10,5,30,.25), 0 6px 16px rgba(0,0,0,.28); border-radius: 17px !important; }
   .hm-cb .ivi { width: 24px; height: 24px; margin: 0 0 1px; }
   .hm-x { background: linear-gradient(165deg, rgba(92,70,170,.45), rgba(24,16,56,.6)) !important; border-color: rgba(255,230,190,.3) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 6px 16px rgba(0,0,0,.28); color: #fff3dc !important; }
+  @media (max-width: 600px) and (max-height: 900px) { .hm-side { display: grid !important; grid-template-columns: repeat(2, auto); gap: 6px !important; direction: rtl; } .hm-side .pill { direction: ltr; min-height: 48px; padding: 5px 6px 4px; } }
   @media (max-width: 380px) { .hm-side .pill { min-width: 50px; min-height: 48px; font-size: .58rem; } .hm-side .pill .ivi { width: 21px; height: 21px; } }
   .hm-homage { font-size: .6rem !important; color: rgba(255,226,190,.55) !important; letter-spacing: .06em !important; }
   .hm-code { font-family: var(--latin); letter-spacing: .18em !important; color: rgba(255,226,170,.75) !important; }
@@ -302,6 +303,27 @@
   #pcIn { text-transform: uppercase; letter-spacing: .14em; }
   .rs-card { margin: 1.6rem auto 0; display: block; }
   .rs-card + .rs-feel { margin-top: .7rem; }
+  /* 手勢系統 */
+  .gx-layer { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 70; pointer-events: none; }
+  .gx-tip { position: fixed; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 64px); transform: translate(-50%, -8px); z-index: 71; display: flex; align-items: center; gap: 8px; padding: .45rem .95rem .45rem .5rem; border-radius: 99px; background: linear-gradient(165deg, rgba(92,70,170,.85), rgba(24,16,56,.9)); border: 1px solid rgba(255,230,190,.35); color: #fff3dc; font-family: var(--tc); font-size: .82rem; letter-spacing: .08em; opacity: 0; transition: opacity .3s ease, transform .3s ease; pointer-events: none; box-shadow: 0 8px 24px rgba(0,0,0,.35); max-width: calc(100vw - 32px); }
+  .gx-tip.on { opacity: 1; transform: translate(-50%, 0); }
+  .gx-tip img { width: 30px; height: 30px; }
+  .gx-tip.big { top: 32%; padding: .8rem 1.3rem .8rem .8rem; font-size: 1rem; letter-spacing: .14em; border-color: rgba(255,226,170,.8); box-shadow: 0 0 40px rgba(255,210,140,.45); }
+  .gx-tip.big img { width: 48px; height: 48px; animation: iviTw 1.4s ease-in-out infinite; }
+  .gx-pad { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 6px; }
+  .gx-pb { display: grid; justify-items: center; gap: 2px; padding: 6px 2px 5px; border-radius: 14px; border: 1px solid rgba(255,230,190,.28); background: linear-gradient(165deg, rgba(92,70,170,.45), rgba(24,16,56,.6)); color: #fff3dc; font-family: var(--tc); font-size: .62rem; letter-spacing: .04em; cursor: pointer; }
+  .gx-pb img { width: 30px; height: 30px; }
+  .gx-pb.locked { opacity: .45; }
+  .gx-pb:active { transform: scale(.94); }
+  .gx-book { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: .6rem; }
+  .gx-card { display: grid; grid-template-columns: 40px 1fr; grid-template-rows: auto auto auto; column-gap: 8px; align-items: center; padding: 8px 10px; border-radius: 14px; border: 1px solid rgba(255,226,170,.28); background: rgba(255,255,255,.05); font-size: .76rem; }
+  .gx-card img { grid-row: 1 / 4; width: 40px; height: 40px; }
+  .gx-card b { font-weight: 400; letter-spacing: .08em; color: #fff3dc; }
+  .gx-card small { color: var(--dim); font-size: .66rem; line-height: 1.5; }
+  .gx-card em { font-style: normal; color: rgba(255,226,170,.8); font-size: .64rem; line-height: 1.5; }
+  .gx-card.locked { opacity: .5; } .gx-card.secret { border-color: rgba(200,170,255,.45); }
+  .hm-gx { position: absolute; left: calc(env(safe-area-inset-left, 0px) + 10px); bottom: calc(env(safe-area-inset-bottom, 0px) + 150px); display: none; flex-direction: column; gap: 6px; }
+  .home.gx .hm-gx { display: flex; }
   /* 自己畫的圖示（取代 emoji） */
   .ivi { display: inline-block; width: 1.22em; height: 1.22em; margin: 0 .03em; vertical-align: -.27em; background: center / contain no-repeat; transform-origin: 50% 70%; animation: 3.2s ease-in-out infinite; pointer-events: none; }
   .ivi-bob { animation-name: iviBob; } .ivi-sway { animation-name: iviSway; } .ivi-pulse { animation-name: iviPulse; } .ivi-twinkle { animation-name: iviTw; animation-duration: 2.2s; }
@@ -1501,7 +1523,7 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
 <section class="home" id="home" aria-label="星球家園">
   <canvas id="hmCv"></canvas>
   <div class="hm-top"><button class="hm-x" id="hmClose" type="button" aria-label="回到宇宙">×</button><div class="hm-h"><b id="hmName"></b><small id="hmTitle"></small><small class="hm-code" id="hmCode"></small><small class="hm-homage">致敬 Disney《魔法滿屋》Encanto</small></div></div>
-  <div class="hm-side"><button class="pill" id="hmBook" type="button">📖 圖鑑</button><button class="pill" id="hmSound" type="button">🎵 聲景</button><button class="pill" id="hmGift" type="button">🎁 送禮</button><button class="pill" id="hmTitleB" type="button">🏷️ 稱號</button><button class="pill" id="hmPal" type="button">🐾 牠</button><button class="pill" id="hmCardB" type="button">🪪 卡片</button><button class="pill" id="hmEdit" type="button">✏️ 擺放</button></div>
+  <div class="hm-side"><button class="pill" id="hmBook" type="button">📖 圖鑑</button><button class="pill" id="hmSound" type="button">🎵 聲景</button><button class="pill" id="hmGift" type="button">🎁 送禮</button><button class="pill" id="hmTitleB" type="button">🏷️ 稱號</button><button class="pill" id="hmPal" type="button">🐾 牠</button><button class="pill" id="hmGest" type="button">🖐️ 手勢</button><button class="pill" id="hmCardB" type="button">🪪 卡片</button><button class="pill" id="hmEdit" type="button">✏️ 擺放</button></div>
   <p class="hm-msg" id="hmMsg" role="status"></p>
   <div class="hm-care" id="hmCare"></div>
   <div class="hm-ask" id="hmAsk"></div>
@@ -1522,6 +1544,8 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
     <div class="bd-acts"><button class="ghost" id="pcCopy" type="button">複製我的代碼</button><button class="ghost" id="pcClose" type="button">關閉</button></div>
   </div>
 </div>
+<canvas class="gx-layer" id="gxLayer" aria-hidden="true"></canvas>
+<div class="gx-tip" id="gxTip" role="status"></div>
 <div class="mem-scene" id="memScene" role="dialog" aria-modal="true"><canvas id="memCv"></canvas><p class="mem-cap" id="memCap"></p><button class="hm-x mem-x" id="memX" type="button" aria-label="關閉">×</button></div>
 <div class="back-dlg cos-dlg" id="cosDlg" role="dialog" aria-modal="true" aria-labelledby="cdName">
   <div class="bd-card cd-card">
@@ -1606,7 +1630,7 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
     if (kind === 'clap') { g.save(); g.rotate(-.3); fing(-.12, .7, 1.25, -.08, .55); g.restore(); g.save(); g.rotate(.3); fing(.12, .7, 1.25, .08, .55); g.restore(); line(g, .07, '#ffd27a', [[-.7, -.85], [-.55, -.65]]); line(g, .07, '#ffd27a', [[.7, -.85], [.55, -.65]]); line(g, .07, '#ffd27a', [[0, -1], [0, -.8]]); return; }
     if (kind === 'shake') { g.save(); g.rotate(-.15); rr(g, -.95, -.15, 1.2, .5, .25); fill(g, skin); g.restore(); g.save(); g.rotate(.15); rr(g, -.25, -.25, 1.2, .5, .25); fill(g, rgd(g, .3, 0, .8, '#ffe0c4', '#e8a07a')); g.restore(); return; }
     rr(g, -.48, -.15, .96, .95, .38); fill(g, skin);
-    const F = { open: [1, 1, 1, 1, 1], fist: [0, 0, 0, 0, 0], peace: [0, 1, 1, 0, 0], pinch: [2, 2, 0, 0, 0], rock: [1, 1, 0, 0, 1] }[kind] || [1, 1, 1, 1, 1];
+    const F = { open: [1, 1, 1, 1, 1], fist: [0, 0, 0, 0, 0], peace: [0, 1, 1, 0, 0], pinch: [2, 2, 0, 0, 0], rock: [1, 1, 0, 0, 1], point: [0, 1, 0, 0, 0] }[kind] || [1, 1, 1, 1, 1];
     const fx = [-.33, -.11, .11, .33], fl = [.62, .72, .68, .55];
     for (let i = 0; i < 4; i++) { if (F[i + 1] === 1) fing(fx[i], -.05, fl[i], (i - 1.5) * .08); else { ell(g, fx[i], -.12, .12, .1, 0, skin); } }
     if (F[0] === 1) fing(-.5, .25, .55, -.9, .22); else if (F[0] === 2) { fing(-.42, .2, .5, -.5, .22); fing(-.15, -.1, .45, .5, .2); ball(g, -.42, -.42, .08, '#fff', '#ffd27a'); } else ell(g, -.42, .2, .14, .2, -.5, skin);
@@ -1757,6 +1781,30 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
   def('hand_cup', 'bob', '255,220,200', g => hand(g, 'cup'));
   def('hand_clap', 'pulse', '255,220,200', g => hand(g, 'clap'));
   def('hand_shake', 'pulse', '255,220,200', g => hand(g, 'shake'));
+  // 手勢圖鑑用的圖示（手的動作）
+  const sub = (g, x, y, s, rot, fn) => { g.save(); g.translate(x, y); g.rotate(rot || 0); g.scale(s, s); fn(); g.restore(); };
+  const glowDot = (g, x, y, r, c) => { const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, `rgba(${c},.95)`); gr.addColorStop(1, `rgba(${c},0)`); g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill(); };
+  def('g_wave', 'sway', '255,220,200', g => { sub(g, -.1, .05, .85, -.3, () => hand(g, 'open')); arcS(g, .2, -.1, .55, -1.1, -.3, .07, '#ffd27a'); arcS(g, .2, -.1, .75, -1.0, -.4, .06, 'rgba(255,210,122,.6)'); });
+  def('g_heart', 'pulse', '255,160,200', g => { heartP(g, 0, -.1, .7); fill(g, rgd(g, -.1, -.2, .8, '#ffe0ee', '#ff6a9a')); ell(g, -.42, .62, .22, .3, .5, rgd(g, -.42, .6, .3, '#ffe9d6', '#f2b38f')); ell(g, .42, .62, .22, .3, -.5, rgd(g, .42, .6, .3, '#ffe9d6', '#f2b38f')); shine(g, -.3, -.35, .14, .08, .7); });
+  def('g_arms', 'pulse', '255,220,200', g => { sub(g, -.58, .1, .5, -.5, () => hand(g, 'open')); sub(g, .58, .1, .5, .5, () => hand(g, 'open')); g.setLineDash([.08, .08]); arcS(g, 0, .4, .55, PI * 1.15, PI * 1.85, .05, 'rgba(255,214,140,.9)'); g.setLineDash([]); heartP(g, 0, -.15, .18); fill(g, '#ff8ab4'); });
+  def('g_quiet', 'pulse', '255,220,200', g => { sub(g, -.12, .08, .78, .12, () => { g.scale(.62, 1); hand(g, 'open'); }); sub(g, .12, .08, .78, -.12, () => { g.scale(-.62, 1); hand(g, 'open'); }); glowDot(g, 0, -.55, .3, '255,240,200'); });
+  def('g_stop', 'pulse', '255,220,200', g => { sub(g, 0, .08, .9, 0, () => hand(g, 'open')); g.save(); g.globalAlpha = .9; [[-.75, -.7], [.75, -.6], [-.7, .55], [.72, .62]].forEach(([x, y]) => { ball(g, x, y, .06, '#fff', '#c8d8ff'); }); g.restore(); });
+  def('hand_point', 'sway', '255,220,200', g => hand(g, 'point'));
+  def('g_up', 'bob', '255,220,200', g => { sub(g, 0, .12, .88, 0, () => hand(g, 'point')); starP(g, .55, -.75, .18, .08); fill(g, '#ffe08a'); });
+  def('g_right', 'sway', '255,220,200', g => sub(g, -.05, 0, .88, PI / 2, () => hand(g, 'point')));
+  def('g_left', 'sway', '255,220,200', g => sub(g, .05, 0, .88, -PI / 2, () => hand(g, 'point')));
+  def('g_down', 'bob', '255,220,200', g => sub(g, 0, -.1, .88, PI, () => hand(g, 'point')));
+  def('g_release', 'pulse', '255,220,160', g => { for (let i = 0; i < 10; i++) { const a = i / 10 * TAU; line(g, .05, 'rgba(255,226,150,.85)', [[Math.cos(a) * .62, Math.sin(a) * .62], [Math.cos(a) * .95, Math.sin(a) * .95]]); } sub(g, 0, .08, .7, 0, () => hand(g, 'open')); });
+  def('g_raise', 'bob', '255,220,200', g => { sub(g, -.42, .15, .55, -.25, () => hand(g, 'open')); sub(g, .42, .15, .55, .25, () => hand(g, 'open')); [[-.1, -.8], [.15, -.9], [0, -.65]].forEach(([x, y]) => { starP(g, x, y, .12, .05); fill(g, '#ffe08a'); }); });
+  def('g_circle', 'spin', '220,200,255', g => { g.setLineDash([.12, .09]); arcS(g, .05, -.05, .75, 0, TAU, .08, '#c8b4ff'); g.setLineDash([]); sub(g, .45, .45, .45, -.6, () => hand(g, 'point')); });
+  def('g_line', 'sway', '220,200,255', g => { g.beginPath(); g.moveTo(-.9, .5); g.bezierCurveTo(-.5, -.6, .1, .6, .5, -.4); g.lineWidth = .09; g.strokeStyle = '#c8b4ff'; g.lineCap = 'round'; g.stroke(); [[-.9, .5], [-.3, -.05], [.5, -.4]].forEach(([x, y]) => ball(g, x, y, .09, '#fff', '#b9a4ff')); sub(g, .62, -.2, .42, .5, () => hand(g, 'point')); });
+  def('g_near', 'pulse', '255,220,200', g => { sub(g, -.55, .05, .48, .45, () => hand(g, 'open')); sub(g, .55, .05, .48, -.45, () => hand(g, 'open')); line(g, .07, '#ffd27a', [[-.15, -.7], [.05, -.55], [-.15, -.4]]); line(g, .07, '#ffd27a', [[.25, -.7], [.05, -.55], [.25, -.4]]); });
+  def('g_light', 'pulse', '255,230,170', g => { glowDot(g, 0, -.2, .75, '255,236,180'); ball(g, 0, -.2, .3, '#fffbe6', '#ffd27a'); sub(g, -.3, .35, .55, .2, () => hand(g, 'cup')); });
+  def('g_touch', 'twinkle', '255,226,170', g => { sub(g, -.55, .15, .55, PI / 2, () => hand(g, 'point')); sub(g, .55, .15, .55, -PI / 2, () => hand(g, 'point')); glowDot(g, 0, .02, .35, '255,236,180'); starP(g, 0, .02, .22, .1); fill(g, '#fff6c8'); });
+  def('g_halfheart', 'pulse', '255,160,200', g => { g.save(); g.beginPath(); g.rect(-1, -1, .97, 2); g.clip(); heartP(g, -.06, 0, .8); fill(g, rgd(g, -.3, -.2, .8, '#ffe0ee', '#ff6a9a')); g.restore(); g.save(); g.beginPath(); g.rect(.03, -1, 1, 2); g.clip(); heartP(g, .06, 0, .8); fill(g, rgd(g, .3, -.2, .8, '#ffe8d8', '#ff8a6a')); g.restore(); g.fillStyle = '#fff6c8'; sparkP(g, 0, -.65, .2); g.fill(); });
+  def('g_supernova', 'pulse', '255,220,160', g => { for (let i = 0; i < 16; i++) { const a = i / 16 * TAU, r = i % 2 ? .95 : .7; line(g, .06, i % 2 ? 'rgba(255,200,240,.8)' : 'rgba(255,236,170,.9)', [[Math.cos(a) * .35, Math.sin(a) * .35], [Math.cos(a) * r, Math.sin(a) * r]]); } starP(g, 0, 0, .45, .2, 8, 0); fill(g, rgd(g, 0, 0, .45, '#ffffff', '#ffc24a')); });
+  def('g_moon', 'bob', '255,236,170', g => { g.beginPath(); g.arc(0, -.05, .55, 0, TAU); g.arc(.25, -.2, .45, 0, TAU, true); fill(g, rgd(g, -.2, 0, .6, '#fffbe6', '#ffd36b')); arcS(g, 0, .05, .85, PI * .15, PI * .85, .1, 'rgba(255,214,190,.9)'); arcS(g, 0, -.05, .85, PI * 1.05, PI * 1.95, .1, 'rgba(255,214,190,.9)'); });
+  def('g_constellation', 'twinkle', '220,220,255', g => { const P2 = [[-.75, .4], [-.3, -.35], [.15, .1], [.55, -.6], [.8, .3]]; line(g, .04, 'rgba(210,220,255,.8)', P2); P2.forEach(([x, y], i) => { starP(g, x, y, i === 3 ? .2 : .14, i === 3 ? .09 : .06); fill(g, '#fff6c8'); }); });
   // 星座符號：用金色的字畫（強制文字樣式，不會變成彩色 emoji）
   const ZOD = '♈♉♊♋♌♍♎♏♐♑♒♓';
   [...ZOD].forEach(ch => def('z' + ch, 'twinkle', '255,220,150', g => { ball(g, 0, 0, .9, 'rgba(120,90,200,.55)', 'rgba(60,40,120,.2)'); g.save(); g.shadowBlur = 0; g.fillStyle = '#ffe2aa'; g.font = '1.2px "Noto Serif TC", serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; RAW.fill.call(g, ch + '︎', 0, .06); g.restore(); }));
@@ -4586,7 +4634,7 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
     };
   // 陪伴者更新的靜態文字（日／韓／越）
   Object.assign(I18N, {
-    "Homage to Disney's Encanto": ['ディズニー『ミラベルと魔法だらけの家』へのオマージュ', '디즈니 〈엔칸토: 마법의 세계〉에 바치는 오마주', 'Tri ân Encanto của Disney'],
+    '🖐️ Gestures': ['🖐️ ジェスチャー', '🖐️ 제스처', '🖐️ Cử chỉ'], "Homage to Disney's Encanto": ['ディズニー『ミラベルと魔法だらけの家』へのオマージュ', '디즈니 〈엔칸토: 마법의 세계〉에 바치는 오마주', 'Tri ân Encanto của Disney'],
     '🐾 My pet': ['🐾 ペット', '🐾 내 펫', '🐾 Thú cưng'], '🪪 Card': ['🪪 カード', '🪪 카드', '🪪 Thẻ'], '🔑 Planet Code': ['🔑 星のコード', '🔑 행성 코드', '🔑 Mã hành tinh'],
     '🌙 Listen before sleep': ['🌙 ねる前にいっしょに聴く', '🌙 자기 전에 함께 듣기', '🌙 Cùng nghe trước khi ngủ'], 'Pick a few sounds and let the planet grow quiet.': ['いくつか音をえらんで、星をしずかにしよう。', '소리 몇 개를 골라 행성을 조용히 재워요.', 'Chọn vài âm thanh để hành tinh dần yên tĩnh.'], 'Done': ['おわる', '끝내기', 'Xong'],
     '✦ Share my INNERVERSE': ['✦ わたしの INNERVERSE をシェア', '✦ 나의 INNERVERSE 공유', '✦ Chia sẻ INNERVERSE của tôi'], 'Enter my planet': ['わたしの星へ', '내 행성으로', 'Vào hành tinh của tôi'], 'Save image': ['画像を保存', '이미지 저장', 'Lưu ảnh'], 'Close': ['とじる', '닫기', 'Đóng'],
@@ -4611,7 +4659,7 @@ body[data-state="idle"] .ai-note { bottom: auto; top: calc(env(safe-area-inset-t
   const HTML_EN = {
     '長按加速': 'Hold to speed up', '跳過開場 ⏭': 'Skip intro ⏭',
     '✦ 開始探索': '✦ Start exploring',
-    '致敬 Disney《魔法滿屋》Encanto': "Homage to Disney's Encanto", '🐾 牠': '🐾 My pet', '🪪 卡片': '🪪 Card', '🔑 星球代碼': '🔑 Planet Code', '🌙 睡前一起聽': '🌙 Listen before sleep', '選幾個聲音，讓星球慢慢安靜下來。': 'Pick a few sounds and let the planet grow quiet.', '結束': 'Done',
+    '致敬 Disney《魔法滿屋》Encanto': "Homage to Disney's Encanto", '🖐️ 手勢': '🖐️ Gestures', '🐾 牠': '🐾 My pet', '🪪 卡片': '🪪 Card', '🔑 星球代碼': '🔑 Planet Code', '🌙 睡前一起聽': '🌙 Listen before sleep', '選幾個聲音，讓星球慢慢安靜下來。': 'Pick a few sounds and let the planet grow quiet.', '結束': 'Done',
     '✦ 分享我的 INNERVERSE': '✦ Share my INNERVERSE', '進入我的星球': 'Enter my planet', '存成圖片': 'Save image', '關閉': 'Close', '✦ 領取我的 INNERVERSE 卡': '✦ Get my INNERVERSE Card',
     '用星球代碼拜訪': 'Visit with a Planet Code', '輸入朋友的星球代碼，就能飛到他的星球。': "Enter a friend's Planet Code to fly to their planet.", '出發': 'Go', '複製我的代碼': 'Copy my code',
     '🏠 家園': '🏠 Home', '📖 圖鑑': '📖 Collection', '🎵 聲景': '🎵 Sounds', '🎁 送禮': '🎁 Give', '🏷️ 稱號': '🏷️ Titles', '✏️ 擺放': '✏️ Arrange',
@@ -9913,7 +9961,8 @@ function petSVG(i, opt = {}) {
     const S = { mode: 'off', present: false, open: 0, ext: 0, palm: [.5, .5], lost: 0 };
     const MP = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
     const MODEL = 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task';
-    let stream = null, lmk = null, raf = 0, last = 0, pts = null;
+    let stream = null, lmk = null, raf = 0, last = 0, pts = null, nHands = 1;
+    const subs = new Set();
     const vid = () => $('rtVid');
     const d2 = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
@@ -9954,6 +10003,8 @@ function petSVG(i, opt = {}) {
       const v = vid(); if (v.readyState < 2) return;
       let res; try { res = lmk.detectForVideo(v, now); } catch (e) { return; }
       feed((res.landmarks && res.landmarks[0]) || null, dt); drawCam();
+      // 每一隻手的完整資料給手勢系統（GX）
+      const all = res.landmarks || []; subs.forEach(fn => { try { fn(all, dt, now); } catch (e) { console.warn('hand sub:', e); } });
     }
     // 允許過相機就記住：之後不再跳出「要不要用相機」的詢問
     const remember = v => { try { v ? localStorage.setItem('iv_cam', 'yes') : localStorage.removeItem('iv_cam'); } catch (_) { /* ignore */ } };
@@ -9973,7 +10024,7 @@ function petSVG(i, opt = {}) {
       if (!lmk) {
         const mod = await import(`${MP}/vision_bundle.mjs`);
         const files = await mod.FilesetResolver.forVisionTasks(`${MP}/wasm`);
-        const mk = delegate => mod.HandLandmarker.createFromOptions(files, { baseOptions: { modelAssetPath: MODEL, delegate }, runningMode: 'VIDEO', numHands: 1 });
+        const mk = delegate => mod.HandLandmarker.createFromOptions(files, { baseOptions: { modelAssetPath: MODEL, delegate }, runningMode: 'VIDEO', numHands: nHands });
         try { lmk = await mk('GPU'); } catch (e) { lmk = await mk('CPU'); }
       }
       S.mode = 'cam'; $('rtCam').classList.add('on'); last = 0; cancelAnimationFrame(raf); raf = requestAnimationFrame(loop);
@@ -9992,7 +10043,328 @@ function petSVG(i, opt = {}) {
       lmk = null;
     }
     addEventListener('pagehide', () => { S.mode = 'off'; release(); });
-    return { S, start, stop, feed, allowed };
+    // 要偵測幾隻手：一般 2 隻（雙手手勢），兩個人一起玩時 4 隻
+    async function hands(n) { nHands = n; if (lmk && lmk.setOptions) { try { await lmk.setOptions({ numHands: n }); } catch (e) { console.warn('numHands:', e); } } }
+    return { S, start, stop, feed, allowed, hands, sub: fn => { subs.add(fn); return () => subs.delete(fn); }, get live() { return S.mode === 'cam'; } };
+  })();
+  /* ================================================================
+     INNERVERSE Gesture System
+     「沒有嘴巴的寵物，用身體理解你。」
+     手的位置、方向、速度、停留時間、兩個人的同步程度，就是牠理解你的語言。
+     五種手勢語言：Express 表達・Guide 引導・Connect 連結・Create 創造・Play 遊戲
+     18 個基礎手勢可以組合成很多互動；另外 6 個組合手勢要自己去發現。
+     ================================================================ */
+  const GX = (() => {
+    // id, 圖示, 中文, English, Tiếng Việt, 類型, 一開始就知道？, 怎麼做（中／英）, 會發生什麼（中／英）
+    const BOOK = [
+      ['wave', 'g_wave', '揮手', 'Wave', 'Vẫy tay', 'express', 1, '張開手掌，左右揮一揮', 'Open palm, wave side to side', '寵物愣一下，發現是你，飛奔過來', 'Your pet pauses, realizes it’s you, and rushes over'],
+      ['heart', 'g_heart', '愛心', 'Heart', 'Trái tim', 'express', 1, '兩手的拇指和食指碰在一起', 'Touch both thumbs and index fingers together', '寵物身體亮起來；比久一點，周圍長出光花', 'Your pet glows; hold it and light-flowers bloom'],
+      ['hold', 'hand_cup', '捧手', 'Hold', 'Nâng niu', 'express', 1, '兩手併攏、手心向上', 'Bring both hands together, palms up', '寵物慢慢變小，降落在你的手心，跟著你的手移動', 'Your pet shrinks, lands in your palms and follows your hands'],
+      ['arms', 'g_arms', '張開雙手', 'Open Arms', 'Dang tay', 'express', 0, '兩手張開、分得很開', 'Open both hands wide apart', '寵物看著你，跑過來給你一個抱抱', 'Your pet looks at you and runs in for a hug'],
+      ['quiet', 'g_quiet', '合掌', 'Quiet', 'Chắp tay', 'express', 0, '兩手掌心貼在一起，停一下', 'Press your palms together and stay still', 'Quiet Mode：聲音變小、粒子變慢，寵物坐下，世界一起安靜', 'Quiet Mode: sound softens, particles slow, your pet sits — the world grows quiet'],
+      ['stop', 'g_stop', '手掌停住', 'Stop', 'Dừng lại', 'express', 1, '張開手掌，停在空中不動', 'Hold an open palm still in the air', '粒子慢慢停下來，寵物停在原地——你真的讓宇宙停下來', 'Particles slow to a stop, your pet freezes — you really paused the universe'],
+      ['right', 'g_right', '指右', 'Point Right', 'Chỉ phải', 'guide', 1, '伸出食指指向右邊', 'Point your index finger to the right', '寵物往那個方向去探索', 'Your pet explores that way'],
+      ['left', 'g_left', '指左', 'Point Left', 'Chỉ trái', 'guide', 0, '伸出食指指向左邊', 'Point your index finger to the left', '寵物往那個方向去探索', 'Your pet explores that way'],
+      ['up', 'g_up', '指向天空', 'Point Up', 'Chỉ lên trời', 'guide', 0, '伸出食指指向上面', 'Point your index finger up', '鏡頭抬高，寵物一起看——可能發現流星、宇宙鯨魚、特殊的月亮', 'Look up with your pet — you may find a shooting star, a cosmic whale, a special moon'],
+      ['down', 'g_down', '指向地面', 'Point Down', 'Chỉ xuống', 'guide', 0, '伸出食指指向下面', 'Point your index finger down', '寵物低頭在地上找東西', 'Your pet searches the ground'],
+      ['gather', 'hand_fist', '握拳', 'Gather', 'Nắm tay', 'guide', 1, '握拳，握越久越多', 'Make a fist — hold it longer to gather more', '周圍的星塵往你的手聚集', 'Stardust gathers toward your hand'],
+      ['release', 'g_release', '握拳→張開', 'Release', 'Thả ra', 'guide', 0, '握拳之後突然張開', 'Make a fist, then suddenly open it', 'WHOOSH！星塵散開，植物、寵物、場景都有反應', 'WHOOSH! Stardust bursts out and the world reacts'],
+      ['clap', 'hand_clap', '拍手', 'Clap', 'Vỗ tay', 'play', 0, '兩手快速拍在一起', 'Clap your hands together', '寵物跳起來，花朵一起開', 'Your pet jumps and flowers pop open'],
+      ['raise', 'g_raise', '舉起雙手', 'Raise', 'Giơ tay', 'play', 0, '兩手一起舉高', 'Raise both hands high', '寵物跟著歡呼，彩色紙花飛起來', 'Your pet cheers and confetti flies'],
+      ['pose', 'hand_peace', '比 YA', 'Pose', 'Tạo dáng', 'play', 0, '比出 YA 停一下', 'Hold a peace sign', '寵物擺出可愛的姿勢，拍一張照片', 'Your pet strikes a pose — snap!'],
+      ['circle', 'g_circle', '畫圓', 'Draw a Circle', 'Vẽ vòng tròn', 'create', 0, '用食指在空中畫一個圓', 'Draw a circle in the air with your index finger', '畫出一圈光，寵物繞著它轉', 'A ring of light appears and your pet spins around it'],
+      ['line', 'g_line', '畫線', 'Draw a Line', 'Vẽ đường', 'create', 0, '伸出食指慢慢移動', 'Move your pointing finger slowly', '留下會發光的軌跡，變成星座線', 'Leave a glowing trail that becomes a constellation line'],
+      ['near', 'g_near', '雙手靠近／分開', 'Hands Together / Apart', 'Hai tay gần / xa', 'create', 0, '兩手慢慢靠近，或慢慢分開', 'Bring your hands closer or move them apart', '光跟著你的雙手變大、變小', 'Light grows and shrinks with your hands'],
+      // 組合手勢：要自己發現
+      ['sharedLight', 'g_light', '一起捧光', 'Shared Light', 'Cùng nâng ánh sáng', 'connect', 0, '兩個人都把手放在中間（🤲＋🤲）', 'Two people bring their hands to the center (🤲 + 🤲)', '中間的光慢慢長大；有人移開，它就慢慢變小', 'The light in the middle grows; if someone leaves, it slowly fades'],
+      ['createStar', 'g_touch', '碰星', 'Touch Star', 'Chạm sao', 'connect', 0, '一個人指右、一個人指左，指尖在中間碰在一起（👉＋👈）', 'One points right, one points left, fingertips meet in the middle (👉 + 👈)', '產生一顆星，寫進你們的友情星座', 'A star is born and written into your friendship constellation'],
+      ['sharedHeart', 'g_halfheart', '共同愛心', 'Shared Heart', 'Trái tim chung', 'connect', 0, '兩個人各用一隻手比半顆愛心，靠在一起', 'Each person makes half a heart with one hand, then join them', '一個人完成不了的愛心', 'A heart no one can make alone'],
+      ['supernova', 'g_supernova', '超新星', 'Supernova', 'Siêu tân tinh', 'create', 0, '握拳蓄滿三層星塵，再一起張開', 'Gather three levels of stardust, then release together', '整片天空爆出光芒', 'The whole sky bursts with light'],
+      ['moon', 'g_moon', '做出月亮', 'Make a Moon', 'Tạo mặt trăng', 'create', 0, '兩手舉高在頭上圍成一個圓（🙆）', 'Raise both hands above your head to form a circle (🙆)', '畫面中央出現一個月亮；兩個人一起做，月亮會更完整', 'A moon appears; with two people it becomes whole'],
+      ['constellation', 'g_constellation', '星座成形', 'Constellation', 'Chòm sao', 'connect', 0, '三個人一起舉高雙手（🙌🙌🙌）', 'Three people raise their hands together (🙌🙌🙌)', '寵物們排成一個新的星座', 'Your pets line up into a new constellation']
+    ];
+    const BY = {}; BOOK.forEach(b => { BY[b[0]] = b; });
+    const nm = id => { const b = BY[id]; return b ? L(b[2], b[3], { vi: b[4] }) : id; };
+    // 手勢軌跡（玩手勢遊戲、發現手勢會解鎖）
+    const TRAILS = [
+      ['stardust', '✨', '星塵', 'Stardust', [255, 236, 190], () => true, '一開始就有', 'From the start'],
+      ['petals', '🌸', '花瓣', 'Petals', [255, 170, 210], s => found() >= 10, '發現 10 個手勢', 'Discover 10 gestures'],
+      ['water', '🌊', '水流', 'Water', [140, 210, 255], s => (s.echo || 0) >= 1, '完成一次 ECHO', 'Finish ECHO once'],
+      ['aurora', '🌈', '極光', 'Aurora', [170, 255, 220], s => BOOK.slice(0, 18).every(b => s.found[b[0]]), '發現全部 18 個基礎手勢', 'Discover all 18 base gestures'],
+      ['whale', '🐋', '鯨魚霧', 'Whale Mist', [150, 190, 255], s => !!s.whale, '在 Whale Echo 召喚宇宙鯨魚', 'Summon the cosmic whale in Whale Echo'],
+      ['moon', '🌙', '月光', 'Moonlight', [255, 240, 200], s => !!s.found.moon, '發現「做出月亮」', 'Discover Make a Moon']
+    ];
+    const KEY = 'iv_gx';
+    let st = null;
+    try { st = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (_) { st = null; }
+    if (!st || !st.found) st = { found: {}, trail: 'stardust', n: {}, mem: {} };
+    BOOK.forEach(b => { if (b[6] && !st.found[b[0]]) st.found[b[0]] = 1; });
+    const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (_) { /* ignore */ } };
+    const found = () => BOOK.filter(b => st.found[b[0]]).length;
+    function grantAll() { if (!Demo.on()) return; BOOK.forEach(b => { if (!st.found[b[0]]) st.found[b[0]] = Date.now(); }); st.echo = Math.max(1, st.echo || 0); st.whale = 1; save(); }
+    setTimeout(grantAll, 0);
+    const listeners = new Set();
+    let tipEl = null, tipT = 0;
+    // 發現新手勢：跳出提示（隱藏手勢有特別的動畫）
+    function discover(id) {
+      if (!BY[id] || st.found[id] > 1 || (st.found[id] === 1 && BY[id][6])) return false;
+      const isNew = !st.found[id]; st.found[id] = Date.now(); save();
+      if (isNew) {
+        const b = BY[id], secret = BOOK.indexOf(b) >= 18;
+        showTip(b[1], secret ? L(`✦ ${b[3].toUpperCase()} GESTURE DISCOVERED`, `✦ ${b[3].toUpperCase()} GESTURE DISCOVERED`) : L(`發現新手勢：${b[2]}`, `New gesture: ${b[3]}`, { vi: `Cử chỉ mới: ${b[4]}` }), secret ? 4 : 2.6, secret);
+        try { Sound.gift(); } catch (_) { /* ignore */ }
+        TRAILS.forEach(tr => { if (!(st.trails || {})[tr[0]] && tr[5](st)) { st.trails = Object.assign({}, st.trails, { [tr[0]]: Date.now() }); save(); setTimeout(() => showTip('sparkle', L(`解鎖手勢軌跡：${tr[2]}`, `Gesture trail unlocked: ${tr[3]}`), 3), 2600); } });
+      }
+      return isNew;
+    }
+    function showTip(icon, text, sec = 2, big) {
+      tipEl = tipEl || $('gxTip'); if (!tipEl) return;
+      tipEl.textContent = ''; const im = document.createElement('img'); im.alt = ''; im.src = IVIcon.dataURL(icon); const sp = document.createElement('span'); sp.textContent = text;
+      tipEl.append(im, sp); tipEl.classList.toggle('big', !!big); tipEl.classList.remove('on'); void tipEl.offsetWidth; tipEl.classList.add('on');
+      clearTimeout(tipT); tipT = setTimeout(() => tipEl.classList.remove('on'), sec * 1000);
+    }
+    function emit(ev) {
+      ev.t = performance.now();
+      if (BY[ev.id] && ev.phase !== 'hold' && ev.phase !== 'end') { st.n[ev.id] = (st.n[ev.id] || 0) + 1; discover(ev.id); if (!ev.quiet) showTip(BY[ev.id][1], nm(ev.id), 1.4); save(); }
+      listeners.forEach(fn => { try { fn(ev); } catch (e) { console.warn('gx listener:', e); } });
+    }
+
+    /* ---------- 從 21 個關節點算出這隻手的樣子 ---------- */
+    const d2 = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+    function feat(p) {
+      const w = p[0], size = d2(p[0], p[9]) || 1e-3, f = [];
+      let sum = 0;
+      [[8, 5], [12, 9], [16, 13], [20, 17]].forEach(([tip, mcp], i) => { const o = clamp((d2(p[tip], w) / (d2(p[mcp], w) || 1e-3) - 1.05) / .7); sum += o; f[i + 1] = o > .62; });
+      const th = clamp((d2(p[4], p[17]) / size - .75) / .6); f[0] = th > .5;
+      const open = (sum + th) / 5, mx = q => 1 - q.x;
+      const palm = [(mx(p[0]) + mx(p[5]) + mx(p[9]) + mx(p[13]) + mx(p[17])) / 5, (p[0].y + p[5].y + p[9].y + p[13].y + p[17].y) / 5];
+      const dir = [mx(p[8]) - mx(p[5]), p[8].y - p[5].y], dl = Math.hypot(dir[0], dir[1]) || 1;
+      let pose = 'relaxed';
+      const pinchD = d2(p[4], p[8]) / size;
+      if (open < .25 && !f[1] && !f[2]) pose = 'fist';
+      else if (f[1] && !f[2] && !f[3] && !f[4]) pose = 'point';
+      else if (f[1] && f[2] && !f[3] && !f[4]) pose = 'peace';
+      else if (pinchD < .32 && !f[3]) pose = 'pinch';
+      else if (open > .62 && f[1] && f[2] && f[3]) pose = 'open';
+      else if (open > .3 && open < .66 && pinchD > .45 && pinchD < 1.3) pose = 'half';
+      return { p, size, open, fing: f, palm, tip: [mx(p[8]), p[8].y], thumb: [mx(p[4]), p[4].y], dir: [dir[0] / dl, dir[1] / dl], pose, pinchD, up: p[12].y < p[0].y };
+    }
+    /* ---------- 追蹤每一隻手（用掌心位置配對前一幀） ---------- */
+    let hands = [], nextId = 1;
+    const H8 = ['right', 'down-right', 'down', 'down-left', 'left', 'up-left', 'up', 'up-right'];
+    function dir8(d) { const a = Math.atan2(d[1], d[0]); return H8[((Math.round(a / (Math.PI / 4)) % 8) + 8) % 8]; }
+    function track(list, dt) {
+      const now = performance.now(), next = [];
+      list.forEach(ft => {
+        let best = null, bd = .25;
+        for (const h of hands) { if (next.includes(h)) continue; const d = Math.hypot(h.palm[0] - ft.palm[0], h.palm[1] - ft.palm[1]); if (d < bd) { bd = d; best = h; } }
+        const h = best || { id: nextId++, born: now, hist: [], trail: [], pose: '', poseT: now, revs: 0, lastVx: 0, revT: [], charge: 0 };
+        const vx = (ft.palm[0] - (h.palm ? h.palm[0] : ft.palm[0])) / Math.max(dt, .016), vy = (ft.palm[1] - (h.palm ? h.palm[1] : ft.palm[1])) / Math.max(dt, .016);
+        if (ft.pose !== h.pose) { h.prevPose = h.pose; h.prevPoseT = now - h.poseT; h.pose = ft.pose; h.poseT = now; h.fired = {}; }
+        Object.assign(h, ft, { vx: h.vx === undefined ? vx : h.vx * .6 + vx * .4, vy: h.vy === undefined ? vy : h.vy * .6 + vy * .4, seen: now });
+        h.hist.push([now, h.palm[0], h.palm[1]]); while (h.hist.length && now - h.hist[0][0] > 1600) h.hist.shift();
+        if (h.pose === 'point' || h.pose === 'pinch') { h.trail.push([now, h.tip[0], h.tip[1]]); } while (h.trail.length && (now - h.trail[0][0] > 2400 || h.trail.length > 120)) h.trail.shift();
+        next.push(h);
+      });
+      // 消失的手：稍微保留一下（避免一閃一閃）
+      hands.forEach(h => { if (!next.includes(h) && now - h.seen < 250) next.push(h); });
+      hands = next;
+      return now;
+    }
+    /* ---------- 判斷手勢 ---------- */
+    const cd = {};   // 冷卻時間
+    const ready = (k, ms) => { const now = performance.now(); if (now - (cd[k] || 0) < ms) return false; cd[k] = now; return true; };
+    const live = () => hands.filter(h => performance.now() - h.seen < 120);
+    let quietT = 0, stopOn = false, holdOn = false, heartOn = 0, lightOn = 0, prevDist = null;
+    function recognize(now, dt) {
+      const hs = live();
+      // ----- 單手 -----
+      hs.forEach(h => {
+        const held = now - h.poseT, sp = Math.hypot(h.vx, h.vy);
+        h.fired = h.fired || {};
+        // 揮手：張開的手掌左右來回
+        if (h.pose === 'open') {
+          const sx = Math.sign(h.vx); if (Math.abs(h.vx) > .5 && sx !== h.lastVx && h.lastVx) { h.revT.push(now); } if (Math.abs(h.vx) > .5) h.lastVx = sx;
+          h.revT = h.revT.filter(t => now - t < 1300);
+          if (h.revT.length >= 3 && ready('wave', 1500)) { h.revT = []; emit({ id: 'wave', x: h.palm[0], y: h.palm[1], hand: h.id }); }
+          // 手掌停住
+          if (sp < .12 && held > 650 && !h.fired.stop && hs.length === 1) { h.fired.stop = 1; stopOn = true; emit({ id: 'stop', x: h.palm[0], y: h.palm[1], hand: h.id, phase: 'start' }); }
+          if (h.fired.stop && sp > .6) { h.fired.stop = 0; h.poseT = now; if (stopOn) { stopOn = false; emit({ id: 'stop', phase: 'end' }); } }
+        } else if (h.fired && h.fired.stop) { h.fired.stop = 0; if (stopOn) { stopOn = false; emit({ id: 'stop', phase: 'end' }); } }
+        // 握拳：握越久，星塵越多
+        if (h.pose === 'fist') {
+          const lvl = Math.min(3, Math.floor(held / 700) + 1);
+          if (lvl !== h.charge) { h.charge = lvl; emit({ id: 'gather', x: h.palm[0], y: h.palm[1], hand: h.id, level: lvl, quiet: lvl > 1 }); }
+          else emit({ id: 'gather', x: h.palm[0], y: h.palm[1], hand: h.id, level: lvl, phase: 'hold', quiet: 1 });
+        } else if (h.charge) {
+          // 握拳→張開：放出去
+          if (h.pose === 'open' && h.prevPose === 'fist' && now - h.poseT < 400 && ready('release' + h.id, 600)) emit({ id: 'release', x: h.palm[0], y: h.palm[1], hand: h.id, level: h.charge });
+          if (h.pose !== 'fist') h.charge = 0;
+        }
+        // 指方向
+        if (h.pose === 'point') {
+          const d = dir8(h.dir), base = d.includes('-') ? '' : d === 'right' ? 'right' : d === 'left' ? 'left' : d === 'up' ? 'up' : 'down';
+          if (held > 380 && h.lastDir !== d) { h.lastDir = d; emit({ id: base || 'right', dir: d, vec: h.dir, x: h.tip[0], y: h.tip[1], hand: h.id, quiet: !base }); }
+          emit({ id: 'aim', dir: d, vec: h.dir, x: h.tip[0], y: h.tip[1], hand: h.id, phase: 'hold' });
+          // 畫線：指著慢慢移動
+          const tl = h.trail.length; if (tl > 8 && Math.hypot(h.vx, h.vy) > .15 && ready('line' + h.id, 2500)) emit({ id: 'line', x: h.tip[0], y: h.tip[1], hand: h.id, path: h.trail.map(q => [q[1], q[2]]) });
+          // 畫圓／畫星星
+          const shape = shapeOf(h.trail); if (shape && ready('shape' + h.id, 1500)) { const path = h.trail.map(q => [q[1], q[2]]); h.trail = []; emit({ path, id: shape === 'star' ? 'createStarDraw' : 'circle', shape, x: h.tip[0], y: h.tip[1], hand: h.id }); if (shape === 'star') discover('createStar'); }
+        } else h.lastDir = '';
+        // 比 YA
+        if (h.pose === 'peace' && held > 500 && !h.fired.pose) { h.fired.pose = 1; emit({ id: 'pose', x: h.palm[0], y: h.palm[1], hand: h.id }); }
+        // 捏：抓星星
+        if (h.pose === 'pinch' && !h.fired.pinch) { h.fired.pinch = 1; emit({ id: 'pinch', x: (h.tip[0] + h.thumb[0]) / 2, y: (h.tip[1] + h.thumb[1]) / 2, hand: h.id }); }
+        if (h.pose === 'pinch') emit({ id: 'pinchMove', x: (h.tip[0] + h.thumb[0]) / 2, y: (h.tip[1] + h.thumb[1]) / 2, hand: h.id, phase: 'hold' });
+        if (h.prevPose === 'pinch' && h.pose !== 'pinch' && !h.fired.drop) { h.fired.drop = 1; emit({ id: 'drop', x: h.palm[0], y: h.palm[1], hand: h.id }); }
+      });
+      // ----- 兩隻手 -----
+      if (hs.length >= 2) {
+        const sorted = hs.slice().sort((a, b) => a.palm[0] - b.palm[0]), A = sorted[0], B = sorted[sorted.length - 1];
+        const pd = Math.hypot(A.palm[0] - B.palm[0], A.palm[1] - B.palm[1]), dv = prevDist === null ? 0 : (pd - prevDist) / Math.max(dt, .016); prevDist = pd;
+        const both = p => A.pose === p && B.pose === p, cx = (A.palm[0] + B.palm[0]) / 2, cy = (A.palm[1] + B.palm[1]) / 2;
+        const twoPeople = hs.length >= 3 || (A.palm[0] < .45 && B.palm[0] > .55 && pd > .25);
+        // 愛心：兩手拇指、食指碰在一起
+        const heart = Math.hypot(A.thumb[0] - B.thumb[0], A.thumb[1] - B.thumb[1]) < .08 && Math.hypot(A.tip[0] - B.tip[0], A.tip[1] - B.tip[1]) < .08 && (A.tip[1] < A.thumb[1]);
+        if (heart) { heartOn += dt; if (heartOn > .25 && ready('heart', 2200)) emit({ id: 'heart', x: (A.tip[0] + B.tip[0]) / 2, y: (A.tip[1] + A.thumb[1]) / 2 }); else emit({ id: 'heartHold', x: cx, y: cy, t2: heartOn, phase: 'hold' }); } else heartOn = 0;
+        // 拍手：兩手很快地合在一起
+        if (dv < -1.6 && pd < .14 && ready('clap', 500)) emit({ id: twoPeople && both('open') && cy < .45 ? 'highfive' : 'clap', x: cx, y: cy });
+        // 合掌：手掌貼在一起停住
+        if (pd < .12 && Math.abs(dv) < .3 && A.up && B.up && A.open > .45 && B.open > .45) { quietT += dt; if (quietT > .9 && ready('quiet', 3000)) emit({ id: 'quiet', x: cx, y: cy }); } else quietT = 0;
+        // 張開雙手
+        if (both('open') && pd > .62 && ready('arms', 2500)) emit({ id: 'arms', x: cx, y: cy });
+        // 舉起雙手
+        if (both('open') && A.palm[1] < .3 && B.palm[1] < .3 && pd > .2 && ready('raise', 2000)) emit({ id: 'raise', x: cx, y: cy });
+        // 捧手：兩手併攏、在下面、半張開
+        const cup = pd < .3 && pd > .1 && cy > .45 && A.open > .35 && B.open > .35 && !heart;
+        if (cup) { if (!holdOn) { holdOn = true; emit({ id: 'hold', x: cx, y: cy, phase: 'start' }); } else emit({ id: 'holdMove', x: cx, y: cy, phase: 'hold' }); }
+        else if (holdOn) { holdOn = false; emit({ id: 'hold', phase: 'end' }); }
+        // 雙手靠近／分開
+        if (Math.abs(dv) > .5 && Math.abs(dv) < 1.5 && ready('near', 1200)) emit({ id: 'near', dir: dv < 0 ? 'in' : 'out', x: cx, y: cy, d: pd });
+        // 做出月亮：兩手舉高，指尖碰在一起、手腕分開
+        if (A.palm[1] < .4 && B.palm[1] < .4 && Math.hypot(A.tip[0] - B.tip[0], A.tip[1] - B.tip[1]) < .1 && pd > .22 && ready('moon', 4000)) emit({ id: 'moon', x: cx, y: cy - .1 });
+        // ---- 連結（兩個人）----
+        if (A.pose === 'point' && B.pose === 'point' && Math.hypot(A.tip[0] - B.tip[0], A.tip[1] - B.tip[1]) < .07 && A.dir[0] > .3 && B.dir[0] < -.3 && ready('createStar', 3000)) emit({ id: 'createStar', x: (A.tip[0] + B.tip[0]) / 2, y: (A.tip[1] + B.tip[1]) / 2 });
+        if (A.pose === 'half' && B.pose === 'half' && pd < .3 && twoPeople && ready('sharedHeart', 3000)) emit({ id: 'sharedHeart', x: cx, y: cy });
+        const central = hs.filter(h => Math.hypot(h.palm[0] - .5, h.palm[1] - .55) < .2 && h.open > .35);
+        if (central.length >= 2 && hs.length >= 3) { lightOn = Math.min(1, lightOn + dt * .4); emit({ id: lightOn > .3 && !cd.sharedLightFired ? 'sharedLight' : 'lightHold', level: lightOn, x: .5, y: .55, phase: cd.sharedLightFired ? 'hold' : undefined }); if (lightOn > .3) cd.sharedLightFired = 1; }
+        else { lightOn = Math.max(0, lightOn - dt * .25); if (lightOn === 0) cd.sharedLightFired = 0; }
+        // 兩個人同步移動
+        const movers = hs.filter(h => Math.hypot(h.vx, h.vy) > .25);
+        if (movers.length >= 2) { const a = movers[0], b = movers[1], cs = (a.vx * b.vx + a.vy * b.vy) / (Math.hypot(a.vx, a.vy) * Math.hypot(b.vx, b.vy)); if (cs > .85) emit({ id: 'follow', sync: cs, vx: (a.vx + b.vx) / 2, vy: (a.vy + b.vy) / 2, phase: 'hold' }); }
+        // 超新星：兩隻以上蓄滿的拳頭一起張開
+        const charged = hs.filter(h => h.prevPose === 'fist' && h.pose === 'open' && performance.now() - h.poseT < 500);
+        if (charged.length >= 2 && ready('supernova', 5000)) emit({ id: 'supernova', x: .5, y: .5 });
+        // 三個人舉高雙手（六隻手裡有五隻以上在上面）
+        if (hs.filter(h => h.palm[1] < .3 && h.pose === 'open').length >= 5 && ready('constellation', 6000)) emit({ id: 'constellation', x: .5, y: .3 });
+      } else { prevDist = null; heartOn = 0; quietT = 0; if (holdOn) { holdOn = false; emit({ id: 'hold', phase: 'end' }); } lightOn = Math.max(0, lightOn - dt * .25); }
+    }
+    // 軌跡是圓還是星星？（不用很準）
+    function shapeOf(tr) {
+      if (tr.length < 24) return '';
+      const pts = tr.map(q => [q[1], q[2]]), n = pts.length;
+      let len = 0; for (let i = 1; i < n; i++) len += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+      const close = Math.hypot(pts[0][0] - pts[n - 1][0], pts[0][1] - pts[n - 1][1]);
+      const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]), w = Math.max(...xs) - Math.min(...xs), h = Math.max(...ys) - Math.min(...ys);
+      if (len < .4 || close > Math.max(.07, len * .12) || w < .1 || h < .1 || w / h > 2.2 || h / w > 2.2) return '';
+      // 急轉彎的數量：星星有 5 個尖角
+      let sharp = 0; for (let i = 4; i < n - 4; i += 2) { const a = [pts[i][0] - pts[i - 4][0], pts[i][1] - pts[i - 4][1]], b = [pts[i + 4][0] - pts[i][0], pts[i + 4][1] - pts[i][1]], cs = (a[0] * b[0] + a[1] * b[1]) / ((Math.hypot(...a) * Math.hypot(...b)) || 1); if (cs < -.2) { sharp++; i += 4; } }
+      return sharp >= 4 ? 'star' : 'circle';
+    }
+    /* ---------- 開關 ---------- */
+    let off = null, active = 0, lastNow = 0;
+    async function start(n = 2) {
+      active++;
+      if (!Hand.live) await Hand.start();
+      await Hand.hands(n);
+      if (!off) off = Hand.sub((lms, dt, now) => { const now2 = track(lms.map(feat), dt); recognize(now2, dt); lastNow = now; layer(); });
+      document.body.classList.add('gx-on');
+    }
+    function stop() {
+      active = Math.max(0, active - 1); if (active) return;
+      if (off) { off(); off = null; } hands = []; Hand.hands(1); Hand.stop(); document.body.classList.remove('gx-on'); clearLayer();
+    }
+    // 沒有相機（或不想開）：用「手勢盤」點一下，就像做了那個手勢
+    function inject(id, o = {}) { emit(Object.assign({ id, x: .5, y: .55, level: 3, dir: id === 'left' ? 'left' : id === 'up' ? 'up' : id === 'down' ? 'down' : 'right', virtual: 1 }, o)); }
+    /* ---------- 畫面上的手：發光的骨架＋手勢軌跡 ---------- */
+    const BONES = [[0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 8], [5, 9], [9, 10], [10, 11], [11, 12], [9, 13], [13, 14], [14, 15], [15, 16], [13, 17], [0, 17], [17, 18], [18, 19], [19, 20]];
+    let lc = null, lg = null;
+    const trailPts = [];
+    function layer() {
+      lc = lc || $('gxLayer'); if (!lc) return; lg = lg || lc.getContext('2d');
+      const d = Math.min(devicePixelRatio || 1, 2), W2 = innerWidth, H2 = innerHeight;
+      if (lc.width !== Math.round(W2 * d)) { lc.width = Math.round(W2 * d); lc.height = Math.round(H2 * d); }
+      lg.setTransform(d, 0, 0, d, 0, 0); lg.clearRect(0, 0, W2, H2);
+      const tr = TRAILS.find(t => t[0] === st.trail) || TRAILS[0], col = tr[4].join(','), now = performance.now();
+      live().forEach(h => {
+        // 手勢軌跡跟著食指（或掌心）
+        const q = h.pose === 'point' || h.pose === 'pinch' ? h.tip : h.palm;
+        trailPts.push({ x: q[0] * W2, y: q[1] * H2, t: now, k: st.trail, c: col });
+        lg.save(); lg.globalAlpha = .55; lg.lineCap = 'round'; lg.strokeStyle = `rgba(${col},.8)`; lg.lineWidth = 2; lg.shadowColor = `rgba(${col},.9)`; lg.shadowBlur = 10;
+        lg.beginPath(); BONES.forEach(([a, b]) => { lg.moveTo((1 - h.p[a].x) * W2, h.p[a].y * H2); lg.lineTo((1 - h.p[b].x) * W2, h.p[b].y * H2); }); lg.stroke();
+        lg.fillStyle = '#fff'; [4, 8, 12, 16, 20].forEach(i => { lg.beginPath(); lg.arc((1 - h.p[i].x) * W2, h.p[i].y * H2, 3, 0, TAU); lg.fill(); });
+        if (h.pose === 'fist' && h.charge) { const r = 18 + h.charge * 12; lg.globalAlpha = .8; lg.strokeStyle = `rgba(${col},.9)`; lg.beginPath(); lg.arc(h.palm[0] * W2, h.palm[1] * H2, r, 0, TAU); lg.stroke(); }
+        lg.restore();
+      });
+      while (trailPts.length && (now - trailPts[0].t > 900 || trailPts.length > 160)) trailPts.shift();
+      drawTrail(lg, trailPts, now);
+    }
+    function drawTrail(x, pts, now) {
+      x.save(); x.globalCompositeOperation = 'lighter';
+      pts.forEach((p, i) => {
+        const k = 1 - (now - p.t) / 900; if (k <= 0) return;
+        const r = 3 + k * 7;
+        if (p.k === 'petals') { x.save(); x.translate(p.x, p.y); x.rotate(i * .7 + now * .002); x.globalAlpha = k * .8; x.fillStyle = `rgba(${p.c},1)`; x.beginPath(); x.ellipse(0, 0, r, r * .5, 0, 0, TAU); x.fill(); x.restore(); }
+        else if (p.k === 'water') { x.globalAlpha = k * .5; x.strokeStyle = `rgba(${p.c},1)`; x.lineWidth = 1.2; x.beginPath(); x.arc(p.x, p.y, r * 1.4 * (2 - k), 0, TAU); x.stroke(); }
+        else if (p.k === 'aurora') { const h2 = (i * 9 + now * .05) % 360; x.globalAlpha = k * .5; x.fillStyle = `hsla(${h2},90%,70%,1)`; x.beginPath(); x.arc(p.x, p.y, r, 0, TAU); x.fill(); }
+        else { const gr = x.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 1.6); gr.addColorStop(0, `rgba(${p.c},${k * .8})`); gr.addColorStop(1, `rgba(${p.c},0)`); x.fillStyle = gr; x.beginPath(); x.arc(p.x, p.y, r * 1.6, 0, TAU); x.fill(); }
+      });
+      x.restore();
+    }
+    function clearLayer() { if (lg) lg.clearRect(0, 0, lc.width, lc.height); trailPts.length = 0; }
+    // 觸控（手勢盤、手指拖曳）也留下軌跡
+    function touchTrail(x, y) { trailPts.push({ x, y, t: performance.now(), k: st.trail, c: (TRAILS.find(t => t[0] === st.trail) || TRAILS[0])[4].join(',') }); if (!off) { lc = lc || $('gxLayer'); lg = lg || (lc && lc.getContext('2d')); if (lg) { const d = Math.min(devicePixelRatio || 1, 2); if (lc.width !== Math.round(innerWidth * d)) { lc.width = Math.round(innerWidth * d); lc.height = Math.round(innerHeight * d); } lg.setTransform(d, 0, 0, d, 0, 0); lg.clearRect(0, 0, innerWidth, innerHeight); drawTrail(lg, trailPts, performance.now()); } } }
+    /* ---------- 手勢盤（觸控／沒有相機時） ---------- */
+    function pad(box, ids, onPick) {
+      box.textContent = '';
+      ids.forEach(id => {
+        const b = BY[id]; if (!b) return; const known = !!st.found[id];
+        const bt = document.createElement('button'); bt.type = 'button'; bt.className = 'gx-pb' + (known ? '' : ' locked'); bt.dataset.g = id;
+        const im = document.createElement('img'); im.alt = ''; im.src = IVIcon.dataURL(b[1]);
+        const sp = document.createElement('span'); sp.textContent = known ? nm(id) : '???';
+        bt.append(im, sp);
+        bt.addEventListener('click', () => { if (!st.found[id] && BOOK.indexOf(b) >= 18) { showTip('sparkle', L('這是一個隱藏手勢，要用相機和朋友一起發現 ✦', 'A secret gesture — discover it with the camera and friends ✦'), 2.6); return; } (onPick || inject)(id); });
+        box.appendChild(bt);
+      });
+    }
+    /* ---------- 手勢圖鑑 ---------- */
+    function bookPanel(body, el) {
+      const n = found();
+      body.appendChild(el('p', 'hm-count', L(`已發現 ${n} / ${BOOK.length}。寵物沒有嘴巴，你的手、你的身體、你們之間的距離和節奏，就是牠理解你的語言。`, `Discovered ${n} / ${BOOK.length}. Your pet has no mouth — your hands, your body, the distance and rhythm between you are how it understands you.`, { vi: `Đã khám phá ${n} / ${BOOK.length}. Thú cưng không có miệng — đôi tay, cơ thể, khoảng cách và nhịp điệu của bạn là ngôn ngữ để nó hiểu bạn.` })));
+      const TY = { express: L('表達', 'Express'), guide: L('引導', 'Guide'), connect: L('連結', 'Connect'), create: L('創造', 'Create'), play: L('遊戲', 'Play') };
+      const grid = el('div', 'gx-book'); body.appendChild(grid);
+      BOOK.forEach((b, i) => {
+        const ok = !!st.found[b[0]], c = el('div', 'gx-card' + (ok ? '' : ' locked') + (i >= 18 ? ' secret' : ''));
+        const im = document.createElement('img'); im.alt = ''; im.src = IVIcon.dataURL(ok ? b[1] : 'sparkle');
+        c.append(im, el('b', '', ok ? L(b[2], b[3], { vi: b[4] }) : '???'), el('small', '', ok ? `${TY[b[5]]}・${L(b[7], b[8])}` : (i >= 18 ? L('隱藏手勢：和朋友一起發現', 'Secret: discover it with friends') : TY[b[5]])));
+        if (ok) c.append(el('em', '', L(b[9], b[10])));
+        grid.appendChild(c);
+      });
+      // 手勢軌跡
+      body.appendChild(el('p', 'hm-count', L('手勢軌跡：做手勢時跟著你的光', 'Gesture trails: the light that follows your hands')));
+      const tr = el('div', 'hm-chips'); body.appendChild(tr);
+      TRAILS.forEach(t => {
+        const ok = t[5](st) || (st.trails || {})[t[0]] || Demo.on(), b = el('button', 'hm-chip' + (st.trail === t[0] ? ' on' : '') + (ok ? '' : ' locked'), `${t[1]} ${ok ? L(t[2], t[3]) : '??? · ' + L(t[6], t[7])}`); b.type = 'button';
+        if (ok) b.addEventListener('click', () => { st.trail = t[0]; save(); [...tr.children].forEach(x => x.classList.remove('on')); b.classList.add('on'); for (let k = 0; k < 30; k++) touchTrail(innerWidth / 2 + Math.cos(k / 5) * 60, innerHeight / 2 + Math.sin(k / 5) * 60); });
+        tr.appendChild(b);
+      });
+    }
+    if (/[?&]debug=1/.test(location.search)) window.GXdbg = (id, o) => inject(id, o);
+    return {
+      BOOK, nm, start, stop, inject, on: fn => { listeners.add(fn); return () => listeners.delete(fn); }, discover, showTip, pad, bookPanel, touchTrail,
+      get hands() { return live(); }, get active() { return !!off; }, st: () => st, bump(k, v = 1) { st[k] = (st[k] || 0) + v; save(); TRAILS.forEach(tr => { if (!(st.trails || {})[tr[0]] && tr[5](st)) { st.trails = Object.assign({}, st.trails, { [tr[0]]: Date.now() }); save(); showTip('sparkle', L(`解鎖手勢軌跡：${tr[2]}`, `Gesture trail unlocked: ${tr[3]}`), 3); } }); },
+      set(k, v) { st[k] = v; save(); }, trailCol: () => (TRAILS.find(t => t[0] === st.trail) || TRAILS[0])[4]
+    };
   })();
 
   /* ================================================================
@@ -13814,7 +14186,8 @@ function petSVG(i, opt = {}) {
       try { Sound.chime(.8); } catch (_) { /* ignore */ }
     }
     function close() {
-      (H.sayT || []).forEach(clearTimeout); H.sleep = null; root.classList.remove('sleeping'); ['hmSleep', 'hmAsk'].forEach(id => $(id).classList.remove('on'));
+      (H.sayT || []).forEach(clearTimeout); H.sleep = null; root.classList.remove('sleeping');
+      if (root.classList.contains('gx')) { GX.stop(); root.classList.remove('gx'); } quietOff(); GH.freeze = false; GH.held = null; ['hmSleep', 'hmAsk'].forEach(id => $(id).classList.remove('on'));
       if (!H.visit) { PL.lastSeen = Date.now(); save(); }
       H.on = false; cancelAnimationFrame(H.raf); root.classList.remove('on'); $('hmPanel').classList.remove('on'); Sound.scape(null);
     }
@@ -13843,8 +14216,10 @@ function petSVG(i, opt = {}) {
 
     function loop(now) {
       if (!H.on) return;
-      const dt = Math.min(.05, (now - H.last) / 1000); H.last = now; H.t += dt;
-      try { draw(dt); } catch (e) { console.warn('home:', e); }
+      // 手掌停住：世界幾乎停下來；合掌（Quiet Mode）：一切變慢
+      const rdt = Math.min(.05, (now - H.last) / 1000), dt = rdt * (GH.freeze ? .02 : GH.quiet ? .45 : 1); H.last = now; H.t += dt;
+      GH.lookK = (GH.lookK || 0) + ((GH.look > 0 ? 1 : 0) - (GH.lookK || 0)) * Math.min(1, rdt * 2.5);
+      try { if (GH.lookK > .01) { if (envCache.c) g.drawImage(envCache.c, 0, 0, H.cw, H.ch); g.save(); g.translate(0, GH.lookK * H.ch * .14); } draw(dt); if (GH.lookK > .01) g.restore(); gestureFx(rdt); } catch (e) { console.warn('home:', e); }
       H.raf = requestAnimationFrame(loop);
     }
     const SKY = k => (C[k] && C[k].sky) || C.pHome.sky;
@@ -14336,6 +14711,19 @@ function petSVG(i, opt = {}) {
     function drawPet(dt, d, u) {
       const p = H.pet, t = H.t, im = PET_IMG[d.petIdx | 0];
       p.t += dt;
+      // 捧手：寵物變小，降落在你的手心，跟著你的手
+      if (GH.held || GH.hug > 0) {
+        const s0 = u * 1.4, [bx, by] = posA(p.a, u * .05);
+        let x, y, sc;
+        if (GH.held) { const hd = GH.held; hd.k = clamp((hd.k || 0) + (hd.end ? -1 : 1) * dt * 2.2); if (hd.end && hd.k <= 0) GH.held = null; const e = easeIO(hd.k); x = lerp(bx, hd.x, e); y = lerp(by, hd.y + s0 * .25, e); sc = lerp(1, .6, e); }
+        else { GH.hug += dt; const k = GH.hug; if (k > 2.6) { GH.hug = 0; } const e = easeIO(clamp(k / .9)) * (1 - clamp((k - 1.9) / .6)); x = lerp(bx, H.cx, e); y = lerp(by, H.ch * .72, e); sc = 1 + e * 1.7; if (Math.random() < .2) H.fx.push({ e: '♡', x: x + rand(-s0, s0), y: y - s0 * sc, vx: 0, vy: -50, t: 0, life: 1.2, s: u * .5 }); }
+        const s = s0 * sc;
+        if (GH.held) { g.save(); g.globalCompositeOperation = 'lighter'; const gr = g.createRadialGradient(x, y - s * .4, 0, x, y - s * .4, s); gr.addColorStop(0, 'rgba(255,240,200,.45)'); gr.addColorStop(1, 'rgba(255,240,200,0)'); g.fillStyle = gr; g.beginPath(); g.arc(x, y - s * .4, s, 0, TAU); g.fill(); g.restore(); }
+        if (GH.held && GH.held.v) IVIcon.draw(g, 'hand_cup', x, y + s * .15, s * 1.5 * GH.held.k);   // 沒有相機時，畫出一雙捧著的手
+        g.save(); g.translate(x, y + Math.sin(t * 3) * 3); if (imgOK(im)) g.drawImage(im, -s / 2, -s, s, s); g.restore();
+        H.petP = [x, y - s / 2, s * .5]; if (H.bub) drawBubble(x, y - s - 6, dt);
+        return;
+      }
       const furn = (d.placed || []).filter(o => C[o.k] && C[o.k].use);
       // 出門探險／回家
       if (p.mode === 'leave' || p.mode === 'back') {
@@ -14358,8 +14746,8 @@ function petSVG(i, opt = {}) {
         else { p.ta = clamp(p.a + rand(-.6, .6), -.95, .95); p.use = null; p.mode = 'walk'; }
       }
       if (p.mode === 'walk') {
-        const dir = Math.sign(p.ta - p.a); p.f = dir || p.f; p.a += dir * Math.min(Math.abs(p.ta - p.a), dt * .22);
-        if (Math.abs(p.ta - p.a) < .005) { p.mode = p.use ? 'use' : p.sniff ? 'sniff' : 'idle'; p.t = 0; p.sniff = 0; }
+        const dir = Math.sign(p.ta - p.a); p.f = dir || p.f; p.a += dir * Math.min(Math.abs(p.ta - p.a), dt * .22 * (p.fast || 1));
+        if (Math.abs(p.ta - p.a) < .005) { p.mode = p.use ? 'use' : p.sniff ? 'sniff' : 'idle'; p.t = 0; p.sniff = 0; if (p.fast > 2.5) { p.mode = 'love'; } p.fast = 0; }
       }
       // 整理：一樣一樣走過去
       if (p.mode === 'tidy') {
@@ -14383,7 +14771,8 @@ function petSVG(i, opt = {}) {
           }
         }
       }
-      const END = { use: 6, dance: 5, nap: 10, wave: 2.6, love: 3, listen: 12, sniff: 1.6 };
+      const END = { use: 6, dance: 5, nap: 10, wave: 2.6, love: 3, listen: 12, sniff: 1.6, surprise: .7, lookup: 4.5, dig: 1.3, pose: 1.6, spin: 1.4 };
+      if (GH.follow) { GH.follow.t += dt; p.a = clamp(p.a + GH.follow.vx * dt * .6, -.95, .95); if (GH.follow.t > .4) GH.follow = null; }
       if (END[p.mode] && p.t > END[p.mode] && !(p.mode === 'nap' && H.sleep)) { p.mode = 'idle'; p.t = 0; }
       let hop = p.mode === 'walk' ? Math.abs(Math.sin(t * 10)) * u * .12 : Math.sin(t * 2) * u * .03, rot = 0, sy = 1, dx = 0, alpha = 1, extra = '';
       const use = p.mode === 'use' && p.use ? C[p.use.k].use : '';
@@ -14395,6 +14784,13 @@ function petSVG(i, opt = {}) {
         if (p.mode === 'sniff') { rot = Math.sin(t * 12) * .08 + .25; if (Math.random() < dt * 2) H.fx.push({ e: '?', x: posA(p.a, u * 1.5)[0], y: posA(p.a, u * 1.5)[1], vx: 0, vy: -24, t: 0, life: 1, s: u * .32 }); }
       }
       if (p.mode === 'chase' || p.mode === 'tidy' || p.mode === 'back') hop = Math.abs(Math.sin(t * 12)) * u * .16;
+      if (p.mode === 'walk' && p.fast > 1) hop = Math.abs(Math.sin(t * 16)) * u * .2;
+      if (p.mode === 'surprise') { hop = u * .12 * Math.max(0, 1 - p.t * 3); sy = 1 + Math.sin(p.t * 30) * .05; }
+      if (p.mode === 'lookup') rot = -.35;
+      if (p.mode === 'dig') { rot = .45 + Math.sin(t * 25) * .1; hop = -u * .05; }
+      if (p.mode === 'pose') { sy = 1 + Math.sin(p.t * 10) * .08 * Math.max(0, 1 - p.t); rot = Math.sin(p.t * 4) * .2; }
+      if (p.mode === 'spin') { rot = p.t * 9; hop = Math.sin(p.t * Math.PI / 1.4) * u * .4; }
+      if (GH.tumble > 0) { rot += (1 - GH.tumble / 1.4) * TAU * 1.5; hop += Math.sin(GH.tumble * 3) * u * .5; }
       if (use === 'sleep') { rot = -.5; hop = -u * .05; alpha = .85; if (Math.random() < dt * 1.5) H.fx.push({ e: 'z', x: posA(p.a, u)[0], y: posA(p.a, u)[1], vx: 10, vy: -30, t: 0, life: 2, s: u * .35 }); }
       if (use === 'look') { rot = -.25; if (Math.random() < dt * 2) H.fx.push({ e: '✦', x: posA(p.a, u * 1.8)[0] + rand(-30, 30), y: posA(p.a, u * 2.2)[1], vx: 0, vy: -20, t: 0, life: 1.4, s: u * .3 }); }
       if (use === 'dance' || p.mode === 'dance') { const fn = DANCE[p.mode === 'dance' ? p.dance : (d.dances || [])[0] || 'bounce'] || DANCE.bounce, r = fn(p.t, u); hop += r.hop || 0; rot += r.rot || 0; sy = r.sy || 1; dx = r.dx || 0; if (Math.random() < dt * 3) H.fx.push({ e: Math.random() < .5 ? '♪' : '♫', x: posA(p.a, u)[0] + rand(-20, 20), y: posA(p.a, u * 1.2)[1], vx: rand(-10, 10), vy: -40, t: 0, life: 1.6, s: u * .32 }); if (r.glow) extra = 'glow'; if (r.dark) alpha = .75; }
@@ -14403,6 +14799,7 @@ function petSVG(i, opt = {}) {
       if (use === 'ride') { hop = Math.sin(Math.min(1, p.t / 6) * Math.PI) * u * 3; rot = Math.sin(p.t * 2) * .2; }
       if (use === 'glow') extra = 'glow';
       const [x, y, th] = posA(p.a, hop + u * .05); const s = u * 1.4;
+      if (GH.glow > 0) { g.save(); g.globalCompositeOperation = 'lighter'; const gr = g.createRadialGradient(x, y - s * .45, 0, x, y - s * .45, s * 1.2); gr.addColorStop(0, `rgba(255,190,220,${GH.glow * .6})`); gr.addColorStop(1, 'rgba(255,190,220,0)'); g.fillStyle = gr; g.beginPath(); g.arc(x, y - s * .45, s * 1.2, 0, TAU); g.fill(); g.restore(); }
       g.save(); g.translate(x + dx, y); g.rotate(th + rot); g.globalAlpha = alpha;
       if (extra === 'glow') { const gr = g.createRadialGradient(0, -s * .45, 0, 0, -s * .45, s); gr.addColorStop(0, `hsla(${(t * 80) % 360},90%,75%,.5)`); gr.addColorStop(1, 'hsla(0,0%,100%,0)'); g.fillStyle = gr; g.beginPath(); g.arc(0, -s * .45, s, 0, TAU); g.fill(); }
       if (use === 'ride') { g.font = `${Math.round(u)}px serif`; g.textAlign = 'center'; g.fillText('🚀', 0, s * .1); }
@@ -14410,6 +14807,7 @@ function petSVG(i, opt = {}) {
       if (imgOK(im)) g.drawImage(im, -s / 2, -s, s, s); else { g.fillStyle = (PETS[d.petIdx | 0] || PETS[0]).c || '#fff'; g.beginPath(); g.arc(0, -s / 2, s * .35, 0, TAU); g.fill(); }
       g.restore();
       H.petP = [x, y - s / 2, s * .5];
+      if (GH.hugStar > 0) IVIcon.draw(g, 'glowstar', x + s * .3, y - s * .3, s * .35);
       if (!H.visit) {
         drawTrait(g, x + dx, y, s, t, H.stg | 0, H.aff || '', dt, H.fx);
         if (p.mode === 'listen') { g.font = `${Math.round(s * .3)}px serif`; g.textAlign = 'center'; g.fillText('🎧', x + dx, y - s * .95); }
@@ -15222,12 +15620,148 @@ function petSVG(i, opt = {}) {
         altT: L('▶ 先聽聽看', '▶ Listen first', { vi: '▶ Nghe thử' }), alt: () => { try { Sound.taste(x.mix, 6); } catch (_) { /* ignore */ } }, keep: 1 }]);
       return true;
     }
+    /* ================================================================
+       家園裡的手勢：寵物沒有嘴巴，用身體理解你
+       ================================================================ */
+    const GH = { glow: 0, look: 0, lookEv: '', quiet: false, freeze: false, held: null, hug: 0, tumble: 0, orb: null, ring: 0, gather: null, flowers: [], burst: [], consts: [], moon: 0, star: null, heartN: 0, hugStar: 0, follow: null, flash: 0 };
+    PL.consts = PL.consts || [];
+    const scr = (x, y) => [x * H.cw, y * H.ch];
+    function petXY() { return H.petP ? [H.petP[0], H.petP[1]] : [H.cx, H.cy - H.R - U0()]; }
+    function homeGesture(ev) {
+      if (!H.on) return;
+      const p = H.pet, u = U0(), [ex, ey] = scr(ev.x === undefined ? .5 : ev.x, ev.y === undefined ? .55 : ev.y), mine = !H.visit;
+      // 安靜模式、凍結：做別的手勢就解除
+      if (GH.quiet && !['quiet', 'aim', 'holdMove', 'pinchMove', 'follow', 'lightHold', 'heartHold'].includes(ev.id) && ev.phase !== 'hold') quietOff();
+      switch (ev.id) {
+        case 'wave': {   // 愣一下 → 發現是你 → 飛奔過來
+          const far = Math.abs(p.a) > .12; p.mode = 'surprise'; p.t = 0; H.fx.push({ e: '!', x: petXY()[0], y: petXY()[1] - u, vx: 0, vy: -30, t: 0, life: 1, s: u * .5 });
+          setTimeout(() => { if (!H.on) return; p.ta = 0; p.mode = 'walk'; p.fast = far ? 4 : 2; p.use = null; petSay(T3(pick([['是你！', "It's you!", 'Là bạn!'], ['我來了～', "I'm coming~", 'Mình đến đây~']])), 2.4); }, far ? 650 : 250);
+          try { Sound.sfx('boop'); } catch (_) { /* ignore */ }
+          if (mine) bond('pet'); break;
+        }
+        case 'heart': GH.glow = 1; GH.heartN++; PL.heartN = (PL.heartN || 0) + 1; save(); try { Sound.chime(1.4); } catch (_) { /* ignore */ }
+          if ((PL.heartN || 0) >= 10) GH.hugStar = 4;   // 解鎖後：牠會抱住旁邊的小星星
+          if (mine) bond('pet'); break;
+        case 'heartHold': GH.glow = 1; if (ev.t2 > 1.2 && Math.random() < .25) { const [px, py] = petXY(); GH.flowers.push({ x: px + rand(-u * 2, u * 2), y: py + rand(-u * .2, u * .6), t: 0, c: ['255,170,210', '255,230,150', '200,180,255', '170,240,210'][(Math.random() * 4) | 0] }); } break;
+        case 'hold': if (ev.phase === 'start' || ev.virtual) { GH.held = { x: ex, y: ey, k: 0, t: 0, v: !!ev.virtual }; petSay(T3(['（輕輕地降落在你手心）', '(lands softly in your palms)', '(nhẹ nhàng đáp xuống tay bạn)']), 2.4); try { Sound.chime(.6); } catch (_) { /* ignore */ } if (ev.virtual) setTimeout(() => { if (GH.held) GH.held.end = 1; }, 4000); } else if (ev.phase === 'end' && GH.held) GH.held.end = 1; break;
+        case 'holdMove': if (GH.held && !GH.held.end) { GH.held.x = ex; GH.held.y = ey; } break;
+        case 'arms': GH.hug = .001; p.ta = 0; p.mode = 'walk'; p.fast = 3; try { Sound.gift(); } catch (_) { /* ignore */ } petSay(T3(['抱抱！', 'Hug!', 'Ôm nào!']), 2); if (mine) bond('pet'); break;
+        case 'quiet': quietOn(); break;
+        case 'stop': if (ev.phase === 'start' || ev.virtual) { GH.freeze = true; try { Sound.faint(); } catch (_) { /* ignore */ } if (ev.virtual) setTimeout(() => { GH.freeze = false; }, 3000); } else if (ev.phase === 'end') GH.freeze = false; break;
+        case 'right': case 'left': { const s2 = ev.id === 'right' ? 1 : -1; p.ta = clamp(p.a + s2 * .55, -.95, .95); p.mode = 'walk'; p.fast = 1.6; p.use = null; p.sniff = 1; H.fx.push({ e: ev.id === 'right' ? '→' : '←', x: petXY()[0], y: petXY()[1] - u, vx: s2 * 40, vy: -20, t: 0, life: .9, s: u * .5 }); break; }
+        case 'up': lookUp(); break;
+        case 'down': p.mode = 'dig'; p.t = 0; for (let i = 0; i < 12; i++) H.fx.push({ e: '·', x: petXY()[0] + rand(-14, 14), y: petXY()[1] + u * .4, vx: rand(-60, 60), vy: rand(-90, -30), t: 0, life: .8, s: u * .6 });
+          if (mine && Math.random() < .3 && (PL.digDay !== day() || (PL.digN || 0) < 3)) { if (PL.digDay !== day()) { PL.digDay = day(); PL.digN = 0; } PL.digN++; const k = roll(pickCat({ nature: 60, sound: 25, pet: 15 }), { maxR: 2 }); if (k) setTimeout(() => { reveal([{ kind: 'item', k, first: add(k), pet: 1 }]); save(); }, 1200); } break;
+        case 'gather': GH.gather = { x: ex, y: ey, lv: ev.level || 1, t: (GH.gather && GH.gather.t) || 0, seen: performance.now() }; if (ev.phase !== 'hold') try { Sound.note(392 * (1 + (ev.level || 1) * .25), { dur: .6, gain: .05 }); } catch (_) { /* ignore */ } break;
+        case 'release': case 'supernova': {
+          const lv = ev.id === 'supernova' ? 5 : (ev.level || (GH.gather && GH.gather.lv) || 1); GH.gather = null;
+          GH.burst.push({ x: ex, y: ey, t: 0, lv }); GH.windT = 1.6; GH.tumble = lv >= 2 ? 1 : 0; H.cr.forEach(c => { c.vx = (c.vx || .02) * -1.5; });
+          try { Sound.whoosh(1.2); if (lv >= 3) Sound.boom(); } catch (_) { /* ignore */ }
+          if (ev.id === 'supernova') { GH.flash = 1; for (let i = 0; i < 40; i++) GH.flowers.push({ x: rand(0, H.cw), y: rand(0, H.ch * .5), t: 0, c: '255,240,200', star: 1 }); }
+          break;
+        }
+        case 'clap': p.mode = 'dance'; p.dance = 'bounce'; p.t = 0; for (let i = 0; i < 6; i++) GH.flowers.push({ x: H.cx + rand(-H.cw * .35, H.cw * .35), y: H.cy - H.R + rand(-u * .4, u * .2), t: 0, c: ['255,170,210', '255,230,150', '255,200,170'][i % 3] }); try { Sound.sfx('pop'); } catch (_) { /* ignore */ } break;
+        case 'raise': p.mode = 'wave'; p.t = 0; for (let i = 0; i < 26; i++) H.fx.push({ e: ['✦', '♪', '♡'][i % 3], x: H.cx + rand(-H.cw * .4, H.cw * .4), y: H.ch * .2, vx: rand(-30, 30), vy: rand(40, 120), t: 0, life: 2, s: u * .4 }); try { Sound.gift(); } catch (_) { /* ignore */ } break;
+        case 'pose': p.mode = 'pose'; p.t = 0; GH.flash = .8; try { Sound.sfx('tick'); Sound.chime(1); } catch (_) { /* ignore */ } if (mine && !PL.posed) { PL.posed = 1; S.mem.unshift({ e: '📷', zh: `和 ${petNm()} 拍了一張照片`, en: `Took a photo with ${petNm()}`, w: '', at: Date.now() }); save(); } break;
+        case 'circle': GH.ring = 1; p.mode = 'spin'; p.t = 0; try { Sound.chime(.9); } catch (_) { /* ignore */ } break;
+        case 'line': case 'createStarDraw': if (mine && ev.path && ev.path.length > 6) { const pts = ev.path.filter((q, i) => i % Math.ceil(ev.path.length / 10) === 0).map(q => [+(q[0]).toFixed(3), +(q[1] * .7).toFixed(3)]); PL.consts.unshift({ pts, at: Date.now(), star: ev.id === 'createStarDraw' }); PL.consts = PL.consts.slice(0, 6); save(); GH.newConst = 1; try { Sound.gift(); } catch (_) { /* ignore */ } } break;
+        case 'near': GH.orb = { x: ex, y: ey, r: (GH.orb ? GH.orb.r : 30) * (ev.dir === 'in' ? .7 : 1.5), t: 0 }; break;
+        case 'moon': GH.moon = 1; lookUp('moon'); break;
+        case 'createStar': GH.star = { x: ex, y: ey, t: 0 }; if (mine) { PL.consts.unshift({ pts: [[ev.x || .5, (ev.y || .5) * .7]], at: Date.now(), star: 1 }); save(); memOnce('createStar', '✦', '和朋友指尖相碰，產生了一顆星', 'Touched fingertips with a friend and made a star'); } try { Sound.ding(1); } catch (_) { /* ignore */ } break;
+        case 'sharedHeart': GH.glow = 1; GH.bigHeart = 1; memOnce('sharedHeart', '💞', '和朋友一起完成了一顆愛心', 'Made a heart together with a friend'); try { Sound.gift(); } catch (_) { /* ignore */ } break;
+        case 'sharedLight': case 'lightHold': GH.orb = { x: H.cw / 2, y: H.ch * .5, r: 20 + (ev.level || .5) * 90, t: 0, light: 1 }; if (ev.id === 'sharedLight') memOnce('sharedLight', '🤲', '和朋友一起捧著一道光', 'Held a light together with a friend'); break;
+        case 'highfive': GH.burst.push({ x: ex, y: ey, t: 0, lv: 3, star: 1 }); GH.tumble = 1.4; memOnce('highfive', '✋', '和朋友 High Five！寵物都被震飛了', 'High-fived a friend — the pets went flying!'); try { Sound.boom(); } catch (_) { /* ignore */ } break;
+        case 'follow': GH.follow = { vx: ev.vx, vy: ev.vy, t: 0 }; break;
+        case 'constellation': GH.ring = 1; GH.newConst = 1; PL.consts.unshift({ pts: [[.3, .2], [.42, .12], [.55, .18], [.66, .1], [.75, .22]], at: Date.now(), star: 1 }); save(); break;
+        case 'pinch': { const s3 = (H.skyStars || []).find(st2 => Math.hypot(st2.x - ex, st2.y - ey) < 46); if (s3) { GH.grab = s3; s3.held = 1; try { Sound.sfx('pop', { p: 1.4 }); } catch (_) { /* ignore */ } } break; }
+        case 'pinchMove': if (GH.grab) { GH.grab.x = ex; GH.grab.y = ey; } break;
+        case 'drop': if (GH.grab) { const s4 = GH.grab; GH.grab = null; s4.held = 0; s4.pop = 1; GH.burst.push({ x: s4.x, y: s4.y, t: 0, lv: 1, star: 1 }); try { Sound.sfx('pop'); } catch (_) { /* ignore */ }
+          // 放在寵物身上：牠發光；放在植物上：植物長大一點
+          const [px, py] = petXY(); if (Math.hypot(px - s4.x, py - s4.y) < 70) { GH.glow = 1; bond('pet'); } else { const o = (S.placed || []).find(o2 => o2._p && Math.hypot(o2._p[0] - s4.x, o2._p[1] - s4.y) < 60); if (o && o.k === 'seed') { activity('care'); H.fx.push({ x: ra(o.a), burst: 1, t: 0 }); } } } break;
+        default: break;
+      }
+    }
+    function memOnce(k, e, zh, en) { GX.st().mem = GX.st().mem || {}; if (GX.st().mem[k]) return; GX.st().mem[k] = Date.now(); GX.set('mem', GX.st().mem); S.mem.unshift({ e, zh, en, w: '', at: Date.now() }); save(); reveal([{ kind: 'custom', e, h: L('💞 新的手勢回憶', '💞 A new gesture memory', { vi: '💞 Ký ức cử chỉ mới' }), n: L(zh, en), s: fmtDate() }]); }
+    function quietOn() { GH.quiet = true; H.pet.mode = 'nap'; H.pet.t = 0; try { Sound.scape(Object.fromEntries(Object.entries(S.mix).map(([k, v]) => [k, v * .35]))); } catch (_) { /* ignore */ } say(L('Quiet Mode：世界一起安靜下來', 'Quiet Mode — the world grows quiet', { vi: 'Chế độ yên tĩnh — thế giới lắng xuống' }), 3); clearTimeout(GH.qT); GH.qT = setTimeout(quietOff, 40000); }
+    function quietOff() { if (!GH.quiet) return; GH.quiet = false; clearTimeout(GH.qT); try { Sound.scape(S.mixOn !== false && Object.keys(S.mix).some(k => S.mix[k] > 0) ? S.mix : null); } catch (_) { /* ignore */ } if (H.pet.mode === 'nap') { H.pet.mode = 'idle'; H.pet.t = 0; } }
+    // 指向天空：鏡頭抬高，可能發現流星、宇宙鯨魚、特殊的月亮、隱藏的星座
+    function lookUp(force) {
+      GH.look = .001; H.pet.mode = 'lookup'; H.pet.t = 0;
+      GH.lookEv = force || pick(['meteor', 'whale', 'moon', 'const', 'meteor']); GH.lookT = 0;
+      const nmz = { meteor: ['一顆流星！', 'A shooting star!', 'Sao băng!'], whale: ['是宇宙鯨魚……', 'A cosmic whale…', 'Cá voi vũ trụ…'], moon: ['今天的月亮好特別。', 'The moon looks special tonight.', 'Trăng hôm nay thật đặc biệt.'], const: ['那邊有一個藏起來的星座。', "There's a hidden constellation.", 'Có một chòm sao ẩn ở đó.'] }[GH.lookEv];
+      setTimeout(() => { if (H.on) petSay(T3(nmz), 3); }, 1200);
+      if (!H.visit && GH.lookEv === 'whale' && !has('whale') && Math.random() < .2) { add('whale'); setTimeout(() => reveal([{ kind: 'hatch', k: 'whale' }]), 3000); }
+    }
+    // 每一幀：手勢造成的效果
+    function gestureFx(dt) {
+      const u = U0(), t = H.t;
+      GH.glow = Math.max(0, GH.glow - dt * .5); GH.flash = Math.max(0, GH.flash - dt * 1.5); GH.ring = Math.max(0, GH.ring - dt * .25); GH.moon = Math.max(0, GH.moon - dt * .08); GH.windT = Math.max(0, (GH.windT || 0) - dt); GH.tumble = Math.max(0, GH.tumble - dt); GH.hugStar = Math.max(0, GH.hugStar - dt);
+      if (GH.gather && performance.now() - GH.gather.seen > 400) GH.gather = null;
+      g.save();
+      // 抓得到的星星（天上幾顆比較亮的）
+      if (!H.skyStars) H.skyStars = Array.from({ length: 6 }, (_, i) => ({ x: H.cw * (.15 + i * .14), y: H.ch * (.18 + (i % 3) * .07), ph: i }));
+      H.skyStars.forEach(s5 => { if (s5.pop) { s5.pop += dt; if (s5.pop > 3) { s5.pop = 0; s5.x = H.cw * rand(.1, .9); s5.y = H.ch * rand(.12, .35); } return; } const tw = .7 + .3 * Math.sin(t * 2 + s5.ph); g.globalCompositeOperation = 'lighter'; const gr = g.createRadialGradient(s5.x, s5.y, 0, s5.x, s5.y, 16 * tw); gr.addColorStop(0, 'rgba(255,248,220,.9)'); gr.addColorStop(1, 'rgba(255,248,220,0)'); g.fillStyle = gr; g.beginPath(); g.arc(s5.x, s5.y, 16 * tw, 0, TAU); g.fill(); g.globalCompositeOperation = 'source-over'; IVIcon.draw(g, 'star', s5.x, s5.y, s5.held ? 26 : 16); });
+      // 你畫的星座
+      PL.consts.forEach((c, ci) => {
+        const pts = c.pts.map(q => [q[0] * H.cw, q[1] * H.ch]); g.globalCompositeOperation = 'lighter';
+        g.strokeStyle = `rgba(210,220,255,${.35 + (ci === 0 && GH.newConst ? .3 : 0)})`; g.lineWidth = 1.2; g.beginPath(); pts.forEach((q, i) => i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1])); g.stroke();
+        pts.forEach(q => { const gr = g.createRadialGradient(q[0], q[1], 0, q[0], q[1], 7); gr.addColorStop(0, 'rgba(255,250,230,.95)'); gr.addColorStop(1, 'rgba(255,250,230,0)'); g.fillStyle = gr; g.beginPath(); g.arc(q[0], q[1], 7, 0, TAU); g.fill(); });
+        g.globalCompositeOperation = 'source-over';
+      });
+      GH.newConst = Math.max(0, (GH.newConst || 0) - dt * .3);
+      // 抬頭看天空的事件
+      if (GH.look > 0) {
+        GH.lookT += dt; const k = GH.lookT;
+        if (GH.lookEv === 'meteor' && k > 1) { const q = clamp((k - 1) / 1.2); g.globalCompositeOperation = 'lighter'; const sx = H.cw * (.9 - q * .7), sy = H.ch * (.05 + q * .25), gr = g.createLinearGradient(sx, sy, sx + 120, sy - 50); gr.addColorStop(0, `rgba(255,250,235,${1 - q})`); gr.addColorStop(1, 'rgba(255,250,235,0)'); g.strokeStyle = gr; g.lineWidth = 3; g.beginPath(); g.moveTo(sx, sy); g.lineTo(sx + 120, sy - 50); g.stroke(); g.globalCompositeOperation = 'source-over'; }
+        if (GH.lookEv === 'whale' && k > .8) { const q = clamp((k - .8) / 4); g.save(); g.globalAlpha = Math.sin(q * Math.PI) * .9; IVIcon.draw(g, 'whale', H.cw * (1.1 - q * 1.2), H.ch * .16 + Math.sin(k * 2) * 8, u * 3.2); g.restore(); }
+        if (GH.lookEv === 'const' && k > 1) { const q = clamp((k - 1) / 1.5), P2 = [[.6, .1], [.68, .16], [.77, .12], [.84, .2], [.78, .27]]; g.globalCompositeOperation = 'lighter'; g.strokeStyle = `rgba(200,220,255,${q * .7})`; g.lineWidth = 1.5; g.beginPath(); P2.forEach((q2, i) => i ? g.lineTo(q2[0] * H.cw, q2[1] * H.ch) : g.moveTo(q2[0] * H.cw, q2[1] * H.ch)); g.stroke(); g.globalCompositeOperation = 'source-over'; }
+        if (k > 4.5) { GH.look = 0; if (H.pet.mode === 'lookup') H.pet.mode = 'idle'; }
+      }
+      if (GH.moon > 0 || (GH.look > 0 && GH.lookEv === 'moon')) { const a = Math.max(GH.moon, .8 * (GH.look > 0 ? 1 : 0)), mx = H.cw * .2, my = H.ch * .2, r = u * .7 * (1 + a * .4); g.globalCompositeOperation = 'lighter'; const gr = g.createRadialGradient(mx, my, r * .3, mx, my, r * 3); gr.addColorStop(0, `rgba(255,240,210,${.5 * a})`); gr.addColorStop(1, 'rgba(255,240,210,0)'); g.fillStyle = gr; g.beginPath(); g.arc(mx, my, r * 3, 0, TAU); g.fill(); g.fillStyle = `rgba(255,250,235,${.85 * a})`; g.beginPath(); g.arc(mx, my, r, 0, TAU); g.fill(); g.globalCompositeOperation = 'source-over'; }
+      // 光花
+      for (let i = GH.flowers.length - 1; i >= 0; i--) { const f = GH.flowers[i]; f.t += dt; if (f.t > (f.star ? 2.5 : 3.2)) { GH.flowers.splice(i, 1); continue; } const k2 = Math.sin(clamp(f.t / 3) * Math.PI); if (f.star) { f.y += 120 * dt; g.globalCompositeOperation = 'lighter'; g.fillStyle = `rgba(${f.c},${k2})`; g.beginPath(); g.arc(f.x, f.y, 2.4, 0, TAU); g.fill(); g.globalCompositeOperation = 'source-over'; continue; } g.save(); g.translate(f.x, f.y); g.globalAlpha = k2; g.globalCompositeOperation = 'lighter'; for (let p2 = 0; p2 < 5; p2++) { const an = p2 * TAU / 5 + f.t; g.fillStyle = `rgba(${f.c},.75)`; g.beginPath(); g.ellipse(Math.cos(an) * 7, Math.sin(an) * 7, 6, 3.5, an, 0, TAU); g.fill(); } g.fillStyle = 'rgba(255,255,230,.9)'; g.beginPath(); g.arc(0, 0, 3, 0, TAU); g.fill(); g.restore(); }
+      // 握拳：星塵往手聚集
+      if (GH.gather) { const G2 = GH.gather; G2.t += dt; g.globalCompositeOperation = 'lighter'; const n = 18 * G2.lv; for (let i = 0; i < n; i++) { const a = i / n * TAU + t * 2, rr = (1 - ((t * .8 + i / n) % 1)) * u * 3; g.fillStyle = `rgba(${GX.trailCol().join(',')},.8)`; g.beginPath(); g.arc(G2.x + Math.cos(a) * rr, G2.y + Math.sin(a) * rr, 2, 0, TAU); g.fill(); } const gr = g.createRadialGradient(G2.x, G2.y, 0, G2.x, G2.y, 20 + G2.lv * 14); gr.addColorStop(0, 'rgba(255,240,200,.8)'); gr.addColorStop(1, 'rgba(255,240,200,0)'); g.fillStyle = gr; g.beginPath(); g.arc(G2.x, G2.y, 20 + G2.lv * 14, 0, TAU); g.fill(); g.globalCompositeOperation = 'source-over'; }
+      // 放開：WHOOSH 衝擊波
+      for (let i = GH.burst.length - 1; i >= 0; i--) { const b = GH.burst[i]; b.t += dt; if (b.t > 1.4) { GH.burst.splice(i, 1); continue; } const k3 = b.t / 1.4, R2 = (60 + b.lv * 70) * Math.sqrt(k3) * (u / 40); g.globalCompositeOperation = 'lighter'; g.strokeStyle = `rgba(255,236,200,${1 - k3})`; g.lineWidth = 3 * (1 - k3) + 1; g.beginPath(); g.arc(b.x, b.y, R2, 0, TAU); g.stroke(); for (let s6 = 0; s6 < 12 + b.lv * 4; s6++) { const a = s6 / (12 + b.lv * 4) * TAU; g.fillStyle = `rgba(${b.star ? '255,236,170' : GX.trailCol().join(',')},${1 - k3})`; g.beginPath(); g.arc(b.x + Math.cos(a) * R2 * 1.1, b.y + Math.sin(a) * R2 * 1.1, 2.5, 0, TAU); g.fill(); } g.globalCompositeOperation = 'source-over'; }
+      // 雙手之間的光／一起捧光
+      if (GH.orb) { GH.orb.t += dt; const o = GH.orb, a = clamp(1 - (o.t - 2) / 1.5); if (a <= 0) GH.orb = null; else { g.globalCompositeOperation = 'lighter'; const gr = g.createRadialGradient(o.x, o.y, 0, o.x, o.y, o.r * 1.6); gr.addColorStop(0, `rgba(255,248,225,${.9 * a})`); gr.addColorStop(.4, `rgba(255,226,170,${.4 * a})`); gr.addColorStop(1, 'rgba(255,226,170,0)'); g.fillStyle = gr; g.beginPath(); g.arc(o.x, o.y, o.r * 1.6, 0, TAU); g.fill(); g.globalCompositeOperation = 'source-over'; } }
+      // 畫圓：一圈光
+      if (GH.ring > 0) { const [px, py] = petXY(); g.globalCompositeOperation = 'lighter'; g.strokeStyle = `rgba(220,200,255,${GH.ring})`; g.lineWidth = 2; g.beginPath(); g.ellipse(px, py, u * 1.6, u * .55, 0, 0, TAU); g.stroke(); for (let i = 0; i < 8; i++) { const a = t * 1.5 + i * TAU / 8; g.fillStyle = `rgba(255,240,220,${GH.ring})`; g.beginPath(); g.arc(px + Math.cos(a) * u * 1.6, py + Math.sin(a) * u * .55, 2.4, 0, TAU); g.fill(); } g.globalCompositeOperation = 'source-over'; }
+      // 碰星：中間產生一顆星
+      if (GH.star) { GH.star.t += dt; const k4 = GH.star.t; if (k4 > 4) GH.star = null; else { const s7 = u * (.4 + Math.min(1, k4 * 2) * .6); g.globalCompositeOperation = 'lighter'; const gr = g.createRadialGradient(GH.star.x, GH.star.y, 0, GH.star.x, GH.star.y, s7 * 3); gr.addColorStop(0, 'rgba(255,240,200,.8)'); gr.addColorStop(1, 'rgba(255,240,200,0)'); g.fillStyle = gr; g.beginPath(); g.arc(GH.star.x, GH.star.y, s7 * 3, 0, TAU); g.fill(); g.globalCompositeOperation = 'source-over'; IVIcon.draw(g, 'glowstar', GH.star.x, GH.star.y - Math.max(0, k4 - 2) * 40, s7); } }
+      // 共同愛心
+      if (GH.bigHeart) { GH.bigHeart = Math.max(0, GH.bigHeart - dt * .3); g.globalAlpha = Math.min(1, GH.bigHeart * 1.5); IVIcon.draw(g, 'heartspark', H.cw / 2, H.ch * .4, u * 2.4 * (1 + (1 - GH.bigHeart) * .3)); g.globalAlpha = 1; }
+      g.restore();
+      if (GH.flash > 0) { g.fillStyle = `rgba(255,252,240,${GH.flash * .5})`; g.fillRect(0, 0, H.cw, H.ch); }
+      if (GH.quiet) { g.fillStyle = 'rgba(10,8,30,.28)'; g.fillRect(0, 0, H.cw, H.ch); }
+    }
+    // 手勢盤＋手勢圖鑑
+    function gesturePanel() {
+      showPanel(L('🖐️ 手勢', '🖐️ Gestures', { vi: '🖐️ Cử chỉ' }), body => {
+        body.appendChild(el('p', 'hm-count', L('寵物沒有嘴巴。開啟相機，用手跟牠說話；沒有相機也可以點下面的手勢。相機只在你的手機裡判斷手勢，不錄影、不上傳。', 'Your pet has no mouth. Turn on the camera and talk with your hands — or tap a gesture below. The camera only reads gestures on your device; nothing is recorded or uploaded.', { vi: 'Thú cưng không có miệng. Bật camera để nói chuyện bằng tay — hoặc chạm vào cử chỉ bên dưới. Camera chỉ đọc cử chỉ trên máy, không ghi hình, không tải lên.' })));
+        const cam = el('button', GX.active ? 'ghost' : 'main', GX.active ? L('關閉相機手勢', 'Turn off camera gestures', { vi: 'Tắt cử chỉ camera' }) : L('🖐️ 開啟相機手勢', '🖐️ Turn on camera gestures', { vi: '🖐️ Bật cử chỉ camera' })); cam.type = 'button'; cam.style.margin = '.4rem auto .8rem'; cam.style.display = 'block';
+        cam.addEventListener('click', async () => {
+          if (GX.active) { GX.stop(); root.classList.remove('gx'); gesturePanel(); return; }
+          cam.disabled = true; cam.textContent = L('開啟中…', 'Starting…');
+          try { await GX.start(4); root.classList.add('gx'); panel.classList.remove('on'); say(L('對著相機揮揮手，寵物會發現你 ✦', 'Wave at the camera — your pet will notice you ✦', { vi: 'Vẫy tay trước camera — thú cưng sẽ nhận ra bạn ✦' }), 3.5); }
+          catch (e) { console.warn('gx camera:', e); cam.disabled = false; cam.textContent = L('相機暫時無法使用，先用下面的手勢盤', 'Camera unavailable — use the gesture pad below'); }
+        });
+        body.appendChild(cam);
+        const padBox = el('div', 'gx-pad'); body.appendChild(padBox);
+        GX.pad(padBox, GX.BOOK.map(b => b[0]).filter(id => !['line', 'createStar', 'sharedHeart', 'sharedLight', 'constellation', 'supernova'].includes(id)), id => { panel.classList.remove('on'); setTimeout(() => GX.inject(id, { x: .5, y: id === 'hold' ? .7 : .55 }), 250); });
+        body.appendChild(el('p', 'hm-count', L('— 手勢圖鑑 —', '— Gesture Book —', { vi: '— Sổ tay cử chỉ —' })));
+        GX.bookPanel(body, el);
+      });
+    }
+    GX.on(ev => { if (H.on) homeGesture(ev); });
     $('hmClose').addEventListener('click', () => close());
     $('hmBook').addEventListener('click', () => book());
     $('hmSound').addEventListener('click', () => sounds());
     $('hmGift').addEventListener('click', () => giftPanel());
     $('hmTitleB').addEventListener('click', () => titles());
     $('hmPal').addEventListener('click', () => palPanel());
+    $('hmGest').addEventListener('click', () => gesturePanel());
     $('hmCardB').addEventListener('click', () => IVCard.open());
     $('hmEdit').addEventListener('click', () => { H.edit = !H.edit; ui(); say(H.edit ? L('拖曳東西換位置，拖到最下面可以收起來', 'Drag things to move them, or to the bottom to store them') : L('完成擺放 ✦', 'Done ✦')); });
     $('hmPClose').addEventListener('click', () => panel.classList.remove('on'));
@@ -15235,7 +15769,7 @@ function petSVG(i, opt = {}) {
 
     const hooks = {};
     // 自動測試用
-    if (/[?&]debug=1/.test(location.search)) window.__cos = { S: () => S, add, discover, activity, open, placeItem, receive, C, H: () => H, care, huntStart, playMem, MEMS, giveFrag, receiveSound, sleepMode, palPanel, advFind };
+    if (/[?&]debug=1/.test(location.search)) window.__cos = { GH: () => GH, gesturePanel, S: () => S, add, discover, activity, open, placeItem, receive, C, H: () => H, care, huntStart, playMem, MEMS, giveFrag, receiveSound, sleepMode, palPanel, advFind };
     return {
       discover, receive, open, close, visit, grantAll, bind(h) { Object.assign(hooks, h); },
       get on() { return H.on; }, title: () => titleOf(S.title), stats, mixOn: () => Object.keys(S.mix).some(k => S.mix[k] > 0),

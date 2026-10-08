@@ -12780,8 +12780,13 @@ function petSVG(i, opt = {}) {
       me.x = sp[0]; me.y = sp[1]; me.vx = me.vy = 0; me.f = teamOf(mySlot) ? -1 : 1;
       ball.x = M.W / 2; ball.y = M.H / 2; ball.vx = ball.vy = 0;
       // 斷線就把自己的位置清掉，空位會由星靈補上
-      disc = ['slots/' + mySlot, 'p/' + rt.uid, 's/' + rt.uid].map(k => D.onDisconnect(D.ref(db, R + k)));
-      disc.forEach(d => d.remove());
+      armDisc();
+      // 網路斷掉再連回來（手機切到背景、換網路、訊號不好）：伺服器已經把位置清掉了，重新坐回去
+      wasOff = false;
+      offs.push(D.onValue(D.ref(db, '.info/connected'), s => {
+        if (s.val()) { if (wasOff) { wasOff = false; rejoin(); } }
+        else if (on && !ended) { wasOff = true; say(L('訊號不穩，重新連線中⋯', 'Signal lost — reconnecting…'), 30); }
+      }));
       const sub = (path, fn) => offs.push(D.onValue(D.ref(db, R + path), s => fn(s.val())));
       sub('host', v => { room.host = v || ''; if (isHost() && !hostW) becomeHost(); if (!isHost()) hostW = null; });
       sub('state', v => { room.state = v || ''; ui(); });
@@ -12798,8 +12803,29 @@ function petSVG(i, opt = {}) {
       offs.push(D.onChildAdded(D.ref(db, R + 'items'), s => { const fresh = !claimed[s.key]; claimed[s.key] = s.val(); if (fresh && s.val() !== rt.uid) remoteClaim(+s.key, s.val()); }));
       send(true);
     }
-    // 被清出房間（例如斷線太久，位置被別人拿走）
-    function checkMe() { if (on && code && rt && !ended && room.slots[mySlot] !== rt.uid && !joining) { say(L('連線中斷，已經離開房間', 'Disconnected from the room'), 3); setTimeout(() => close(), 1500); } }
+    // onDisconnect 每次連線只會觸發一次：重新連上之後要再登記一次
+    function armDisc() {
+      const { D, db } = rt;
+      disc.forEach(d => d.cancel().catch(() => {}));
+      disc = ['slots/' + mySlot, 'p/' + rt.uid, 's/' + rt.uid].map(k => D.onDisconnect(D.ref(db, R + k)));
+      disc.forEach(d => d.remove().catch(e => console.warn('onDisconnect:', e)));
+    }
+    // 位置不見了（斷線時伺服器清掉、或被當成離開）：先試著坐回原本的位置，滿了才換一個，真的沒位置才離開
+    let wasOff = false, rejoining = false;
+    async function rejoin() {
+      if (!on || !code || !rt || ended || gone || joining || rejoining) return;
+      rejoining = true; const c = code;
+      try {
+        let i = await takeSlot(c, mySlot); if (i < 0) i = await takeSlot(c);
+        if (c !== code || !on) return;
+        if (i < 0) { say(L('連線中斷，房間已經滿了', 'Disconnected — the room is full now'), 3); setTimeout(() => close(), 1500); return; }
+        if (i !== mySlot) { const sp = spawnOf(i); me.x = sp[0]; me.y = sp[1]; me.vx = me.vy = 0; me.f = teamOf(i) ? -1 : 1; }
+        mySlot = i; armDisc(); send(true); ui();
+        say(L('重新連上了 ✦', 'Reconnected ✦'), 1.6);
+      } catch (e) { console.warn('rejoin:', e); if (c === code && on) { say(L('連線中斷，已經離開房間', 'Disconnected from the room'), 3); setTimeout(() => close(), 1500); } }
+      finally { rejoining = false; }
+    }
+    function checkMe() { if (on && code && rt && !ended && room.slots[mySlot] !== rt.uid && !joining && !wasOff) rejoin(); }
 
     // 別人接到流星／撿到顏料炸彈：在我的畫面上也演出來
     function remoteClaim(i, who) {
@@ -14167,7 +14193,7 @@ function petSVG(i, opt = {}) {
         const { D, db } = rt, old = mySlot;
         await D.set(D.ref(db, R + 'slots/' + slot), rt.uid);
         await D.update(D.ref(db), { [R + 'p/' + rt.uid + '/slot']: String(slot), [R + 'slots/' + old]: null });
-        mySlot = slot; disc.forEach(d => d.cancel()); disc = ['slots/' + slot, 'p/' + rt.uid, 's/' + rt.uid].map(k => D.onDisconnect(D.ref(db, R + k))); disc.forEach(d => d.remove());
+        mySlot = slot; armDisc();
         const sp = spawnOf(slot); me.x = sp[0]; me.y = sp[1]; me.f = teamOf(slot) ? -1 : 1; ui();
       } catch (e) { console.warn('switch:', e); }
       finally { joining = false; }
@@ -14283,6 +14309,8 @@ function petSVG(i, opt = {}) {
         items: items.filter(it => !claimed[it.i] && gt() >= it.at).slice(0, 40).map(it => [it.i, r1(it.x), r1(it.y)]) });
       window.__arIn = (x, y) => { input.x = x; input.y = y; };
       window.__arAb = () => useAbility();
+      window.__arPlay = (m, p) => play(m, !!p); window.__arJoin = c => join(c); window.__arPub = () => publishMe();
+      window.__arNet = up => rt.D[up ? 'goOnline' : 'goOffline'](rt.db);   // 模擬斷線／重新連上
       window.__arLane = l => hitLane(l);
       window.__arBubbles = () => { const t = gt(); return notes.filter(n => !n.hit && n.t - t > -.1 && n.t - t < .6).map(n => [Math.round(n.bx * cw), Math.round(n.by * ch), +(n.t - t).toFixed(3)]); };
       window.__arNotes = () => { const t = gt(); return notes.filter(n => !n.hit && n.t - t > -.1 && n.t - t < .6).map(n => [n.l, +(n.t - t).toFixed(3)]); };
